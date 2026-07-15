@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- Poddar Pipes Brand Playbook — exact palette ----
+     Blue #171796 (primary, dominant) · Orange #F28000 (CTA/accent/logo)
+     Gold #e0af41 (sparing premium accent) · White/Warm Grey (space)
+     Ratio guide: Blue 50% · Orange 20% · White 20% · Gold 10% */
+  --color-ink: #14134f;
+  --color-ink-2: #1a1962;
+  --color-ink-3: #201f76;
+
+  /* Primary Blue */
+  --color-ocean-950: #0c0b3f;
+  --color-ocean-900: #100f5c;
+  --color-ocean-700: #14137e;
+  --color-ocean-600: #171796;
+  --color-ocean-500: #2624ad;
+  --color-ocean-400: #5654c4;
+  --color-ocean-300: #9c9bdc;
+
+  /* Orange — CTA / highlight / active-state / logo accent only */
+  --color-amber-700: #c2650a;
+  --color-amber-600: #f28000;
+  --color-amber-500: #f5951f;
+  --color-amber-300: #f9c078;
+  --color-amber-100: #fde8cc;
+
+  /* Gold — rare premium accent (stamps, certifications, containers) */
+  --color-gold-600: #b0812e;
+  --color-gold-500: #e0af41;
+  --color-gold-300: #ebc263;
+
+  /* Secondary: Light Blue (photography backgrounds) */
+  --color-skyline: #aceffa;
+
+  /* ---- Rebrand accent: "Flow" cyan — water in motion. Expands the palette
+     alongside the dominant blue; used for schematic lines, flow highlights,
+     and accents on dark (ink) surfaces where it clears AA. Never as small
+     text on white (same rule as orange). ---- */
+  --color-flow-500: #17b6d8;
+  --color-flow-400: #38c6e4;
+  --color-flow-300: #7bd9ee;
+  --color-flow-200: #b6ecf7;
+
+  /* White / Warm Grey surfaces */
+  --color-paper: #ffffff;
+  --color-paper-2: #f4f2ee;
+  --color-paper-3: #e9e6df;
+
+  /* Near-black + text scale */
+  --color-slate-50: #f6f6f6;
+  --color-slate-200: #cfcfd2;
+  --color-slate-400: #86868c;
+  --color-slate-600: #55555c;
+  --color-slate-800: #292728;
+  --color-slate-900: #1c1a1f;
+
+  /* ---- Single-typeface system — Anek Devanagari ----
+     Every role (display, body, technical labels) resolves to one family;
+     hierarchy comes from weight and size, not contrasting typefaces. Anek is a
+     variable font covering Latin + Devanagari and many Indic scripts, provided
+     by next/font as --font-anek in app/[locale]/layout.tsx. --font-mono keeps
+     its name for the .tech-label / mono utilities (uppercase + tracking give
+     labels their character), but is the same Anek family. */
+  --font-display: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- Type scale (Brand Playbook) — available as text-display, text-h1 …
+     text-caption utilities alongside Tailwind's default scale. Existing
+     headings mostly use the default scale at equivalent sizes already;
+     these named tokens are here for new/Playbook-literal usage. ---- */
+  --text-display: 3.5rem; /* 56px */
+  --text-display--line-height: 1.05;
+  --text-h1: 3rem; /* 48px */
+  --text-h1--line-height: 1.1;
+  --text-h2: 2.5rem; /* 40px */
+  --text-h2--line-height: 1.15;
+  --text-h3: 2rem; /* 32px */
+  --text-h3--line-height: 1.2;
+  --text-h4: 1.5rem; /* 24px */
+  --text-h4--line-height: 1.3;
+  --text-body-lg: 1.125rem; /* 18px */
+  --text-body-lg--line-height: 1.6;
+  --text-body: 1rem; /* 16px */
+  --text-body--line-height: 1.6;
+  --text-caption: 0.75rem; /* 12px */
+  --text-caption--line-height: 1.4;
+
+  /* ---- Radius — pill added alongside Tailwind's default scale ---- */
+  --radius-pill: 9999px;
+
+  --animate-flow: flow 3.5s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 9s ease-in-out infinite;
+  --animate-marquee: marquee 32s linear infinite;
+  --animate-marquee-reverse: marquee-reverse 32s linear infinite;
+  --animate-pipe-flow: pipe-flow 1.4s linear infinite;
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -200;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+  /* Marquee tracks render their children twice, so a -50% shift is one
+     seamless loop. Kept in @theme so the keyframes ship even when the
+     animation is applied via inline style (Marquee.tsx). */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes marquee-reverse {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  /* Water moving through the distribution rail — the striped gradient scrolls
+     along the pipe. Applied to a background-image bar in PipeSchematicNav. */
+  @keyframes pipe-flow {
+    to {
+      background-position: 28px 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-slate-200);
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-slate-800);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-slate-900);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: var(--color-ocean-400);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ocean-500);
+    outline-offset: 3px;
+  }
+}
+
+@layer utilities {
+  .container-edge {
+    @apply mx-auto w-full max-w-[1400px] px-6 md:px-10 xl:px-16;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(91, 100, 114, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(91, 100, 114, 0.08) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .bg-grid-dark {
+    background-image:
+      linear-gradient(to right, rgba(133, 174, 222, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(133, 174, 222, 0.08) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Blueprint backdrop — fine minor grid + heavier major grid every 5th line,
+     echoing engineering drawing paper. Sits on ink/navy surfaces. */
+  .bg-blueprint {
+    background-image:
+      linear-gradient(to right, rgba(123, 217, 238, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(123, 217, 238, 0.05) 1px, transparent 1px),
+      linear-gradient(to right, rgba(123, 217, 238, 0.09) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(123, 217, 238, 0.09) 1px, transparent 1px);
+    background-size:
+      28px 28px,
+      28px 28px,
+      140px 140px,
+      140px 140px;
+  }
+
+  /* Technical label — the engineering-drawing voice for eyebrows, spec keys,
+     part codes, and dimensions. */
+  .tech-label {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

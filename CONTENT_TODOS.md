@@ -1,0 +1,137 @@
+# Content TODOs
+
+Real facts and assets still needed before this site can go live. Per the golden rule
+("never invent facts"), every item below is currently either omitted, disabled, or
+rendered as a bracketed placeholder rather than fabricated. Do not fill any of these
+in with invented data — replace with verified information only.
+
+## Resolved since the last pass
+
+Several items previously flagged here turned out to have real source material sitting
+in the user's Downloads folder that just hadn't been pointed to yet:
+
+- **Brand Playbook** — `Brand Playbook_Poddar Pipes_Final_V1.pdf` exists and was read in
+  full (text-extracted). Confirms every color/CTA/boomerang/stamp/container rule already
+  built matches exactly, and corrects one detail: icon construction is a **60×60px canvas
+  with a 4pt stroke** (not 64×64px as a separate internal asset-requirements doc says —
+  the Playbook is the primary source, trust that one). Also confirms Paramount Neo (logo)
+  and Torque (product-unit lockup, e.g. "PODDAR CPVC GOLD") are artwork/typeface assets,
+  never live-typed — matches how the logo is already handled.
+  - Caution: the Playbook's own layout-example pages use generic template filler, not
+    real Poddar facts — e.g. "Manufactured in Gurgaon, India," "+91 98476543210," "since
+    1982," "Wavin Vectus," "Prabhudas Liladhar" (an unrelated stock-broking firm) all
+    appear as mockup copy from the design agency's template library. Don't mistake these
+    for real Poddar facts if referencing this file again.
+  - The Playbook also lists product-unit lockups for "PP-R GOLD" and "PP-RC GOLD" — these
+    aren't among the 6 confirmed real categories and appear in the same section as the
+    generic mockup examples above, so treat as unconfirmed rather than a 7th/8th category
+    until a real PP-R/PP-RC catalogue turns up.
+- **Real Agri Manual** — `Poddar Pipes Agri Manual [27th JUNE].pdf` exists and was read in
+  full. This resolves the earlier IS 4985 data gap: real Class 2 (4 kgf/cm²) / Class 3
+  (6 kgf/cm²) pipe dimensions and IS 7834 fitting classes now power a new **Poddar Agri
+  Gold Pressure Pipes** product entry in `lib/data/products.ts`.
+- **Logo variant #1 confirmed real** — `Orange Logo_Poddar.svg` in Downloads is
+  byte-identical to `public/logo.svg` already in the repo, confirming that's the real
+  Orange-on-White variant, not a placeholder.
+- **Founding history & brand story** — the user supplied the real brand story, "About Us"
+  copy (long/short), and 7 core values directly. This corrected two previously-fabricated
+  facts that had been sitting unflagged in the codebase: the founding year (was "1981" in
+  `lib/data/timeline.ts` and "since 1981" in `components/about/OurStory.tsx` — corrected
+  to **1975**) and the CPVC introduction year (was "2005" — corrected to **1997**, and
+  reframed as Poddar being a CPVC *pioneer* per the user's copy, not just an adopter).
+  "45 years" / "three decades" references across `CompanyOverview.tsx`, `Leadership.tsx`,
+  and `heroSlides.ts` updated to "50 years" / "five decades" to match. Wired into
+  `OurStory.tsx` (About page hero + story body), `CompanyOverview.tsx` (home page), and
+  `MissionVision.tsx` (all 7 core values replaced). Also added `foundingDate: "1975"` to
+  the Organization JSON-LD schema in `app/[locale]/layout.tsx`.
+  - Founder is referred to only as "Mr. Poddar" / "the Poddar family" — no first name or
+    photo given, and it's not confirmed whether he holds (or held) the Managing Director
+    title specifically vs. Chairman/Founder — the copy says "erstwhile owner," implying a
+    past/possibly-different role. Don't assume he's the same person as `lib/data/team.ts`'s
+    `[Managing Director Name]` placeholder without confirming the current title.
+  - The remaining timeline milestone years (1998 SWR, 2012 UGD, 2018 Agri, 2023 facility)
+    were never verified against any real source either — they predate this session's
+    golden-rule enforcement and slipped through unflagged. Only 1975 and 1997 are now
+    confirmed real; the other four remain unverified guesses.
+
+## Still open — brand assets
+
+- **3 of 4 logo variants still missing** — only Orange-on-White exists. Need
+  Orange-on-Blue, White-on-Black, and Black-on-White as SVG files. (`Poddar Icon Logo.dwg`
+  in Downloads is a CAD file, not directly usable on the web without export/conversion —
+  hasn't been opened.)
+- **Torque (product-unit lockup) and Paramount Neo (logo) artwork/fonts** — confirmed
+  needed by the real Playbook, still not present as files. Product category badges
+  ("uPVC", "CPVC", etc.) currently render as plain Anek Devanagari text, not true lockup
+  artwork.
+- **Icon pack** — the Playbook references a "Click here for Icon Pack" link (likely
+  Figma or similar); the hyperlink target wasn't captured by text extraction. Current
+  site uses Lucide icons at a stroke width approximating the 4pt/60px spec, not the
+  brand's own icon pack.
+- Several unopened files in Downloads may contain more real assets and haven't been
+  checked yet: `Poddar Website Templates.fig.zip` (Figma export — likely full mockups),
+  `poddar-pipes-design-system.zip` / `poddar-pipes-website-complete.zip` /
+  `poddar-pipes-corporate-website.zip`, and the `poddar-pipes-hero` / `poddar-pipes-why-poddar`
+  directories (possibly real photography/video for those two homepage sections). Worth
+  opening before assuming photography must stay a TODO.
+
+## Contact & office data
+
+- **Phone numbers** — no verified phone number exists for any office. `lib/data/offices.ts`
+  (all 4 entries), `components/contact/ContactInfo.tsx` all show `+91 [XXXXX XXXXX]`.
+- **Regional office locations** — North/West/South India regional office city, address, and
+  email are bracketed placeholders in `lib/data/offices.ts`. Only the Bengaluru HQ address
+  is real (verified consistently across all 6 real catalogues).
+- **WhatsApp Business number** — `components/shared/WhatsAppButton.tsx` currently renders
+  nothing (returns `null`) rather than link to a fabricated number.
+
+## People
+
+- **Leadership names** — `lib/data/team.ts` has 4 role-only entries with bracketed name
+  placeholders and no photographs.
+
+## Manufacturing facilities
+
+- **Plant cities/states** — `components/about/Facilities.tsx` has 4 placeholder plant
+  city/state entries.
+
+## Statistics / unverified numeric claims
+
+Not sourced from any catalogue or other verified material — inherited placeholder-style
+content, still need verification or removal before launch:
+- "500+ dealers/distributors" (`CompanyOverview.tsx`, `Facilities.tsx` `GlobalPresence`, `WhyChooseUs.tsx`)
+- "28 states with dealer coverage", "22 regional distribution hubs" (`Facilities.tsx`)
+- "50,000+ tonnes annual production capacity" (`CompanyOverview.tsx`)
+
+## Certifications
+
+- ISO 9001 / ISO 14001 claims (`lib/data/certifications.ts`) are asserted without a
+  certificate number or issuing body reference — confirm real numbers or remove. The IS
+  4985/7834/13592/14735/15778/16098 and ASTM D1785/D2466/D2467 entries are sourced
+  directly from real catalogues and don't need further verification.
+
+## Content flagged as needing a real source before writing
+
+- **Hariyali Drip Irrigation Lines** (`lib/data/products.ts`, `p-agri-dripline`) — this
+  entry predates this session's catalogue-verification work and has never been checked
+  against a real Poddar source. The real Agri Manual covers pressure pipes only (no drip
+  emitter product), so Hariyali's IS 13487 standard and spec figures remain unverified,
+  not confirmed real. Leave as-is (removing it would be presumptuous — drip irrigation
+  may well be a real product line) but don't treat its specs as fact-checked the way every
+  other product in the file now is.
+- **Infrastructure Projects** — no real project references, client names, or outcomes
+  exist anywhere in the source material. Needs a real, approved list before this section
+  is built.
+- **Case studies** (`lib/data/blog.ts`) — same problem as the testimonials that were
+  removed in Phase 0: fabricated client names (Regional Water Board, Deshpande AgriFarms,
+  Sundar Developers) with invented outcomes, plus references to non-existent product
+  lines (InfraLine HDPE, FlexiFit). Needs the same treatment — remove or replace with
+  real, approved case studies.
+- **Testimonials** — removed entirely in Phase 0 rather than replaced. Needs real,
+  approved customer quotes before this section comes back.
+- **Photography** — hero video slides (`public/hero/slide-*.mp4`) don't match the asset-
+  requirements doc's spec (WebM, ≤3-5MB — current files are MP4, some up to 25MB) and
+  aren't confirmed as real Poddar footage vs. stock. The asset-requirements doc confirms
+  final photography for "What We Manufacture," "Why Poddar Pipes," "Industries Served,"
+  and other homepage sections is still pending delivery from the design team — current
+  site imagery there is a stand-in, not final.
