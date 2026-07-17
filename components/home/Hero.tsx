@@ -141,7 +141,7 @@ export function Hero() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-2xl"
           >
-            <h1 className="text-balance font-display text-4xl font-light leading-[1.08] text-white sm:text-6xl sm:leading-[1.05]">
+            <h1 className="text-balance font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
               {slide.headingLines.map((line) => (
                 <span key={line} className="block">
                   {line}

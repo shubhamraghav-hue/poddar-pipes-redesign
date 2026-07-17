@@ -4,6 +4,17 @@ import { Link } from "@/i18n/navigation";
 import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 
+/**
+ * Footer color system (kept intentionally small so the section reads as
+ * uniform rather than a patchwork of grey shades):
+ *
+ *   text-slate-200   -> primary text (headings, logo wordmark) — replaces white
+ *   text-slate-400   -> secondary text (body copy, nav links, address)
+ *   text-slate-500   -> tertiary / label text (eyebrow labels, legal line)
+ *   text-slate-600   -> disabled / "coming soon" placeholders only
+ *   flow-300 / flow-500 -> the single brand accent (hover state + top border)
+ *   border-slate-800 -> all dividers (replaces border-white/10)
+ */
 export function Footer() {
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
@@ -31,12 +42,12 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative overflow-hidden border-t-2 border-flow-500/30 bg-ink text-slate-300">
-      <div className="bg-blueprint absolute inset-0 opacity-70" aria-hidden="true" />
+    <footer className="relative overflow-hidden border-t-2 border-flow-500/30 bg-ink text-slate-400">
+      <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
       <div className="container-edge relative py-16">
-        <div className="flex flex-col gap-8 border-b border-white/10 pb-10 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-8 border-b border-slate-800 pb-10 md:flex-row md:items-center md:justify-between">
           <div>
-            <h3 className="font-display text-lg font-medium text-white">{t("newsletterTitle")}</h3>
+            <h3 className="font-display text-lg font-medium text-slate-200">{t("newsletterTitle")}</h3>
             <p className="mt-1.5 max-w-md text-sm text-slate-400">{t("newsletterDescription")}</p>
           </div>
           <NewsletterSignup />
@@ -45,9 +56,13 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-10 pt-12 md:grid-cols-5">
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2.5">
-              <img src="/logo.svg" alt="Poddar Pipes" className="h-9 w-auto" />
+              <img src="/logo.svg" alt="Poddar Pipes" className="h-16 w-auto" />
             </Link>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-slate-400">{t("tagline")}</p>
+            <ul className="mt-5 flex max-w-sm flex-col gap-1.5 text-sm leading-relaxed text-slate-400">
+              <li>4th Floor, 1202, HAL 2nd Stage, Domlur</li>
+              <li>100 Feet Road, Indiranagar, Bengaluru, Karnataka — 560008</li>
+              <li>poddarpipes@gmail.com</li>
+            </ul>
             <div className="mt-6 flex gap-3">
               {/* Social profiles aren't live yet — rendered as non-interactive
                   placeholders (no href, excluded from tab order) rather than
@@ -57,7 +72,7 @@ export function Footer() {
                   key={i}
                   aria-hidden="true"
                   title="Coming soon"
-                  className="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-full border border-white/10 text-slate-600"
+                  className="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-full border border-slate-800 text-slate-600"
                 >
                   <Icon className="h-4 w-4" />
                 </span>
@@ -75,7 +90,7 @@ export function Footer() {
             <ul className="mt-5 flex flex-col gap-3 text-sm">
               {companyLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-flow-300">
+                  <Link href={link.href} className="text-slate-400 transition-colors hover:text-flow-300">
                     {tNav(link.key as never)}
                   </Link>
                 </li>
@@ -90,7 +105,7 @@ export function Footer() {
             <ul className="mt-5 flex flex-col gap-3 text-sm">
               {productLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-flow-300">
+                  <Link href={link.href} className="text-slate-400 transition-colors hover:text-flow-300">
                     {link.label}
                   </Link>
                 </li>
@@ -105,24 +120,16 @@ export function Footer() {
             <ul className="mt-5 flex flex-col gap-3 text-sm">
               {resourceLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-flow-300">
+                  <Link href={link.href} className="text-slate-400 transition-colors hover:text-flow-300">
                     {tNav(link.key as never)}
                   </Link>
                 </li>
               ))}
             </ul>
-            <h4 className="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-slate-500">
-              {t("headOffice")}
-            </h4>
-            <ul className="mt-3 flex flex-col gap-1.5 text-sm text-slate-400">
-              <li>4th Floor, 1202, HAL 2nd Stage, Domlur</li>
-              <li>100 Feet Road, Indiranagar, Bengaluru, Karnataka — 560008</li>
-              <li>poddarpipes@gmail.com</li>
-            </ul>
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-slate-500 md:flex-row">
+        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-8 text-xs text-slate-500 md:flex-row">
           <p>© {new Date().getFullYear()} Poddar Pipes Pvt. Ltd. (CIN: 29AAECO2313F1ZQ). {t("rightsReserved")}</p>
           <div className="flex gap-6">
             {/* No Privacy Policy / Terms pages exist yet — legal copy needs

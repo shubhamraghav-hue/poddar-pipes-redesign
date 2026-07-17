@@ -9,7 +9,7 @@ import { certifications } from "@/lib/data/certifications";
 export function QualityCertifications() {
   return (
     <section className="relative overflow-hidden bg-ink py-24 md:py-32">
-      <div className="bg-blueprint absolute inset-0 opacity-70" aria-hidden="true" />
+      <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
       <div
         className="pointer-events-none absolute -right-40 top-1/4 h-96 w-96 rounded-full bg-flow-500/10 blur-3xl"
         aria-hidden="true"

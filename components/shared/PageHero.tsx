@@ -38,7 +38,7 @@ export function PageHero({
 
   return (
     <section className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-24 md:pt-48">
-      <div className="bg-blueprint absolute inset-0 opacity-70" aria-hidden="true" />
+      <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
       <div
         className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-flow-500/10 blur-3xl"
         aria-hidden="true"

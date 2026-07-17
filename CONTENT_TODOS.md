@@ -129,8 +129,8 @@ content, still need verification or removal before launch:
   real, approved case studies.
 - **Testimonials** — removed entirely in Phase 0 rather than replaced. Needs real,
   approved customer quotes before this section comes back.
-- **Photography** — hero video slides (`public/hero/slide-*.mp4`) don't match the asset-
-  requirements doc's spec (WebM, ≤3-5MB — current files are MP4, some up to 25MB) and
+- **Photography** — hero video slides (`public/hero/slide-*.webm`) don't match the asset-
+  requirements doc's spec (WebM, ≤3-5MB — current files are webm, some up to 25MB) and
   aren't confirmed as real Poddar footage vs. stock. The asset-requirements doc confirms
   final photography for "What We Manufacture," "Why Poddar Pipes," "Industries Served,"
   and other homepage sections is still pending delivery from the design team — current

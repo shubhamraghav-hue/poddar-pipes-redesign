@@ -9,6 +9,7 @@ import {
   Waves,
   HardHat,
   ShieldCheck,
+  Hotel,
 } from "lucide-react";
 
 export interface Industry {
@@ -101,6 +102,15 @@ export const industries: Industry[] = [
     icon: ShieldCheck,
     image:
       "https://images.unsplash.com/photo-1590496793929-36417d3117de?q=80&w=1600&auto=format&fit=crop",
+  },
+  {
+    id: "hospitality",
+    name: "Hospitality",
+    description:
+      "Hot & cold water plumbing and drainage for hotels, resorts, and hospitality developments.",
+    icon: Hotel,
+    image:
+      "https://images.pexels.com/photos/14036444/pexels-photo-14036444.jpeg?auto=compress&cs=tinysrgb&w=1600",
   },
 ];
 

@@ -57,7 +57,7 @@ export default async function CategoryPage({
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-24 md:pt-48">
-        <div className="bg-blueprint absolute inset-0 opacity-70" aria-hidden="true" />
+        <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
         <div
           className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-flow-500/10 blur-3xl"
           aria-hidden="true"
@@ -71,7 +71,7 @@ export default async function CategoryPage({
             <span className="text-flow-300">{content.label}</span>
           </nav>
 
-          <h1 className="max-w-3xl text-balance font-display text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
+          <h1 className="max-w-3xl text-balance font-display text-4xl font-semibold uppercase leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
             {content.h1}
           </h1>
           <p className="mt-5 max-w-2xl text-balance text-lg text-slate-300">{content.tagline}</p>

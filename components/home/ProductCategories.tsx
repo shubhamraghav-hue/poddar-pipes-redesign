@@ -67,7 +67,7 @@ const categories: SchematicNode[] = [
 export function ProductCategories() {
   return (
     <section className="relative overflow-hidden bg-ink py-24 md:py-32">
-      <div className="bg-blueprint absolute inset-0 opacity-70" aria-hidden="true" />
+      <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
       {/* Ambient flow glow */}
       <div
         className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-flow-500/10 blur-3xl"

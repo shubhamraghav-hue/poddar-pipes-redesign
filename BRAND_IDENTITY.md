@@ -46,7 +46,7 @@ white.
 
 ## Motifs & devices
 
-- **Blueprint backdrop** — `.bg-blueprint` (fine minor grid + heavier major grid), engineering-drawing paper on ink surfaces.
+- **Blueprint backdrop** — `.bg-blue` (fine minor grid + heavier major grid), engineering-drawing paper on ink surfaces.
 - **Technical label** — `.tech-label` (Space Mono, uppercase, 0.18em) for the engineering voice.
 - **Engineering sheet index** — `SectionHeading` accepts `index` ("01", "02"…), rendered as a bracketed mono tag; the homepage numbers its sections like a drawing sheet-set (an honest sequence read top-to-bottom).
 - **Pipe-flow motif** — the existing original `FlowLine` (not a competitor's mark) is the backbone; it evolves into schematic dividers and (planned) interactive category navigation.
@@ -54,7 +54,7 @@ white.
 
 ## Applied so far (flagship — shipped & verified)
 
-- **Foundation:** type system, flow-cyan palette, `.bg-blueprint`, `.tech-label` — transforms the whole site's type instantly.
+- **Foundation:** type system, flow-cyan palette, `.bg-blue`, `.tech-label` — transforms the whole site's type instantly.
 - **`SectionHeading`:** engineering-index eyebrow (Space Mono + bracketed index) — propagates to ~20 sections site-wide.
 - **`Navbar`:** display-face links (Indic-safe — no uppercase-mono on translated labels).
 - **Home:** sheet indices across the section narrative (01–08); all headings now Space Grotesk.

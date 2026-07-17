@@ -57,7 +57,7 @@ export function SectionHeading({
         <Boomerang className={cn("mb-1", align === "center" && "self-center")} />
         <h2
           className={cn(
-            "max-w-2xl font-display text-3xl font-medium leading-tight sm:text-4xl md:text-5xl",
+            "max-w-2xl font-display text-3xl font-medium uppercase leading-tight tracking-tight sm:text-4xl md:text-5xl",
             animate ? "text-pretty" : "text-balance",
             dark ? "text-white" : "text-slate-900"
           )}

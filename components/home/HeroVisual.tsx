@@ -138,7 +138,7 @@ export function HeroVisual() {
  *     poster="/hero/poster.jpg"
  *     className="h-full w-full rounded-3xl object-cover"
  *   >
- *     <source src="/hero/plumbing-loop.mp4" type="video/mp4" />
+ *     <source src="/hero/plumbing-loop.webm" type="video/mp4" />
  *   </video>
  *
  * Either way, drop the asset in /public/hero/ and swap the markup in Hero.tsx

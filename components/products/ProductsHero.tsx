@@ -13,7 +13,7 @@ export function ProductsHero() {
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
             Product Catalog
           </span>
-          <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-medium leading-tight text-white sm:text-5xl md:text-6xl">
+          <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-medium uppercase leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
             Piping systems for every stage of India&apos;s water network.
           </h1>
           <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">

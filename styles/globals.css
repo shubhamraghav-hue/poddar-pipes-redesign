@@ -174,7 +174,32 @@
     outline-offset: 3px;
   }
 }
+a, button {
+  line-height: 1;
+}
 
+a svg, button svg {
+  display: block;      /* kills inline baseline gap, the real hidden culprit */
+  flex-shrink: 0;
+}
+
+/* Force true vertical centering regardless of font metrics */
+a.inline-flex, button.inline-flex,
+a.flex, button.flex {
+  align-items: center;
+}
+a[href="/contact"],
+button[aria-label="Select language"] {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+a[href="/contact"] svg,
+button[aria-label="Select language"] svg {
+  display: block;
+  flex-shrink: 0;
+}
 @layer utilities {
   .container-edge {
     @apply mx-auto w-full max-w-[1400px] px-6 md:px-10 xl:px-16;

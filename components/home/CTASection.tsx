@@ -43,7 +43,7 @@ export function CTASection({
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
               {eyebrow}
             </span>
-            <h2 className="mt-4 text-balance font-display text-3xl font-medium leading-tight text-white sm:text-4xl">
+            <h2 className="mt-4 text-balance font-display text-3xl font-medium uppercase leading-tight tracking-tight text-white sm:text-4xl">
               {title}
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-balance text-slate-300">{description}</p>

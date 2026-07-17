@@ -18,7 +18,7 @@ export interface HeroSlide {
 export const heroSlides: HeroSlide[] = [
   {
     id: "growth",
-    video: "/hero/slide-1.mp4",
+    video: "/hero/slide-1.webm",
     headingLines: ["Engineered for", "every drop of"],
     headingBoldLine: "India's growth",
     description:
@@ -26,7 +26,7 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     id: "decades",
-    video: "/hero/slide-2.mp4",
+    video: "/hero/slide-2.webm",
     headingLines: ["Trusted to build", "India's pipes for"],
     headingBoldLine: "50 years",
     description:
@@ -34,7 +34,7 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     id: "infrastructure",
-    video: "/hero/slide-3.mp4",
+    video: "/hero/slide-3.webm",
     headingLines: ["Large-diameter", "systems for civic"],
     headingBoldLine: "Infrastructure",
     description:
@@ -42,7 +42,7 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     id: "trust",
-    video: "/hero/slide-4.mp4",
+    video: "/hero/slide-4.webm",
     headingLines: ["Behind every", "tap, a standard"],
     headingBoldLine: "You can trust",
     description:
@@ -50,7 +50,7 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     id: "irrigation",
-    video: "/hero/slide-5.mp4",
+    video: "/hero/slide-5.webm",
     headingLines: ["Irrigation systems", "built for Indian"],
     headingBoldLine: "Farming conditions",
     description:
