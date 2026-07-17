@@ -12,6 +12,7 @@ const SLIDE_DURATION = 7000;
 
 export function Hero() {
   const t = useTranslations("home");
+  const tDyn = t as (key: string) => string;
   const prefersReducedMotion = useReducedMotion();
   const [active, setActive] = useState(0);
   // Auto-advance/autoplay is off by default for reduced-motion users — they
@@ -141,17 +142,14 @@ export function Hero() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-2xl"
           >
+            {/* Slide text keyed by slide.id — each locale has its own copy. */}
             <h1 className="text-balance font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
-              {slide.headingLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-              <span className="block font-bold">{slide.headingBoldLine}</span>
+              <span className="block">{tDyn(`heroSlide_${slide.id}_line1`)}</span>
+              <span className="block text-[#E0AF40]">{tDyn(`heroSlide_${slide.id}_line2`)}</span>
+              <span className="block font-bold">{tDyn(`heroSlide_${slide.id}_bold`)}</span>
             </h1>
-
             <p className="mt-5 max-w-xl text-balance text-base leading-relaxed text-slate-300 sm:mt-7 sm:text-lg">
-              {slide.description}
+              {tDyn(`heroSlide_${slide.id}_desc`)}
             </p>
           </motion.div>
         </AnimatePresence>
@@ -162,12 +160,10 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
         >
-          <Button asChild size="lg" variant="accent" className="relative w-full sm:w-auto">
+          <Button asChild size="lg" variant="accent" className="w-full sm:w-auto">
             <Link href="/products">
               {t("heroPrimaryCta")}
-              {/* Absolute on the full-width mobile button so the label stays
-                  perfectly centered; inline again from sm up (auto-width). */}
-              <ArrowUpRight className="absolute right-6 top-1/2 h-4 w-4 -translate-y-1/2 sm:static sm:translate-y-0" />
+              <ArrowUpRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline-white" className="w-full sm:w-auto">

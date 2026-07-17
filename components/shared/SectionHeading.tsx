@@ -1,10 +1,11 @@
 import { cn } from "@/lib/utils";
-import { Boomerang } from "@/components/shared/Boomerang";
 import { WordReveal } from "@/components/shared/WordReveal";
 
 interface SectionHeadingProps {
   eyebrow?: string;
   title: string;
+  /** Second part of heading rendered in gold (#E0AF40). When provided, animation is skipped and each part gets its own color. */
+  titleAccent?: string;
   description?: string;
   align?: "left" | "center";
   dark?: boolean;
@@ -18,6 +19,7 @@ interface SectionHeadingProps {
 export function SectionHeading({
   eyebrow,
   title,
+  titleAccent,
   description,
   align = "left",
   dark = false,
@@ -34,7 +36,7 @@ export function SectionHeading({
       )}
     >
       {eyebrow && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {index && (
             <span
               className={cn(
@@ -47,29 +49,54 @@ export function SectionHeading({
               {index}
             </span>
           )}
-          <span className="h-px w-8 bg-amber-500" />
-          <span className={cn("tech-label", dark ? "text-ocean-300" : "text-ocean-700")}>
+          {/* Corner bracket — brand accent, replaces the old dash + Boomerang pair */}
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+            className="shrink-0"
+          >
+            <path
+              d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002"
+              stroke="#F28000"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span
+            className={cn(
+              "text-xs font-bold uppercase tracking-widest",
+              dark ? "text-gold-300" : "text-amber-600"
+            )}
+          >
             {eyebrow}
           </span>
         </div>
       )}
-      <div className={cn(align === "center" && "flex flex-col items-center")}>
-        <Boomerang className={cn("mb-1", align === "center" && "self-center")} />
-        <h2
-          className={cn(
-            "max-w-2xl font-display text-3xl font-medium uppercase leading-tight tracking-tight sm:text-4xl md:text-5xl",
-            animate ? "text-pretty" : "text-balance",
-            dark ? "text-white" : "text-slate-900"
-          )}
-        >
-          {animate ? <WordReveal text={title} /> : title}
-        </h2>
-      </div>
+      <h2
+        className={cn(
+          "max-w-2xl font-display text-3xl font-bold uppercase leading-tight tracking-tight sm:text-4xl md:text-5xl",
+          animate ? "text-pretty" : "text-balance",
+          !titleAccent && (dark ? "text-white" : "text-ocean-950")
+        )}
+      >
+        {titleAccent ? (
+          <>
+            <span className={dark ? "text-white" : "text-[#0B0B52]"}>{title}</span>{" "}
+            <span className="text-[#E0AF40]">{titleAccent}</span>
+          </>
+        ) : animate ? (
+          <WordReveal text={title} />
+        ) : title}
+      </h2>
       {description && (
         <p
           className={cn(
             "max-w-xl text-balance text-base leading-relaxed",
-            dark ? "text-slate-300" : "text-slate-600"
+            dark ? "text-slate-300" : "text-[#5C585A]"
           )}
         >
           {description}

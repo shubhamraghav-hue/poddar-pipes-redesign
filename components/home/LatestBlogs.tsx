@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight, ArrowUpRight, Calendar } from "lucide-react";
@@ -10,7 +11,8 @@ import { blogPosts } from "@/lib/data/blog";
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString("en-IN", { month: "short", year: "numeric" });
 
-export function LatestBlogs() {
+export async function LatestBlogs() {
+  const t = await getTranslations("home");
   const [featured, ...rest] = blogPosts;
   const sidePosts = rest.slice(0, 3);
 
@@ -18,17 +20,16 @@ export function LatestBlogs() {
     <section className="bg-paper-2 py-24 md:py-32">
       <div className="container-edge">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-          <SectionHeading eyebrow="Latest insights" title="Guides, technical notes, and field stories." />
+          <SectionHeading eyebrow={t("blogEyebrow")} title={t("blogsH1")} titleAccent={t("blogsH2")} />
           <Link
             href="/resources#blogs"
             className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-ocean-700 hover:text-ocean-800"
           >
-            View all articles <ArrowRight className="h-3.5 w-3.5" />
+            {t("blogsCta")} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Featured story */}
           {featured && (
             <RevealOnScroll className="lg:col-span-2">
               <TiltCard max={4} className="h-full rounded-2xl">
@@ -55,9 +56,7 @@ export function LatestBlogs() {
                     <h3 className="max-w-xl font-display text-2xl font-semibold leading-tight text-slate-900 md:text-3xl">
                       {featured.title}
                     </h3>
-                    <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
-                      {featured.excerpt}
-                    </p>
+                    <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">{featured.excerpt}</p>
                     <div className="mt-auto flex items-center gap-3 pt-8 text-xs text-slate-500">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
@@ -66,7 +65,7 @@ export function LatestBlogs() {
                       <span>·</span>
                       <span>{featured.readTime}</span>
                       <span className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-ocean-700 transition-colors group-hover:text-flow-500">
-                        Read article
+                        {t("blogsReadArticle")}
                         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                       </span>
                     </div>
@@ -76,7 +75,6 @@ export function LatestBlogs() {
             </RevealOnScroll>
           )}
 
-          {/* Compact reading list — thumbnail + text rows */}
           <div className="flex flex-col gap-4">
             {sidePosts.map((post, i) => (
               <RevealOnScroll key={post.id} delay={i * 0.08} className="h-full">

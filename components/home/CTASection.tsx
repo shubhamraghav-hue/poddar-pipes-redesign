@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ArrowUpRight } from "lucide-react";
@@ -14,15 +15,23 @@ interface CTASectionProps {
   secondaryHref?: string;
 }
 
-export function CTASection({
-  eyebrow = "Get in touch",
-  title = "Tell us what you're building. We'll recommend the right piping system.",
-  description = "Share your project scope and quantity requirements — our sales team will follow up within one business day with recommendations and a formal quote.",
-  primaryLabel = "Request a Quote",
+export async function CTASection({
+  eyebrow,
+  title,
+  description,
+  primaryLabel,
   primaryHref = "/contact",
-  secondaryLabel = "Download Product Catalogue",
+  secondaryLabel,
   secondaryHref = "/resources",
 }: CTASectionProps) {
+  const t = await getTranslations("home");
+
+  const resolvedEyebrow = eyebrow ?? t("ctaEyebrow");
+  const resolvedTitle = title ?? t("ctaTitle");
+  const resolvedDesc = description ?? t("ctaDesc");
+  const resolvedPrimary = primaryLabel ?? t("ctaPrimary");
+  const resolvedSecondary = secondaryLabel ?? t("ctaSecondary");
+
   return (
     <section className="container-edge py-24 md:py-28">
       <RevealOnScroll>
@@ -41,21 +50,21 @@ export function CTASection({
           />
           <div className="relative mx-auto max-w-2xl">
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-              {eyebrow}
+              {resolvedEyebrow}
             </span>
             <h2 className="mt-4 text-balance font-display text-3xl font-medium uppercase leading-tight tracking-tight text-white sm:text-4xl">
-              {title}
+              {resolvedTitle}
             </h2>
-            <p className="mx-auto mt-5 max-w-lg text-balance text-slate-300">{description}</p>
+            <p className="mx-auto mt-5 max-w-lg text-balance text-slate-300">{resolvedDesc}</p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
               <Button asChild size="lg" variant="primary-on-dark" className="w-full sm:w-auto">
                 <Link href={primaryHref}>
-                  {primaryLabel}
+                  {resolvedPrimary}
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline-light" className="w-full sm:w-auto">
-                <Link href={secondaryHref}>{secondaryLabel}</Link>
+                <Link href={secondaryHref}>{resolvedSecondary}</Link>
               </Button>
             </div>
           </div>

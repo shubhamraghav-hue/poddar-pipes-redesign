@@ -71,7 +71,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Visit `/hi` for Hindi (English stays at
+Open [http://localhost:3001](http://localhost:3001). Visit `/hi` for Hindi (English stays at
 `/`, per `localePrefix: "as-needed"`).
 
 ## Project Structure

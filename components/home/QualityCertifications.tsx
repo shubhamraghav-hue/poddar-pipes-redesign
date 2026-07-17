@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { BadgeCheck, ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/shared/SectionHeading";
@@ -6,7 +7,9 @@ import { GoldStamp } from "@/components/shared/GoldStamp";
 import { Marquee } from "@/components/shared/Marquee";
 import { certifications } from "@/lib/data/certifications";
 
-export function QualityCertifications() {
+export async function QualityCertifications() {
+  const t = await getTranslations("home");
+
   return (
     <section className="relative overflow-hidden bg-ink py-24 md:py-32">
       <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
@@ -17,33 +20,30 @@ export function QualityCertifications() {
       <div className="container-edge relative">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
-            eyebrow="Quality assurance"
-            title="Every batch tested before it reaches a dealer."
-            description="Our labs run continuous pressure, impact, and thermal testing against Indian Standards — not spot checks."
+            eyebrow={t("qualityEyebrow")}
+            title={t("qualityH1")}
+            titleAccent={t("qualityH2")}
+            description={t("qualityDesc")}
             dark
           />
           <Link
             href="/quality"
             className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-ocean-200 transition-colors hover:text-flow-300"
           >
-            Our quality process <ArrowRight className="h-3.5 w-3.5" />
+            {t("qualityCta")} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
-        {/* Seal wall — the marks, front and centre on the vault. */}
         <RevealOnScroll className="mt-16 flex flex-wrap items-center justify-center gap-8 sm:justify-start">
           <GoldStamp label="ISI Marked" sublabel="IS 15778 / 13592 / 16098" />
           <GoldStamp label="ISO 9001" sublabel="Quality Management" />
           <GoldStamp label="ISO 14001" sublabel="Environmental Mgmt." />
           <p className="max-w-xs text-sm leading-relaxed text-slate-400">
-            <span className="tech-label text-flow-300">100% batch-tested</span>
-            <span className="mt-1.5 block">
-              Independent conformance to Indian Standards, verified before every dispatch.
-            </span>
+            <span className="tech-label text-flow-300">{t("qualityBatchLabel")}</span>
+            <span className="mt-1.5 block">{t("qualityBatchDesc")}</span>
           </p>
         </RevealOnScroll>
 
-        {/* Every certification, flowing past — a credentials ticker. */}
         <div className="mt-12">
           <Marquee speed={40} direction="right" className="py-2">
             {certifications.map((c) => (
