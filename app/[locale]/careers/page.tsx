@@ -30,7 +30,7 @@ export default async function CareersPage({
   return (
     <>
       <section className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-24 md:pt-48">
-        <div className="bg-grid-dark absolute inset-0 opacity-60" aria-hidden="true" />
+        <div className="bg-dark absolute inset-0 opacity-60" aria-hidden="true" />
         <div className="container-edge relative">
           <RevealOnScroll>
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">

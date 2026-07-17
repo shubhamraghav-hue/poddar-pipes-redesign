@@ -30,7 +30,7 @@ export function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
         aria-expanded={open}
         disabled={isPending}
         className={cn(
-          "flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
+          "flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] transition-colors",
           dark
             ? "border-white/20 text-white/85 hover:border-white/40"
             : "border-slate-200 text-slate-700 hover:border-ocean-500/50"

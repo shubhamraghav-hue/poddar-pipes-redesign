@@ -102,11 +102,10 @@ export function Navbar() {
             asChild
             variant={solid ? "primary" : "outline-light"}
             size="sm"
-            className="relative min-w-[11rem]"
           >
             <Link href="/contact">
               {t("requestQuote")}
-              <ArrowUpRight className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <ArrowUpRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -197,10 +196,10 @@ export function Navbar() {
                   )}
                 </div>
               ))}
-              <Button asChild className="relative mt-3" size="sm">
+              <Button asChild className="mt-3" size="sm">
                 <Link href="/contact">
                   {t("requestQuote")}
-                  <ArrowUpRight className="absolute right-5 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </Button>
             </div>

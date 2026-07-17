@@ -3,7 +3,7 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 export function ProductsHero() {
   return (
     <section className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-24 md:pt-48">
-      <div className="bg-grid-dark absolute inset-0 opacity-60" aria-hidden="true" />
+      <div className="bg-dark absolute inset-0 opacity-60" aria-hidden="true" />
       <div
         className="animate-float-slow absolute left-[8%] top-1/4 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl"
         aria-hidden="true"

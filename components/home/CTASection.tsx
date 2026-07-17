@@ -34,7 +34,7 @@ export function CTASection({
             sizes="100vw"
             className="object-cover opacity-[0.20]"
           />
-          <div className="bg-grid-dark absolute inset-0 opacity-70" aria-hidden="true" />
+          <div className="bg-dark absolute inset-0 opacity-70" aria-hidden="true" />
           <div
             className="absolute -top-24 left-1/2 h-64 w-[38rem] -translate-x-1/2 rounded-full bg-ocean-500/20 blur-3xl"
             aria-hidden="true"
@@ -48,10 +48,10 @@ export function CTASection({
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-balance text-slate-300">{description}</p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
-              <Button asChild size="lg" variant="primary-on-dark" className="relative w-full sm:w-auto">
+              <Button asChild size="lg" variant="primary-on-dark" className="w-full sm:w-auto">
                 <Link href={primaryHref}>
                   {primaryLabel}
-                  <ArrowUpRight className="absolute right-6 top-1/2 h-4 w-4 -translate-y-1/2 sm:static sm:translate-y-0" />
+                  <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline-light" className="w-full sm:w-auto">

@@ -4,7 +4,7 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 export function AboutHero() {
   return (
     <section id="story" className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-28 md:pt-48">
-      <div className="bg-grid-dark absolute inset-0 opacity-60" aria-hidden="true" />
+      <div className="bg-dark absolute inset-0 opacity-60" aria-hidden="true" />
       <div
         className="animate-float-slow absolute right-[10%] top-1/3 h-52 w-52 rounded-full bg-ocean-400/10 blur-3xl"
         aria-hidden="true"
@@ -14,7 +14,7 @@ export function AboutHero() {
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
             About Poddar Pipes
           </span>
-          <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-medium leading-tight sm:text-5xl md:text-6xl">
+          <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-medium leading-tight text-white sm:text-5xl md:text-6xl">
             A legacy of trust, since 1975.
           </h1>
           <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">

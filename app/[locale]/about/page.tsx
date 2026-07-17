@@ -38,7 +38,7 @@ export default async function AboutPage({
         eyebrow="Work with us"
         title="Have a project or partnership in mind?"
         description="Whether it's a bulk order, an infrastructure project, or a business partnership enquiry, our team responds within one business day."
-        primaryLabel="Request a Quote"
+        primaryLabel="REQUEST A QUOTE"
         primaryHref="/contact"
         secondaryLabel="Talk to Our Team"
         secondaryHref="/contact"

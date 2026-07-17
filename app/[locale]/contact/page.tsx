@@ -54,7 +54,7 @@ export default async function ContactPage({
         );
       })}
       <section className="relative overflow-hidden bg-ink pb-16 pt-40 text-white md:pb-20 md:pt-48">
-        <div className="bg-grid-dark absolute inset-0 opacity-60" aria-hidden="true" />
+        <div className="bg-dark absolute inset-0 opacity-60" aria-hidden="true" />
         <div
           className="animate-float-slow absolute right-[6%] top-1/4 h-56 w-56 rounded-full bg-ocean-400/10 blur-3xl"
           aria-hidden="true"
