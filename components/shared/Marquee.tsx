@@ -1,6 +1,7 @@
 "use client";
 
 import { Children, type ReactNode } from "react";
+import type React from "react";
 import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -56,10 +57,11 @@ export function Marquee({
       )}
     >
       <div
-        className="flex w-max gap-10 group-hover:[animation-play-state:paused] motion-reduce:animate-none"
+        className="marquee-track flex w-max gap-10 group-hover:[animation-play-state:paused] motion-reduce:animate-none"
         style={{
-          animation: `${direction === "left" ? "marquee" : "marquee-reverse"} ${speed}s linear infinite`,
-        }}
+          '--marquee-anim': direction === "left" ? "marquee" : "marquee-reverse",
+          '--marquee-speed': `${speed}s`,
+        } as React.CSSProperties}
       >
         {[0, 1].map((dup) => (
           <div key={dup} className="flex shrink-0 gap-10" aria-hidden={dup === 1}>

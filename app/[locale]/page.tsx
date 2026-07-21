@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Hero } from "@/components/home/Hero";
 import { CompanyOverview } from "@/components/home/CompanyOverview";
+import { SectionReveal } from "@/components/shared/SectionReveal";
+import { SectionCurve } from "@/components/shared/SectionCurve";
 import { ProductCategories } from "@/components/home/ProductCategories";
 import { WhyChooseUs } from "@/components/home/WhyChooseUs";
 import { IndustriesServed } from "@/components/home/IndustriesServed";
@@ -36,14 +38,24 @@ export default async function HomePage({
   return (
     <>
       <Hero />
-      <CompanyOverview />
-      <ProductCategories />
+      <SectionReveal>
+        <CompanyOverview />
+      </SectionReveal>
+      <SectionCurve>
+        <ProductCategories />
+      </SectionCurve>
       <WhyChooseUs />
-      <IndustriesServed />
+      <SectionCurve>
+        <IndustriesServed />
+      </SectionCurve>
       <ManufacturingExcellence />
-      <QualityCertifications />
+      <SectionCurve>
+        <QualityCertifications />
+      </SectionCurve>
       <Sustainability />
-      <LatestBlogs />
+      <SectionCurve>
+        <LatestBlogs />
+      </SectionCurve>
       <CTASection />
     </>
   );

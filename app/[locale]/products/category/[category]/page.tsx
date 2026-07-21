@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
-import { ArrowUpRight, ArrowRight, Check } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ArrowRight, Check } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -47,6 +47,8 @@ export default async function CategoryPage({
 }) {
   const { locale, category } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("products");
+  const nav = await getTranslations("nav");
 
   const content = getCategoryContent(category);
   if (!content) notFound();
@@ -65,7 +67,7 @@ export default async function CategoryPage({
         <div className="container-edge relative">
           <nav className="tech-label mb-6 flex items-center gap-2 text-ocean-300" aria-label="Breadcrumb">
             <Link href="/products" className="transition-colors hover:text-flow-300">
-              Products
+              {nav("products")}
             </Link>
             <span className="text-ocean-300/50">/</span>
             <span className="text-flow-300">{content.label}</span>
@@ -79,11 +81,11 @@ export default async function CategoryPage({
           <div className="mt-8 flex flex-wrap gap-4">
             <Button asChild size="lg" variant="primary-on-dark">
               <Link href="/contact">
-                Request a Quote <ArrowUpRight className="h-4 w-4" />
+                {t("requestQuote")}
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline-light">
-              <Link href="/products">Browse all products</Link>
+              <Link href="/products">{t("categoryBrowseAll")}</Link>
             </Button>
           </div>
         </div>
@@ -93,7 +95,7 @@ export default async function CategoryPage({
       <section className="container-edge py-20 md:py-28">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
           <div className="space-y-5">
-            <span className="tech-label text-ocean-700">Overview</span>
+            <span className="tech-label text-ocean-700">{t("categoryOverview")}</span>
             {content.intro.map((para, i) => (
               <p
                 key={i}
@@ -110,7 +112,7 @@ export default async function CategoryPage({
 
           {/* Applications */}
           <div className="rounded-2xl border border-slate-200/70 bg-paper-2 p-7">
-            <span className="tech-label text-ocean-700">Where it's used</span>
+            <span className="tech-label text-ocean-700">{t("categoryWhereUsed")}</span>
             <ul className="mt-5 space-y-3">
               {content.applications.map((app) => (
                 <li key={app} className="flex items-start gap-3 text-sm leading-relaxed text-slate-700">
@@ -142,7 +144,7 @@ export default async function CategoryPage({
           <div className="container-edge">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
               <div>
-                <span className="tech-label text-ocean-700">The range</span>
+                <span className="tech-label text-ocean-700">{t("categoryRange")}</span>
                 <h2 className="mt-3 font-display text-3xl font-semibold text-slate-900 sm:text-4xl">
                   {content.label} products
                 </h2>
@@ -151,7 +153,7 @@ export default async function CategoryPage({
                 href={`/products?category=${content.category}`}
                 className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-ocean-700 hover:text-ocean-800"
               >
-                Filter the full catalogue <ArrowRight className="h-3.5 w-3.5" />
+                {t("categoryFilterCatalogue")} <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
@@ -167,7 +169,7 @@ export default async function CategoryPage({
       {/* FAQ */}
       {content.faqs.length > 0 && (
         <section className="container-edge py-20 md:py-28">
-          <span className="tech-label text-ocean-700">Common questions</span>
+          <span className="tech-label text-ocean-700">{t("categoryCommonQuestions")}</span>
           <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold text-slate-900 sm:text-4xl">
             {content.label} FAQs
           </h2>
@@ -183,9 +185,8 @@ export default async function CategoryPage({
       )}
 
       <CTASection
-        eyebrow={`Sourcing ${content.label.toLowerCase()}?`}
-        title="Tell us your project scope — we'll recommend the right specification."
-        description="Share your requirements and a regional engineer will follow up within one business day with recommendations and a formal quote."
+        title={t("categoryCTATitle")}
+        description={t("categoryCTADesc")}
       />
     </>
   );

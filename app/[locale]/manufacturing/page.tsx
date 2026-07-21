@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Factory, Cog, ScanLine, FlaskConical, Warehouse, Truck } from "lucide-react";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
@@ -14,14 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/manufacturing" },
 };
 
-const capabilities = [
-  { icon: Cog, title: "Automated extrusion lines", description: "Computer-controlled extrusion holds wall-thickness tolerance across every diameter we produce." },
-  { icon: ScanLine, title: "In-line quality scanning", description: "Continuous diameter and wall-thickness monitoring flags deviations in real time during production." },
-  { icon: FlaskConical, title: "In-house testing labs", description: "Every batch is tested for pressure rating, impact resistance, and material composition before release." },
-  { icon: Warehouse, title: "Regional warehousing", description: "Distribution warehouses keep stock close to dealer networks for faster restocking." },
-  { icon: Truck, title: "Logistics network", description: "A dedicated fleet and third-party logistics partners keep delivery timelines predictable." },
-  { icon: Factory, title: "Continuous capacity expansion", description: "Ongoing investment in new lines keeps pace with growing demand across product categories." },
-];
+const CAPABILITY_ICONS = [Cog, ScanLine, FlaskConical, Warehouse, Truck, Factory];
 
 export default async function ManufacturingPage({
   params,
@@ -30,6 +23,13 @@ export default async function ManufacturingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("manufacturing");
+
+  const capabilities = CAPABILITY_ICONS.map((Icon, i) => ({
+    icon: Icon,
+    title: t(`cap${i}Title` as never),
+    description: t(`cap${i}Desc` as never),
+  }));
 
   return (
     <>
@@ -37,24 +37,28 @@ export default async function ManufacturingPage({
         <div className="bg-grid-dark absolute inset-0 opacity-60" aria-hidden="true" />
         <div className="container-edge relative">
           <RevealOnScroll>
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-              Manufacturing
-            </span>
-            <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-medium leading-tight sm:text-5xl md:text-6xl">
-              From resin to certified, dealer-ready pipe.
+            <div className="mb-5 flex items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0">
+                <path d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002" stroke="#F28000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#F28000]">{t("heroEyebrow")}</span>
+            </div>
+            <h1 className="max-w-3xl font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
+              <span className="block">{t("heroLine1")}</span>
+              <span className="block text-[#E0AF40]">{t("heroLine2")}</span>
+              <span className="block font-bold">{t("heroBold")}</span>
             </h1>
             <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">
-              Every facility in our network runs the same production standard — precision
-              extrusion, continuous quality scanning, and in-house testing before dispatch.
+              {t("heroDesc")}
             </p>
           </RevealOnScroll>
 
           <div className="mt-14 grid grid-cols-2 gap-8 border-t border-white/10 pt-10 md:grid-cols-4">
             {[
-              { value: 50000, suffix: "+", label: "Tonnes annual capacity" },
-              { value: 4, suffix: "+", label: "Manufacturing plants" },
-              { value: 11, suffix: "", label: "Product categories" },
-              { value: 300, suffix: "+", label: "Plant & engineering staff" },
+              { value: 50000, suffix: "+", label: t("stat0Label") },
+              { value: 4, suffix: "+", label: t("stat1Label") },
+              { value: 11, suffix: "", label: t("stat2Label") },
+              { value: 300, suffix: "+", label: t("stat3Label") },
             ].map((stat) => (
               <div key={stat.label}>
                 <Counter value={stat.value} suffix={stat.suffix} className="font-display text-3xl font-medium text-white md:text-4xl" />
@@ -67,15 +71,16 @@ export default async function ManufacturingPage({
 
       <section className="container-edge py-24 md:py-28">
         <SectionHeading
-          eyebrow="Capabilities"
-          title="Automation and testing at every production stage."
-          description="From resin intake to final packaging, each stage is monitored and documented before product moves to the next station."
+          eyebrow={t("capabilitiesEyebrow")}
+          title={t("capabilitiesH1")}
+          titleAccent={t("capabilitiesH2")}
+          description={t("capabilitiesDesc")}
         />
         <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {capabilities.map((c, i) => (
             <RevealOnScroll key={c.title} delay={i * 0.07}>
-              <div className="h-full rounded-2xl border border-slate-200/70 bg-white p-7">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-ocean-600/10 text-ocean-700">
+              <div className="h-full rounded-[25px] border border-slate-200/70 bg-white p-7">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#171796]/10 text-[#171796]">
                   <c.icon className="h-5 w-5" strokeWidth={1.8} />
                 </div>
                 <h3 className="mt-5 font-display text-lg font-medium text-slate-900">{c.title}</h3>
@@ -89,9 +94,9 @@ export default async function ManufacturingPage({
       <Facilities />
 
       <CTASection
-        eyebrow="Project inquiries"
-        title="Planning a large-volume order or infrastructure project?"
-        description="Our regional sales and engineering teams can walk through capacity, lead times, and technical specifications for your project."
+        eyebrow={t("ctaEyebrow")}
+        title={t("ctaTitle")}
+        description={t("ctaDesc")}
       />
     </>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Download, Ruler, HelpCircle, Pipette, Flame, Network, Waves, Cylinder, Sprout, LucideIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -61,6 +62,7 @@ const iconMap: Record<Product["icon"], LucideIcon> = {
   sprout: Sprout,
 };
 export function ProductDetail({ product }: { product: Product }) {
+  const t = useTranslations("products");
   const Icon = iconMap[product.icon];
   const featureTags = getFeatureTags(product);
   const standardSpec = product.specs.find((s) => s.label === "Standard" || s.label === "Certification");
@@ -93,10 +95,10 @@ export function ProductDetail({ product }: { product: Product }) {
             )}
             <div className="mt-8 flex flex-wrap gap-3">
               <Button onClick={() => downloadDatasheet(product)}>
-                <Download className="h-4 w-4" /> Download Datasheet
+                <Download className="h-4 w-4" /> {t("downloadDatasheet")}
               </Button>
               <Button variant="outline-light" asChild>
-                <a href="#inquiry">Request a Quote</a>
+                <a href="#inquiry">{t("requestQuote")}</a>
               </Button>
             </div>
           </RevealOnScroll>
@@ -108,10 +110,10 @@ export function ProductDetail({ product }: { product: Product }) {
           <div>
             <Tabs defaultValue="overview">
               <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="specs">Specifications</TabsTrigger>
-                <TabsTrigger value="installation">Installation</TabsTrigger>
-                <TabsTrigger value="faqs">FAQs</TabsTrigger>
+                <TabsTrigger value="overview">{t("tabOverview")}</TabsTrigger>
+                <TabsTrigger value="specs">{t("tabSpecs")}</TabsTrigger>
+                <TabsTrigger value="installation">{t("tabInstallation")}</TabsTrigger>
+                <TabsTrigger value="faqs">{t("tabFaqs")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview">
@@ -119,7 +121,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
                 <div className="mt-8 grid gap-8 sm:grid-cols-2">
                   <div>
-                    <h3 className="font-display text-lg font-medium text-slate-900">Features</h3>
+                    <h3 className="font-display text-lg font-medium text-slate-900">{t("featuresH")}</h3>
                     <ul className="mt-4 flex flex-col gap-2.5">
                       {product.features.map((f) => (
                         <li key={f} className="flex items-start gap-2.5 text-sm text-slate-700">
@@ -130,7 +132,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     </ul>
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-medium text-slate-900">Benefits</h3>
+                    <h3 className="font-display text-lg font-medium text-slate-900">{t("benefitsH")}</h3>
                     <ul className="mt-4 flex flex-col gap-2.5">
                       {product.benefits.map((b) => (
                         <li key={b} className="flex items-start gap-2.5 text-sm text-slate-700">
@@ -143,7 +145,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 </div>
 
                 <div className="mt-8">
-                  <h3 className="font-display text-lg font-medium text-slate-900">Applications</h3>
+                  <h3 className="font-display text-lg font-medium text-slate-900">{t("applicationsH")}</h3>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {product.applications.map((a) => (
                       <Badge key={a} variant="outline">
@@ -176,7 +178,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 </dl>
                 <div className="mt-8">
                   <h3 className="flex items-center gap-2 font-display text-lg font-medium text-slate-900">
-                    <Ruler className="h-4 w-4 text-ocean-600" /> Available Sizes
+                    <Ruler className="h-4 w-4 text-ocean-600" /> {t("sizesH")}
                   </h3>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
@@ -190,7 +192,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   </div>
                 </div>
                 <div className="mt-8">
-                  <h3 className="font-display text-lg font-medium text-slate-900">Materials</h3>
+                  <h3 className="font-display text-lg font-medium text-slate-900">{t("materialsH")}</h3>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {product.materials.map((m) => (
                       <Badge key={m}>{m}</Badge>
@@ -232,11 +234,10 @@ export function ProductDetail({ product }: { product: Product }) {
 
           <div id="inquiry" className="scroll-mt-24">
             <h3 className="font-display text-lg font-medium text-slate-900">
-              Request a quote for {product.name}
+              {t("quoteHeading", { name: product.name } as never)}
             </h3>
             <p className="mt-2 text-sm text-slate-600">
-              Share your quantity and project timeline — our sales team will respond within one
-              business day.
+              {t("quoteDesc")}
             </p>
             <div className="mt-6 rounded-3xl border border-slate-200/70 bg-white p-6">
               <InquiryForm presetProduct={product.name} presetEnquiryType="Sales" compact />

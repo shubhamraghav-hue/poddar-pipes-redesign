@@ -96,46 +96,41 @@
   --animate-marquee: marquee 32s linear infinite;
   --animate-marquee-reverse: marquee-reverse 32s linear infinite;
   --animate-pipe-flow: pipe-flow 1.4s linear infinite;
+}
 
-  @keyframes flow {
-    to {
-      stroke-dashoffset: -200;
-    }
+@keyframes flow {
+  to {
+    stroke-dashoffset: -200;
   }
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-14px);
-    }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
   }
-  /* Marquee tracks render their children twice, so a -50% shift is one
-     seamless loop. Kept in @theme so the keyframes ship even when the
-     animation is applied via inline style (Marquee.tsx). */
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
+  50% {
+    transform: translateY(-14px);
   }
-  @keyframes marquee-reverse {
-    from {
-      transform: translateX(-50%);
-    }
-    to {
-      transform: translateX(0);
-    }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
   }
-  /* Water moving through the distribution rail — the striped gradient scrolls
-     along the pipe. Applied to a background-image bar in PipeSchematicNav. */
-  @keyframes pipe-flow {
-    to {
-      background-position: 28px 0;
-    }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes pipe-flow {
+  to {
+    background-position: 28px 0;
   }
 }
 
@@ -251,6 +246,18 @@ button[aria-label="Select language"] svg {
 
   .mask-fade-b {
     mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .marquee-track {
+    animation: var(--marquee-anim, marquee) var(--marquee-speed, 32s) linear infinite;
   }
 }
 

@@ -21,22 +21,22 @@ export const navItems: NavItem[] = [
     href: "/about",
     megaMenu: [
       {
-        heading: "Company",
+        heading: "navCompany",
         links: [
-          { label: "Company Profile & History", href: "/about#story" },
-          { label: "Vision & Mission", href: "/about#mission" },
-          { label: "Leadership Team", href: "/about#leadership" },
-          { label: "Milestones", href: "/about#timeline" },
-          { label: "Certifications", href: "/about#certifications" },
+          { label: "navCompanyProfile", href: "/about#story" },
+          { label: "navVisionMission", href: "/about#mission" },
+          { label: "navLeadershipTeam", href: "/about#leadership" },
+          { label: "navMilestones", href: "/about#timeline" },
+          { label: "navCertifications", href: "/about#certifications" },
         ],
       },
       {
-        heading: "Operations",
+        heading: "navOperations",
         links: [
-          { label: "Manufacturing Excellence", href: "/manufacturing" },
-          { label: "Quality Assurance", href: "/quality" },
-          { label: "Sustainability & CSR", href: "/sustainability" },
-          { label: "Careers", href: "/careers" },
+          { label: "navManufacturingExcellence", href: "/manufacturing" },
+          { label: "navQualityAssurance", href: "/quality" },
+          { label: "navSustainabilityCSR", href: "/sustainability" },
+          { label: "navCareers", href: "/careers" },
         ],
       },
     ],
@@ -46,25 +46,25 @@ export const navItems: NavItem[] = [
     href: "/products",
     megaMenu: [
       {
-        heading: "Piping Systems",
+        heading: "navPipingSystems",
         links: [
-          { label: "uPVC", href: "/products?category=upvc-pipes" },
-          { label: "CPVC", href: "/products?category=cpvc-pipes" },
-          { label: "SWR", href: "/products?category=swr-pipes" },
+          { label: "navUpvc", href: "/products?category=upvc-pipes" },
+          { label: "navCpvc", href: "/products?category=cpvc-pipes" },
+          { label: "navSwr", href: "/products?category=swr-pipes" },
         ],
       },
       {
-        heading: "Storage & Drainage",
+        heading: "navStorageDrainage",
         links: [
-          { label: "TANKS", href: "/products?category=tanks" },
-          { label: "UGD", href: "/products?category=ugd-pipes" },
+          { label: "navTanks", href: "/products?category=tanks" },
+          { label: "navUgd", href: "/products?category=ugd-pipes" },
         ],
       },
       {
-        heading: "Application Systems",
+        heading: "navApplicationSystems",
         links: [
-          { label: "Agriculture", href: "/products?category=agricultural-pipes" },
-          { label: "View Full Catalog", href: "/products" },
+          { label: "navAgriculture", href: "/products?category=agricultural-pipes" },
+          { label: "navViewFullCatalog", href: "/products" },
         ],
       },
     ],
@@ -75,19 +75,19 @@ export const navItems: NavItem[] = [
     href: "/resources",
     megaMenu: [
       {
-        heading: "Resources",
+        heading: "navResources",
         links: [
-          { label: "Product Catalogues", href: "/resources#catalogues" },
-          { label: "Technical Data Sheets", href: "/resources#datasheets" },
-          { label: "Blogs & Articles", href: "/resources#blogs" },
-          { label: "FAQs", href: "/resources#faqs" },
+          { label: "navProductCatalogues", href: "/resources#catalogues" },
+          { label: "navTechnicalDataSheets", href: "/resources#datasheets" },
+          { label: "navBlogsArticles", href: "/resources#blogs" },
+          { label: "navFaqs", href: "/resources#faqs" },
         ],
       },
       {
-        heading: "Tools & Guides",
+        heading: "navToolsGuides",
         links: [
-          { label: "Pipe & Cement Calculator", href: "/tools/calculator" },
-          { label: "Installation Guide", href: "/resources/installation" },
+          { label: "navPipeCementCalculator", href: "/tools/calculator" },
+          { label: "navInstallationGuide", href: "/resources/installation" },
         ],
       },
     ],

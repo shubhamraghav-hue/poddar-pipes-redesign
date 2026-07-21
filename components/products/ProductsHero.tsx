@@ -1,6 +1,8 @@
+import { getTranslations } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
-export function ProductsHero() {
+export async function ProductsHero() {
+  const t = await getTranslations("products");
   return (
     <section className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-24 md:pt-48">
       <div className="bg-dark absolute inset-0 opacity-60" aria-hidden="true" />
@@ -10,15 +12,19 @@ export function ProductsHero() {
       />
       <div className="container-edge relative">
         <RevealOnScroll>
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-            Product Catalog
-          </span>
-          <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-medium uppercase leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
-            Piping systems for every stage of India&apos;s water network.
+          <div className="mb-5 flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0">
+              <path d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002" stroke="#F28000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-xs font-bold uppercase tracking-widest text-[#F28000]">{t("heroEyebrow")}</span>
+          </div>
+          <h1 className="max-w-3xl font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
+            <span className="block">{t("heroLine1")}</span>
+            <span className="block text-[#E0AF40]">{t("heroLine2")}</span>
+            <span className="block font-bold">{t("heroBold")}</span>
           </h1>
           <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">
-            Browse uPVC, CPVC, SWR, TANKS, UGD, and Agriculture piping systems — filter by
-            category, review full technical specifications, and download datasheets.
+            {t("heroDesc")}
           </p>
         </RevealOnScroll>
       </div>

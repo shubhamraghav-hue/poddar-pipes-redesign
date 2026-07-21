@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { products, productCategories } from "@/lib/data/products";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -21,6 +22,7 @@ export function ProductFilterGrid({
   initialCategory?: Product["category"] | "all";
   initialQuery?: string;
 }) {
+  const t = useTranslations("products");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -95,8 +97,8 @@ export function ProductFilterGrid({
             type="search"
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
-            placeholder="Search products or applications"
-            aria-label="Search products"
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchAria")}
             className="h-11 w-full rounded-full border border-slate-200 bg-white pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-ocean-500 focus-visible:outline-none"
           />
         </div>
@@ -111,7 +113,7 @@ export function ProductFilterGrid({
       </motion.div>
 
       {filtered.length === 0 && (
-        <p className="mt-16 text-center text-slate-500">No products found. Try a different category or search term.</p>
+        <p className="mt-16 text-center text-slate-500">{t("noResults")}</p>
       )}
     </section>
   );

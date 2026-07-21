@@ -105,7 +105,7 @@ export function Navbar() {
           >
             <Link href="/contact">
               {t("requestQuote")}
-              <ArrowUpRight className="h-4 w-4" />
+              {/* <ArrowUpRight className="h-4 w-4" /> */}
             </Link>
           </Button>
         </div>
@@ -141,7 +141,7 @@ export function Navbar() {
                 ?.megaMenu?.map((col) => (
                   <div key={col.heading}>
                     <h4 className="font-mono text-xs uppercase tracking-[0.15em] text-slate-500">
-                      {col.heading}
+                      {t(col.heading as never)}
                     </h4>
                     <ul className="mt-4 flex flex-col gap-2.5">
                       {col.links.map((link) => (
@@ -150,7 +150,7 @@ export function Navbar() {
                             href={link.href}
                             className="text-sm text-slate-700 transition-colors hover:text-ocean-700"
                           >
-                            {link.label}
+                            {t(link.label as never)}
                           </Link>
                         </li>
                       ))}
@@ -189,7 +189,7 @@ export function Navbar() {
                           href={link.href}
                           className="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100"
                         >
-                          {link.label}
+                          {t(link.label as never)}
                         </Link>
                       ))}
                     </div>

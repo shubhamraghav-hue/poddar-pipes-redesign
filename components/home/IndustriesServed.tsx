@@ -9,15 +9,21 @@ import { cn } from "@/lib/utils";
 type Size = "sm" | "md" | "lg";
 
 const widthBySize: Record<Size, string> = {
-  sm: "w-full sm:w-[calc(50%-0.625rem)] lg:w-[184px]",
-  md: "w-full sm:w-[calc(50%-0.625rem)] lg:w-[232px]",
-  lg: "w-full sm:w-[calc(50%-0.625rem)] lg:w-[292px]",
+  sm: "xl:w-[184px]",
+  md: "xl:w-[232px]",
+  lg: "xl:w-[292px]",
 };
-const heightBySize: Record<Size, string> = {
-  sm: "h-[240px] lg:h-[236px]",
-  md: "h-[240px] lg:h-[300px]",
-  lg: "h-[260px] lg:h-[372px]",
+
+// Desktop-only heights — used purely for the xl+ masonry layout.
+// (The 5 fixed column widths total ~1204px including gaps, which doesn't
+// fit at the lg breakpoint (1024px) once container padding is subtracted —
+// hence xl (1280px) as the switch-over point, not lg.)
+const desktopHeightBySize: Record<Size, string> = {
+  sm: "xl:h-[236px]",
+  md: "xl:h-[300px]",
+  lg: "xl:h-[372px]",
 };
+
 const titleBySize: Record<Size, string> = {
   sm: "text-sm sm:text-base",
   md: "text-base sm:text-lg",
@@ -35,7 +41,7 @@ const cardShell =
   "group/card relative block overflow-hidden rounded-2xl shadow-sm ring-1 ring-black/5 transition-all duration-500 ease-out " +
   "hover:-translate-y-2 hover:scale-[1.04] hover:shadow-2xl hover:shadow-ocean-900/25 hover:ring-2 hover:ring-flow-400 " +
   "focus-visible:-translate-y-2 focus-visible:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-flow-400 " +
-  "group-hover/grid:opacity-55 hover:!opacity-100 focus-visible:!opacity-100";
+  "xl:group-hover/grid:opacity-55 hover:!opacity-100 focus-visible:!opacity-100";
 
 const revealDesc =
   "mt-0 max-h-0 translate-y-1 overflow-hidden text-sm leading-relaxed text-slate-200/90 opacity-0 " +
@@ -53,17 +59,20 @@ function IndustryCard({
   size,
   name,
   description,
+  className,
 }: {
   industry: Industry;
   size: Size;
   name: string;
   description: string;
+  /** Extra classes, primarily used to control height per-breakpoint from the caller. */
+  className?: string;
 }) {
   return (
     <Link
       href="/industries"
       aria-label={name}
-      className={cn(cardShell, heightBySize[size], "w-full")}
+      className={cn(cardShell, className, "w-full")}
     >
       <Image
         src={industry.image}
@@ -116,7 +125,32 @@ export async function IndustriesServed() {
           </Link>
         </div>
 
-        <div className="group/grid mt-16 flex flex-wrap items-center justify-center gap-5 lg:flex-nowrap">
+        {/* Mobile & tablet: uniform grid — 1 column on phones, 2 columns from sm up.
+            Natural reading order, equal card heights, no masonry.
+            Stays active through laptop sizes (up to xl) since the fixed-width
+            desktop masonry needs ~1204px of pure card width to lay out without overflowing. */}
+        <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:hidden">
+          {ordered.map((industry) => {
+            const key = industryTKey(industry.id);
+            return (
+              <IndustryCard
+                key={industry.id}
+                industry={industry}
+                size="md"
+                className="h-[260px] sm:h-[240px]"
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                name={tInd(`${key}_name` as any)}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                description={tInd(`${key}_desc` as any)}
+              />
+            );
+          })}
+        </div>
+
+        {/* Desktop (xl+, i.e. ≥1280px): original 5-column masonry with varied widths/heights.
+            Needs xl rather than lg because the five fixed column widths + gaps
+            total ~1204px, which doesn't fit at the 1024px lg breakpoint. */}
+        <div className="group/grid mt-16 hidden items-center justify-center gap-5 xl:flex">
           {columns.map((col, c) => (
             <div key={c} className={cn("flex flex-col gap-6", widthBySize[col.size])}>
               {col.cards.map((industry) => {
@@ -126,6 +160,7 @@ export async function IndustriesServed() {
                     key={industry.id}
                     industry={industry}
                     size={col.size}
+                    className={cn(widthBySize[col.size], desktopHeightBySize[col.size])}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     name={tInd(`${key}_name` as any)}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any

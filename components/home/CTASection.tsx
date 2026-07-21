@@ -49,9 +49,14 @@ export async function CTASection({
             aria-hidden="true"
           />
           <div className="relative mx-auto max-w-2xl">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-              {resolvedEyebrow}
-            </span>
+            <div className="mb-4 flex items-center justify-center gap-2">
+              {/* <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0">
+                <path d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002" stroke="#F28000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg> */}
+              <span className="text-xs font-bold uppercase tracking-widest text-[#F28000]">
+                {resolvedEyebrow}
+              </span>
+            </div>
             <h2 className="mt-4 text-balance font-display text-3xl font-medium uppercase leading-tight tracking-tight text-white sm:text-4xl">
               {resolvedTitle}
             </h2>
@@ -60,7 +65,7 @@ export async function CTASection({
               <Button asChild size="lg" variant="primary-on-dark" className="w-full sm:w-auto">
                 <Link href={primaryHref}>
                   {resolvedPrimary}
-                  <ArrowUpRight className="h-4 w-4" />
+                  {/* <ArrowUpRight className="h-4 w-4" /> */}
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline-light" className="w-full sm:w-auto">

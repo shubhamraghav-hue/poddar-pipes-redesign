@@ -1,12 +1,14 @@
 import { Building2, Mail, Phone } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { offices } from "@/lib/data/offices";
 
-export function OfficeLocations() {
+export async function OfficeLocations() {
+  const t = await getTranslations("contact");
   return (
     <section className="container-edge py-24 md:py-28">
-      <SectionHeading eyebrow="Offices" title="Regional teams, close to your project." />
+      <SectionHeading eyebrow={t("officesEyebrow")} title={t("officesHeading")} />
       <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {offices.map((office, i) => (
           <RevealOnScroll key={office.id} delay={i * 0.07}>

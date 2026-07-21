@@ -3,11 +3,10 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { ArrowUpRight, Pause, Play } from "lucide-react";
+import { Pause, Play } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { heroSlides } from "@/lib/data/heroSlides";
-
 const SLIDE_DURATION = 7000;
 
 export function Hero() {
@@ -15,16 +14,13 @@ export function Hero() {
   const tDyn = t as (key: string) => string;
   const prefersReducedMotion = useReducedMotion();
   const [active, setActive] = useState(0);
-  // Auto-advance/autoplay is off by default for reduced-motion users — they
-  // can still step through slides manually via the dots or this control.
   const [paused, setPaused] = useState(!!prefersReducedMotion);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Scroll-scrubbed parallax: as the hero scrolls out of view, the video bed
-  // drifts down and scales while the text lifts and fades — a cinematic exit
-  // that hands off to the page below with depth.
+  // Scroll-scrubbed parallax: as the hero scrolls out of view the video bed
+  // drifts down and scales while the text lifts and fades.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -33,16 +29,15 @@ export function Hero() {
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "-40%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  // Downward ellipse curve at the hero's bottom — matches Ashirvad's clip-path technique.
+  // ellipse(rx ry at cx cy): centre at top-centre, ry drives the curve depth.
+  // ry=200 → barely perceptible; ry=100 → sides clip at ~94.6 %, centre stays full height.
+  // Result: the hero bottom edge dips DOWN in the centre, exposing the white section below.
+  const heroRy = useTransform(scrollYProgress, [0.3, 0.7], [200, 100]);
+  const heroClipPath = useTransform(heroRy, (r) => `ellipse(155% ${r}% at 50% 0%)`);
 
-  // Every slide starts at preload="none" in the initial (server-rendered)
-  // HTML, so the browser's first paint isn't competing with a video fetch —
-  // only after mount (i.e. after first paint) does the active slide switch
-  // to eager loading. The poster (real or placeholder) is what's visible
-  // during that window and on slow connections.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   const goTo = useCallback((index: number) => {
     setActive(((index % heroSlides.length) + heroSlides.length) % heroSlides.length);
@@ -52,22 +47,14 @@ export function Hero() {
     if (paused) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => goTo(active + 1), SLIDE_DURATION);
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [active, paused, goTo]);
 
-  // Only the active slide's video ever plays — the rest stay paused (and
-  // unloaded via `preload="none"`) so the browser isn't fetching/decoding
-  // five full-length videos concurrently just for a crossfade.
   useEffect(() => {
     videoRefs.current.forEach((video, i) => {
       if (!video) return;
-      if (i === active && !paused) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
+      if (i === active && !paused) video.play().catch(() => {});
+      else video.pause();
     });
   }, [active, paused]);
 
@@ -75,10 +62,13 @@ export function Hero() {
   const slide = heroSlides[active];
 
   return (
-    <section ref={sectionRef} className="relative flex min-h-[100svh] items-center overflow-hidden bg-ink">
-      {/* Stacked, crossfading video layers. Only the active (and next) slide
-          is preloaded/playing — the rest sit paused with preload="none" so
-          the browser isn't fetching and decoding all five videos at once. */}
+    <motion.section
+      ref={sectionRef}
+      className="relative flex min-h-[100svh] items-center overflow-hidden bg-ink"
+      style={prefersReducedMotion ? undefined : { clipPath: heroClipPath }}
+    >
+      {/* ── Video parallax layer — always fills the full section ──────────
+          overflow-hidden on the section clips the 1.12× scaled/shifted video. */}
       <motion.div
         className="absolute inset-0"
         style={prefersReducedMotion ? undefined : { y: videoY, scale: videoScale }}
@@ -86,9 +76,7 @@ export function Hero() {
         {heroSlides.map((s, i) => (
           <motion.video
             key={s.id}
-            ref={(el) => {
-              videoRefs.current[i] = el;
-            }}
+            ref={(el) => { videoRefs.current[i] = el; }}
             src={s.video}
             poster={s.poster ?? "/hero/poster-placeholder.svg"}
             autoPlay={mounted && i === active && !paused}
@@ -106,8 +94,7 @@ export function Hero() {
         ))}
       </motion.div>
 
-      {/* Legibility overlay — dark on the left where text sits, easing toward
-          the video on the right, plus a bottom grounding gradient. */}
+      {/* ── Legibility overlays — direct section children, always edge-to-edge */}
       <div
         className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/20"
         aria-hidden="true"
@@ -117,22 +104,11 @@ export function Hero() {
         aria-hidden="true"
       />
 
+      {/* ── Content layer ────────────────────────────────────────────────── */}
       <motion.div
         className="container-edge relative z-10 pt-28 pb-20 sm:pb-0"
         style={prefersReducedMotion ? undefined : { y: contentY, opacity: contentOpacity }}
       >
-        {/* <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur-sm"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-white/50">
-            {t("heroEyebrow")}
-          </span>
-        </motion.div> */}
-
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
@@ -142,7 +118,6 @@ export function Hero() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-2xl"
           >
-            {/* Slide text keyed by slide.id — each locale has its own copy. */}
             <h1 className="text-balance font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
               <span className="block">{tDyn(`heroSlide_${slide.id}_line1`)}</span>
               <span className="block text-[#E0AF40]">{tDyn(`heroSlide_${slide.id}_line2`)}</span>
@@ -161,10 +136,7 @@ export function Hero() {
           className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
         >
           <Button asChild size="lg" variant="accent" className="w-full sm:w-auto">
-            <Link href="/products">
-              {t("heroPrimaryCta")}
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
+            <Link href="/products">{t("heroPrimaryCta")}</Link>
           </Button>
           <Button asChild size="lg" variant="outline-white" className="w-full sm:w-auto">
             <Link href="/contact">{t("heroSecondaryCta")}</Link>
@@ -172,9 +144,8 @@ export function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* Slide indicator dots + pause/play control (WCAG 2.2.2 — auto-advancing
-          content past 5s must be pausable) */}
-      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 sm:bottom-10 sm:left-auto sm:right-10 sm:translate-x-0">
+      {/* ── Slide indicator dots + pause/play (WCAG 2.2.2) ──────────────── */}
+      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 sm:bottom-16 sm:left-auto sm:right-10 sm:translate-x-0">
         <div className="flex items-center gap-2">
           {heroSlides.map((s, i) => (
             <button
@@ -202,6 +173,7 @@ export function Hero() {
           {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
         </button>
       </div>
-    </section>
+
+    </motion.section>
   );
 }

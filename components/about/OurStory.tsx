@@ -1,7 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 
-export function AboutHero() {
+export async function AboutHero() {
+  const t = await getTranslations("about");
   return (
     <section id="story" className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-28 md:pt-48">
       <div className="bg-dark absolute inset-0 opacity-60" aria-hidden="true" />
@@ -11,16 +13,19 @@ export function AboutHero() {
       />
       <div className="container-edge relative">
         <RevealOnScroll>
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-            About Poddar Pipes
-          </span>
-          <h1 className="mt-5 max-w-3xl text-balance font-display text-4xl font-medium leading-tight text-white sm:text-5xl md:text-6xl">
-            A legacy of trust, since 1975.
+          <div className="mb-5 flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0">
+              <path d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002" stroke="#F28000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-xs font-bold uppercase tracking-widest text-[#F28000]">{t("heroEyebrow")}</span>
+          </div>
+          <h1 className="max-w-3xl font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
+            <span className="block">{t("heroLine1")}</span>
+            <span className="block text-[#E0AF40]">{t("heroLine2")}</span>
+            <span className="block font-bold">{t("heroBold")}</span>
           </h1>
           <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">
-            Founded by the Poddar family as pioneers of PVC plumbing solutions, we&apos;ve grown into
-            one of Asia&apos;s largest plumbing corporations — carrying a 50-year legacy of quality,
-            innovation, and trust into every pipe we manufacture today.
+            {t("heroDesc")}
           </p>
         </RevealOnScroll>
       </div>
@@ -28,41 +33,24 @@ export function AboutHero() {
   );
 }
 
-export function OurStory() {
+export async function OurStory() {
+  const t = await getTranslations("about");
   return (
     <section className="container-edge py-24 md:py-28">
       <div className="grid gap-12 md:grid-cols-2 md:gap-20">
         <RevealOnScroll>
           <SectionHeading
-            eyebrow="Our story"
-            title="The Poddar family's fifty-year plumbing legacy."
+            eyebrow={t("storyEyebrow")}
+            title={t("storyH1")}
+            titleAccent={t("storyH2")}
           />
         </RevealOnScroll>
         <RevealOnScroll delay={0.1} className="flex flex-col gap-5 text-slate-600">
-          <p className="leading-relaxed">
-            At Poddar Pipes, we pride ourselves on a rich legacy of excellence in the plumbing
-            industry that spans over 50 years. Founded by the Poddar family, the pioneering
-            visionaries behind the creation of PVC plumbing solutions, we continue a tradition of
-            unmatched quality, innovation, and trust.
-          </p>
-          <p className="leading-relaxed">
-            Since 1975, Mr. Poddar has been at the forefront of revolutionizing plumbing solutions,
-            and Poddar Pipes carries forward that legacy with a deep commitment to precision and
-            durability. Erstwhile owner of one of Asia&apos;s largest plumbing corporations, Mr.
-            Poddar&apos;s expertise and leadership have shaped the industry, making him a respected
-            name globally in the field of plumbing solutions.
-          </p>
-          <p className="leading-relaxed">
-            We specialize in high-quality pipes designed for durability, efficiency, and longevity,
-            serving plumbing needs from residential homes to large-scale industrial projects. As
-            the pioneers behind CPVC technology in India, our solutions are engineered to provide
-            the highest standards of performance, safety, and reliability.
-          </p>
-          <p className="leading-relaxed">
-            With over five decades of experience, Poddar Pipes combines traditional craftsmanship
-            with cutting-edge technology to ensure that every product we deliver is built to last —
-            continuing the legacy of quality that Mr. Poddar started so many years ago.
-          </p>
+          {([0, 1, 2, 3] as const).map((i) => (
+            <p key={i} className="leading-relaxed">
+              {t(`storyPara${i}` as never)}
+            </p>
+          ))}
         </RevealOnScroll>
       </div>
     </section>

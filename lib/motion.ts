@@ -27,4 +27,4 @@ export const BRAND_SPRING = {
  * Shared viewport config for scroll-reveal `whileInView` — one margin so
  * every section triggers at the same point in the scroll.
  */
-export const BRAND_VIEWPORT = { once: true, margin: "-80px" } as const;
+export const BRAND_VIEWPORT = { once: true, margin: "0px" } as const;

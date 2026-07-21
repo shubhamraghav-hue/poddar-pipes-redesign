@@ -1,13 +1,15 @@
 import { Mail, Phone, Clock } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
-const info = [
-  { icon: Mail, label: "Email", value: "poddarpipes@gmail.com" },
-  { icon: Phone, label: "Phone", value: "+91 [XXXXX XXXXX]" },
-  { icon: Clock, label: "Response time", value: "Within 1 business day" },
-];
+export async function ContactInfo() {
+  const t = await getTranslations("contact");
+  const info = [
+    { icon: Mail, label: t("infoEmail"), value: "poddarpipes@gmail.com" },
+    { icon: Phone, label: t("infoPhone"), value: "+91 [XXXXX XXXXX]" },
+    { icon: Clock, label: t("infoResponseTime"), value: t("infoResponseValue") },
+  ];
 
-export function ContactInfo() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {info.map((item, i) => (

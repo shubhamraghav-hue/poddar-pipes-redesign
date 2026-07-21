@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { products } from "@/lib/data/products";
 import { ProductDetail } from "@/components/products/ProductDetail";
 import { RelatedProducts } from "@/components/products/RelatedProducts";
@@ -43,6 +43,9 @@ export default async function ProductDetailPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("products");
+  const nav = await getTranslations("nav");
+
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
@@ -64,7 +67,7 @@ export default async function ProductDetailPage({
   };
 
   const breadcrumbItems = [
-    { label: "Products", href: "/products" },
+    { label: nav("products"), href: "/products" },
     { label: product.categoryLabel, href: `/products?category=${product.category}` },
     { label: product.name },
   ];
@@ -87,9 +90,9 @@ export default async function ProductDetailPage({
       <ProductDetail product={product} />
       <RelatedProducts current={product} />
       <CTASection
-        eyebrow="Need bulk pricing?"
-        title="Get a project quote for large-volume orders."
-        description="Share your quantity, delivery location, and timeline — our sales team will respond within one business day."
+        eyebrow={t("ctaBulkEyebrow")}
+        title={t("ctaBulkTitle")}
+        description={t("ctaBulkDesc")}
       />
     </>
   );

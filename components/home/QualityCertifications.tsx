@@ -49,12 +49,12 @@ export async function QualityCertifications() {
             {certifications.map((c) => (
               <div
                 key={c.id}
-                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4 backdrop-blur-sm"
+                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:px-5 sm:py-4 backdrop-blur-sm"
               >
-                <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-flow-300" strokeWidth={1.7} />
+                <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-flow-300 sm:h-5 sm:w-5" strokeWidth={1.7} />
                 <div>
-                  <p className="tech-label whitespace-nowrap text-flow-300">{c.code}</p>
-                  <p className="mt-1 whitespace-nowrap text-sm text-slate-300">{c.name}</p>
+                  <p className="tech-label whitespace-nowrap text-[0.6rem] text-flow-300 sm:text-[0.72rem]">{c.code}</p>
+                  <p className="mt-0.5 whitespace-nowrap text-xs text-slate-300 sm:mt-1 sm:text-sm">{c.name}</p>
                 </div>
               </div>
             ))}

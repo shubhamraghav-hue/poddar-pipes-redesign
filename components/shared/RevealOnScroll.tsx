@@ -29,7 +29,7 @@ export function RevealOnScroll({
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, margin: "-80px" }}
+      viewport={{ once, margin: "0px" }}
       transition={{ duration: BRAND_DURATION.reveal, delay, ease: BRAND_EASE }}
       variants={variants}
     >
@@ -50,7 +50,7 @@ export function StaggerGroup({ children, className, stagger = 0.1 }: StaggerGrou
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={{ once: true, margin: "0px" }}
       transition={{ staggerChildren: stagger }}
     >
       {children}

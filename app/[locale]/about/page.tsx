@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AboutHero, OurStory } from "@/components/about/OurStory";
 import { MissionVision, CoreValues } from "@/components/about/MissionVision";
 import { Leadership } from "@/components/about/Leadership";
@@ -22,6 +22,7 @@ export default async function AboutPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("about");
 
   return (
     <>
@@ -35,13 +36,9 @@ export default async function AboutPage({
       <Timeline />
       <Certifications />
       <CTASection
-        eyebrow="Work with us"
-        title="Have a project or partnership in mind?"
-        description="Whether it's a bulk order, an infrastructure project, or a business partnership enquiry, our team responds within one business day."
-        primaryLabel="REQUEST A QUOTE"
-        primaryHref="/contact"
-        secondaryLabel="Talk to Our Team"
-        secondaryHref="/contact"
+        eyebrow={t("ctaEyebrow")}
+        title={t("ctaTitle")}
+        description={t("ctaDesc")}
       />
     </>
   );

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { PipeCalculator } from "@/components/tools/PipeCalculator";
 import { CTASection } from "@/components/home/CTASection";
@@ -18,6 +18,7 @@ export default async function CalculatorPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("tools");
 
   return (
     <>
@@ -26,15 +27,13 @@ export default async function CalculatorPage({
         <div className="container-edge relative">
           <RevealOnScroll>
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-              Tools
+              {t("pageEyebrow")}
             </span>
             <h1 className="mt-5 max-w-2xl text-balance font-display text-4xl font-medium leading-tight sm:text-5xl md:text-6xl">
-              Pipe & solvent-cement calculator.
+              {t("pageTitle")}
             </h1>
             <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">
-              Select a pipe size, pressure class, and site temperature to look up wall thickness,
-              pressure de-rating, and solvent-cement set and cure times from the Agri Gold
-              catalogue (IS 4985:2000).
+              {t("pageDesc")}
             </p>
           </RevealOnScroll>
         </div>
@@ -45,12 +44,12 @@ export default async function CalculatorPage({
       </section>
 
       <CTASection
-        eyebrow="Need a different product line?"
-        title="This calculator covers Agri Gold pressure pipe. Have a different spec question?"
-        description="Our technical team can help with sizing, pressure ratings, and installation guidance across every product category."
-        primaryLabel="Talk to Our Team"
+        eyebrow={t("ctaEyebrow")}
+        title={t("ctaTitle")}
+        description={t("ctaDesc")}
+        primaryLabel={t("ctaPrimary")}
         primaryHref="/contact"
-        secondaryLabel="View All Products"
+        secondaryLabel={t("ctaSecondary")}
         secondaryHref="/products"
       />
     </>

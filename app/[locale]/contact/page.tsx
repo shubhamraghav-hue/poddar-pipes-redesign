@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { ContactInfo } from "@/components/contact/ContactInfo";
 import { InquiryForm } from "@/components/contact/InquiryForm";
@@ -26,10 +26,8 @@ export default async function ContactPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("contact");
 
-  // Only emit LocalBusiness schema for offices whose address/phone have been
-  // filled in with real info — never ship "[Street Address]" etc. into
-  // structured data search engines may surface directly in results.
   const structuredOffices = offices.filter(
     (office) => !hasPlaceholder(office.city, office.address, office.phone)
   );
@@ -61,15 +59,19 @@ export default async function ContactPage({
         />
         <div className="container-edge relative">
           <RevealOnScroll>
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-              Contact
-            </span>
-            <h1 className="mt-5 max-w-2xl text-balance font-display text-4xl font-medium leading-tight sm:text-5xl md:text-6xl">
-              Let&apos;s talk about your project.
+            <div className="mb-5 flex items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0">
+                <path d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002" stroke="#F28000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#F28000]">{t("heroEyebrow")}</span>
+            </div>
+            <h1 className="max-w-2xl font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
+              <span className="block">{t("heroLine1")}</span>
+              <span className="block text-[#E0AF40]">{t("heroLine2")}</span>
+              <span className="block font-bold">{t("heroBold")}</span>
             </h1>
             <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">
-              Whether it&apos;s a single plumbing retrofit or a municipal water scheme, our sales team
-              responds to every inquiry within one business day.
+              {t("heroDesc")}
             </p>
           </RevealOnScroll>
           <div className="mt-12">
@@ -82,16 +84,15 @@ export default async function ContactPage({
         <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
           <RevealOnScroll>
             <div className="flex flex-col gap-5">
-              <h2 className="font-display text-3xl font-medium text-slate-900">Send an inquiry</h2>
+              <h2 className="font-display text-3xl font-medium text-slate-900">{t("formHeading")}</h2>
               <p className="max-w-md leading-relaxed text-slate-600">
-                Fill out the form with as much project or quantity detail as you can. Bulk and
-                project inquiries are routed directly to a regional sales manager.
+                {t("formDesc")}
               </p>
               <Link
                 href="/careers"
                 className="mt-2 flex w-fit items-center gap-2 rounded-full border-[1.5px] border-amber-600 px-4 py-2 text-sm font-medium text-ocean-700 transition-colors hover:bg-amber-600 hover:text-white"
               >
-                <Briefcase className="h-4 w-4" /> Looking for a job instead? Visit Careers
+                <Briefcase className="h-4 w-4" /> {t("careersLink")}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -105,7 +106,11 @@ export default async function ContactPage({
       <OfficeLocations />
       <MapPlaceholder />
       <FAQ />
-      <CTASection />
+      <CTASection
+        eyebrow={t("ctaEyebrow")}
+        title={t("ctaTitle")}
+        description={t("ctaDesc")}
+      />
     </>
   );
 }

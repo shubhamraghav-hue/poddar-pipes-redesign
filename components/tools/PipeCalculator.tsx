@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import {
 const TEMP_OPTIONS = [23, 27, 32, 38, 43, 49, 54, 60];
 
 export function PipeCalculator() {
+  const t = useTranslations("tools");
   const [pressureClass, setPressureClass] = useState<PressureClass>("class3");
   const sizes = useMemo(() => availableSizes(pressureClass), [pressureClass]);
   const [size, setSize] = useState<number>(sizes[0]);
@@ -50,10 +52,10 @@ export function PipeCalculator() {
   return (
     <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
       <div className="flex flex-col gap-6 rounded-3xl border border-slate-200/70 bg-white p-8">
-        <h2 className="font-display text-lg font-medium text-slate-900">Pipe & site conditions</h2>
+        <h2 className="font-display text-lg font-medium text-slate-900">{t("heading")}</h2>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor={classId}>Pressure class</Label>
+          <Label htmlFor={classId}>{t("inputPressureClass")}</Label>
           <Select value={pressureClass} onValueChange={(v) => handleClassChange(v as PressureClass)}>
             <SelectTrigger id={classId}>
               <SelectValue />
@@ -69,7 +71,7 @@ export function PipeCalculator() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor={sizeId}>Nominal pipe size</Label>
+          <Label htmlFor={sizeId}>{t("inputPipeSize")}</Label>
           <Select value={String(size)} onValueChange={(v) => setSize(Number(v))}>
             <SelectTrigger id={sizeId}>
               <SelectValue />
@@ -85,15 +87,15 @@ export function PipeCalculator() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor={tempId}>Ambient temperature</Label>
+          <Label htmlFor={tempId}>{t("inputTemp")}</Label>
           <Select value={String(tempC)} onValueChange={(v) => setTempC(Number(v))}>
             <SelectTrigger id={tempId}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {TEMP_OPTIONS.map((t) => (
-                <SelectItem key={t} value={String(t)}>
-                  {t}°C
+              {TEMP_OPTIONS.map((temp) => (
+                <SelectItem key={temp} value={String(temp)}>
+                  {temp}°C
                 </SelectItem>
               ))}
             </SelectContent>
@@ -109,49 +111,46 @@ export function PipeCalculator() {
             className="h-5 w-5 rounded border-slate-300 text-ocean-600 focus-visible:outline-2 focus-visible:outline-ocean-500"
           />
           <Label htmlFor={humidId} className="cursor-pointer">
-            Damp or humid site conditions
+            {t("inputHumid")}
           </Label>
         </div>
       </div>
 
       <div className="flex flex-col gap-5 rounded-3xl border border-slate-200/70 bg-paper-2 p-8">
-        <h2 className="font-display text-lg font-medium text-slate-900">Recommended figures</h2>
+        <h2 className="font-display text-lg font-medium text-slate-900">{t("resultsHeading")}</h2>
 
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-          <span className="text-sm text-slate-600">Wall thickness (IS 4985)</span>
+          <span className="text-sm text-slate-600">{t("wallThickness")}</span>
           <span className="font-mono text-sm font-medium text-slate-900">
-            {wallThickness ? `${wallThickness.minMm}mm – ${wallThickness.maxMm}mm` : "Not available for this size/class"}
+            {wallThickness ? `${wallThickness.minMm}mm – ${wallThickness.maxMm}mm` : t("consultManual")}
           </span>
         </div>
 
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-          <span className="text-sm text-slate-600">Pressure de-rating factor at {tempC}°C</span>
+          <span className="text-sm text-slate-600">{t("deratingFactor", { temp: tempC } as never)}</span>
           <Badge variant="brand-pill">×{derating.factor.toFixed(2)}</Badge>
         </div>
 
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-          <span className="text-sm text-slate-600">Solvent cement initial set time</span>
+          <span className="text-sm text-slate-600">{t("setTime")}</span>
           <span className="font-mono text-sm font-medium text-slate-900">
             {setMinutes != null
-              ? `${formatMinutes(Math.round(setMinutes * humidMultiplier))}${humid ? " (+50% humid)" : ""}`
-              : "Consult manual"}
+              ? `${formatMinutes(Math.round(setMinutes * humidMultiplier))}${humid ? ` (${t("humidSuffix")})` : ""}`
+              : t("consultManual")}
           </span>
         </div>
 
         <div className="flex items-center justify-between pb-1">
-          <span className="text-sm text-slate-600">Joint cure time before pressurising</span>
+          <span className="text-sm text-slate-600">{t("cureTime")}</span>
           <span className="font-mono text-sm font-medium text-slate-900">
             {cureMinutes != null
-              ? `${formatMinutes(Math.round(cureMinutes * humidMultiplier))}${humid ? " (+50% humid)" : ""}`
-              : "Consult manual"}
+              ? `${formatMinutes(Math.round(cureMinutes * humidMultiplier))}${humid ? ` (${t("humidSuffix")})` : ""}`
+              : t("consultManual")}
           </span>
         </div>
 
         <p className="mt-2 text-xs leading-relaxed text-slate-500">
-          Size bucket: {SIZE_BUCKET_LABELS[bucket]} · Temperature range: {TEMP_RANGE_LABELS[tempRange]}. Cure
-          time assumes a working pressure up to 160 psi (11 bar), covering Agri Gold&apos;s Class 2 and Class 3
-          ratings. These figures are laboratory estimates from the Poddar Agri Gold catalogue — field
-          conditions vary, so use as a planning reference, not a substitute for on-site judgement.
+          {t("disclaimer", { bucket: SIZE_BUCKET_LABELS[bucket], tempRange: TEMP_RANGE_LABELS[tempRange] } as never)}
         </p>
       </div>
     </div>

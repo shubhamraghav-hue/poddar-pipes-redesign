@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ProductsHero } from "@/components/products/ProductsHero";
 import { ProductFilterGrid } from "@/components/products/ProductFilterGrid";
 import { IndustriesGrid } from "@/components/products/IndustriesGrid";
@@ -25,6 +25,7 @@ export default async function ProductsPage({
   const { locale } = await params;
   const { category, q } = await searchParams;
   setRequestLocale(locale);
+  const t = await getTranslations("products");
 
   const initialCategory =
     (productCategories.find((c) => c.id === category)?.id as Product["category"] | "all" | undefined) ??
@@ -37,9 +38,9 @@ export default async function ProductsPage({
       <IndustriesGrid />
       <BrochureDownload />
       <CTASection
-        eyebrow="Need a custom specification?"
-        title="Our engineering team can scope a product outside the standard catalog."
-        description="Share your project's technical requirements — a regional engineer will follow up with recommendations."
+        eyebrow={t("ctaCustomEyebrow")}
+        title={t("ctaCustomTitle")}
+        description={t("ctaCustomDesc")}
       />
     </>
   );

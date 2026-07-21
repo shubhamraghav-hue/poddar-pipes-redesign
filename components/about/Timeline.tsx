@@ -1,11 +1,17 @@
+import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { timeline } from "@/lib/data/timeline";
 
-export function Timeline() {
+export async function Timeline() {
+  const t = await getTranslations("about");
   return (
     <section id="timeline" className="container-edge py-24 md:py-28">
-      <SectionHeading eyebrow="Milestones" title="Three decades, mapped." />
+      <SectionHeading
+        eyebrow={t("timelineEyebrow")}
+        title={t("timelineH1")}
+        titleAccent={t("timelineH2")}
+      />
       <div className="relative mt-16">
         <div
           className="absolute left-[7px] top-2 bottom-2 w-px bg-slate-200 sm:left-1/2 sm:-translate-x-1/2"
@@ -26,8 +32,12 @@ export function Timeline() {
                   aria-hidden="true"
                 />
                 <span className="font-mono text-sm text-ocean-700">{event.year}</span>
-                <h4 className="font-display text-xl font-medium text-slate-900">{event.title}</h4>
-                <p className="text-sm leading-relaxed text-slate-600">{event.description}</p>
+                <h4 className="font-display text-xl font-medium text-slate-900">
+                  {t(`milestone${i}Title` as never)}
+                </h4>
+                <p className="text-sm leading-relaxed text-slate-600">
+                  {t(`milestone${i}Desc` as never)}
+                </p>
               </div>
             </RevealOnScroll>
           ))}
