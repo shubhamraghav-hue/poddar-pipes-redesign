@@ -18,7 +18,11 @@ export function SectionCurve({ children }: SectionCurveProps) {
 
   // Curve becomes fully visible at 70 % scroll progress through the section —
   // consistent with the hero. Invisible at rest (ry 200 → no clip).
-  const ry = useTransform(scrollYProgress, [0.3, 0.7], [200, 100]);
+  const ry = useTransform(
+  scrollYProgress,
+  [0, 0.2],
+  [200, 100]
+);
   const clipPath = useTransform(ry, (r) => `ellipse(155% ${r}% at 50% 0%)`);
 
   return (

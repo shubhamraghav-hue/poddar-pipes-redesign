@@ -33,7 +33,7 @@ export function Hero() {
   // ellipse(rx ry at cx cy): centre at top-centre, ry drives the curve depth.
   // ry=200 → barely perceptible; ry=100 → sides clip at ~94.6 %, centre stays full height.
   // Result: the hero bottom edge dips DOWN in the centre, exposing the white section below.
-  const heroRy = useTransform(scrollYProgress, [0.3, 0.7], [200, 100]);
+  const heroRy = useTransform(scrollYProgress, [0, 0.2], [200, 100]);
   const heroClipPath = useTransform(heroRy, (r) => `ellipse(155% ${r}% at 50% 0%)`);
 
   const [mounted, setMounted] = useState(false);
