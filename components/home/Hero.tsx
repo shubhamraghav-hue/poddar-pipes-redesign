@@ -7,6 +7,8 @@ import { Pause, Play } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { heroSlides } from "@/lib/data/heroSlides";
+import { getCurveRx } from "@/lib/motion";
+
 const SLIDE_DURATION = 7000;
 
 export function Hero() {
@@ -18,6 +20,15 @@ export function Hero() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Responsive curve rx — wider on smaller screens for a shallower curve.
+  const [rx, setRx] = useState(155);
+  useEffect(() => {
+    const update = () => setRx(getCurveRx(window.innerWidth));
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // Scroll-scrubbed parallax: as the hero scrolls out of view the video bed
   // drifts down and scales while the text lifts and fades.
@@ -34,7 +45,7 @@ export function Hero() {
   // ry=200 → barely perceptible; ry=100 → sides clip at ~94.6 %, centre stays full height.
   // Result: the hero bottom edge dips DOWN in the centre, exposing the white section below.
   const heroRy = useTransform(scrollYProgress, [0, 0.2], [200, 100]);
-  const heroClipPath = useTransform(heroRy, (r) => `ellipse(155% ${r}% at 50% 0%)`);
+  const heroClipPath = useTransform(heroRy, (r) => `ellipse(${rx}% ${r}% at 50% 0%)`);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);

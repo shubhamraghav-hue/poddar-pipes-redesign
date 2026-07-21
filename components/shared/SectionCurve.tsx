@@ -1,7 +1,8 @@
 "use client";
 
-import { type ReactNode, useRef } from "react";
+import { type ReactNode, useRef, useState, useEffect } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { getCurveRx } from "@/lib/motion";
 
 interface SectionCurveProps {
   children: ReactNode;
@@ -11,19 +12,26 @@ export function SectionCurve({ children }: SectionCurveProps) {
   const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
+  // Responsive rx — wider on smaller screens for a shallower curve.
+  const [rx, setRx] = useState(155);
+  useEffect(() => {
+    const update = () => setRx(getCurveRx(window.innerWidth));
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
   });
 
-  // Curve becomes fully visible at 70 % scroll progress through the section —
-  // consistent with the hero. Invisible at rest (ry 200 → no clip).
   const ry = useTransform(
-  scrollYProgress,
-  [0, 0.2],
-  [200, 100]
-);
-  const clipPath = useTransform(ry, (r) => `ellipse(155% ${r}% at 50% 0%)`);
+    scrollYProgress,
+    [0, 0.2],
+    [200, 100]
+  );
+  const clipPath = useTransform(ry, (r) => `ellipse(${rx}% ${r}% at 50% 0%)`);
 
   return (
     <motion.div

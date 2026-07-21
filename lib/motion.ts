@@ -28,3 +28,14 @@ export const BRAND_SPRING = {
  * every section triggers at the same point in the scroll.
  */
 export const BRAND_VIEWPORT = { once: true, margin: "0px" } as const;
+
+/**
+ * Responsive ellipse rx breakpoints for clip-path section curves.
+ * Wider rx on smaller viewports → shallower, less aggressive curve.
+ * Desktop 155 % → sides clip at ~5.4 % of height.
+ * Tablet  175 % → sides clip at ~4.2 %.
+ * Mobile  210 % → sides clip at ~2.1 %.
+ */
+export function getCurveRx(width: number): number {
+  return width < 640 ? 210 : width < 1024 ? 175 : 155;
+}
