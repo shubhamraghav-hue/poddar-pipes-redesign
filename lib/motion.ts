@@ -37,5 +37,5 @@ export const BRAND_VIEWPORT = { once: true, margin: "0px" } as const;
  * Mobile  210 % → sides clip at ~2.1 %.
  */
 export function getCurveRx(width: number): number {
-  return width < 640 ? 210 : width < 1024 ? 175 : 155;
+  return width < 640 ? 260 : width < 1024 ? 175 : 155;
 }

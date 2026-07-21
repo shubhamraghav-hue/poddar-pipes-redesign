@@ -38,21 +38,29 @@ export default async function HomePage({
   return (
     <>
       <Hero />
-      <SectionReveal>
-        <CompanyOverview />
-      </SectionReveal>
+        <SectionReveal>
+      <SectionCurve>
+          <CompanyOverview />
+      </SectionCurve>
+        </SectionReveal>
       <SectionCurve>
         <ProductCategories />
       </SectionCurve>
-      <WhyChooseUs />
+      <SectionCurve>
+        <WhyChooseUs />
+      </SectionCurve>
       <SectionCurve>
         <IndustriesServed />
       </SectionCurve>
+      <SectionCurve>
       <ManufacturingExcellence />
+      </SectionCurve>
       <SectionCurve>
         <QualityCertifications />
       </SectionCurve>
+      <SectionCurve>
       <Sustainability />
+      </SectionCurve>
       <SectionCurve>
         <LatestBlogs />
       </SectionCurve>
