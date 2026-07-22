@@ -27,22 +27,18 @@ export async function generateMetadata({
   };
 }
 
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
   return (
     <>
       <Hero />
-        <SectionReveal>
-      <SectionCurve>
+      <SectionReveal>
+        <SectionCurve>
           <CompanyOverview />
-      </SectionCurve>
-        </SectionReveal>
+        </SectionCurve>
+      </SectionReveal>
       <SectionCurve>
         <ProductCategories />
       </SectionCurve>
@@ -53,13 +49,13 @@ export default async function HomePage({
         <IndustriesServed />
       </SectionCurve>
       <SectionCurve>
-      <ManufacturingExcellence />
+        <ManufacturingExcellence />
       </SectionCurve>
       <SectionCurve>
         <QualityCertifications />
       </SectionCurve>
       <SectionCurve>
-      <Sustainability />
+        <Sustainability />
       </SectionCurve>
       <SectionCurve>
         <LatestBlogs />

@@ -36,6 +36,10 @@ export function SectionCurve({ children }: SectionCurveProps) {
   return (
     <motion.div
       ref={ref}
+      // `relative` is required so Framer Motion's useScroll can compute this
+      // container's offset — without it the target reads as static and the
+      // depth (ry) never animates, leaving sections flatter than the hero.
+      className="relative"
       style={prefersReducedMotion ? undefined : { clipPath }}
     >
       {children}

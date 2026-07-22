@@ -11,10 +11,10 @@ export async function QualityCertifications() {
   const t = await getTranslations("home");
 
   return (
-    <section className="relative overflow-hidden bg-ink py-24 md:py-32">
+    <section className="bg-ink relative overflow-hidden py-24 md:py-32">
       <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
       <div
-        className="pointer-events-none absolute -right-40 top-1/4 h-96 w-96 rounded-full bg-flow-500/10 blur-3xl"
+        className="bg-flow-500/10 pointer-events-none absolute top-1/4 -right-40 h-96 w-96 rounded-full blur-3xl"
         aria-hidden="true"
       />
       <div className="container-edge relative">
@@ -28,7 +28,7 @@ export async function QualityCertifications() {
           />
           <Link
             href="/quality"
-            className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-ocean-200 transition-colors hover:text-flow-300"
+            className="text-ocean-200 hover:text-flow-300 flex shrink-0 items-center gap-1.5 text-sm font-medium transition-colors"
           >
             {t("qualityCta")} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
@@ -49,12 +49,19 @@ export async function QualityCertifications() {
             {certifications.map((c) => (
               <div
                 key={c.id}
-                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:px-5 sm:py-4 backdrop-blur-sm"
+                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 backdrop-blur-sm sm:px-5 sm:py-4"
               >
-                <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-flow-300 sm:h-5 sm:w-5" strokeWidth={1.7} />
+                <BadgeCheck
+                  className="text-flow-300 mt-0.5 h-4 w-4 shrink-0 sm:h-5 sm:w-5"
+                  strokeWidth={1.7}
+                />
                 <div>
-                  <p className="tech-label whitespace-nowrap text-[0.6rem] text-flow-300 sm:text-[0.72rem]">{c.code}</p>
-                  <p className="mt-0.5 whitespace-nowrap text-xs text-slate-300 sm:mt-1 sm:text-sm">{c.name}</p>
+                  <p className="tech-label text-flow-300 text-[0.6rem] whitespace-nowrap sm:text-[0.72rem]">
+                    {c.code}
+                  </p>
+                  <p className="mt-0.5 text-xs whitespace-nowrap text-slate-300 sm:mt-1 sm:text-sm">
+                    {c.name}
+                  </p>
                 </div>
               </div>
             ))}
