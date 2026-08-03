@@ -671,8 +671,12 @@
   },
   "notFound": {
     "code": "404",
+    "eyebrow": "Error · 404 · Connection lost",
     "title": "This line doesn't connect to anything.",
     "desc": "The page you're looking for may have moved. Head back to the homepage to keep exploring.",
-    "backButton": "Back to Home"
+    "backButton": "Back to Home",
+    "productsButton": "Browse products",
+    "hrEnquiry": "HR enquiries",
+    "distributorEnquiry": "Distributor enquiries"
   }
 }
