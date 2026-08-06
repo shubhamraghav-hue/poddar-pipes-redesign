@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
+import { SectionHeading } from "@/components/shared/SectionHeading";
 import Image from "next/image";
 
 const CATEGORIES = [
@@ -69,25 +70,12 @@ export async function ProductCategories() {
     <section className="bg-[#F5F5F5] py-24 md:py-[150px] px-6 md:px-[100px]">
       <div className="mx-auto max-w-[1312px] flex flex-col gap-10">
 
-        {/* Section heading */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0">
-              <path d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002"
-                stroke="#F28000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-xs font-bold uppercase tracking-widest text-amber-600">
-              {t("categoriesEyebrow")}
-            </span>
-          </div>
-          <h2 className="font-display text-[40px] font-extrabold uppercase leading-tight tracking-tight md:text-[48px]">
-            <span className="text-[#0B0B52]">{t("categoriesH1")}</span>{" "}
-            <span className="text-[#E0AF40]">{t("categoriesH2")}</span>
-          </h2>
-          <p className="max-w-xl text-base leading-relaxed text-[#5C585A]">
-            {t("categoriesDesc")}
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow={t("categoriesEyebrow")}
+          title={t("categoriesH1")}
+          titleAccent={t("categoriesH2")}
+          description={t("categoriesDesc")}
+        />
 
         {/* Grid + View All */}
         <div className="flex flex-col items-center gap-10">

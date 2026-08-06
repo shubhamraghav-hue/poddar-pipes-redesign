@@ -47,6 +47,7 @@
     "navBlogsArticles": "Blogs & Articles",
     "navFaqs": "FAQs",
     "navPipeCementCalculator": "Pipe & Cement Calculator",
+    "navFindPlumber": "Find My Plumber",
     "navInstallationGuide": "Installation Guide"
   },
   "footer": {
@@ -667,6 +668,26 @@
     "ctaTitle": "This calculator covers Agri Gold pressure pipe. Have a different spec question?",
     "ctaDesc": "Our technical team can help with sizing, pressure ratings, and installation guidance across every product category.",
     "ctaPrimary": "Talk to Our Team",
+    "ctaSecondary": "View All Products"
+  },
+  "findPlumber": {
+    "eyebrow": "Plumber Lookup",
+    "pageH1": "Find a plumber",
+    "pageH2": "near you.",
+    "pageDesc": "Type your 6-digit pincode to see plumbers who work with Poddar Pipes products in your area.",
+    "inputLabel": "Your pincode",
+    "inputPlaceholder": "e.g. 560001",
+    "searchButton": "Search",
+    "errorInvalid": "Enter a valid 6-digit pincode.",
+    "tryPincode": "Listed pincodes:",
+    "idleMessage": "Your results will show up here once you search.",
+    "resultsCount": "{count} plumber(s) found near {pincode}",
+    "emptyTitle": "No plumbers listed for {pincode} yet",
+    "emptyDesc": "We're still building out our plumber network in this area. Reach out to our team and we'll help you find someone nearby.",
+    "ctaEyebrow": "Are you a plumber?",
+    "ctaTitle": "Partner with Poddar Pipes and get listed in our directory.",
+    "ctaDesc": "Join our growing network of trusted plumbers and reach more customers in your area.",
+    "ctaPrimary": "Get in Touch",
     "ctaSecondary": "View All Products"
   },
   "notFound": {

@@ -54,7 +54,7 @@ export default async function ResourcesPage({
             </div>
             <h1 className="max-w-3xl font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
               <span className="block">{t("heroLine1")}</span>
-              <span className="block text-[#E0AF40]">{t("heroLine2")}</span>
+              <span className="block text-amber-500">{t("heroLine2")}</span>
               <span className="block font-bold">{t("heroBold")}</span>
             </h1>
             <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">

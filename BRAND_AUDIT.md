@@ -93,7 +93,7 @@ Sampled representative sections rather than every page:
 | Section | Dominant | Orange | White/grey | Gold |
 |---|---|---|---|---|
 | Homepage hero | Ink navy background, white text | Accent CTA button + outline-light secondary | — | — |
-| `SectionHeading` (used ~20×) | Ocean-700 eyebrow/headings | Boomerang accent line (gold, not orange) + eyebrow rule | Paper background | Boomerang gradient |
+| `SectionHeading` (used ~20×) | Thin ocean-600 lead line | Bold amber-500 accent line, always on its own line (corrected from gold, then re-pinned to amber-500 per designer review — see `BRAND_IDENTITY.md`; known sub-AA contrast on light backgrounds, accepted by design) + eyebrow rule | Paper background | — (no longer used in this component) |
 | Product detail hero | Ink background | Accent CTA, FeaturePill outlines | — | — |
 | Certifications / quality | Slate/white cards | Pill outlines only (no fill) | Dominant card background | GoldStamp medallions |
 | Footer | Ink background, slate text | — (no orange in footer currently) | — | — |

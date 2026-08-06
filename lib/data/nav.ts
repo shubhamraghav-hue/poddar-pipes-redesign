@@ -87,6 +87,7 @@ export const navItems: NavItem[] = [
         heading: "navToolsGuides",
         links: [
           { label: "navPipeCementCalculator", href: "/tools/calculator" },
+          { label: "navFindPlumber", href: "/tools/find-a-plumber" },
           { label: "navInstallationGuide", href: "/resources/installation" },
         ],
       },

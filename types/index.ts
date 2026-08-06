@@ -139,3 +139,10 @@ export interface BentoFeature {
   icon: LucideIcon;
   size: "sm" | "md" | "lg";
 }
+
+export interface Plumber {
+  id: string;
+  name: string;
+  phone: string;
+  pincode: string;
+}

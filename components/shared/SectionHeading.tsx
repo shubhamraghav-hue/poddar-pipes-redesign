@@ -4,7 +4,7 @@ import { WordReveal } from "@/components/shared/WordReveal";
 interface SectionHeadingProps {
   eyebrow?: string;
   title: string;
-  /** Second part of heading rendered in gold (#E0AF40). When provided, animation is skipped and each part gets its own color. */
+  /** Second part of heading, always rendered bold on its own line in brand orange (amber-500). When provided, animation is skipped and each part gets its own color/weight. */
   titleAccent?: string;
   description?: string;
   align?: "left" | "center";
@@ -14,6 +14,8 @@ interface SectionHeadingProps {
   animate?: boolean;
   /** Optional engineering-drawing index shown as a bracketed mono tag, e.g. "01". */
   index?: string;
+  /** Heading element to render — "h2" (default, for in-page sections) or "h1" for pages that use this as the page's own top heading (no separate hero above it). */
+  as?: "h1" | "h2";
 }
 
 export function SectionHeading({
@@ -26,7 +28,9 @@ export function SectionHeading({
   className,
   animate = true,
   index,
+  as = "h2",
 }: SectionHeadingProps) {
+  const Heading = as;
   return (
     <div
       className={cn(
@@ -76,22 +80,33 @@ export function SectionHeading({
           </span>
         </div>
       )}
-      <h2
+      <Heading
         className={cn(
-          "max-w-2xl font-display text-3xl font-bold uppercase leading-tight tracking-tight sm:text-4xl md:text-5xl",
+          "max-w-2xl font-display text-3xl uppercase leading-tight tracking-tight sm:text-4xl md:text-5xl",
           animate ? "text-pretty" : "text-balance",
-          !titleAccent && (dark ? "text-white" : "text-ocean-950")
+          !titleAccent && (dark ? "font-bold text-white" : "font-bold text-ocean-950")
         )}
       >
         {titleAccent ? (
           <>
-            <span className={dark ? "text-white" : "text-[#0B0B52]"}>{title}</span>{" "}
-            <span className="text-[#E0AF40]">{titleAccent}</span>
+            {/* Designer spec: lead line is thin weight in brand blue; accent
+                line is always brand orange amber-500 (#f5951f) — a designer
+                override of an earlier amber-700 AA-contrast fix. amber-500
+                measures ~2.28:1 on white/paper-2 (below the 3:1 AA floor for
+                large text) but ~7.45:1 on ink — flagged as a known
+                accessibility tradeoff on light backgrounds, kept because the
+                designer explicitly asked for this exact shade everywhere.
+                `block` forces the accent onto its own line always, rather
+                than depending on the string being long enough to wrap. */}
+            <span className={cn("block font-medium", dark ? "text-white" : "text-ocean-600")}>
+              {title}
+            </span>
+            <span className="block font-bold text-amber-500">{titleAccent}</span>
           </>
         ) : animate ? (
           <WordReveal text={title} />
         ) : title}
-      </h2>
+      </Heading>
       {description && (
         <p
           className={cn(

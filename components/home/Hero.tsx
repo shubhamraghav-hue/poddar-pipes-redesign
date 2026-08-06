@@ -131,7 +131,7 @@ export function Hero() {
           >
             <h1 className="text-balance font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
               <span className="block">{tDyn(`heroSlide_${slide.id}_line1`)}</span>
-              <span className="block text-[#E0AF40]">{tDyn(`heroSlide_${slide.id}_line2`)}</span>
+              <span className="block text-amber-500">{tDyn(`heroSlide_${slide.id}_line2`)}</span>
               <span className="block font-bold">{tDyn(`heroSlide_${slide.id}_bold`)}</span>
             </h1>
             <p className="mt-5 max-w-xl text-balance text-base leading-relaxed text-slate-300 sm:mt-7 sm:text-lg">
