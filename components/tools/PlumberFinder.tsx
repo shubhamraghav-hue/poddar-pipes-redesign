@@ -45,7 +45,9 @@ function PlumberCard({ plumber, index }: { plumber: Plumber; index: number }) {
                 <p className="font-display text-base font-medium text-slate-900">{plumber.name}</p>
                 <span className="tech-label mt-1 inline-flex items-center gap-1 text-slate-500">
                   <Wrench className="h-3 w-3" strokeWidth={2} />
-                  Plumber
+                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    Plumber
+                  </span>
                 </span>
               </div>
             </div>
@@ -59,7 +61,9 @@ function PlumberCard({ plumber, index }: { plumber: Plumber; index: number }) {
           <Button asChild variant="secondary" className="mt-auto w-full">
             <a href={telHref}>
               <Phone className="h-4 w-4" />
-              {plumber.phone}
+              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                {plumber.phone}
+              </span>
             </a>
           </Button>
         </div>
@@ -160,7 +164,9 @@ export function PlumberFinder() {
                   : "border-slate-200 text-slate-600 hover:border-ocean-500 hover:text-ocean-700"
               )}
             >
-              {code}
+              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                {code}
+              </span>
             </button>
           ))}
         </div>

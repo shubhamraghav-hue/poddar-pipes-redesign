@@ -153,7 +153,10 @@ export default async function CategoryPage({
                 href={`/products?category=${content.category}`}
                 className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-ocean-700 hover:text-ocean-800"
               >
-                {t("categoryFilterCatalogue")} <ArrowRight className="h-3.5 w-3.5" />
+                <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                  {t("categoryFilterCatalogue")}
+                </span>
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 

@@ -87,10 +87,16 @@ export default async function CareersPage({
                   </div>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
                     <span className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5" /> {job.location}
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                        {job.location}
+                      </span>
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5" /> {job.type}
+                      <Clock className="h-3.5 w-3.5" />
+                      <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                        {job.type}
+                      </span>
                     </span>
                     <a
                       href="#apply"

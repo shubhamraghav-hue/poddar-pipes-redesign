@@ -7,6 +7,21 @@ in with invented data — replace with verified information only.
 
 ## Resolved since the last pass
 
+- **Category logo assets — fully resolved.** Auditing the homepage category grid
+  (`components/home/ProductCategories.tsx`) first found that 4 of the 6 wordmark SVGs at
+  `public/products/*-logo.svg` did not contain the artwork their filename claimed:
+  `swr-logo.svg` actually rendered "PODDAR PP-R GOLD", `agri-logo.svg` actually rendered
+  "PODDAR PP-RC GOLD" — both from the unconfirmed Playbook mockup filler noted below —
+  while the real SWR artwork was sitting under `tanks-logo.svg` and the real AGRI artwork
+  under `ugd-logo.svg`. This was invisible to any code-level check (the `alt` text and
+  hrefs were always correct) — only opening each SVG file directly revealed it. TANKS and
+  UGD briefly had no real artwork at all and showed an honest placeholder. The brand team
+  then supplied a complete, correctly-labelled set of all 6 wordmarks (`upvc.svg`,
+  `cpvc.svg`, `swr.svg`, `tank.svg`, `ugd.svg`, `agri.svg`), now installed at
+  `public/products/*-logo.svg` — all six categories show real artwork, matching the file's
+  own name. The category grid's display order was also changed per brand-team request to
+  CPVC, UPVC, SWR, AGRI, UGD, TANKS (was UPVC, CPVC, SWR, TANKS, UGD, AGRI).
+
 Several items previously flagged here turned out to have real source material sitting
 in the user's Downloads folder that just hadn't been pointed to yet:
 

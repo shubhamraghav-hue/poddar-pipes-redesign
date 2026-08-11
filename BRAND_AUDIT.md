@@ -61,6 +61,32 @@ several real bugs were found in the process (below).
    focus moves from the trigger into its own links. This is a disclosure
    pattern, not a full ARIA `menu`/`menuitem` widget with arrow-key roving
    tabindex — a further pass could add that, but reachability is now real.
+5. **Icon+text labels rendering ~3px high across every icon-adjacent CTA
+   sitewide.** Root cause confirmed via canvas glyph-ink measurement (not
+   just DOM box math, which was initially misleading — see the SectionHeading
+   entry above): Anek Devanagari's font metrics reserve `ascent:14 / descent:10`
+   at 14px, and a bare text node sitting directly inside a `flex items-center`
+   container uses that full untrimmed box regardless of any `line-height` or
+   `text-box-trim` set on the container — verified by toggling `text-box-trim`
+   live on a real button and finding zero measured change, because it was
+   never reaching the text. Fixed by wrapping every such label in its own
+   `<span leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]>`,
+   which gives the label a real box the browser will actually trim. Generalized
+   into `components/ui/button.tsx` (auto-wraps string children); applied by
+   hand to ~25 custom-markup instances across Navbar, LanguageSwitcher,
+   PlumberFinder, ProductCategories, and most CTA links site-wide that don't
+   go through the shared `Button`. See `BRAND_IDENTITY.md` for the full list.
+6. **Two of six homepage category logos were showing unconfirmed mockup
+   branding ("PP-R GOLD" / "PP-RC GOLD") under the SWR and AGRI filenames** —
+   a pure asset mix-up (the React code, `alt` text, and links were always
+   correct), invisible to any DOM-level check since it lived inside the SVG
+   artwork itself. First fixed by moving the real SWR/AGRI art (which was
+   sitting under the `tanks-logo.svg` / `ugd-logo.svg` filenames) into the
+   correct files, with an honest placeholder standing in for TANKS/UGD (no
+   real art existed for either at that point). The brand team then supplied a
+   complete, correctly-labelled 6-file set — all six categories now show real
+   artwork under their own filename, and the grid's display order changed to
+   CPVC, UPVC, SWR, AGRI, UGD, TANKS per their request. See `CONTENT_TODOS.md`.
 
 ## New components built
 

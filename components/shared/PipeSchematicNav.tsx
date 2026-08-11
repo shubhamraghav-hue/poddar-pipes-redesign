@@ -118,7 +118,9 @@ export function PipeSchematicNav({ nodes }: { nodes: SchematicNode[] }) {
                     {node.description}
                   </p>
                   <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-ocean-200 transition-colors group-hover:text-flow-300">
-                    Explore
+                    <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                      Explore
+                    </span>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>

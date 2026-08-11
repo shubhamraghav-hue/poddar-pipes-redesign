@@ -92,7 +92,10 @@ export default async function ContactPage({
                 href="/careers"
                 className="mt-2 flex w-fit items-center gap-2 rounded-full border-[1.5px] border-amber-600 px-4 py-2 text-sm font-medium text-ocean-700 transition-colors hover:bg-amber-600 hover:text-white"
               >
-                <Briefcase className="h-4 w-4" /> {t("careersLink")}
+                <Briefcase className="h-4 w-4" />
+                <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                  {t("careersLink")}
+                </span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

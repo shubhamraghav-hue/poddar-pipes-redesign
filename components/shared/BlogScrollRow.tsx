@@ -38,7 +38,9 @@ function BlogCard({ post }: { post: BlogPost }) {
         <div className="mt-auto flex items-center gap-2 pt-4 text-xs text-slate-500">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {fmtDate(post.date)}
+            <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              {fmtDate(post.date)}
+            </span>
           </span>
           <span>·</span>
           <span>{post.readTime}</span>

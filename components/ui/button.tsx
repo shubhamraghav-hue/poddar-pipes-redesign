@@ -53,10 +53,28 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    // Bare text children of a flex container don't respect line-height/
+    // text-box-trim in Anek Devanagari (its ascent/descent are asymmetric
+    // enough that the label renders visibly high vs. an adjacent icon) — see
+    // the Search-button investigation. Wrapping just the string children in
+    // a real element lets text-box-trim actually do its job. Only strings
+    // are wrapped — icon elements, and the single element child Slot expects
+    // for `asChild`, pass through untouched.
+    const content = React.Children.map(children, (child) =>
+      typeof child === "string" ? (
+        <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+          {child}
+        </span>
+      ) : (
+        child
+      )
+    );
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+        {content}
+      </Comp>
     );
   }
 );

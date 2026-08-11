@@ -37,7 +37,9 @@ export function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
         )}
       >
         <Globe className="h-4 w-4" />
-        <span className="hidden sm:inline">{localeLabels[locale]}</span>
+        <span className="hidden leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] sm:inline">
+          {localeLabels[locale]}
+        </span>
       </button>
 
       {open && (
@@ -53,7 +55,9 @@ export function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
                   l === locale ? "text-ocean-700" : "text-slate-700"
                 )}
               >
-                {localeLabels[l]}
+                <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                  {localeLabels[l]}
+                </span>
                 {l === locale && <Check className="h-4 w-4" />}
               </button>
             ))}

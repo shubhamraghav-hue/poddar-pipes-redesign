@@ -55,7 +55,9 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
 
           <span className="mt-6 flex items-center gap-1.5 text-sm font-medium text-ocean-700">
-            View specifications
+            <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              View specifications
+            </span>
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </Link>

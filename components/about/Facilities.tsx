@@ -67,7 +67,10 @@ export async function GlobalPresence() {
                 className="font-display text-3xl font-medium text-white md:text-4xl"
               />
               <p className="flex items-center gap-1.5 text-sm text-slate-400">
-                <MapPin className="h-3.5 w-3.5 text-ocean-300" /> {t(`presenceStat${i}Label` as never)}
+                <MapPin className="h-3.5 w-3.5 text-ocean-300" />
+                <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                  {t(`presenceStat${i}Label` as never)}
+                </span>
               </p>
             </div>
           ))}

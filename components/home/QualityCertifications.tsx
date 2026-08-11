@@ -30,7 +30,10 @@ export async function QualityCertifications() {
             href="/quality"
             className="text-ocean-200 hover:text-flow-300 flex shrink-0 items-center gap-1.5 text-sm font-medium transition-colors"
           >
-            {t("qualityCta")} <ArrowRight className="h-3.5 w-3.5" />
+            <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              {t("qualityCta")}
+            </span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 

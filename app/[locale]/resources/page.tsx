@@ -76,7 +76,9 @@ export default async function ResourcesPage({
           href="/resources/installation"
           className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-ocean-700 hover:text-ocean-800"
         >
-          {t("installLink")}
+          <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+            {t("installLink")}
+          </span>
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -117,7 +119,9 @@ export default async function ResourcesPage({
                   <div className="mt-5 flex items-center gap-3 text-xs text-slate-500">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {new Date(post.date).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
+                      <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                        {new Date(post.date).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
+                      </span>
                     </span>
                     <span>·</span>
                     <span>{post.readTime}</span>

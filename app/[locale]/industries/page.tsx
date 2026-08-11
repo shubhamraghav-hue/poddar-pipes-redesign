@@ -72,7 +72,10 @@ export default async function IndustriesPage({
                     href="/products"
                     className="mt-6 flex items-center gap-1.5 text-sm font-medium text-ocean-700 hover:text-ocean-800"
                   >
-                    {t("relevantProducts")} <ArrowRight className="h-3.5 w-3.5" />
+                    <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                      {t("relevantProducts")}
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               </RevealOnScroll>

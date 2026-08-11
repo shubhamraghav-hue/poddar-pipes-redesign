@@ -22,10 +22,16 @@ export async function OfficeLocations() {
               <p className="mt-4 text-sm leading-relaxed text-slate-600">{office.address}</p>
               <div className="mt-4 flex flex-col gap-1.5 text-sm text-slate-700">
                 <span className="flex items-center gap-2">
-                  <Phone className="h-3.5 w-3.5 text-slate-400" /> {office.phone}
+                  <Phone className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    {office.phone}
+                  </span>
                 </span>
                 <span className="flex items-center gap-2">
-                  <Mail className="h-3.5 w-3.5 text-slate-400" /> {office.email}
+                  <Mail className="h-3.5 w-3.5 text-slate-400" />
+                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    {office.email}
+                  </span>
                 </span>
               </div>
             </div>

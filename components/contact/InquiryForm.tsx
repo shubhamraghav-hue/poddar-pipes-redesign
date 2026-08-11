@@ -150,7 +150,9 @@ export function InquiryForm({ presetProduct, presetEnquiryType, compact = false 
               exit={{ opacity: 0 }}
             >
               <Loader2 className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin" />
-              {t("submit")}
+              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                {t("submit")}
+              </span>
             </motion.span>
           ) : (
             <motion.span
@@ -161,7 +163,9 @@ export function InquiryForm({ presetProduct, presetEnquiryType, compact = false 
               exit={{ opacity: 0 }}
             >
               <Send className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2" />
-              {t("submit")}
+              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                {t("submit")}
+              </span>
             </motion.span>
           )}
         </AnimatePresence>

@@ -178,7 +178,10 @@ export function ProductDetail({ product }: { product: Product }) {
                 </dl>
                 <div className="mt-8">
                   <h3 className="flex items-center gap-2 font-display text-lg font-medium text-slate-900">
-                    <Ruler className="h-4 w-4 text-ocean-600" /> {t("sizesH")}
+                    <Ruler className="h-4 w-4 text-ocean-600" />
+                    <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                      {t("sizesH")}
+                    </span>
                   </h3>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {product.sizes.map((size) => (

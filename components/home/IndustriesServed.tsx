@@ -121,7 +121,10 @@ export async function IndustriesServed() {
             href="/industries"
             className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-ocean-700 hover:text-ocean-800"
           >
-            {t("industriesCta")} <ArrowUpRight className="h-3.5 w-3.5" />
+            <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              {t("industriesCta")}
+            </span>
+            <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 

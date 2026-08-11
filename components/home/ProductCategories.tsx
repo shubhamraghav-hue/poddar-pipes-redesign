@@ -5,24 +5,25 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import Image from "next/image";
 
+// Display order per brand team request: CPVC, UPVC, SWR, AGRI, UGD, TANKS.
 const CATEGORIES = [
-  {
-    id: "upvc",
-    title: "UPVC",
-    href: "/products/category/upvc-pipes",
-    descKey: "categoriesUpvcDesc" as const,
-    logo: "/products/upvc-logo.svg",
-    logoW: 298,
-    logoH: 116,
-  },
   {
     id: "cpvc",
     title: "CPVC",
     href: "/products/category/cpvc-pipes",
     descKey: "categoriesCpvcDesc" as const,
     logo: "/products/cpvc-logo.svg",
-    logoW: 212,
-    logoH: 60,
+    logoW: 430,
+    logoH: 142,
+  },
+  {
+    id: "upvc",
+    title: "UPVC",
+    href: "/products/category/upvc-pipes",
+    descKey: "categoriesUpvcDesc" as const,
+    logo: "/products/upvc-logo.svg",
+    logoW: 442,
+    logoH: 142,
   },
   {
     id: "swr",
@@ -30,26 +31,8 @@ const CATEGORIES = [
     href: "/products/category/swr-pipes",
     descKey: "categoriesSwrDesc" as const,
     logo: "/products/swr-logo.svg",
-    logoW: 205,
-    logoH: 60,
-  },
-  {
-    id: "tanks",
-    title: "TANKS",
-    href: "/products/category/tanks",
-    descKey: "categoriesTanksDesc" as const,
-    logo: "/products/tanks-logo.svg",
-    logoW: 294,
-    logoH: 116,
-  },
-  {
-    id: "ugd",
-    title: "UGD",
-    href: "/products/category/ugd-pipes",
-    descKey: "categoriesUgdDesc" as const,
-    logo: "/products/ugd-logo.svg",
-    logoW: 298,
-    logoH: 118,
+    logoW: 412,
+    logoH: 142,
   },
   {
     id: "agri",
@@ -57,8 +40,26 @@ const CATEGORIES = [
     href: "/products/category/agricultural-pipes",
     descKey: "categoriesAgriDesc" as const,
     logo: "/products/agri-logo.svg",
-    logoW: 298,
-    logoH: 116,
+    logoW: 418,
+    logoH: 142,
+  },
+  {
+    id: "ugd",
+    title: "UGD",
+    href: "/products/category/ugd-pipes",
+    descKey: "categoriesUgdDesc" as const,
+    logo: "/products/ugd-logo.svg",
+    logoW: 384,
+    logoH: 142,
+  },
+  {
+    id: "tanks",
+    title: "TANKS",
+    href: "/products/category/tanks",
+    descKey: "categoriesTanksDesc" as const,
+    logo: "/products/tanks-logo.svg",
+    logoW: 450,
+    logoH: 142,
   },
 ] as const;
 
@@ -106,7 +107,7 @@ export async function ProductCategories() {
 
                       {/* VIEW PRODUCTS */}
                       <div className="flex items-center gap-2.5">
-                        <span className="text-[#171796] text-[18px] font-bold">
+                        <span className="text-[#171796] text-[18px] font-bold leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                           VIEW PRODUCTS
                         </span>
                         <ArrowRight className="h-[14px] w-[14px] text-[#171796] transition-transform group-hover:translate-x-0.5" />
@@ -124,7 +125,9 @@ export async function ProductCategories() {
               href="/products"
               className="inline-flex items-center gap-2 rounded-full border-2 border-[#171796] px-8 py-3 text-[#171796] font-bold text-base transition-colors hover:bg-[#171796] hover:text-white"
             >
-              {t("categoriesCta")}
+              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                {t("categoriesCta")}
+              </span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </RevealOnScroll>

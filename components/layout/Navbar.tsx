@@ -81,7 +81,9 @@ export function Navbar() {
                     active && (solid ? "text-ocean-700" : "text-white")
                   )}
                 >
-                  {t(item.key as never)}
+                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    {t(item.key as never)}
+                  </span>
                   {item.megaMenu && (
                     <ChevronDown
                       className={cn(
@@ -104,7 +106,9 @@ export function Navbar() {
             size="sm"
           >
             <Link href="/contact">
-              {t("requestQuote")}
+              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                {t("requestQuote")}
+              </span>
               {/* <ArrowUpRight className="h-4 w-4" /> */}
             </Link>
           </Button>
@@ -198,7 +202,9 @@ export function Navbar() {
               ))}
               <Button asChild className="mt-3" size="sm">
                 <Link href="/contact">
-                  {t("requestQuote")}
+                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    {t("requestQuote")}
+                  </span>
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </Button>
