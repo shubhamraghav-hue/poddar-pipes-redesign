@@ -65,11 +65,10 @@ const CATEGORIES = [
 
 export async function ProductCategories() {
   const t = await getTranslations("home");
-  const rows = [CATEGORIES.slice(0, 3), CATEGORIES.slice(3)] as const;
 
   return (
-    <section className="bg-[#F5F5F5] py-24 md:py-[150px] px-6 md:px-[100px]">
-      <div className="mx-auto max-w-[1312px] flex flex-col gap-10">
+    <section className="bg-[#F5F5F5] py-12 md:py-16 px-6 md:px-16">
+      <div className="mx-auto max-w-[1312px] flex flex-col gap-6">
 
         <SectionHeading
           eyebrow={t("categoriesEyebrow")}
@@ -79,45 +78,49 @@ export async function ProductCategories() {
         />
 
         {/* Grid + View All */}
-        <div className="flex flex-col items-center gap-10">
-          <div className="self-stretch flex flex-col gap-5">
-            {rows.map((row, ri) => (
-              <RevealOnScroll key={ri} delay={ri * 0.05}>
-                <div className="flex flex-col gap-5 sm:flex-row">
-                  {row.map((cat, ci) => (
-                    <Link
-                      key={cat.id}
-                      href={cat.href}
-                      className="group flex flex-1 flex-col items-start bg-white rounded-[25px] pt-[60px] pb-5 pl-10 pr-6 transition-shadow hover:shadow-lg hover:shadow-black/5"
-                    >
-                      {/* Product wordmark */}
-                      <div className="flex flex-1 flex-col items-start gap-5 pr-2 mb-8">
-                        <Image
-                          src={cat.logo}
-                          alt={cat.title}
-                          width={cat.logoW}
-                          height={cat.logoH}
-                          className="h-auto w-auto max-w-full"
-                        />
-                        {/* Description */}
-                        <span className="text-[#606060] text-base leading-relaxed max-w-[265px]">
-                          {t(cat.descKey)}
-                        </span>
-                      </div>
-
-                      {/* VIEW PRODUCTS */}
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-[#171796] text-[18px] font-bold leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-                          VIEW PRODUCTS
-                        </span>
-                        <ArrowRight className="h-[14px] w-[14px] text-[#171796] transition-transform group-hover:translate-x-0.5" />
-                      </div>
-                    </Link>
-                  ))}
+        <div className="flex flex-col items-center gap-6">
+          <RevealOnScroll className="grid w-full max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
+            {CATEGORIES.map((cat) => (
+              <Link
+                key={cat.id}
+                href={cat.href}
+                className="group flex aspect-square w-full max-w-[260px] mx-auto sm:max-w-none flex-col items-center justify-between overflow-hidden bg-white rounded-[14px] p-5 text-center transition-shadow hover:shadow-lg hover:shadow-black/5"
+              >
+                {/* Logo box grows to fill the space above the description,
+                    centering wordmarks of any width/aspect ratio instead of
+                    pinning them to the top-left — this also spreads logo /
+                    description / CTA across the full card height so the
+                    square doesn't end in dead space below the CTA. Card is
+                    capped at 260px even in the single-column mobile layout
+                    (rather than stretching to the full row width), keeping
+                    it the same proportions as the 3-up desktop card instead
+                    of ballooning into an oversized square. */}
+                <div className="flex w-full flex-1 items-center justify-center">
+                  <Image
+                    src={cat.logo}
+                    alt={cat.title}
+                    width={cat.logoW}
+                    height={cat.logoH}
+                    className="h-14 w-auto max-w-full object-contain"
+                  />
                 </div>
-              </RevealOnScroll>
+
+                {/* Description — clamped to 2 lines with a matching
+                    min-height so every card reserves the same space here
+                    whether its text wraps to 1 line or 2. */}
+                <span className="line-clamp-2 min-h-[38px] text-sm leading-snug text-[#606060]">
+                  {t(cat.descKey)}
+                </span>
+
+                <div className="mt-2 flex items-center gap-1">
+                  <span className="text-xs font-bold text-[#171796] leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    VIEW PRODUCTS
+                  </span>
+                  <ArrowRight className="h-3 w-3 text-[#171796] transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
             ))}
-          </div>
+          </RevealOnScroll>
 
           {/* View All button */}
           <RevealOnScroll>

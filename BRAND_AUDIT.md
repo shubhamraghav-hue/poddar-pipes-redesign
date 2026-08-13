@@ -87,6 +87,23 @@ several real bugs were found in the process (below).
    complete, correctly-labelled 6-file set — all six categories now show real
    artwork under their own filename, and the grid's display order changed to
    CPVC, UPVC, SWR, AGRI, UGD, TANKS per their request. See `CONTENT_TODOS.md`.
+7. **`ProductCategories`'s category-card description used `sm:text-md`, which
+   isn't a real Tailwind class** (the scale is `text-sm`/`text-base`, there's
+   no `-md` step) — a silent no-op, so the mobile `text-[16px]` size leaked
+   through unchanged at every breakpoint instead of scaling down on
+   tablet/desktop as intended. Corrected to `sm:text-sm`. Found while fixing
+   an unrelated layout issue on the same component (see `BRAND_IDENTITY.md`
+   for the full grid redesign) — worth grepping the compiled CSS whenever a
+   "responsive override" doesn't visibly do anything.
+8. **`ProductCategories` mobile card content overflow — fixed.** Same flat
+   `text-[16px]` description/CTA text (bug #7's leaked-through mobile size)
+   was also too large for the ~104px mobile card to hold — the logo + 2-line
+   description + CTA didn't fit and the bottom was clipped by the card's
+   `overflow-hidden`, confirmed via `scrollHeight > clientHeight` on a live
+   375px-wide render. Changed to `text-[10px] sm:text-sm` (description) /
+   `text-[10px] sm:text-xs` (CTA), with the description's reserved `min-h`
+   recalculated to match. Re-verified at 375px: no overflow on any of the six
+   cards; desktop (248×248px squares) unaffected. See `BRAND_IDENTITY.md`.
 
 ## New components built
 
