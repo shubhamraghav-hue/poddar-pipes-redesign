@@ -156,3 +156,11 @@ export interface Plumber {
   phone: string;
   pincode: string;
 }
+
+/** One paragraph, or a bulleted list, within a legal-page section. */
+export type LegalBlock = string | { list: string[] };
+
+export interface LegalSection {
+  heading: string;
+  body: LegalBlock[];
+}

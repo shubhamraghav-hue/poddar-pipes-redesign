@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
-import { Linkedin, X, Youtube, Facebook, Instagram } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
+import { SocialIcons } from "@/components/shared/SocialIcons";
 
 /**
  * Footer redesign (Figma "Poddar Pipes - Footer Ideation 1", node 1:26).
@@ -9,10 +9,15 @@ import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
  *
  *   text-white       -> primary text (logo wordmark, nav headings, "Let's Talk")
  *   text-[#c0c0c0]   -> secondary text (address, nav links, legal line, placeholders)
- *   text-slate-600   -> disabled / "coming soon" placeholders only
  *   amber-600        -> the single brand accent (logo mark, send button)
- *   flow-300         -> link hover state (matches the rest of the site's dark-surface links)
  *   border-white/10  -> the single divider above the legal row
+ *
+ * Hover mechanic — ported from the poddarpipes.com "coming soon" site's dark
+ * footer (D:\Projects\poddar-pipes-launching-soon\components\Footer.tsx /
+ * SocialIcons.tsx): every interactive text/icon rests at opacity-70 and goes
+ * to opacity-100 on hover, rather than this site's usual color-shift-to-flow
+ * hover — applied uniformly across nav links, contact links, legal links,
+ * and social icons so the whole footer reads as one consistent interaction.
  *
  * Note: the design mock spells the legal entity "Poddar Plumbing Systems" —
  * kept as "Poddar Plumbing System" (singular) here since that's the name
@@ -46,7 +51,8 @@ export function Footer() {
   ];
 
   const navHeading = "text-sm font-bold uppercase tracking-wide text-white";
-  const navLink = "text-sm text-[#c0c0c0] uppercase transition-colors hover:text-flow-300";
+  const hoverLink = "opacity-70 transition hover:opacity-100";
+  const navLink = `text-sm text-[#c0c0c0] uppercase ${hoverLink}`;
 
   return (
     <footer className="relative overflow-hidden bg-ink text-[#c0c0c0]">
@@ -64,10 +70,10 @@ export function Footer() {
                 <p>100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008</p>
               </div>
               <div className="flex flex-col gap-1 text-sm">
-                <a href="mailto:poddarpipes@gmail.com" className="font-bold text-white transition-colors hover:text-flow-300">
+                <a href="mailto:poddarpipes@gmail.com" className={`font-bold text-white ${hoverLink}`}>
                   poddarpipes@gmail.com
                 </a>
-                <a href="tel:+919888822333" className="transition-colors hover:text-flow-300">
+                <a href="tel:+919888822333" className={hoverLink}>
                   +91 98888 22333
                 </a>
               </div>
@@ -106,7 +112,7 @@ export function Footer() {
                 <ul className="flex flex-col gap-2">
                   {productLinks.map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-[#c0c0c0] transition-colors hover:text-flow-300">
+                      <Link href={link.href} className={`text-sm text-[#c0c0c0] ${hoverLink}`}>
                         {link.label}
                       </Link>
                     </li>
@@ -132,36 +138,15 @@ export function Footer() {
           <div className="flex flex-col items-center gap-4 text-sm sm:flex-row sm:justify-between">
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-center sm:justify-start sm:text-left">
               <p>© {new Date().getFullYear()} Poddar Plumbing System Pvt. Ltd. {t("rightsReserved")}</p>
-              {/* No Privacy Policy / Terms pages exist yet — legal copy needs
-                  to come from the business/legal team, not be fabricated here.
-                  Rendered as non-interactive placeholders until those pages
-                  exist and can be linked for real. */}
-              <span aria-hidden="true" title="Coming soon" className="cursor-not-allowed text-slate-600">
+              <Link href="/privacy-policy" className={hoverLink}>
                 {t("privacyPolicy")}
-              </span>
-              <span aria-hidden="true" title="Coming soon" className="cursor-not-allowed text-slate-600">
+              </Link>
+              <Link href="/terms-of-service" className={hoverLink}>
                 {t("termsOfService")}
-              </span>
+              </Link>
             </div>
 
-            <div className="flex items-center gap-5">
-              {/* Social profiles aren't live yet — rendered as non-interactive
-                  placeholders (no href, excluded from tab order) rather than
-                  dead "#" links, until real URLs are wired in. lucide's plain
-                  `X` glyph stands in for the X/Twitter mark — there's no
-                  separate brand asset to reproduce, and a bare X is exactly
-                  what that logo is. */}
-              {[Linkedin, X, Youtube, Facebook, Instagram].map((Icon, i) => (
-                <span
-                  key={i}
-                  aria-hidden="true"
-                  title="Coming soon"
-                  className="flex cursor-not-allowed items-center justify-center text-slate-600"
-                >
-                  <Icon className="h-[18px] w-[18px]" />
-                </span>
-              ))}
-            </div>
+            <SocialIcons />
            </div>
         </div>
       </div>

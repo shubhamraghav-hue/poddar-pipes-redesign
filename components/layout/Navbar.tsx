@@ -38,7 +38,11 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeMenu]);
 
-  const solid = scrolled || open || activeMenu !== null;
+  // Legal pages open on a plain light background (no dark hero band), so the
+  // nav needs to render in its solid state immediately rather than the
+  // transparent-over-dark-hero state every other page relies on.
+  const LIGHT_HEADER_ROUTES = ["/privacy-policy", "/terms-of-service"];
+  const solid = scrolled || open || activeMenu !== null || LIGHT_HEADER_ROUTES.includes(pathname);
 
   return (
     <header
