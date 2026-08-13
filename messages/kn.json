@@ -33,7 +33,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "ಮಾತನಾಡೋಣ"
   },
   "common": {
     "readMore": "Read More",
@@ -99,5 +100,11 @@
     "qualityEyebrow": "Quality assurance",
     "sustainabilityEyebrow": "Sustainability",
     "blogEyebrow": "Latest insights"
+  },
+  "articles": {
+    "pageEyebrow": "ಪ್ರೆಸ್ ಕವರೇಜ್",
+    "pageH1": "ಸುದ್ದಿಯಲ್ಲಿ ಪೊದ್ದಾರ್.",
+    "pageDesc": "ನಮ್ಮ ವೇಮಗಲ್, ಕರ್ನಾಟಕ ವಿಸ್ತರಣೆ — ಹೂಡಿಕೆ, ಉದ್ಯೋಗಗಳು ಮತ್ತು ಕಾಲಮಿತಿ — ಕುರಿತ ಮಾಧ್ಯಮಗಳ ಸ್ವತಂತ್ರ ವರದಿ.",
+    "readLabel": "ಪೂರ್ಣ ಲೇಖನ ಓದಿ"
   }
 }

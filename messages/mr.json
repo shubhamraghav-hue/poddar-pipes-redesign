@@ -33,7 +33,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "बोलूया"
   },
   "common": {
     "readMore": "Read More",
@@ -99,5 +100,11 @@
     "qualityEyebrow": "Quality assurance",
     "sustainabilityEyebrow": "Sustainability",
     "blogEyebrow": "Latest insights"
+  },
+  "articles": {
+    "pageEyebrow": "प्रेस कव्हरेज",
+    "pageH1": "बातम्यांमध्ये पोद्दार.",
+    "pageDesc": "आमच्या वेमगल, कर्नाटक विस्ताराबद्दल — गुंतवणूक, रोजगार आणि कालमर्यादा — प्रसारमाध्यमांचे स्वतंत्र वृत्तांकन.",
+    "readLabel": "संपूर्ण बातमी वाचा"
   }
 }

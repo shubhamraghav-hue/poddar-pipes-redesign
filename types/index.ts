@@ -102,6 +102,16 @@ export interface FAQItem {
   answer: string;
 }
 
+export interface PressArticle {
+  id: string;
+  /** Month-level precision only — matches what's actually confirmed per source. */
+  date: string;
+  outlet: string;
+  headline: string;
+  summary: string;
+  sourceUrl: string;
+}
+
 export interface BlogPost {
   id: string;
   slug: string;

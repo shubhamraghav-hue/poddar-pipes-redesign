@@ -5,12 +5,33 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 
 const FAQ_COUNT = 11;
 
-export async function FAQ() {
+interface FAQProps {
+  /** Skip the built-in eyebrow/heading — for pages (like the dedicated FAQ
+   * page) that render their own header above this component instead. */
+  hideHeading?: boolean;
+}
+
+export async function FAQ({ hideHeading = false }: FAQProps = {}) {
   const t = await getTranslations("faq");
   const faqs = Array.from({ length: FAQ_COUNT }, (_, i) => ({
     question: t(`q${i}` as never),
     answer: t(`a${i}` as never),
   }));
+
+  const accordion = (
+    <Accordion type="single" collapsible className="w-full">
+      {faqs.map((faq, i) => (
+        <AccordionItem key={i} value={`item-${i}`}>
+          <AccordionTrigger>{faq.question}</AccordionTrigger>
+          <AccordionContent>{faq.answer}</AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  );
+
+  if (hideHeading) {
+    return <RevealOnScroll className="mx-auto max-w-3xl">{accordion}</RevealOnScroll>;
+  }
 
   return (
     <section className="bg-paper-2 py-24 md:py-28">
@@ -22,16 +43,7 @@ export async function FAQ() {
             description={t("desc")}
           />
         </RevealOnScroll>
-        <RevealOnScroll delay={0.1}>
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </RevealOnScroll>
+        <RevealOnScroll delay={0.1}>{accordion}</RevealOnScroll>
       </div>
     </section>
   );

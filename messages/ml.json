@@ -33,7 +33,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "നമുക്ക് സംസാരിക്കാം"
   },
   "common": {
     "readMore": "Read More",
@@ -99,5 +100,11 @@
     "qualityEyebrow": "Quality assurance",
     "sustainabilityEyebrow": "Sustainability",
     "blogEyebrow": "Latest insights"
+  },
+  "articles": {
+    "pageEyebrow": "പ്രസ്സ് കവറേജ്",
+    "pageH1": "വാർത്തകളിൽ പൊദ്ദാർ.",
+    "pageDesc": "ഞങ്ങളുടെ വേംഗൽ, കർണാടക വിപുലീകരണം — നിക്ഷേപം, തൊഴിലവസരങ്ങൾ, സമയക്രമം — സംബന്ധിച്ചുള്ള മാധ്യമങ്ങളുടെ സ്വതന്ത്ര റിപ്പോർട്ടിംഗ്.",
+    "readLabel": "മുഴുവൻ വാർത്ത വായിക്കുക"
   }
 }

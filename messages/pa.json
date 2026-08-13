@@ -33,7 +33,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "ਗੱਲ ਕਰੀਏ"
   },
   "common": {
     "readMore": "Read More",
@@ -99,5 +100,11 @@
     "qualityEyebrow": "Quality assurance",
     "sustainabilityEyebrow": "Sustainability",
     "blogEyebrow": "Latest insights"
+  },
+  "articles": {
+    "pageEyebrow": "ਪ੍ਰੈਸ ਕਵਰੇਜ",
+    "pageH1": "ਸੁਰਖ਼ੀਆਂ ਵਿੱਚ ਪੋੱਦਾਰ।",
+    "pageDesc": "ਸਾਡੇ ਵੇਮਗਲ, ਕਰਨਾਟਕ ਵਿਸਥਾਰ — ਨਿਵੇਸ਼, ਰੁਜ਼ਗਾਰ ਅਤੇ ਸਮਾਂ-ਸੀਮਾ — ਬਾਰੇ ਮੀਡੀਆ ਦੀ ਸੁਤੰਤਰ ਰਿਪੋਰਟਿੰਗ।",
+    "readLabel": "ਪੂਰੀ ਖ਼ਬਰ ਪੜ੍ਹੋ"
   }
 }

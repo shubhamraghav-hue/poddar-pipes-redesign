@@ -42,7 +42,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <SectionCurve>
         <ProductCategories />
       </SectionCurve>
-      <SectionCurve>
+      {/* <SectionCurve>
         <WhyChooseUs />
       </SectionCurve>
       <SectionCurve>
@@ -59,7 +59,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </SectionCurve>
       <SectionCurve>
         <LatestBlogs />
-      </SectionCurve>
+      </SectionCurve> */}
       <CTASection />
     </>
   );

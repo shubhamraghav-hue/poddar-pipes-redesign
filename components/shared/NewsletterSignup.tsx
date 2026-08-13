@@ -27,17 +27,23 @@ export function NewsletterSignup() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm gap-2">
+    <form onSubmit={handleSubmit} className="flex w-full max-w-sm items-center gap-2.5">
       <Input
         type="email"
         required
         name="email"
         aria-label={t("newsletterPlaceholder")}
         placeholder={t("newsletterPlaceholder")}
-        className="border-white/15 bg-white/5 text-white placeholder:text-slate-500 focus-visible:border-ocean-400"
+        className="h-[54px] flex-1 rounded-2xl border-white/25 bg-transparent px-5 text-white placeholder:text-[#c0c0c0] focus-visible:border-amber-500"
       />
-      <Button type="submit" size="icon" aria-label={t("newsletterSubmit")}>
-        <Send className="h-4 w-4" />
+      <Button
+        type="submit"
+        size="icon"
+        aria-label={t("newsletterSubmit")}
+        variant="accent"
+        className="h-[54px] w-[54px] shrink-0 rounded-2xl bg-amber-600 hover:bg-amber-700"
+      >
+        <Send className="h-5 w-5" />
       </Button>
     </form>
   );

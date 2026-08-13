@@ -19,27 +19,27 @@ export const navItems: NavItem[] = [
   {
     key: "about",
     href: "/about",
-    megaMenu: [
-      {
-        heading: "navCompany",
-        links: [
-          { label: "navCompanyProfile", href: "/about#story" },
-          { label: "navVisionMission", href: "/about#mission" },
-          { label: "navLeadershipTeam", href: "/about#leadership" },
-          { label: "navMilestones", href: "/about#timeline" },
-          { label: "navCertifications", href: "/about#certifications" },
-        ],
-      },
-      {
-        heading: "navOperations",
-        links: [
-          { label: "navManufacturingExcellence", href: "/manufacturing" },
-          { label: "navQualityAssurance", href: "/quality" },
-          { label: "navSustainabilityCSR", href: "/sustainability" },
-          { label: "navCareers", href: "/careers" },
-        ],
-      },
-    ],
+    // megaMenu: [
+    //   {
+    //     heading: "navCompany",
+    //     links: [
+    //       { label: "navCompanyProfile", href: "/about#story" },
+    //       { label: "navVisionMission", href: "/about#mission" },
+    //       { label: "navLeadershipTeam", href: "/about#leadership" },
+    //       { label: "navMilestones", href: "/about#timeline" },
+    //       { label: "navCertifications", href: "/about#certifications" },
+    //     ],
+    //   },
+    //   {
+    //     heading: "navOperations",
+    //     links: [
+    //       { label: "navManufacturingExcellence", href: "/manufacturing" },
+    //       { label: "navQualityAssurance", href: "/quality" },
+    //       { label: "navSustainabilityCSR", href: "/sustainability" },
+    //       { label: "navCareers", href: "/careers" },
+    //     ],
+    //   },
+    // ],
   },
   {
     key: "products",
@@ -64,12 +64,12 @@ export const navItems: NavItem[] = [
         heading: "navApplicationSystems",
         links: [
           { label: "navAgriculture", href: "/products?category=agricultural-pipes" },
-          { label: "navViewFullCatalog", href: "/products" },
+          // { label: "navViewFullCatalog", href: "/products" },
         ],
       },
     ],
   },
-  { key: "industries", href: "/industries" },
+  // { key: "industries", href: "/industries" },
   {
     key: "resources",
     href: "/resources",
@@ -77,21 +77,22 @@ export const navItems: NavItem[] = [
       {
         heading: "navResources",
         links: [
-          { label: "navProductCatalogues", href: "/resources#catalogues" },
-          { label: "navTechnicalDataSheets", href: "/resources#datasheets" },
-          { label: "navBlogsArticles", href: "/resources#blogs" },
-          { label: "navFaqs", href: "/resources#faqs" },
+          // { label: "navProductCatalogues", href: "/resources#catalogues" },
+          // { label: "navTechnicalDataSheets", href: "/resources#datasheets" },
+          { label: "navBlogsArticles", href: "/articles" },
+          // { label: "navFaqs", href: "/resources#faqs" },
         ],
       },
       {
         heading: "navToolsGuides",
         links: [
           { label: "navPipeCementCalculator", href: "/tools/calculator" },
-          { label: "navFindPlumber", href: "/tools/find-a-plumber" },
-          { label: "navInstallationGuide", href: "/resources/installation" },
+          // { label: "navFindPlumber", href: "/tools/find-a-plumber" },
+          // { label: "navInstallationGuide", href: "/resources/installation" },
         ],
       },
     ],
   },
   { key: "contact", href: "/contact" },
+  { key: "faq", href: "/faq" },
 ];

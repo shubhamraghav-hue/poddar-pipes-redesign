@@ -33,7 +33,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "ଆସନ୍ତୁ କଥା ହେବା"
   },
   "common": {
     "readMore": "Read More",
@@ -99,5 +100,11 @@
     "qualityEyebrow": "Quality assurance",
     "sustainabilityEyebrow": "Sustainability",
     "blogEyebrow": "Latest insights"
+  },
+  "articles": {
+    "pageEyebrow": "ପ୍ରେସ୍ କଭରେଜ୍",
+    "pageH1": "ଖବରରେ ପୋଦ୍ଦାର।",
+    "pageDesc": "ଆମର ଭେମଗାଲ, କର୍ଣାଟକ ବିସ୍ତାର — ବିନିଯୋଗ, ରୋଜଗାର ଏବଂ ସମୟସୀମା — ଉପରେ ଗଣମାଧ୍ୟମର ସ୍ୱାଧୀନ ରିପୋର୍ଟିଂ।",
+    "readLabel": "ସମ୍ପୂର୍ଣ୍ଣ ପ୍ରତିବେଦନ ପଢ଼ନ୍ତୁ"
   }
 }

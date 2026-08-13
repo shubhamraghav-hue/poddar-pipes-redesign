@@ -33,7 +33,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "ચાલો વાત કરીએ"
   },
   "common": {
     "readMore": "Read More",
@@ -99,5 +100,11 @@
     "qualityEyebrow": "Quality assurance",
     "sustainabilityEyebrow": "Sustainability",
     "blogEyebrow": "Latest insights"
+  },
+  "articles": {
+    "pageEyebrow": "પ્રેસ કવરેજ",
+    "pageH1": "સમાચારોમાં પોદ્દાર.",
+    "pageDesc": "અમારા વેમગલ, કર્ણાટક વિસ્તરણ — રોકાણ, રોજગાર અને સમયમર્યાદા — વિશે મીડિયાનું સ્વતંત્ર અહેવાલ.",
+    "readLabel": "સંપૂર્ણ સમાચાર વાંચો"
   }
 }

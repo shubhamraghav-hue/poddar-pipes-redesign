@@ -15,6 +15,7 @@
     "resources": "Resources",
     "careers": "Careers",
     "contact": "Contact",
+    "faq": "FAQ's",
     "requestQuote": "Request a Quote",
     "menu": "Menu",
     "close": "Close menu",
@@ -63,7 +64,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "Let's Talk"
   },
   "common": {
     "readMore": "Read More",
@@ -609,6 +611,12 @@
     "a9": "Independent testing confirms uPVC performs better than metal-based piping systems in terms of its effect on water quality, and is no more toxic than wood in fire conditions. With a Limiting Oxygen Index of 45, uPVC is effectively non-combustible under normal atmospheric conditions and stops burning as soon as the external ignition source is removed.",
     "q10": "What does the product warranty cover?",
     "a10": "Poddar Pipes warrants that products will remain free from manufacturing defects and conform to applicable BIS standards under normal operating conditions. The remedy is limited to replacement of, or credit for, the defective product — it doesn't cover removal/reinstallation labour, and doesn't apply if mixed with another brand's pipes/fittings/solvent cement, if joints weren't pressure-tested before plastering, or if damage results from drilling, chiselling, or other mechanical interference after installation."
+  },
+  "articles": {
+    "pageEyebrow": "Press Coverage",
+    "pageH1": "Poddar in the headlines.",
+    "pageDesc": "Independent coverage of our ₹758 crore Vemgal, Karnataka expansion — the investment, the jobs, and the timeline, as reported by the press.",
+    "readLabel": "Read full story"
   },
   "products": {
     "heroEyebrow": "Product Catalogue",

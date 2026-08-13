@@ -33,7 +33,8 @@
     "newsletterDescription": "Get new product launches, catalogues, and dealer announcements in your inbox.",
     "newsletterPlaceholder": "Enter your email",
     "newsletterSubmit": "Subscribe",
-    "newsletterSuccess": "You're subscribed. Thank you!"
+    "newsletterSuccess": "You're subscribed. Thank you!",
+    "ctaHeading": "பேசலாம்"
   },
   "common": {
     "readMore": "Read More",
@@ -99,5 +100,11 @@
     "qualityEyebrow": "Quality assurance",
     "sustainabilityEyebrow": "Sustainability",
     "blogEyebrow": "Latest insights"
+  },
+  "articles": {
+    "pageEyebrow": "பத்திரிக்கை செய்திகள்",
+    "pageH1": "செய்திகளில் பொடார்.",
+    "pageDesc": "எங்கள் வேம்கல், கர்நாடகா விரிவாக்கம் — முதலீடு, வேலைவாய்ப்புகள் மற்றும் காலவரிசை — குறித்த ஊடகங்களின் சுயேச்சையான செய்திகள்.",
+    "readLabel": "முழு செய்தியைப் படிக்க"
   }
 }
