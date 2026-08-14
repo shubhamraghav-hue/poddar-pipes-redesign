@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
+import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PipeCalculator } from "@/components/tools/PipeCalculator";
 import { CTASection } from "@/components/home/CTASection";
 
@@ -22,24 +22,27 @@ export default async function CalculatorPage({
 
   return (
     <>
-      <section className="relative overflow-hidden bg-ink pb-16 pt-40 text-white md:pb-20 md:pt-48">
-        <div className="bg-dark absolute inset-0 opacity-60" aria-hidden="true" />
-        <div className="container-edge relative">
-          <RevealOnScroll>
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-ocean-300">
-              {t("pageEyebrow")}
-            </span>
-            <h1 className="mt-5 max-w-2xl text-balance font-display text-4xl font-medium leading-tight sm:text-5xl md:text-6xl">
-              {t("pageTitle")}
-            </h1>
-            <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">
-              {t("pageDesc")}
-            </p>
-          </RevealOnScroll>
-        </div>
+      {/* A slim brand-colour strip exactly matching the fixed navbar's height
+          (h-20) — not a hero. The navbar is transparent with light text until
+          the page scrolls ~20px, so it needs *some* dark backdrop behind it
+          at rest; this is the smallest one that still does that job, with no
+          content of its own. Everything the visitor actually reads sits on
+          plain white immediately below. Same pattern as /tools/find-a-plumber
+          (see PlumberFinder.tsx) — both are utility tools, not marketing
+          pages, so neither needs the site's usual tall dark hero. */}
+      <div className="h-20 bg-ink" aria-hidden="true" />
+
+      <section className="container-edge pt-10 pb-8 md:pt-12">
+        <SectionHeading
+          as="h1"
+          eyebrow={t("pageEyebrow")}
+          title={t("pageH1")}
+          titleAccent={t("pageH2")}
+          description={t("pageDesc")}
+        />
       </section>
 
-      <section className="container-edge py-16 md:py-20">
+      <section className="container-edge pb-16 md:pb-20">
         <PipeCalculator />
       </section>
 

@@ -40,6 +40,7 @@ export async function FAQ({ hideHeading = false }: FAQProps = {}) {
           <SectionHeading
             eyebrow={t("eyebrow")}
             title={t("heading")}
+            titleAccent={t("headingAccent")}
             description={t("desc")}
           />
         </RevealOnScroll>

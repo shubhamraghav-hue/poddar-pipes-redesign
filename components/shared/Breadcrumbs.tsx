@@ -26,18 +26,18 @@ export function getBreadcrumbSchema(items: BreadcrumbItem[]) {
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
     <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm">
-      <Link href="/" className="flex items-center text-slate-400 transition-colors hover:text-ocean-300">
+      <Link href="/" className="flex items-center text-slate-500 transition-colors hover:text-ocean-600">
         <Home className="h-3.5 w-3.5" />
       </Link>
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1.5">
-          <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
+          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
           {item.href ? (
-            <Link href={item.href} className="text-slate-400 transition-colors hover:text-ocean-300">
+            <Link href={item.href} className="text-slate-500 transition-colors hover:text-ocean-600">
               {item.label}
             </Link>
           ) : (
-            <span className="text-slate-200">{item.label}</span>
+            <span className="text-slate-900">{item.label}</span>
           )}
         </span>
       ))}

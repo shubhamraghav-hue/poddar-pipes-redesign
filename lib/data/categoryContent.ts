@@ -14,8 +14,10 @@ export interface CategoryContent {
   /** Matches Product["category"] and is used as the route param. */
   category: Exclude<Product["category"], never>;
   label: string;
-  /** Page H1. */
+  /** Page H1 — lead line (brand blue). */
   h1: string;
+  /** Page H1 — accent line (brand orange, bold), rendered on its own line. */
+  h1Accent: string;
   tagline: string;
   metaTitle: string;
   metaDescription: string;
@@ -32,7 +34,8 @@ export const categoryContent: CategoryContent[] = [
   {
     category: "upvc-pipes",
     label: "uPVC",
-    h1: "uPVC Plumbing Pipes for Cold Water & Beyond",
+    h1: "uPVC Plumbing Pipes for",
+    h1Accent: "Cold Water & Beyond",
     tagline: "Lead-free Schedule 40/80 systems that outlast metal — and cost a fraction to install.",
     metaTitle: "uPVC Plumbing Pipes in India — Lead-Free Cold Water Systems | Poddar Pipes",
     metaDescription:
@@ -70,7 +73,8 @@ export const categoryContent: CategoryContent[] = [
   {
     category: "cpvc-pipes",
     label: "CPVC",
-    h1: "CPVC Pipes for Hot & Cold Water Plumbing",
+    h1: "CPVC Pipes for",
+    h1Accent: "Hot & Cold Water Plumbing",
     tagline: "Rated for continuous 82°C service — the hot-water backbone for villas, hotels and hospitals.",
     metaTitle: "CPVC Pipes for Hot Water Plumbing — BIS Certified | Poddar Pipes",
     metaDescription:
@@ -108,7 +112,8 @@ export const categoryContent: CategoryContent[] = [
   {
     category: "swr-pipes",
     label: "SWR",
-    h1: "SWR Drainage Pipes — Soil, Waste & Rainwater",
+    h1: "SWR Drainage Pipes",
+    h1Accent: "Soil, Waste & Rainwater",
     tagline: "Low-noise, leak-proof drainage with self-aligning Pushfit and Solfit jointing.",
     metaTitle: "SWR Drainage Pipes — Soil & Waste Systems (IS 13592) | Poddar Pipes",
     metaDescription:
@@ -146,7 +151,8 @@ export const categoryContent: CategoryContent[] = [
   {
     category: "tanks",
     label: "Water Tanks",
-    h1: "Water Storage Tanks — Cleaner Water, Cooler Storage",
+    h1: "Water Storage Tanks",
+    h1Accent: "Cleaner Water, Cooler Storage",
     tagline: "Food-grade, antibacterial rotomoulded tanks from 500L to 10,000L, including an insulated 4-layer range.",
     metaTitle: "Water Storage Tanks for Home & Industry — Food-Grade | Poddar Pipes",
     metaDescription:
@@ -184,7 +190,8 @@ export const categoryContent: CategoryContent[] = [
   {
     category: "ugd-pipes",
     label: "UGD",
-    h1: "Underground Drainage (UGD) Pipes",
+    h1: "Underground Drainage",
+    h1Accent: "(UGD) Pipes",
     tagline: "Foam-core sewer and storm-water systems with a choice of Pushfit or Solfit jointing.",
     metaTitle: "Underground Drainage Pipes (UGD) — IS 16098 Sewer Systems | Poddar Pipes",
     metaDescription:
@@ -222,7 +229,8 @@ export const categoryContent: CategoryContent[] = [
   {
     category: "agricultural-pipes",
     label: "Agriculture",
-    h1: "Agriculture & Irrigation Pipes",
+    h1: "Agriculture &",
+    h1Accent: "Irrigation Pipes",
     tagline: "Lead-free pressure pipes and pressure-compensating drip lines built for Indian field conditions.",
     metaTitle: "Agriculture Irrigation Pipes — IS 4985 Pressure Pipe & Drip | Poddar Pipes",
     metaDescription:

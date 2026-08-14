@@ -33,39 +33,31 @@ export default async function ManufacturingPage({
 
   return (
     <>
-      <section className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-24 md:pt-48">
-        <div className="bg-grid-dark absolute inset-0 opacity-60" aria-hidden="true" />
-        <div className="container-edge relative">
-          <RevealOnScroll>
-            <div className="mb-5 flex items-center gap-2">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="shrink-0">
-                <path d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002" stroke="#F28000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#F28000]">{t("heroEyebrow")}</span>
-            </div>
-            <h1 className="max-w-3xl font-display text-4xl font-light uppercase leading-[1.08] tracking-tight text-white sm:text-6xl sm:leading-[1.05]">
-              <span className="block">{t("heroLine1")}</span>
-              <span className="block text-amber-500">{t("heroLine2")}</span>
-              <span className="block font-bold">{t("heroBold")}</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-balance text-lg text-slate-300">
-              {t("heroDesc")}
-            </p>
-          </RevealOnScroll>
+      {/* A slim brand-colour strip exactly matching the fixed navbar's height
+          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
+          for the pattern this follows sitewide. */}
+      <div className="h-20 bg-ink" aria-hidden="true" />
+      <section className="container-edge pt-10 pb-8 md:pt-12">
+        <SectionHeading
+          as="h1"
+          eyebrow={t("heroEyebrow")}
+          title={`${t("heroLine1")} ${t("heroLine2")}`}
+          titleAccent={t("heroBold")}
+          description={t("heroDesc")}
+        />
 
-          <div className="mt-14 grid grid-cols-2 gap-8 border-t border-white/10 pt-10 md:grid-cols-4">
-            {[
-              { value: 50000, suffix: "+", label: t("stat0Label") },
-              { value: 4, suffix: "+", label: t("stat1Label") },
-              { value: 11, suffix: "", label: t("stat2Label") },
-              { value: 300, suffix: "+", label: t("stat3Label") },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <Counter value={stat.value} suffix={stat.suffix} className="font-display text-3xl font-medium text-white md:text-4xl" />
-                <p className="mt-1.5 text-sm text-slate-400">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+        <div className="mt-10 grid grid-cols-2 gap-8 border-t border-slate-200 pt-10 md:grid-cols-4">
+          {[
+            { value: 50000, suffix: "+", label: t("stat0Label") },
+            { value: 4, suffix: "+", label: t("stat1Label") },
+            { value: 11, suffix: "", label: t("stat2Label") },
+            { value: 300, suffix: "+", label: t("stat3Label") },
+          ].map((stat) => (
+            <div key={stat.label}>
+              <Counter value={stat.value} suffix={stat.suffix} className="font-display text-3xl font-medium text-slate-900 md:text-4xl" />
+              <p className="mt-1.5 text-sm text-slate-500">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 

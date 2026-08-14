@@ -82,10 +82,12 @@ export default async function ProductDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(getBreadcrumbSchema(breadcrumbItems)) }}
       />
-      <div className="bg-ink pt-24">
-        <div className="container-edge pb-4 pt-6">
-          <Breadcrumbs items={breadcrumbItems} />
-        </div>
+      {/* A slim brand-colour strip exactly matching the fixed navbar's height
+          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
+          for the pattern this follows sitewide. */}
+      <div className="h-20 bg-ink" aria-hidden="true" />
+      <div className="container-edge pb-4 pt-6">
+        <Breadcrumbs items={breadcrumbItems} />
       </div>
       <ProductDetail product={product} />
       <RelatedProducts current={product} />

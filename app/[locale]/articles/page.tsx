@@ -24,19 +24,20 @@ export default async function ArticlesPage({
 
   return (
     <>
-      {/* Compact header, not a full hero — see /faq for the same pattern. */}
-      <section className="relative overflow-hidden bg-ink bg-blueprint pb-10 pt-28 md:pb-14 md:pt-32">
-        <div className="container-edge relative">
-          <RevealOnScroll>
-            <SectionHeading
-              as="h1"
-              dark
-              eyebrow={t("pageEyebrow")}
-              title={t("pageH1")}
-              description={t("pageDesc")}
-            />
-          </RevealOnScroll>
-        </div>
+      {/* A slim brand-colour strip exactly matching the fixed navbar's height
+          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
+          for the pattern this follows sitewide. */}
+      <div className="h-20 bg-ink" aria-hidden="true" />
+      <section className="container-edge pt-10 pb-8 md:pt-12">
+        <RevealOnScroll>
+          <SectionHeading
+            as="h1"
+            eyebrow={t("pageEyebrow")}
+            title={t("pageH1")}
+            titleAccent={t("pageH2")}
+            description={t("pageDesc")}
+          />
+        </RevealOnScroll>
       </section>
 
       <section className="container-edge py-20 md:py-24">

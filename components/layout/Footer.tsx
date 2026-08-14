@@ -30,10 +30,11 @@ export function Footer() {
 
   const companyLinks = [
     { key: "about", href: "/about" },
-    { key: "manufacturing", href: "/manufacturing" },
-    { key: "quality", href: "/quality" },
-    { key: "sustainability", href: "/sustainability" },
-    { key: "careers", href: "/careers" },
+    { key: "contact", href: "/contactx" },
+    // { key: "manufacturing", href: "/manufacturing" },
+    // { key: "quality", href: "/quality" },
+    // { key: "sustainability", href: "/sustainability" },
+    // { key: "careers", href: "/careers" },
   ];
 
   const productLinks = [

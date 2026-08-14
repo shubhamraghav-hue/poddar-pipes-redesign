@@ -40,21 +40,20 @@ export default async function FaqPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* Compact header, not a full hero — same ink/blueprint band and
-          eyebrow treatment as the rest of the site, just shorter, since this
-          page's job is to get straight to the accordion below. */}
-      <section className="relative overflow-hidden bg-ink bg-blueprint pb-10 pt-28 md:pb-14 md:pt-32">
-        <div className="container-edge relative">
-          <RevealOnScroll>
-            <SectionHeading
-              as="h1"
-              dark
-              eyebrow={t("eyebrow")}
-              title={t("heading")}
-              description={t("desc")}
-            />
-          </RevealOnScroll>
-        </div>
+      {/* A slim brand-colour strip exactly matching the fixed navbar's height
+          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
+          for the pattern this follows sitewide. */}
+      <div className="h-20 bg-ink" aria-hidden="true" />
+      <section className="container-edge pt-10 pb-8 md:pt-12">
+        <RevealOnScroll>
+          <SectionHeading
+            as="h1"
+            eyebrow={t("eyebrow")}
+            title={t("heading")}
+            titleAccent={t("headingAccent")}
+            description={t("desc")}
+          />
+        </RevealOnScroll>
       </section>
 
       <section className="container-edge py-20 md:py-24">

@@ -587,7 +587,7 @@
   },
   "faq": {
     "eyebrow": "FAQ",
-    "heading": "Answers before you reach out.",
+    "heading": "Answers",
     "desc": "Can't find what you're looking for? Send us a message and a team member will follow up directly.",
     "q0": "What product categories does Poddar Pipes manufacture?",
     "a0": "We manufacture uPVC, CPVC, SWR, UGD, and Agriculture piping systems, along with rotomoulded water storage TANKS, plus a full range of fittings, valves, and accessories.",
@@ -610,13 +610,15 @@
     "q9": "What about health, safety, and fire toxicity?",
     "a9": "Independent testing confirms uPVC performs better than metal-based piping systems in terms of its effect on water quality, and is no more toxic than wood in fire conditions. With a Limiting Oxygen Index of 45, uPVC is effectively non-combustible under normal atmospheric conditions and stops burning as soon as the external ignition source is removed.",
     "q10": "What does the product warranty cover?",
-    "a10": "Poddar Pipes warrants that products will remain free from manufacturing defects and conform to applicable BIS standards under normal operating conditions. The remedy is limited to replacement of, or credit for, the defective product — it doesn't cover removal/reinstallation labour, and doesn't apply if mixed with another brand's pipes/fittings/solvent cement, if joints weren't pressure-tested before plastering, or if damage results from drilling, chiselling, or other mechanical interference after installation."
+    "a10": "Poddar Pipes warrants that products will remain free from manufacturing defects and conform to applicable BIS standards under normal operating conditions. The remedy is limited to replacement of, or credit for, the defective product — it doesn't cover removal/reinstallation labour, and doesn't apply if mixed with another brand's pipes/fittings/solvent cement, if joints weren't pressure-tested before plastering, or if damage results from drilling, chiselling, or other mechanical interference after installation.",
+    "headingAccent": "before you reach out."
   },
   "articles": {
     "pageEyebrow": "Press Coverage",
-    "pageH1": "Poddar in the headlines.",
+    "pageH1": "Poddar in the",
     "pageDesc": "Independent coverage of our ₹758 crore Vemgal, Karnataka expansion — the investment, the jobs, and the timeline, as reported by the press.",
-    "readLabel": "Read full story"
+    "readLabel": "Read full story",
+    "pageH2": "headlines."
   },
   "products": {
     "heroEyebrow": "Product Catalogue",
@@ -670,13 +672,14 @@
     "consultManual": "Consult manual",
     "disclaimer": "Size bucket: {bucket} · Temperature range: {tempRange}. Cure time assumes a working pressure up to 160 psi (11 bar), covering Agri Gold's Class 2 and Class 3 ratings. These figures are laboratory estimates from the Poddar Agri Gold catalogue — field conditions vary, so use as a planning reference, not a substitute for on-site judgement.",
     "pageEyebrow": "Tools",
-    "pageTitle": "Pipe & solvent-cement calculator.",
     "pageDesc": "Select a pipe size, pressure class, and site temperature to look up wall thickness, pressure de-rating, and solvent-cement set and cure times from the Agri Gold catalogue (IS 4985:2000).",
     "ctaEyebrow": "Need a different product line?",
     "ctaTitle": "This calculator covers Agri Gold pressure pipe. Have a different spec question?",
     "ctaDesc": "Our technical team can help with sizing, pressure ratings, and installation guidance across every product category.",
     "ctaPrimary": "Talk to Our Team",
-    "ctaSecondary": "View All Products"
+    "ctaSecondary": "View All Products",
+    "pageH1": "Pipe & solvent-cement",
+    "pageH2": "calculator."
   },
   "findPlumber": {
     "eyebrow": "Plumber Lookup",

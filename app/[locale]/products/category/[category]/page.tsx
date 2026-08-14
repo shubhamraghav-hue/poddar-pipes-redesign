@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowRight, Check } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/ProductCard";
 import { CTASection } from "@/components/home/CTASection";
 import { categoryContent, getCategoryContent } from "@/lib/data/categoryContent";
@@ -57,37 +57,32 @@ export default async function CategoryPage({
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-ink pb-20 pt-40 text-white md:pb-24 md:pt-48">
-        <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
-        <div
-          className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-flow-500/10 blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="container-edge relative">
-          <nav className="tech-label mb-6 flex items-center gap-2 text-ocean-300" aria-label="Breadcrumb">
-            <Link href="/products" className="transition-colors hover:text-flow-300">
-              {nav("products")}
-            </Link>
-            <span className="text-ocean-300/50">/</span>
-            <span className="text-flow-300">{content.label}</span>
-          </nav>
+      {/* A slim brand-colour strip exactly matching the fixed navbar's height
+          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
+          for the pattern this follows sitewide. */}
+      <div className="h-20 bg-ink" aria-hidden="true" />
+      <section className="container-edge pt-10 pb-8 md:pt-12">
+        <nav className="tech-label mb-6 flex items-center gap-2 text-slate-500" aria-label="Breadcrumb">
+          <Link href="/products" className="transition-colors hover:text-ocean-600">
+            {nav("products")}
+          </Link>
+          <span className="text-slate-300">/</span>
+          <span className="text-ocean-700">{content.label}</span>
+        </nav>
 
-          <h1 className="max-w-3xl text-balance font-display text-4xl font-semibold uppercase leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
-            {content.h1}
-          </h1>
-          <p className="mt-5 max-w-2xl text-balance text-lg text-slate-300">{content.tagline}</p>
+        <h1 className="max-w-3xl text-balance font-display text-4xl font-semibold uppercase leading-tight tracking-tight sm:text-5xl md:text-6xl">
+          <span className="block text-ocean-950">{content.h1}</span>
+          <span className="block font-bold text-amber-500">{content.h1Accent}</span>
+        </h1>
+        <p className="mt-5 max-w-2xl text-balance text-lg text-slate-600">{content.tagline}</p>
 
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Button asChild size="lg" variant="primary-on-dark">
-              <Link href="/contact">
-                {t("requestQuote")}
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline-light">
-              <Link href="/products">{t("categoryBrowseAll")}</Link>
-            </Button>
-          </div>
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Link href="/contact" className={buttonVariants({ variant: "primary", size: "lg" })}>
+            {t("requestQuote")}
+          </Link>
+          <Link href="/products" className={buttonVariants({ variant: "secondary", size: "lg" })}>
+            {t("categoryBrowseAll")}
+          </Link>
         </div>
       </section>
 
@@ -129,7 +124,7 @@ export default async function CategoryPage({
           {content.highlights.map((h) => (
             <div
               key={h.title}
-              className="rounded-2xl border border-slate-200/70 bg-white p-6 transition-colors duration-300 hover:border-flow-400/50"
+              className="rounded-2xl border border-slate-200/70 bg-white p-6 transition-colors duration-300 hover:border-amber-500/50"
             >
               <h3 className="font-display text-lg font-semibold text-slate-900">{h.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">{h.description}</p>
