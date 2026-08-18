@@ -2,8 +2,12 @@
 // (D:\Projects\poddar-pipes-launching-soon\components\SocialIcons.tsx) —
 // same real handles, same inline currentColor SVGs (an externally-referenced
 // <img src> can't inherit text color, which the hover/opacity treatment
-// below depends on), same hover mechanic. Facebook isn't in that set — no
-// real Poddar Pipes Facebook link exists to link to.
+// below depends on), same hover mechanic — kept as opacity-70 -> opacity-100
+// rather than the sitewide flow-cyan color-shift hover, since the footer's
+// Figma mock (Ideation 2, node 8:7) is a static frame with no hover variant
+// to match colors against, and this is the pre-existing footer convention.
+// Facebook isn't in the icon set — no real Poddar Pipes Facebook link exists
+// to link to. Only used by the footer.
 type IconName = "x" | "linkedin" | "youtube" | "instagram";
 
 const ICONS: Record<IconName, { viewBox: string; path: string }> = {

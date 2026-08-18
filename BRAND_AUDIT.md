@@ -104,6 +104,31 @@ several real bugs were found in the process (below).
    `text-[10px] sm:text-xs` (CTA), with the description's reserved `min-h`
    recalculated to match. Re-verified at 375px: no overflow on any of the six
    cards; desktop (248×248px squares) unaffected. See `BRAND_IDENTITY.md`.
+9. **Text `<Input>` placeholder/value sitting visibly high, with dead space
+   collecting below it — same root cause as bug #5, and an initial fix that
+   was verified wrong before landing the real one.** Reported on the footer
+   newsletter email field, same shared component as `InquiryForm` and
+   `PlumberFinder`. First attempt copied bug #5's technique verbatim
+   (`leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]`
+   on the input itself) and was logged as verified because
+   `getComputedStyle`/`CSS.supports()` confirmed the properties were
+   accepted — which turns out not to prove they render, since native
+   `<input>` text uses UA-level layout, not the CSS text-box model those
+   properties assume. A controlled A/B test (two inputs side by side, one
+   with the properties and one without, zoomed 2.5–5×) showed pixel-identical
+   text position — the first fix did nothing, and the "verified visually"
+   claim in the first pass was an over-read of an ambiguous screenshot.
+   **Real fix:** an input's baseline sits at `H/2 + (fontAscent −
+   fontDescent)/2` regardless of `line-height` (algebraically provable, and
+   confirmed `leading-none` changed nothing) — so only padding can move the
+   visible glyph. Measured real ink across four strings, including the
+   actual Hindi translation of this placeholder (not just the English copy),
+   to make sure the fix wouldn't help one script while breaking another:
+   all four needed 3–6px more padding-top than padding-bottom to center,
+   same direction in every case. Landed on `pt-[5px]` (`pb` unchanged at 0),
+   within ±1px of ideal for every sample. Re-ran the same A/B test to confirm
+   this one actually moves the render, then re-verified `InquiryForm` and
+   `PlumberFinder` still lay out correctly with the shared-component change.
 
 ## New components built
 

@@ -37,13 +37,13 @@ export default async function TermsOfServicePage({
               copy from — this is a fresh, standard-form draft and has not
               been reviewed by legal/business yet. Flagged here rather than
               presented as finalized. */}
-          <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-100/60 p-4 text-sm text-amber-700">
+          {/* <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-100/60 p-4 text-sm text-amber-700">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
               <strong className="font-semibold">Draft — pending legal review.</strong> This page is a
               standard-form starting point and has not yet been reviewed or approved by our legal team.
             </p>
-          </div>
+          </div> */}
 
           <LegalIntro paragraphs={termsOfServiceIntro} />
           <LegalSections sections={termsOfServiceSections} contactBlockAfterHeading="11. Contact Us" />

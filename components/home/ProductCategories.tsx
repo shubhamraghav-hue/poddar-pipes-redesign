@@ -67,8 +67,8 @@ export async function ProductCategories() {
   const t = await getTranslations("home");
 
   return (
-    <section className="bg-[#F5F5F5] py-12 md:py-16 px-6 md:px-16">
-      <div className="mx-auto max-w-[1312px] flex flex-col gap-6">
+    <section className="bg-[#F5F5F5] py-24 md:py-32">
+      <div className="container-edge flex flex-col gap-6">
 
         <SectionHeading
           eyebrow={t("categoriesEyebrow")}

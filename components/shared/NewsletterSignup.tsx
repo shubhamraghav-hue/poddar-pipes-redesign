@@ -34,7 +34,7 @@ export function NewsletterSignup() {
         name="email"
         aria-label={t("newsletterPlaceholder")}
         placeholder={t("newsletterPlaceholder")}
-        className="h-[54px] flex-1 rounded-2xl border-white/25 bg-transparent px-5 text-white placeholder:text-[#c0c0c0] focus-visible:border-amber-500"
+        className="h-[54px] flex-1 rounded-2xl border-white/25 bg-transparent px-5 text-center text-white placeholder:text-[#c0c0c0] focus-visible:border-amber-500"
       />
       <Button
         type="submit"
