@@ -11,18 +11,10 @@ import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const pathname = usePathname();
   const t = useTranslations("nav");
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -38,12 +30,6 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeMenu]);
 
-  // Legal pages open on a plain light background (no dark hero band), so the
-  // nav needs to render in its solid state immediately rather than the
-  // transparent-over-dark-hero state every other page relies on.
-  const LIGHT_HEADER_ROUTES = ["/privacy-policy", "/terms-of-service"];
-  const solid = scrolled || open || activeMenu !== null || LIGHT_HEADER_ROUTES.includes(pathname);
-
   return (
     <header
       onMouseLeave={() => setActiveMenu(null)}
@@ -55,10 +41,9 @@ export function Navbar() {
           setActiveMenu(null);
         }
       }}
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        solid ? "bg-paper/95 shadow-sm backdrop-blur-lg" : "bg-transparent"
-      )}
+      // Figma's header (node 13:528) is a static solid-white bar on every
+      // page — no transparent-over-hero state that turns solid on scroll.
+      className="fixed inset-x-0 top-0 z-50 bg-paper/95 shadow-sm backdrop-blur-lg"
     >
       <nav className="container-edge flex h-20 items-center justify-between">
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
@@ -81,8 +66,8 @@ export function Navbar() {
                   aria-expanded={item.megaMenu ? activeMenu === item.key : undefined}
                   className={cn(
                     "flex items-center gap-1 rounded-full px-4 py-2.5 font-display text-sm font-medium tracking-tight transition-colors",
-                    solid ? "text-slate-700 hover:text-ocean-700" : "text-white/85 hover:text-white",
-                    active && (solid ? "text-ocean-700" : "text-white")
+                    "text-slate-700 hover:text-ocean-700",
+                    active && "text-ocean-700"
                   )}
                 >
                   <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
@@ -103,12 +88,8 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <LanguageSwitcher dark={!solid} />
-          <Button
-            asChild
-            variant={solid ? "primary" : "outline-light"}
-            size="sm"
-          >
+          <LanguageSwitcher dark={false} />
+          <Button asChild variant="primary" size="sm">
             <Link href="/contact">
               <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                 {t("requestQuote")}
@@ -119,13 +100,10 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <LanguageSwitcher dark={!solid} />
+          <LanguageSwitcher dark={false} />
           <button
             onClick={() => setOpen((v) => !v)}
-            className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full",
-              solid ? "text-slate-900" : "text-white"
-            )}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-900"
             aria-label={open ? t("close") : t("menu")}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

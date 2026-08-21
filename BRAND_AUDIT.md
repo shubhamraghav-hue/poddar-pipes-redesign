@@ -130,6 +130,93 @@ several real bugs were found in the process (below).
    this one actually moves the render, then re-verified `InquiryForm` and
    `PlumberFinder` still lay out correctly with the shared-component change.
 
+## Bugs found and fixed — Figma landing-page rebuild pass
+
+A later, separate pass (pixel-matching the homepage to a specific Figma file,
+node 13:309 — see `BRAND_IDENTITY.md` for the full narrative). Numbering
+continues from the list above; these are the concrete, verifiable bugs found
+along the way, not the Figma-matching work itself.
+
+10. **Every `<Button asChild>` site-wide rendered completely empty** — every
+    Link-wrapped CTA button using the shared `components/ui/button.tsx`, on
+    every page, not just the ones being rebuilt. Root cause: `Button`'s
+    content logic ran `React.Children.map` even for the single-element
+    `asChild` case; that helper always returns an array, even for one input,
+    and Radix `Slot` needs a bare element, not an array-of-one. The
+    installed `@radix-ui/react-slot@1.1.1` silently rendered nothing for
+    that mismatched shape — no console error. Surfaced by upgrading to
+    `1.3.3`, which throws `"Slot failed to slot onto its children"` instead
+    of failing silently. Fixed the real bug (`asChild` now passes `children`
+    straight through, skipping `.map()`), not just the symptom of upgrading
+    the dependency. Verified on the rebuilt pages and spot-checked
+    About/Contact (untouched by the rebuild) to confirm it wasn't
+    rebuild-specific.
+11. **Tailwind's `rounded-[value_cqw]` inflates into a near-circle.** Sizing a
+    card via container-query units (`cqw`) so every internal measurement
+    holds its ratio at any rendered size — font-size and position `cqw`
+    values computed correctly (`getComputedStyle` confirmed exact expected
+    pixels), but `rounded-[8.88cqw]` compiled to a nonstandard two-axis
+    border-radius that computed roughly 5× too large specifically for this
+    utility. Fixed by using a plain `%` for border-radius instead — it's
+    natively self-relative for that property, no container-query machinery
+    needed, sidestepping the bug entirely rather than working around it.
+12. **A "washed-out lavender" hero background traced to the wrong layer.**
+    First diagnosis assumed a CSS overlay/blend-mode problem and a
+    `mix-blend-multiply` fix was applied — but the actual cause was one step
+    earlier: the video was encoded with `-pix_fmt yuv420p` (no alpha
+    channel), which silently flattened the source GIF's genuinely
+    transparent background to solid white *before* any CSS ever ran.
+    Confirmed by extracting a raw decoded frame and sampling actual pixel
+    values via canvas (solid `rgb(255,255,255)`, not a light tint), then
+    separately confirming the source GIF really does carry ~62% genuine
+    (clean binary, non-antialiased) transparency via an alpha-channel
+    histogram on an extracted PNG frame. Re-encoded with `-pix_fmt
+    yuva420p` (confirmed via the WebM's own `alpha_mode:1` tag) and removed
+    the now-unnecessary blend-mode overlay. Lesson for next time: verify
+    which layer (asset vs. CSS) actually owns a color/transparency problem
+    before fixing the CSS side.
+13. **Hero video "outgrowing" the section, then a first fix that
+    overcorrected.** Setting the video to `absolute inset-0` of the whole
+    combined hero+stats section (to satisfy an earlier ask that it show
+    behind the stat cards) stretched the same 1512×846-composed footage past
+    its intended crop on real (taller) combined-height layouts, spilling
+    fittings across multiple cards messily. The first fix — confining the
+    video to its own `overflow-hidden` box at the exact 846-ratio — was
+    technically correct but also eliminated a real, intentional design
+    detail present in Figma's own reference (the last stat card's glass
+    subtly revealing the pipe fitting behind it). Re-examining Figma's actual
+    layer numbers showed the video there is never taller than 846px at all —
+    the stats frame simply starts 63.68px before the video's own bottom edge,
+    letting translucent cards reveal it naturally. Reconciled by keeping the
+    video at its outer-section, undistorted 846-ratio size and removing a
+    redundant opaque fill that had been placed directly behind the stat
+    cards (which was blocking the reveal). Three passes to get right —
+    "zero overlap" and "full-height stretch" were both wrong; the fix was
+    Figma's actual (narrower) mechanism.
+14. **`ProductCategories`'s full-bleed grey background was clipped to a
+    centered 1400px column on screens wider than 1400px**, leaving white
+    gutters on either side. `container-edge` (which bakes in
+    `max-w-[1400px] mx-auto`) had been applied directly to the `<section>`
+    that also carried the section's own background color — clipping the
+    *background* along with the content width. Moved `container-edge` to an
+    inner content `<div>`, background staying on the outer full-width
+    `<section>` — the same pattern every other section on the site already
+    uses. Verified full-bleed at 1920px viewport width.
+15. **Hero text overflowed into the stats row at in-between viewport
+    ratios** (reported at 768×846) — the hero text wrapper used a *fixed*
+    height (`h-[55.95vw]`, originally chosen to match the video's own
+    Figma-ratio sizing) rather than a minimum. Text and video don't actually
+    need to share an exact height once they're separate elements (see bug
+    13), so at narrower widths the formula produced a box shorter than the
+    text stack needed, and the buttons overflowed straight into the stat
+    cards below. Fixed by switching the text wrapper to `min-h` (uncapped).
+    A related but separate issue found at the same time: the type scale
+    itself jumped to full desktop size at the very first breakpoint (640px)
+    and never changed again, while the box kept growing continuously with
+    width — reworked to a graduated `base→sm→md→lg→xl` scale so text size and
+    available room grow roughly in step. See `BRAND_IDENTITY.md` for the
+    full breakpoint values.
+
 ## New components built
 
 - `components/shared/FeaturePill.tsx` — the Playbook's orange-outline pill for

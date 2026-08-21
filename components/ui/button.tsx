@@ -17,6 +17,11 @@ const buttonVariants = cva(
         primary: "bg-ocean-600 text-white shadow-sm hover:bg-ocean-700 hover:shadow-md",
         "primary-on-dark": "bg-white text-ocean-700 shadow-sm hover:bg-paper-2 hover:shadow-md",
         accent: "bg-amber-500 text-white shadow-sm hover:bg-amber-600 hover:shadow-md",
+        // Figma "Poddar Pipes" landing-page spec: primary CTA is orange-fill
+        // with navy text (not white) — dark-on-orange still clears AA, so
+        // this is a distinct, deliberate variant rather than a copy of
+        // `accent`, kept scoped to the sections that spec calls for it.
+        "accent-ink": "bg-amber-600 text-ink shadow-sm hover:bg-amber-700 hover:shadow-md",
         // Brand Playbook CTA spec: secondary = orange outline + BLUE text (never
         // orange text on a light surface — orange-on-white fails AA, ~2.7:1).
         secondary:
@@ -60,17 +65,27 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // enough that the label renders visibly high vs. an adjacent icon) — see
     // the Search-button investigation. Wrapping just the string children in
     // a real element lets text-box-trim actually do its job. Only strings
-    // are wrapped — icon elements, and the single element child Slot expects
-    // for `asChild`, pass through untouched.
-    const content = React.Children.map(children, (child) =>
-      typeof child === "string" ? (
-        <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-          {child}
-        </span>
-      ) : (
-        child
-      )
-    );
+    // are wrapped — icon elements pass through untouched.
+    //
+    // `asChild` always passes exactly one element (e.g. a single `<Link>`)
+    // straight through, skipping `React.Children.map` entirely — that helper
+    // always returns an array even for one input, and Radix `Slot` requires
+    // its child to be a bare element, not an array-of-one. Older
+    // `@radix-ui/react-slot` silently rendered nothing when handed that
+    // array; 1.3+ throws "Slot failed to slot onto its children" instead,
+    // which is what actually surfaced this — every `asChild` button on the
+    // site was invisible before this fix.
+    const content = asChild
+      ? children
+      : React.Children.map(children, (child) =>
+          typeof child === "string" ? (
+            <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              {child}
+            </span>
+          ) : (
+            child
+          )
+        );
     return (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
         {content}

@@ -50,10 +50,12 @@ export function Footer() {
 
   const companyLinks = [
     { key: "about", href: "/about" },
-    { key: "manufacturing", href: "/manufacturing" },
-    { key: "quality", href: "/quality" },
-    { key: "sustainability", href: "/sustainability" },
-    { key: "careers", href: "/careers" },
+    { key: "resources", href: "/resources" },
+    { key: "contact", href: "/contact" },
+    // { key: "manufacturing", href: "/manufacturing" },
+    // { key: "quality", href: "/quality" },
+    // { key: "sustainability", href: "/sustainability" },
+    // { key: "careers", href: "/careers" },
   ];
 
   const productLinks = [
@@ -65,10 +67,9 @@ export function Footer() {
     { label: "UGD", href: "/products/category/ugd-pipes" },
   ];
 
-  const resourceLinks = [
-    { key: "resources", href: "/resources" },
-    { key: "contact", href: "/contact" },
-  ];
+  // const resourceLinks = [
+
+  // ];
 
   const navHeading = "text-[14px] font-bold uppercase tracking-[0.56px] text-white";
   const hoverLink = "opacity-70 transition hover:opacity-100";
@@ -103,8 +104,8 @@ export function Footer() {
               <p>100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008</p>
             </div>
             <div className="flex flex-col gap-1 text-[14px] font-normal tracking-[0.28px] text-white">
-              <a href="mailto:poddarpipes@gmail.com" className={hoverLink}>
-                poddarpipes@gmail.com
+              <a href="mailto:hello@poddarpipes.com" className={hoverLink}>
+                hello@poddarpipes.com
               </a>
               <a href="tel:+919888822333" className={hoverLink}>
                 +91 98888 22333
@@ -143,7 +144,7 @@ export function Footer() {
               </ul>
             </div>
 
-            <div className="flex flex-col gap-4">
+            {/* <div className="flex flex-col gap-4">
               <h4 className={navHeading}>{t("resourcesHeading")}</h4>
               <ul className="flex flex-col gap-2">
                 {resourceLinks.map((link) => (
@@ -154,7 +155,7 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
           </div>
 
           {/* Social icons — own step in the mobile/tablet stack order; folded

@@ -31,17 +31,31 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const t = await getTranslations({ locale, namespace: "home" });
+
   return (
     <>
+      {/* Order matches the Figma landing page (node 13:309) exactly:
+          Hero (+ stats) -> Categories -> Legacy -> CTA. Everything below
+          that isn't in that mock is commented out, not deleted — see the
+          block at the bottom of this file. */}
       <Hero />
+      <SectionCurve>
+        <ProductCategories />
+      </SectionCurve>
       <SectionReveal>
         <SectionCurve>
           <CompanyOverview />
         </SectionCurve>
       </SectionReveal>
-      <SectionCurve>
-        <ProductCategories />
-      </SectionCurve>
+      <CTASection
+        variant="flush"
+        primaryLabel={t("ctaPrimaryHome")}
+        secondaryLabel={t("ctaSecondaryHome")}
+      />
+
+      {/* Old — not part of the current Figma-matched homepage (node 13:309),
+          kept rather than deleted in case these sections come back. */}
       {/* <SectionCurve>
         <WhyChooseUs />
       </SectionCurve>
@@ -60,7 +74,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <SectionCurve>
         <LatestBlogs />
       </SectionCurve> */}
-      <CTASection />
     </>
   );
 }
