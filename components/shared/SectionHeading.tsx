@@ -2,9 +2,14 @@ import { cn } from "@/lib/utils";
 import { WordReveal } from "@/components/shared/WordReveal";
 
 interface SectionHeadingProps {
+  /** @deprecated Eyebrows were removed sitewide (see BRAND_IDENTITY.md) —
+      this prop is now inert. Left in the interface so existing call sites
+      don't need editing; safe to delete next time this component is touched. */
   eyebrow?: string;
   title: string;
-  /** Second part of heading, always rendered bold on its own line in brand orange (amber-500). When provided, animation is skipped and each part gets its own color/weight. */
+  /** Second part of the heading, rendered on its own line. Same color/size
+      as `title` but always bold (700 vs `title`'s 300) — no accent COLOR,
+      per the global heading spec; weight is the one deliberate difference. */
   titleAccent?: string;
   description?: string;
   align?: "left" | "center";
@@ -12,14 +17,19 @@ interface SectionHeadingProps {
   className?: string;
   /** Set false to render a plain (non-animated) heading. */
   animate?: boolean;
-  /** Optional engineering-drawing index shown as a bracketed mono tag, e.g. "01". */
+  /** @deprecated Rendered alongside the now-removed eyebrow — inert on its own. */
   index?: string;
   /** Heading element to render — "h2" (default, for in-page sections) or "h1" for pages that use this as the page's own top heading (no separate hero above it). */
   as?: "h1" | "h2";
+  /** Override the light-background title/titleAccent color (a `text-*`
+      class). Defaults to the sitewide global-heading-spec navy
+      (`text-[#0B0B52]`) — only pass this to deviate for a specific section
+      confirmed against its own Figma frame, not as a general styling knob.
+      No effect when `dark` is true (dark sections always use white). */
+  titleColorClassName?: string;
 }
 
 export function SectionHeading({
-  eyebrow,
   title,
   titleAccent,
   description,
@@ -27,8 +37,8 @@ export function SectionHeading({
   dark = false,
   className,
   animate = true,
-  index,
   as = "h2",
+  titleColorClassName,
 }: SectionHeadingProps) {
   const Heading = as;
   return (
@@ -39,73 +49,32 @@ export function SectionHeading({
         className
       )}
     >
-      {eyebrow && (
-        <div className="flex items-center gap-2">
-          {index && (
-            <span
-              className={cn(
-                "tech-label rounded-sm border px-1.5 py-0.5",
-                dark
-                  ? "border-flow-300/40 text-flow-300"
-                  : "border-ocean-600/30 text-ocean-700"
-              )}
-            >
-              {index}
-            </span>
-          )}
-          {/* Corner bracket — brand accent, replaces the old dash + Boomerang pair */}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden="true"
-            className="shrink-0"
-          >
-            <path
-              d="M3.3335 15.0002V6.66683C3.3335 4.44461 4.44461 3.3335 6.66683 3.3335H15.0002"
-              stroke="#F28000"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span
-            className={cn(
-              "text-xs font-bold uppercase tracking-widest",
-               "text-amber-600"
-            )}
-          >
-            {eyebrow}
-          </span>
-        </div>
-      )}
+      {/* Global heading spec (Figma, confirmed sitewide): #0B0B52 / weight
+          300 / line-height 108% / letter-spacing 0.32px / uppercase, 48px
+          at `md` and up — the existing 30/36/48px scale already tops out
+          exactly there, so it's kept rather than flattened to a single
+          non-responsive size. `titleAccent`'s one deliberate difference
+          from `title`: always weight 700 (bold), same color/size/spacing —
+          no accent COLOR, just heavier weight, confirmed explicitly. */}
       <Heading
         className={cn(
-          "max-w-2xl font-display text-3xl uppercase leading-tight tracking-tight sm:text-4xl md:text-5xl",
+          "max-w-2xl font-display text-3xl uppercase leading-[1.08] tracking-[0.32px] sm:text-4xl md:text-5xl",
           animate ? "text-pretty" : "text-balance",
-          !titleAccent && (dark ? "font-bold text-white" : "font-bold text-ocean-950")
+          dark ? "text-white" : titleColorClassName ?? "text-[#0B0B52]"
         )}
       >
         {titleAccent ? (
           <>
-            {/* Designer spec: lead line is thin weight in brand blue; accent
-                line is always brand orange amber-500 (#f5951f) — a designer
-                override of an earlier amber-700 AA-contrast fix. amber-500
-                measures ~2.28:1 on white/paper-2 (below the 3:1 AA floor for
-                large text) but ~7.45:1 on ink — flagged as a known
-                accessibility tradeoff on light backgrounds, kept because the
-                designer explicitly asked for this exact shade everywhere.
-                `block` forces the accent onto its own line always, rather
-                than depending on the string being long enough to wrap. */}
-            <span className={cn("block font-medium", dark ? "text-white" : "text-ocean-600")}>
-              {title}
-            </span>
-            <span className="block font-bold text-amber-500">{titleAccent}</span>
+            <span className="block font-light">{title}</span>
+            <span className="block font-bold">{titleAccent}</span>
           </>
         ) : animate ? (
-          <WordReveal text={title} />
-        ) : title}
+          <span className="font-light">
+            <WordReveal text={title} />
+          </span>
+        ) : (
+          <span className="font-light">{title}</span>
+        )}
       </Heading>
       {description && (
         <p

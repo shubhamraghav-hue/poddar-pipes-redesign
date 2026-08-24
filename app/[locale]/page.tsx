@@ -3,14 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Hero } from "@/components/home/Hero";
 import { CompanyOverview } from "@/components/home/CompanyOverview";
 import { SectionReveal } from "@/components/shared/SectionReveal";
-import { SectionCurve } from "@/components/shared/SectionCurve";
 import { ProductCategories } from "@/components/home/ProductCategories";
-import { WhyChooseUs } from "@/components/home/WhyChooseUs";
-import { IndustriesServed } from "@/components/home/IndustriesServed";
-import { ManufacturingExcellence } from "@/components/home/ManufacturingExcellence";
-import { QualityCertifications } from "@/components/home/QualityCertifications";
-import { Sustainability } from "@/components/home/Sustainability";
-import { LatestBlogs } from "@/components/home/LatestBlogs";
 import { CTASection } from "@/components/home/CTASection";
 
 export async function generateMetadata({
@@ -40,14 +33,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           that isn't in that mock is commented out, not deleted — see the
           block at the bottom of this file. */}
       <Hero />
-      <SectionCurve>
-        <ProductCategories />
-      </SectionCurve>
       <SectionReveal>
-        <SectionCurve>
-          <CompanyOverview />
-        </SectionCurve>
+        <CompanyOverview />
       </SectionReveal>
+      <ProductCategories />
       <CTASection
         variant="flush"
         primaryLabel={t("ctaPrimaryHome")}
@@ -55,25 +44,25 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       />
 
       {/* Old — not part of the current Figma-matched homepage (node 13:309),
-          kept rather than deleted in case these sections come back. */}
-      {/* <SectionCurve>
-        <WhyChooseUs />
-      </SectionCurve>
-      <SectionCurve>
-        <IndustriesServed />
-      </SectionCurve>
-      <SectionCurve>
-        <ManufacturingExcellence />
-      </SectionCurve>
-      <SectionCurve>
-        <QualityCertifications />
-      </SectionCurve>
-      <SectionCurve>
-        <Sustainability />
-      </SectionCurve>
-      <SectionCurve>
-        <LatestBlogs />
-      </SectionCurve> */}
+          not rendered, and their imports were removed (lint flags unused
+          imports as errors, and a commented-out JSX reference doesn't count
+          as real usage) — re-add these imports if reviving:
+          WhyChooseUs (@/components/home/WhyChooseUs),
+          IndustriesServed (@/components/home/IndustriesServed),
+          ManufacturingExcellence (@/components/home/ManufacturingExcellence),
+          QualityCertifications (@/components/home/QualityCertifications),
+          Sustainability (@/components/home/Sustainability),
+          LatestBlogs (@/components/home/LatestBlogs).
+          No longer wrapped in `SectionCurve` either — that scroll-driven
+          curved-edge effect was removed sitewide (Aug 2026, explicit
+          request); if revived, these render as plain sections like
+          everything else on the page now does. */}
+      {/* <WhyChooseUs />
+      <IndustriesServed />
+      <ManufacturingExcellence />
+      <QualityCertifications />
+      <Sustainability />
+      <LatestBlogs /> */}
     </>
   );
 }

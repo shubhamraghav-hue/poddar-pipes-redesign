@@ -599,6 +599,453 @@ needs, now that the old 5-slide carousel is fully gone:
   siblings above, not truncated — the code comment is intentionally the
   short version.
 
+## Legacy section (`CompanyOverview.tsx`) — checked against Figma node 810:1159
+
+Same canonical file as the tagchips work (`6jLHH8FxOKbRcIWOpIiWcx`). Four
+real deviations found and fixed, two of which collided with sitewide brand
+decisions made in an earlier pass — confirmed with the user before
+resolving either way rather than picking a side silently:
+
+- **Heading, 2nd line color.** Figma: both lines the same navy (`#0b0b52`
+  ≈ `ocean-950`), weight is the only distinction (light → bold). The
+  shared `SectionHeading` component's `titleAccent` prop instead forces
+  every accent line to brand orange sitewide — itself a deliberate past
+  designer directive (see the component's own code comment). **Resolved
+  in Figma's favor for this section specifically**, via a new opt-in
+  `matchAccentColor` prop on `SectionHeading` (default `false`, so every
+  other of its ~20 call sites is unaffected) — when true, both spans use
+  `ocean-950`/weight-only instead of the orange accent. Also caught in the
+  same fix: the *lead* line was rendering `ocean-600` (`#171796`, a bright
+  blue-purple), not `ocean-950` (`#0c0b3f`, the one actually close to
+  Figma's `#0b0b52`) — `matchAccentColor` corrects both spans at once.
+- **"MANUFACTURE" label color.** Figma: `#f28000` — exactly the
+  `amber-600` token (confirmed via `globals.css`, not `amber-500`, a
+  different, lighter orange used elsewhere). Was `text-flow-300` (cyan),
+  left over from the "Engineering the Flow" rebrand pass applying its new
+  accent broadly. **Resolved in Figma's favor** — this label reads as a
+  literal callout tag on a photo, not a rebrand-scoped UI element.
+- **Description text color** — Figma `#606060`, was Tailwind `slate-600`
+  (`#475569`, a cooler blue-gray unrelated to Figma's neutral gray). Pure
+  drift, not a deliberate choice; fixed to the literal hex.
+- **Photo gradient overlay** — Figma `rgba(9,12,40, 0→0.92)` (near-black),
+  was `ink/95` (`#14134f`-based, visibly more purple/lighter). Pure drift;
+  fixed to the literal rgba values, fade point kept equivalent (Figma's
+  45%-start ≈ Tailwind's default `via` midpoint, close enough not to need
+  an exact stop position).
+
+**Left alone, not a mismatch:** the eyebrow ("WHO WE ARE" + corner-bracket
+icon) has no equivalent in this specific Figma frame at all — Figma's own
+static comp predates the numbered-eyebrow system added sitewide during the
+bold-rebrand pass (see above). That system is a deliberate site convention
+layered on top of individual Figma frames, not something any one frame is
+expected to show — don't remove it just because one frame doesn't have it.
+
+**Follow-up fix, same section — text/image placement.** The two-column
+row below the heading used CSS Grid (`md:grid-cols-2`): both children were
+stretched to their own full column-width track first, THEN aligned within
+it (`sm:justify-self-end` on the image). Since neither the text
+(`max-w-lg`, narrower than its track) nor the image (`sm:max-w-sm`,
+likewise) filled their tracks, the leftover space in BOTH columns stacked
+on top of the grid gap — producing a much wider separation than Figma's
+actual relationship (measured from the node: 599px text, a 282px gap,
+then a fixed 331px square, all packed together with no extra slack).
+Switched to flexbox (`flex md:flex-row`) so the two elements sit directly
+against each other with just the row `gap` between them: text is
+`md:flex-1` up to Figma's literal `599px` cap (so IT flexes narrower on
+medium widths, e.g. tested working correctly at 900px viewport), image
+stays a fixed `331px` from `md:` up (Figma's literal size, doesn't resize
+with viewport). Below `md`, unchanged from before: stacks vertically, wide
+21:10 crop under `sm` (no Figma mobile frame exists to match — a full
+331×331 square reads too tall/dominant on a narrow phone), true square
+from `sm` up. Verified at 1512px (Figma's own reference width), 900px
+(mid-`md` squeeze), and 375px (mobile stack) — no overflow, no oversized
+gap, at any of the three.
+
+## Global heading spec + eyebrows removed sitewide (Aug 2026)
+
+A follow-up to the Legacy-section heading fix above: the user supplied the
+exact computed CSS from Figma for both heading lines and asked to make it
+the **global** heading standard, replacing the previous per-section/
+per-`titleAccent` treatment, and to remove the eyebrow (small label + index
++ corner-bracket icon) from every section.
+
+**New global spec for every `SectionHeading` title/titleAccent, sitewide:**
+```
+color: #0B0B52 (dark:true sections keep white — unreadable otherwise, not
+                overridden by this spec)
+font-family: Anek Devanagari (already the site's only display font)
+font-size: 48px (existing responsive scale text-3xl → sm:text-4xl →
+                 md:text-5xl already tops out at exactly 48px from `md`
+                 up — kept as-is rather than flattened to a single
+                 non-responsive size, since it already matches at the
+                 reference width and degrades sensibly smaller)
+font-weight: 300 (font-light)
+line-height: 108% (leading-[1.08])
+letter-spacing: 0.32px (tracking-[0.32px])
+text-transform: uppercase (already the default)
+```
+
+This **replaces** the previous `titleAccent` behavior entirely (lead line
+`ocean-600` medium weight, accent line `amber-500` bold — see the "Type
+decision" / rebrand history earlier in this file for how that pattern
+came to exist). The `matchAccentColor` prop added minutes earlier in the
+same session (for the Legacy-section-only fix) became redundant the
+moment this became the universal default — removed from `SectionHeading`'s
+interface entirely rather than left as inert opt-in cruft.
+
+**Correction immediately after the above shipped:** the first version made
+both lines fully identical (weight 300, no distinction at all). The user
+clarified right away — `titleAccent` should always be bold (700) while
+`title` stays light (300); same color/size/spacing on both, weight is the
+one deliberate difference. Fixed by wrapping `title`'s render path (all
+three: `titleAccent` present, `WordReveal`, and the plain-string fallback)
+in `font-light`, and `titleAccent`'s span in `font-bold`, rather than
+setting weight once on the shared `<Heading>` wrapper — since the two
+lines now need to diverge on that one property. Verified via
+`getComputedStyle` on both spans: `A 50-year legacy of` → weight `300`,
+`excellence in plumbing.` → weight `700`.
+
+**Eyebrows removed sitewide, but as a single-file change, not touching the
+~29 other files that call `SectionHeading`:** the `eyebrow`/`index` props
+still exist on the interface (marked `@deprecated`) so none of those call
+sites needed editing or risk breaking — `SectionHeading` itself simply no
+longer renders the eyebrow block regardless of what's passed. If a fully
+clean sweep (removing the dead prop-passing in each of those ~29 files) is
+ever wanted, that's a mechanical follow-up, not a design decision — the
+props are already inert everywhere today.
+
+Verified via `getComputedStyle` on the Legacy section's heading at 1512px
+width: `font-weight: 300`, `font-size: 48px`, `line-height: 51.84px`
+(exactly 108% of 48), `letter-spacing: 0.32px`, `color: rgb(11, 11, 82)`
+— all match the spec exactly, not approximated. Spot-checked the About
+page (a `titleAccent` call site) to confirm the sitewide effect and
+confirm no eyebrow renders there either.
+
+## Categories section (`ProductCategories.tsx`) rebuilt against Figma's exact layout, size, and hover mechanism
+
+Checked against Figma node `810:1149` (canonical file `6jLHH8FxOKbRcIWOpIiWcx`), which — critically — has each category card's Default AND Hover variant baked into the dev-mode export as two sets of absolute coordinates. That's not literal exportable JS (Figma's prototype "Smart Animate" between two static frames has no JS to copy), but it gives the exact pixel deltas to reproduce with CSS transitions.
+
+**Real mismatches found, all fixed:**
+- **Cards rendered far smaller than Figma** — capped at 260px square via `max-w-[260px]`/`aspect-square`, vs Figma's actual 400×375 (aspect ~1.067, not square). Fixed via `aspect-[400/375]` on a full-width grid cell instead of a fixed/capped pixel size, so it's correct at any container width, not just Figma's 1512px reference.
+- **Grid gap** was 12px (`gap-3`), Figma uses 26px — changed to `gap-6` (24px, close enough without hand-tuning a non-standard value).
+- **Photo occupied only 44% of card height** (a plain top-cropped band) vs Figma's ~75% (`280/375`, where the wordmark begins) — fixed to `h-[74.67%]`.
+- **Description/CTA typography** was much smaller than spec (`text-xs`/`text-sm`) — Figma: description 16px `#606060`, "VIEW PRODUCTS" 18px *medium* (not bold) `#171796` (= the `ocean-600` token's hex, confirmed). Fixed via `cqw`-scaled sizes matching those literal px-at-400-reference values.
+- **"View Catalogue" button** was an outlined blue-border/blue-text button — Figma (node `810:1157`) is a solid brand-orange fill with navy text, the *same* spec Hero's `accent-ink` button variant already implements. Reused that variant rather than duplicating it, with a local `className` override for the text color to Figma's literal `#0B0B52` (not the variant's own `ink` token `#14134F` — same reasoning as every other fidelity pass this session). The override is scoped to just this one `<Button>` instance, not the shared variant — `accent-ink` is also used by the (locked) Hero, so the shared definition itself was never touched.
+
+**Hover mechanism — reproduced from the actual Default/Hover variant deltas, confirmed identical across all 6 cards, not per-card guesses:**
+- Photo + wordmark rise together by exactly 90px (at Figma's 400px-reference card) on hover.
+- Description + CTA are entirely BELOW the visible card frame at rest (description `top:395`, CTA `bottom:-90` — both past the card's own 375px bottom edge, clipped by its `overflow-clip`) and slide up into view together by 110px on hover.
+- Implemented as independently absolutely-positioned elements (photo; wordmark; description+CTA) each getting the same `translate-y` on `group-hover` where they need to move together, rather than one shared flex-grouped wrapper — see the correction below for why.
+- **Real bug caught during verification, worth remembering for any future translate-based hover:** CSS `translate`/`transform` percentages resolve against the TRANSLATED ELEMENT's OWN box, not its parent — `translate-y-[X%]` on a small text block computed against that block's own small height, not the card's, so it barely moved instead of clearing the card. Fixed by using `cqw` (resolves against the `@container` ancestor — the card — regardless of which element is being translated) instead of `%` for every translate value. `top`/`right`/`width`/`height` percentages were NOT affected by this — those correctly resolve against the parent already, per normal CSS, no container query needed for them.
+- Border radius capped with `rounded-[min(25px,6.25cqw)]`, not a flat `6.25cqw` — Figma's radius is a fixed 25px, not proportional; `6.25cqw` only equals 25px at exactly the 400px reference width and grows past it on any wider-rendered card. `min()` gives a true 25px ceiling while still scaling down (not capping) on cards narrower than 400px.
+
+**Real asset bug found and fixed — a genuine duplicate, not a Figma mismatch:** the pre-existing `*-logo.svg` files (one per category) each bundled an extra "GOLD" pill baked directly into the graphic, alongside "PODDAR" + the category name. At the old ~40px render height this was invisible; enlarging the wordmark to Figma's actual proportion (per the fix above) made it clearly visible, duplicating the separate gold ribbon badge Figma specifies in the card's top-right corner. Fixed by exporting fresh wordmark assets directly from Figma (`download_assets` on node `707:7360` and the equivalent "Default"-variant wordmark sub-frame for each of the other 5 cards, 3x scale, saved as `*-wordmark.png` in `public/products/category-cards/`) — each export is scoped to just the wordmark sub-frame, with no gold pill baked in at all. The old `*-logo.svg` files were deleted (confirmed zero remaining code references first).
+
+**Correction immediately after the above shipped — wordmark position was still wrong, just differently.** First fix: capped the photo at `h-[85%]` of a shared 74.67%-tall flex wrapper and made the wordmark a normal-flow sibling after it (`mt-[2%] h-[13%]`), reasoning that flexbox would keep the two from overlapping. It did stop the overlap, but the wordmark's actual landing position (~65% down the card) didn't match Figma at all (74.67% down) — the flex/margin approximation was never actually anchored to Figma's real numbers, just a plausible-looking guess. The user then supplied the exact numbers straight from Figma's own dev-mode inspector on the live instance: `left: 40px, top: 280px, width: 220.816px, height: 70.75px` on a 380×375 card = `left: 10.53%, top: 74.67%, width: 58.11% (max), height: 18.87%`. Fixed by making the wordmark an independently absolutely-positioned element at those exact percentages (`object-contain object-left` so the fresh PNG's own aspect ratio — not a stretch to the box — determines its actual rendered width up to that 58.11% ceiling), and shrinking the photo to a flat `h-[68%]` (no longer tied to the wordmark's box at all) so the two don't overlap, with a gap comparable to Figma's own per-category photo-to-wordmark spacing. Verified via `getBoundingClientRect` against the card: `left 10.53%, top 74.67%, height 18.87%` — exact match, not approximated. **Lesson: when a fix "looks right" but was derived by guessing a plausible split rather than reading the actual Figma coordinates, verify the guess numerically before considering it done — it looked fine here too, until the real numbers proved it wasn't.**
+
+## CTA section + Footer — checked against a third Figma reference (Aug 2026)
+
+A later pass checked the two pieces flagged as outstanding above — the
+homepage's flush `CTASection` ("start a conversation") and the sitewide
+`Footer` — against a **third** Figma reference: file `RFfPXq5WraSb2tFlgEO6yr`
+(the original landing-page file, same one node `13:309` came from), node
+`34:243` ("19th August, changes") — a single composite frame containing the
+full page (header, Hero, Categories, Legacy, CTA, Footer) inside a mocked
+browser-chrome frame. Its Hero/Categories/Legacy content matches what's
+already shipped, which is what makes it a reliable reference for the two
+sections that weren't checked yet — CTA is node `34:390`, Footer is node
+`34:398` ("Poddar Pipes - Footer Ideation 2") inside it.
+
+**`CTASection.tsx` (`flush` variant only — the `card` variant used by the
+other ~14 call sites is untouched):**
+- **No background photo at all** — Figma's export for this band is a flat
+  `bg-[#0b0b52]`, no image, no gradient overlay. The previous flush
+  treatment (`/home/cta-background.png` + a `to-ink` gradient) was from an
+  earlier iteration of this same Figma file; this newer frame supersedes it.
+  Background switched to the literal flat hex (not the `ink` token —
+  same distinct-navy reasoning as the tagchips border/hero base rect
+  elsewhere in this doc), and the now-fully-orphaned background image
+  deleted (`public/home/cta-background.png`, confirmed zero remaining
+  references first).
+- **Eyebrow removed** — Figma has none on this band.
+- **Heading is two sentences, not one uniform line** — lead sentence white/
+  light, second sentence amber-600/semibold, both on their own line (CSS
+  `uppercase` on the container, not literal caps in the copy — same
+  convention as the global heading spec). The existing `home.ctaTitle`
+  translation already contains both sentences as one string in every
+  locale, so rather than adding new `titleLead`/`titleAccent` keys (11
+  locales to touch for a purely visual split), a small `splitLeadAccent()`
+  helper splits the resolved string at the first sentence boundary
+  (`.`/`!`/`?` + whitespace) at render time. English and Hindi's existing
+  copy already splits cleanly this way.
+- **Description color/width** — Figma: `#c0c0c0` at a `518px` max width, was
+  `slate-300` at `max-w-lg`. Fixed to the literal values.
+- **Primary button text color** — Figma's `#0b0b52` literal, not the
+  `accent-ink` variant's own `ink` token (`#14134f`) — same local-className-
+  override pattern already used on the Categories "View Catalogue" button,
+  applied here too rather than editing the shared variant (still used by
+  the locked Hero).
+- **Secondary button border** — Figma's border is fully-opaque white, not
+  the `outline-white` variant's default `white/70` — overridden locally to
+  `border-white` for this one instance.
+- Copy itself needed no changes — `home.ctaTitle`/`ctaDesc`/`ctaPrimaryHome`/
+  `ctaSecondaryHome` already matched this Figma frame's literal text
+  exactly (case differences are CSS `uppercase`, not the stored strings).
+
+**`Footer.tsx`:**
+- **Background color** — Figma: flat `#0b0b52`, was `bg-ink` (`#14134f`) —
+  fixed to the literal hex, same reasoning as the CTA background above.
+- **A decorative overlay div (`bg-blue`) was dead code** — `bg-blue` isn't a
+  real Tailwind utility in this project (no `blue` token, no `.bg-blue`
+  class in `globals.css`) and no Tailwind color ships a bare `blue` without
+  a shade suffix, so it was rendering as fully transparent — removed along
+  with the background-color fix; nothing visible changes.
+- **Nav columns were missing a whole column and half of another's links —
+  a real gap, not a Figma mismatch.** Figma's footer has three nav columns:
+  COMPANY (About Us, Manufacturing, Quality, Sustainability, Careers — 5
+  links), PRODUCTS (uPVC…UGD, unchanged, already correct), RESOURCES
+  (Resources, Contact — its own column). The shipped code had folded
+  Resources/Contact into the COMPANY column and commented out Manufacturing/
+  Quality/Sustainability/Careers entirely (down to 3 company links and only
+  2 nav columns rendered, with a `resourceLinks` array already stubbed out
+  in a comment). Confirmed all four pages exist (`app/[locale]/manufacturing`,
+  `/quality`, `/sustainability`, `/careers`) and their `nav.*` translation
+  keys were already present in every locale file — so this wasn't
+  gated on missing pages/copy, just an incomplete wire-up. Restored the full
+  5-link COMPANY column and un-commented the RESOURCES column as its own
+  third column, matching Figma exactly.
+- **Newsletter input border** — Figma: solid `#c0c0c0`, was `white/25` —
+  fixed in `NewsletterSignup.tsx` (shared by this footer and nothing else).
+- **Left alone, not a mismatch:** the logo/wordmark is rendered from a
+  single `/logo.svg` asset (used identically in the header) rather than
+  Figma's literal separate "P" mark + "poddar"/"pipes" wordmark layers —
+  consistent with how the site already represents this logo everywhere
+  else; not rebuilt from raw layers here. The contact email
+  (`hello@poddarpipes.com`) also differs from Figma's literal
+  `poddarpipes@gmail.com` — kept as-is (looks like the deliberate, more
+  official-looking address rather than Figma placeholder copy) rather than
+  silently overridden; flagging here per the same "flag copy conflicts,
+  don't silently change them" convention used earlier in this doc for the
+  Hero's manufacturing-year copy.
+
+Verified with `tsc --noEmit` and `eslint` on the three touched files (both
+clean — the one pre-existing `<img>`-vs-`next/image` lint warning on the
+footer logo predates this pass). **Not verified live in a browser this
+pass** — the session's dev-server preview tool was blocked by the auto-mode
+permission classifier; if something looks off, that's the first thing to
+check, not a sign the fix above was wrong on paper.
+
+## Category-card fixes from user review (Aug 2026)
+
+Two issues spotted directly in a screenshot of the live category grid:
+
+**"VIEW PRODUCTS" + arrow, misaligned.** Same root cause as the sitewide
+icon+text vertical-alignment fix documented earlier in this file (Anek
+Devanagari's asymmetric font metrics render bare text visibly high next to
+a flex-centered icon) — but `ProductCategories.tsx` was fully rebuilt for
+the Figma-exact grid redesign after that fix was first applied, and the
+rebuild's "VIEW PRODUCTS" span only kept `leading-none`, not the
+`[text-box-edge:cap_alphabetic] [text-box-trim:trim-both]` pair that
+actually does the trimming. Added both back. Verified via
+`getBoundingClientRect` on the label span vs. the `ArrowRight` icon:
+centers now match to within 0.008px (was visibly offset before).
+
+**Tank category artwork.** User supplied the real Figma asset for this
+card — an SVG (`Group 11.svg`, saved as `public/products/category-cards/
+tank.svg`) whose content is actually a raster-embedded PNG: Figma's own
+two-overlapping-tank-photo composition with its own drop shadow, matching
+the original `get_design_context` export for `TankCard` (`image 28` /
+`image 29`) — not a text wordmark, despite the generic filename. Replaces
+the old 1.4KB placeholder `tank.png` (deleted, confirmed unused elsewhere
+first). Rendered via a plain `<img>` with `object-contain` rather than
+`next/image` — this project doesn't set `images.dangerouslyAllowSVG`, so
+`next/image` would 400 on a local SVG source (same reason the `GOLD_BADGE`
+SVG in this same file already bypasses it). `object-contain`, not the
+other five cards' `object-cover`: this asset already composites its own
+artwork + shadow against a transparent canvas, so cropping it would cut
+into that composition rather than just re-framing a photo.
+
+## Two follow-up fixes from user review (Aug 2026)
+
+**Legacy section photo, below `md`.** The `sm:max-w-sm sm:aspect-square`
+switch (added when the earlier right-floating-gap bug was fixed) made the
+photo a small square between `sm` and `md` — reported as looking wrong at
+that in-between size. Per explicit request, that range now keeps the same
+wide `aspect-[21/10]`, full-width, centered treatment used below `sm`
+instead of shrinking to a square; the fixed 331px square is still Figma's
+real spec, but it now only applies once `md:flex-row` actually puts the
+photo beside the text.
+
+**One standard CTA button pair, sitewide.** `CTASection`'s two variants
+("card", used by ~14 pages, and "flush", the homepage-only band) had two
+different button treatments — `primary-on-dark`/`outline-light` (bg-white/
+navy-text primary, amber-outline secondary) on "card" vs. the literal Figma
+`accent-ink`/`outline-white` pair (orange fill + navy text / solid-white
+outline, `text-lg font-semibold tracking-[0.36px]`, content-driven padding
+via `h-auto px-6 pb-3 pt-4`) already used by Hero and the "flush" variant.
+Per explicit request, the Figma pair is now the ONE standard: both variants
+render the identical button markup (factored into a shared `ctaButtons`
+block in `CTASection.tsx`) — only the surrounding card/background/heading
+treatment still differs by variant, not the buttons themselves.
+
+**Correction, caught in the same user screenshot as the fix above (it
+showed "VIEW CATALOGUE" next to "Start a Conversation"/"Download
+Catalogue" and the case mismatch was the giveaway that they were still
+different CTAs at a glance):** the new `ctaButtons` block was missing
+`uppercase`. Figma's literal export has `text-transform: uppercase` on
+every one of these buttons — Categories' "VIEW CATALOGUE" (already
+correct, unchanged) as well as this pair — so its absence was a real gap
+in the first pass, not a deliberate omission. Added `uppercase` to both
+buttons in `ctaButtons`. Hero's own buttons ("Explore Products", "Talk to
+Our Team") remain the one intentional exception — Figma's export has
+`uppercase` there too, but Hero is locked and already shipped without it,
+so this fix does not touch Hero.
+
+**Deliberately left outside this pass** (not part of "the website's CTAs"
+in the sense meant here, or would actually contradict Figma if changed):
+- `Navbar`'s "Request a Quote" — Figma's own header CTA is blue-filled
+  (`bg-[#171796]`) with white text, not orange/white; changing it would
+  have moved it away from Figma, not toward it.
+- The 404 page's buttons (`accent` + `outline-white`) — a separate,
+  already-documented design pass (`NOTFOUND_DESIGN.md`) with its own
+  full-bleed-imagery treatment; `accent` is a different, lighter amber
+  (500, white text) than the CTA pair's `accent-ink` (600, navy text).
+- `ProductDetail`'s spec-sheet `outline-light` button — a utility action on
+  a product page, not a promotional CTA pair.
+
+`accent-ink`/`outline-white` themselves (in `button.tsx`) were left
+untouched rather than having the padding/typography baked into the variant
+definitions — Hero also consumes those two variants and is locked, so
+changing the shared variant strings (even to make Hero's own rendering
+identical) needs asking first, per the hard rule above; the standardization
+here is done entirely via each call site's own `className`, matching the
+pattern Hero/Categories already established.
+
+## Scroll-curve removal + CTA heading line-break fix (Aug 2026)
+
+**`SectionCurve` removed sitewide, not just from Hero.** The scroll-driven
+curved-bottom-edge `clip-path` effect was already removed from Hero
+specifically (see "Curved-bottom-edge clip-path removed entirely" above),
+but a separate, reusable `SectionCurve` component implementing the same
+kind of effect (`useScroll`/`useTransform` animating an `ellipse(...)`
+clip-path, `rx` from `getCurveRx` in `lib/motion.ts`) was still wrapping
+Categories (`ProductCategories`) and Legacy (`CompanyOverview`) on the
+homepage. Per explicit request, unwrapped both in `app/[locale]/page.tsx`.
+With no remaining live usage anywhere in the codebase, deleted
+`components/shared/SectionCurve.tsx` outright and removed `getCurveRx`
+from `lib/motion.ts` (that file's other exports — `BRAND_EASE`,
+`BRAND_DURATION`, `BRAND_SPRING`, `BRAND_VIEWPORT` — are still used
+elsewhere and were left alone). Verified via `getComputedStyle` sitewide:
+zero elements have a non-`none` `clip-path` after this change.
+
+The homepage's commented-out "old sections" block (`WhyChooseUs` etc. —
+not part of the current Figma-matched homepage, kept in case they come
+back) had each been wrapped in `<SectionCurve>` too; updated that comment
+to drop the wrapper so a future revival doesn't reintroduce the effect,
+and — since fixing this file anyway — removed those six components'
+now-fully-unused imports (they were only ever referenced inside the
+comment, which doesn't count as usage to ESLint; this was a real,
+pre-existing lint error, not something this change introduced) in favor
+of a note listing which imports to re-add if reviving.
+
+**CTA heading — accent line wasn't guaranteed to start its own line.**
+`CTASection`'s flush-variant heading (`splitLeadAccent`) rendered the lead
+and accent sentences as two inline `<span>`s with only a space between —
+so whether the accent line actually started fresh depended on whether the
+two sentences happened to overflow the `max-w-2xl` container at a given
+viewport width, not on a rule. Per explicit request, and matching the same
+convention already established for `SectionHeading`'s `titleAccent` (see
+"Global heading spec" above), both spans are now `display: block`,
+so the orange accent sentence always starts on its own line regardless of
+viewport width or how short the lead sentence is.
+
+## CTA section re-checked against a focused Figma pull (Aug 2026)
+
+A follow-up request to double-check the flush CTA's own font/styles pulled
+`get_design_context` on just node `34:390` directly (rather than the
+earlier composite-frame pull) for a cleaner, focused reference. Found two
+small remaining gaps and fixed both:
+
+- **Description line-height** — Figma: `leading-[1.5]`; Tailwind's
+  `text-sm` utility (used for the 14px size, which was already correct)
+  carries its own default line-height of `1.25rem`/`0.875rem` ≈ `1.43`,
+  not `1.5`. Added an explicit `leading-[1.5]` (plus `font-normal`, matching
+  Figma's `Anek_Devanagari:Regular`, for clarity even though it was already
+  the inherited default).
+- **Secondary button border width** — Figma: `1.2px`; the `outline-white`
+  variant's own default is `border-2` (2px). Overridden locally to
+  `border-[length:1.2px]` (the `length:` type hint matters here — a bare
+  `border-[1.2px]` and `border-[1.2px]` without the hint both compile fine
+  in this project's Tailwind v4 setup, so that wasn't the issue; it was
+  purely for clarity that this is a width, not a color, arbitrary value).
+  **Verified this makes no visible difference in practice** — a quick
+  isolated test (`getComputedStyle` on a plain test element with an inline
+  `border-width: 1.2px`) showed the browser itself rounds any sub-integer
+  border-width to the nearest whole pixel when reporting/using it, so `1px`
+  and `1.2px` render identically here regardless of which class is used.
+  Kept the `1.2px` value anyway since it's harmless and literally matches
+  Figma's number, but don't spend more time chasing sub-pixel border
+  fidelity anywhere else on this site — it's not achievable/visible.
+
+Everything else already matched: heading weights (`Light`/`SemiBold`
+mapping to `font-light`/`font-semibold`), colors (`#f28000`/`#c0c0c0`/
+`#0B0B52`/white), button padding (`px-6 pb-3 pt-4`), `text-lg`,
+`tracking-[0.36px]`, and `uppercase` on both buttons.
+
+## CTA heading was wrapping to 3 lines, not Figma's 2 (Aug 2026)
+
+User caught that the flush CTA's heading rendered on three visual lines
+at normal desktop widths, not the two Figma actually shows. Root cause:
+the earlier `display: block` fix (previous section) guaranteed the accent
+sentence starts its own line, but didn't guarantee it STAYS one line —
+the shared `max-w-2xl` (672px) wrapper around heading + description +
+buttons was narrower than "WE'LL RECOMMEND THE RIGHT PIPING SYSTEM." needs
+at this site's `text-5xl` (48px), so that sentence itself was wrapping a
+second time, producing 3 lines total. Figma's own heading container is
+literally `whitespace-nowrap` — each sentence is meant to be exactly one
+line, full stop, at its 1512px reference width.
+
+Fixed by widening the shared wrapper from `max-w-2xl` to `max-w-5xl`
+(1024px) — verified both sentences now render as one line each (2 total)
+at 1280px and 1440px viewports. The description keeps its own tighter
+`max-w-[518px]` (already set directly on the `<p>`, narrower than the
+parent either way) and the buttons are content-sized flex items, so
+neither is affected by the wider parent.
+
+**Deliberately not literal `whitespace-nowrap`** — this stays responsive:
+at genuinely narrow (mobile) viewports the second sentence still wraps,
+which is expected, since Figma has no mobile frame for this section (same
+reasoning already applied to Hero's mobile crop elsewhere in this doc). If
+an even wider viewport or a longer translation ever re-wraps this sentence
+again, the fix is the same lever — widen `max-w-5xl` further — not
+re-adding a per-line hack.
+
+## Legacy + Categories heading color — a scoped exception to the global spec (Aug 2026)
+
+A fresh `get_design_context` pull on Figma node `43:415` — a separate,
+apparently more recent copy of the "2. legacy" frame than the `810:1159`
+node this section's heading was originally checked against — showed its
+heading at `#4a4a4a` (medium gray), not the sitewide global-heading-spec
+navy (`#0B0B52`) every `SectionHeading` call site uses. Flagged the
+conflict rather than silently picking one; user's direction: make Legacy
+and Categories share the same color (not a resolution of which Figma
+frame is "more correct" sitewide — scoped to just these two).
+
+**Added `titleColorClassName` to `SectionHeading`** — an optional prop
+overriding the default `text-[#0B0B52]` on light backgrounds (no effect
+when `dark`, which always stays white). This is the same shape of escape
+hatch the removed `matchAccentColor` prop was (see "Legacy section" above)
+but more general — a plain color class instead of a single boolean — since
+this time two call sites need to share a value that isn't the global
+default. Applied `text-[#4a4a4a]` at both:
+- `CompanyOverview.tsx`'s `SectionHeading` (Legacy)
+- `ProductCategories.tsx`'s `SectionHeading` (Categories)
+
+Every other `SectionHeading` call site (~27 others) is unaffected —
+they don't pass the prop, so they keep the global navy default. Verified
+via `getComputedStyle`: both headings now compute to `rgb(74, 74, 74)`
+(`#4a4a4a`) exactly.
+
 ## Planned next (remaining)
 
 1. **Product spec-sheet treatment** — dedicated Space Mono spec tables and dimension annotations (Ø, IS codes) on `ProductDetail`.
@@ -607,8 +1054,89 @@ needs, now that the old 5-slide carousel is fully gone:
 
 ## Hard rules (never break)
 
+- **`components/home/Hero.tsx` is LOCKED (Aug 2026).** Never edit it — directly, or indirectly via a shared component/token/translation key it consumes (`RevealOnScroll`, `Counter`, `lib/motion.ts`, `globals.css` tokens, `home.hero*`/`home.overviewStat*` keys) — without asking the user first, every time, even for an obvious bug fix or as a side effect of a broader "update the site" task. This is a standing instruction, not a one-time approval; it does not expire and does not need to be re-confirmed as still active.
 - Brand blue/orange/gold must be present; blue dominant.
 - Orange **and** flow-cyan: never small/body text on white (AA). Outline/border/tint/large-on-dark only.
 - Every animation respects `prefers-reduced-motion`.
 - Indic-script coverage preserved (Anek fallback in every stack).
 - Motifs stay **original** — inspiration from industry leaders, never a competitor's logo/mark/layout.
+
+## Current status (Aug 2026) — read this first to pick up where things left off
+
+Figma source of truth for all of the below: file `6jLHH8FxOKbRcIWOpIiWcx`
+("Poddar-Pipes-Website", dev-mode) — reuse this fileKey directly rather
+than asking the user for a link again. The homepage section order is
+Hero → Categories → Legacy → CTA (`app/[locale]/page.tsx`).
+
+- **Hero (`Hero.tsx`) — LOCKED, considered done.** Video re-encoded at
+  native resolution, stats-tile pipe occlusion + both gradients matched to
+  Figma, tagchips card CSS/positioning verified pixel-exact, global heading
+  spec (see below) applied, scroll-driven curve removed. See every section
+  above from "Hero video — five real problems" onward for the full history.
+  **Do not touch this file or anything it depends on without asking first
+  — see Hard rules above.**
+- **Global heading spec — done, sitewide.** Every `SectionHeading` title:
+  `#0B0B52`, weight 300 (titleAccent: 700), 108% line-height, 0.32px
+  tracking, uppercase, 48px at `md`+. Eyebrows removed sitewide (props
+  still exist on ~29 call sites, marked `@deprecated`, inert — not a
+  30-file cleanup unless explicitly asked for one).
+- **Legacy section (`CompanyOverview.tsx`) — done.** Heading colors,
+  description color, photo gradient, and text/image placement all checked
+  against Figma node `810:1159` and fixed. See "Legacy section" and its
+  "Follow-up fix — text/image placement" above.
+- **Categories section (`ProductCategories.tsx`) — done.** Layout/size,
+  typography, the "View Catalogue" button, and the hover mechanism all
+  checked against Figma node `810:1149` and fixed, including two real
+  (non-Figma-mismatch) bugs: a duplicate gold badge baked into the old
+  logo SVGs (fixed by exporting fresh wordmark-only PNGs from Figma) and a
+  wordmark position that was approximated rather than read off Figma's
+  real numbers (corrected to the exact `left:10.53%, top:74.67%,
+  height:18.87%` from the user's own dev-mode inspector). See "Categories
+  section... rebuilt against Figma's exact layout, size, and hover
+  mechanism" above, including its correction note.
+- **CTA (`CTASection.tsx`, `flush` variant) and Footer (`Footer.tsx`) —
+  done.** Checked against a third Figma reference, file
+  `RFfPXq5WraSb2tFlgEO6yr` node `34:243` ("19th August, changes" — a
+  composite full-page frame in the same file node `13:309` came from) —
+  CTA is its node `34:390`, Footer its node `34:398`. Background colors
+  fixed to the literal `#0b0b52`, the CTA's background photo/gradient
+  removed (Figma shows a flat band, no image — this newer frame supersedes
+  the earlier photo-background iteration), the CTA heading split into its
+  Figma two-tone lead/accent lines, and the Footer's missing nav column +
+  links restored. See "CTA section + Footer — checked against a third
+  Figma reference" above for the full list, including two real (non-Figma)
+  bugs fixed along the way: an orphaned background image and a dead
+  `bg-blue` CSS class. Verified live in the browser in a later pass (the
+  permission classifier that blocked it initially wasn't an issue on
+  retry).
+- **Category-card fixes — done.** "VIEW PRODUCTS" + arrow alignment fixed
+  (a sitewide fix that hadn't survived this component's Figma-redesign
+  rebuild), and the TANK card now uses the user-supplied real Figma
+  two-tank artwork instead of a 1.4KB placeholder. See "Category-card
+  fixes from user review" above.
+- **CTA buttons — now ONE standard pair, sitewide, done.** Every
+  `CTASection` call site (both `card` and `flush` variants — ~15 pages
+  total) and `ProductCategories`' "VIEW CATALOGUE" render the identical
+  Figma button spec: `accent-ink` orange-fill/navy-text primary +
+  `outline-white` solid-white-outline secondary, `text-lg font-semibold
+  uppercase tracking-[0.36px]`, content-driven `h-auto px-6 pb-3 pt-4`
+  padding. Hero's buttons are the one intentional exception (same colors/
+  padding, but no `uppercase` — Hero is locked and already shipped that
+  way). See "Two follow-up fixes from user review" above, including its
+  uppercase correction and the list of buttons deliberately left out of
+  scope (Navbar's blue "Request a Quote", the 404 page, `ProductDetail`'s
+  spec-sheet button).
+- **Legacy section photo, below `md` — done.** The `sm`-to-`md` range now
+  keeps the same wide, full-width, centered letterbox crop used below
+  `sm`, rather than shrinking into a small off-center square — fixed
+  alongside the CTA-button work above, see that same section.
+- **Scroll-driven section curve — removed sitewide, done.** `SectionCurve`
+  (the reusable clip-path-on-scroll effect, separate from the one already
+  removed from Hero specifically) no longer wraps Categories or Legacy on
+  the homepage, and the component + its `getCurveRx` helper were deleted
+  outright — no page uses it anymore. See "Scroll-curve removal + CTA
+  heading line-break fix" above.
+- **CTA heading accent line — always its own line, done.** The flush CTA's
+  lead/accent sentences are now `display: block`, matching the
+  `SectionHeading`/`titleAccent` convention — no longer dependent on
+  viewport width to force the break. Same section as above.

@@ -50,12 +50,10 @@ export function Footer() {
 
   const companyLinks = [
     { key: "about", href: "/about" },
-    { key: "resources", href: "/resources" },
-    { key: "contact", href: "/contact" },
-    // { key: "manufacturing", href: "/manufacturing" },
-    // { key: "quality", href: "/quality" },
-    // { key: "sustainability", href: "/sustainability" },
-    // { key: "careers", href: "/careers" },
+    { key: "manufacturing", href: "/manufacturing" },
+    { key: "quality", href: "/quality" },
+    { key: "sustainability", href: "/sustainability" },
+    { key: "careers", href: "/careers" },
   ];
 
   const productLinks = [
@@ -67,9 +65,10 @@ export function Footer() {
     { label: "UGD", href: "/products/category/ugd-pipes" },
   ];
 
-  // const resourceLinks = [
-
-  // ];
+  const resourceLinks = [
+    { key: "resources", href: "/resources" },
+    { key: "contact", href: "/contact" },
+  ];
 
   const navHeading = "text-[14px] font-bold uppercase tracking-[0.56px] text-white";
   const hoverLink = "opacity-70 transition hover:opacity-100";
@@ -77,8 +76,7 @@ export function Footer() {
   const productLink = `text-[14px] font-normal tracking-[0.56px] text-[#c0c0c0] ${hoverLink}`;
 
   return (
-    <footer className="relative overflow-hidden bg-ink text-[#c0c0c0]">
-      <div className="bg-blue absolute inset-0 opacity-70" aria-hidden="true" />
+    <footer className="relative overflow-hidden bg-[#0b0b52] text-[#c0c0c0]">
       <div className="container-edge relative flex flex-col gap-12 py-16 md:py-20">
         {/* Newsletter — centered on mobile, side-by-side row from lg up */}
         <div className="flex flex-col items-center gap-6 text-center lg:flex-row lg:items-center lg:justify-between lg:gap-16 lg:text-left">
@@ -144,7 +142,7 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               <h4 className={navHeading}>{t("resourcesHeading")}</h4>
               <ul className="flex flex-col gap-2">
                 {resourceLinks.map((link) => (
@@ -155,7 +153,7 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            </div> */}
+            </div>
           </div>
 
           {/* Social icons — own step in the mobile/tablet stack order; folded

@@ -187,7 +187,7 @@ export function Hero() {
           {/* Figma button spec (nodes 13:434-437): content-driven height
               from padding, not `size="lg"`'s fixed `h-14` — `cn()`'s
               tailwind-merge lets these overrides win over that default. */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 md:gap-[15px]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 uppercase md:gap-[15px]">
             <Button
               asChild
               size="lg"
