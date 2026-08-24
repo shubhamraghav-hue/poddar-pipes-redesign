@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Counter } from "@/components/shared/Counter";
@@ -29,11 +30,55 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * portrait-shaped (see `133.333vw` below), and `object-cover`-ing the
  * landscape desktop clip into that shape would leave only an arbitrary
  * vertical sliver of the composition.
+ *
+ * hero-fittings.mp4 / hero-fittings-mobile.mp4 (Aug 2026) — Safari fallback.
+ * Safari has never supported WebM (VP8 or VP9) at all, so without these the
+ * `<video>` had no playable source there and rendered blank. Re-derived
+ * from the same original source GIF (not from the .webm files — confirmed
+ * ffmpeg's CLI decode of the VP9-alpha .webm silently drops the alpha
+ * side-channel and returns an opaque frame with the transparent areas
+ * baked in as flat WHITE, the same documented gotcha as the poster-PNG
+ * lesson above, just rediscovered independently while building this
+ * fallback). The GIF's real alpha (confirmed via `alphaextract`: a clean
+ * binary mask, no partial/antialiased pixels) is instead composited onto
+ * the section's own flat `#14134f` navy — NOT a copy of the blueprint grid
+ * baked into the video: that grid is a separate CSS overlay
+ * (`bg-grid-dark` below) that already paints on top of the ENTIRE video
+ * regardless of source format, so baking a second copy into the video
+ * itself would double it up incorrectly. Since what the alpha cutouts
+ * actually reveal today is just that flat navy, compositing onto navy
+ * reproduces the exact same result Chromium's real alpha decode already
+ * produces — not an approximation.
+ *
+ * The mobile crop's exact region (`crop=1080:1440:700:0` from the full
+ * 2576×1440 frame) was recovered by template-matching the shipped
+ * `hero-fittings-mobile.webm`'s own (opaque-on-white) decoded frame against
+ * the full GIF frame — confirmed a near-zero pixel diff at x=700, y=0,
+ * 1080×1440, i.e. the crop is full-height (no vertical crop) — so this
+ * fallback's framing matches the existing WebM's mobile crop exactly, not
+ * a freshly-eyeballed one. Encoded H.264 `-crf 27 -preset slow` (7.4 MB /
+ * 2.9 MB desktop/mobile) — visually clean at this fallback-only quality
+ * bar; no need to match the primary WebM's own higher bitrate.
+ *
+ * H.264/MP4 cannot carry alpha the way VP9/WebM can — this is Safari's
+ * fallback specifically, ordered after each WebM `<source>` so browsers
+ * that support WebM never reach it (see the `<source>` ordering below).
  */
 const HERO_VIDEO = "/hero/hero-fittings.webm";
+const HERO_VIDEO_MP4 = "/hero/hero-fittings.mp4";
 const HERO_POSTER = "/hero/hero-fittings-poster.png";
 const HERO_VIDEO_MOBILE = "/hero/hero-fittings-mobile.webm";
+const HERO_VIDEO_MOBILE_MP4 = "/hero/hero-fittings-mobile.mp4";
 const HERO_POSTER_MOBILE = "/hero/hero-fittings-mobile-poster.png";
+// Cache-busting suffix for the plain `<video poster>` attribute only
+// (below) — that fetches the raw static file directly, unlike the
+// `next/image` overlay, which goes through Next's own optimizer and
+// rejects a `?`-suffixed local `src` outright (`images.localPatterns`).
+// These two filenames are unchanged from the earlier flat-white versions,
+// so a browser that already cached the old bytes by URL has no other
+// signal to refetch. Bump the suffix again if either PNG is regenerated
+// in place a second time.
+const CACHE_BUST = "?v=2";
 
 // Figma node 13:427 — radial vignette, transparent at (1102.7, 396.74,
 // right-of-center in the 1512×846 box) fading to `#14134f` outward at 35%
@@ -74,12 +119,57 @@ export function Hero() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  // Mobile browsers (confirmed on real devices, not just a theoretical
+  // policy edge case) can silently decline `autoPlay` even with `muted` +
+  // `playsInline` set correctly — Low Power Mode, data-saver modes, and
+  // plain slow buffering over cellular all do this. `onLoadedData` firing
+  // (used elsewhere below) only means the video is READY, not that it's
+  // actually rendering motion — `onPlaying` is the one event that means
+  // frames are genuinely advancing. The poster-image overlay rendered
+  // right after the `<video>` below stays up until this fires, so a
+  // blocked/delayed autoplay never shows a stuck frame or a mismatched
+  // background — it shows the correct static hero indefinitely instead,
+  // which reads as an intentional design, not a broken video.
+  const [isPlaying, setIsPlaying] = useState(false);
+
   // Belt-and-suspenders on `autoPlay`: observed it occasionally leaving the
   // video paused on mount. `key={isMobile ? ...}` remounts this on every
-  // mobile/desktop crossing, and this re-fires alongside it.
+  // mobile/desktop crossing, and this re-fires alongside it. Also resets
+  // `isPlaying` — the remount means the fresh video element hasn't fired
+  // its own `onPlaying` yet, so the placeholder must come back until it
+  // does, not stay hidden from the previous breakpoint's state.
   useEffect(() => {
+    setIsPlaying(false);
     videoRef.current?.play().catch(() => {});
   }, [isMobile]);
+
+  // Real-device finding (Aug 2026): some newer iOS/Safari builds report
+  // `canPlayType('video/webm')` as playable — Apple added base VP9 hardware
+  // decode on newer chips — but WebKit has never implemented the alpha
+  // side-channel Chromium invented for VP9-in-WebM, so it decodes the
+  // color planes ONLY and renders the "transparent" cutouts as flat WHITE
+  // (the same underlying gotcha as the MP4-fallback build notes above,
+  // just hit live in the browser instead of via ffmpeg's CLI). The MP4
+  // fallback exists specifically to avoid this, but a browser that
+  // half-supports WebM never reaches it via the normal `<source>`
+  // fallthrough, since it never fails the WebM `<source>` in the first
+  // place. Fixed by not OFFERING WebM at all to any WebKit engine — every
+  // iOS browser (Safari, Chrome-iOS, Firefox-iOS, etc. are all WebKit
+  // under Apple's platform policy, not their desktop engines) plus desktop
+  // Safari, regardless of what `canPlayType` claims. `null` (not `false`)
+  // until this resolves client-side, and the `<video>` below isn't
+  // rendered at all until then — this must be correct in the very first
+  // markup the browser's own HTML parser sees, since that parser starts
+  // evaluating `<source>` elements and fetching the moment it reads them,
+  // before React hydration/effects would otherwise get a chance to fix a
+  // wrongly-guessed initial source list.
+  const [needsMp4Only, setNeedsMp4Only] = useState<boolean | null>(null);
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isDesktopSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    setNeedsMp4Only(isIOS || isDesktopSafari);
+  }, []);
 
   return (
     <section
@@ -102,26 +192,106 @@ export function Hero() {
           Below `md`, `h-[133.333vw]` (= 1440/1080, the mobile clip's own
           3:4 ratio) matches the mobile crop's aspect exactly at every width
           in that range — the text box below mirrors this literal too. */}
-      <video
-        key={isMobile ? "mobile" : "desktop"}
-        ref={videoRef}
-        poster={isMobile ? HERO_POSTER_MOBILE : HERO_POSTER}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
+      {/* Not rendered at all until `needsMp4Only` resolves (see that state's
+          comment) — mounting the `<video>` is what makes the browser's own
+          HTML parser start evaluating `<source>`s and fetching, so the
+          source list must already be correct the first time this exists in
+          the DOM, not corrected a tick later. `opacity-0` (not just relying
+          on the poster overlay painted on top) until `isPlaying`: a
+          same-z-index sibling can't be trusted to fully hide certain
+          mobile browsers' own native "tap to play" affordance for a
+          stalled/blocked `<video>` — that UI has been seen bleeding through
+          a purely CSS-stacked overlay on real devices, since some engines
+          composite inline video in its own layer outside normal paint
+          order. Actually hiding the video element itself, belt-and-
+          suspenders with the overlay below, closes that gap. */}
+      {needsMp4Only !== null && (
+        <video
+          key={isMobile ? "mobile" : "desktop"}
+          ref={videoRef}
+          poster={(isMobile ? HERO_POSTER_MOBILE : HERO_POSTER) + CACHE_BUST}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          tabIndex={-1}
+          className={`absolute inset-x-0 top-0 z-[2] h-[133.333vw] w-full object-cover transition-opacity duration-700 md:h-[55.95vw] ${
+            isPlaying ? "opacity-100" : "opacity-0"
+          }`}
+          onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
+          onPlaying={() => setIsPlaying(true)}
+          {...({ fetchPriority: "high" } as Record<string, string>)}
+        >
+          {/* Browser walks these in order, skipping any whose `media`
+              doesn't match, and uses the first remaining one whose `type`
+              it can play — a single linear scan, not independently-chosen
+              per media group. Chromium/Firefox match the first mobile-or-
+              desktop WebM they reach; `needsMp4Only` engines never see a
+              WebM `<source>` at all (see that state's comment for why —
+              some can technically decode base VP9 now, just not this
+              file's alpha channel, which is worse than not offering it). */}
+          {!needsMp4Only && (
+            <source src={HERO_VIDEO_MOBILE} type="video/webm" media={MOBILE_MEDIA_QUERY} />
+          )}
+          <source src={HERO_VIDEO_MOBILE_MP4} type="video/mp4" media={MOBILE_MEDIA_QUERY} />
+          {!needsMp4Only && <source src={HERO_VIDEO} type="video/webm" />}
+          <source src={HERO_VIDEO_MP4} type="video/mp4" />
+        </video>
+      )}
+
+      {/* Poster-image overlay (Aug 2026) — same box as the video (identical
+          position/size classes, same `z-[2]`, but painted on top since it
+          comes after the video in DOM order at equal z-index), so swapping
+          it away when the video starts causes zero layout shift. Exists
+          for two reasons at once: (1) autoplay can be silently blocked or
+          delayed on mobile (see the `isPlaying` state comment above) — this
+          is what actually shows during that gap, correctly (matching the
+          video's real navy background) rather than falling through to a
+          blank/mismatched frame; (2) a plain `<Image priority>` is a faster
+          LCP candidate than waiting on video decode, on every screen size,
+          not just mobile — hence no `md:`-gated variant of this overlay.
+          `object-cover`, not `fill`'s own sizing alone, matches the video's
+          own crop behavior exactly since both share the same aspect
+          formulas. Reuses `HERO_POSTER`/`HERO_POSTER_MOBILE` — regenerated
+          from the source GIF composited onto the real navy background
+          (see the constants above); the previous poster PNGs were flat
+          white, a real mismatch against the video that made blocked
+          autoplay look broken rather than just static.
+
+          Height capped short of the video's own full height — real user
+          report: the stats row's cards intentionally let the video/pipe
+          imagery peek a little into their top edge (documented below, at
+          the stats section), which reads fine with a moving video but
+          reads as a permanently covered/"cropped" card when it's a single
+          frozen frame sitting there instead, which is exactly the state
+          this overlay is visible in. Same cap formula as the three z-[3]
+          layers further down (`calc(...-4rem)` / `sm:calc(...-5rem)`),
+          just expressed against this element's own viewport-width-based
+          height instead of a percentage, since this lives at the section
+          level rather than nested in the `min-h` text box those three
+          share. Same tapering `maskImage` as those three too, so the
+          shorter box doesn't read as a hard seam. The real, playing video
+          is untouched — still full height, still peeking into the stats
+          row exactly as designed; only the static-fallback state changes. */}
+      <div
         aria-hidden="true"
-        tabIndex={-1}
-        className="absolute inset-x-0 top-0 z-[2] h-[133.333vw] w-full object-cover md:h-[55.95vw]"
-        onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
-        {...({ fetchPriority: "high" } as Record<string, string>)}
+        className={`pointer-events-none absolute inset-x-0 top-0 z-[2] h-[calc(133.333vw-4rem)] w-full transition-opacity duration-700 sm:h-[calc(133.333vw-5rem)] md:h-[calc(55.95vw-5rem)] ${
+          isPlaying ? "opacity-0" : "opacity-100"
+        }`}
+        style={{ maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)" }}
       >
-        {/* Browser picks the first matching `media` and ignores the rest —
-            same query as MOBILE_MEDIA_QUERY/Tailwind's `md`. */}
-        <source src={HERO_VIDEO_MOBILE} type="video/webm" media={MOBILE_MEDIA_QUERY} />
-        <source src={HERO_VIDEO} type="video/webm" />
-      </video>
+        <Image
+          key={isMobile ? "mobile" : "desktop"}
+          src={isMobile ? HERO_POSTER_MOBILE : HERO_POSTER}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
 
       {/* Text box: `min-h`, not fixed height — this box only needs ENOUGH
           room for the text, not exact room, and `min-h-[133.333vw]`/

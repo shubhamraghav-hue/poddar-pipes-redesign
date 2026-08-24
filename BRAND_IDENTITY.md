@@ -1046,6 +1046,340 @@ they don't pass the prop, so they keep the global navy default. Verified
 via `getComputedStyle`: both headings now compute to `rgb(74, 74, 74)`
 (`#4a4a4a`) exactly.
 
+## Hero — Safari MP4 fallback (Aug 2026, explicit permission granted)
+
+User reported the Hero rendering blank/white on Safari (iOS screenshot).
+Root cause: only `.webm` (VP9) sources existed anywhere in `public/hero/`
+— Safari has never supported WebM (VP8 or VP9) in any shipped version, on
+macOS or iOS, so neither `<source>` could decode and the video area
+rendered empty. **This required editing the locked `Hero.tsx` — asked
+first, per the standing hard rule, before touching anything.** User
+approved, and separately chose "composited grid" when asked how to
+flatten the WebM's real alpha transparency for the MP4 fallback (H.264/
+MP4 can't carry that alpha the way VP9 can).
+
+**Correction surfaced while investigating, before building anything:** the
+premise behind offering a "grid" option was wrong. Re-reading the actual
+shipped `Hero.tsx`, the blueprint grid isn't revealed *through* the
+video's transparent cutouts — `bg-grid-dark` is a separate overlay `<div>`
+that paints on top of the ENTIRE video regardless of transparency. What
+the alpha cutouts actually reveal is just the section's own flat
+`#14134f` navy. Baking a grid into the video itself would have doubled it
+up incorrectly (the real CSS overlay would still render on top of it).
+Flagged this correction and proceeded with flat navy instead of the
+literal answer given — the objectively accurate choice once the real
+mechanism was clear, not a coin-flip preference to defer on.
+
+**ffmpeg cannot read the real alpha out of the `.webm` files** — same
+documented gotcha as the poster-PNG lesson earlier in this file
+(confirmed again independently: decoding a frame gives a fully opaque
+image with the cutouts baked in as flat WHITE). The original source GIF
+is required for a correct composite and isn't in the repo (91 MB,
+supplied directly in an earlier session, never committed) — asked the
+user to re-supply it rather than shipping a white-background compromise
+or attempting a risky chroma-key (several fittings are themselves light
+gray/white and would clip). User re-supplied it; verified it's the same
+source (2576×1440, 378 frames @ 25fps = 15.12s, matching the WebM's own
+embedded duration metadata exactly) and that it carries real alpha
+(`alphaextract` gives a clean binary mask, no antialiased edge pixels —
+same as the original build's own verification).
+
+**Build steps, for the next time this needs redoing:**
+1. Composite the GIF's alpha directly onto a `color=c=0x14134f` background
+   via ffmpeg's `overlay` filter — do this once for the full 2576×1440
+   frame (desktop) and reuse it as the source for the mobile crop below,
+   rather than compositing twice.
+2. Mobile crop region: `crop=1080:1440:700:0` (full height, no vertical
+   crop — only horizontal). Not eyeballed fresh — recovered by
+   template-matching the shipped `hero-fittings-mobile.webm`'s own
+   (opaque-on-white) decoded frame against the full GIF frame; the best
+   match (pixel diff ≈ 2/255, essentially exact) landed at `x=700`,
+   confirming this fallback's framing is identical to the existing WebM's
+   mobile crop, not an approximation of it.
+3. Encode both with `libx264 -preset slow -crf 27 -movflags +faststart
+   -an` — 7.4 MB (desktop) / 2.9 MB (mobile). This is a fallback path
+   only reached by browsers that can't play the primary WebM, so it
+   doesn't need to match the WebM's own higher bitrate; CRF 27 was
+   visually clean on inspection at this size.
+4. `Hero.tsx`: added `HERO_VIDEO_MP4`/`HERO_VIDEO_MOBILE_MP4` constants
+   and a `<source type="video/mp4">` immediately after each WebM
+   `<source>`, same `media` query. Browsers evaluate `<source>` children
+   as one linear scan (skip on `media` mismatch, else use the first
+   `type` they can play) — WebM-capable browsers never reach the MP4s;
+   Safari fails each WebM's `type` check and falls through to the MP4
+   right after it.
+
+Verified: both MP4s load correctly in-browser (`loadeddata` fires,
+correct `videoWidth`/`videoHeight`/`duration` matching each WebM exactly)
+and the composited navy background renders as expected. **Not verified
+in actual Safari** — this session's Browser tool is Chromium-based and
+cannot exercise Safari's WebM-rejection path; ask the user to confirm on
+a real Safari browser (Mac or iOS) before considering this fully closed.
+
+## Hero — poster mismatch + autoplay-blocked placeholder (Aug 2026, explicit permission granted)
+
+User reported the video still not autoplaying on mobile even after the
+Safari MP4 fallback above, and asked for a placeholder shown until the
+video is actually playing, sized to match exactly (no layout shift), used
+at every screen size to help LCP too. **Second locked-file edit this
+session — asked first again, per the standing rule (asking once doesn't
+carry over to the next distinct change).**
+
+**Real bug found while checking the existing `poster` attribute first:**
+`hero-fittings-poster.png`/`-mobile-poster.png` were still flat-WHITE
+frame-grabs from the raw source GIF — never re-composited onto navy when
+the video itself was fixed earlier in this file's history. So even before
+today's autoplay problem, ANY gap between page load and playback starting
+(slow connection, blocked autoplay, or just normal buffering time) showed
+white-background pipes flashing to navy-background pipes the instant
+playback began — likely a real contributor to the very first "white hero"
+screenshot that started this whole thread, independent of the WebM/Safari
+issue. Regenerated both posters through the same GIF→navy-composite
+pipeline used for the MP4s above (frame 0, same navy `#14134f`, same
+mobile `crop=1080:1440:700:0`) — they now match the video exactly.
+
+**Why `onLoadedData` wasn't the right signal:** the existing "belt-and-
+suspenders" autoplay retry already used `onLoadedData`/`canplay`-adjacent
+timing, but that only means the video is ready to play, not that it's
+actually rendering motion — mobile browsers (Low Power Mode, data-saver
+modes, slow cellular buffering) can all leave a "ready" video sitting
+paused indefinitely. Added an `onPlaying` handler instead (the one event
+that means frames are genuinely advancing) driving a new `isPlaying`
+state.
+
+**The overlay:** a `<div>` with the exact same position/size classes and
+`z-[2]` as the `<video>` itself (same `h-[133.333vw] md:h-[55.95vw]`
+formulas), rendered immediately after it in the DOM so it paints on top
+at equal z-index, containing a `next/image` `priority` render of the
+(now-correct) poster. Starts at `opacity-100`, transitions to `opacity-0`
+only once `isPlaying` flips true. Two effects from one mechanism: (1) any
+autoplay delay or outright block shows the correct static hero
+indefinitely instead of a white/blank flash — reads as an intentional
+design, not a broken video; (2) a plain optimized `<img>` is a faster LCP
+candidate than waiting on video decode, on every breakpoint, which is why
+this isn't gated to mobile only. Resets to `opacity-100` on every mobile/
+desktop crossing too (`isPlaying` set back to `false` in the same effect
+that already remounts the video via its `key`), so switching breakpoints
+never leaves it incorrectly hidden before the freshly-mounted video has
+actually started.
+
+Verified: overlay starts visible, transitions to `opacity: 0` once the
+real video is confirmed playing (checked via `getComputedStyle`, not just
+assumed), and correctly re-shows the right poster/video pair after a
+mobile↔desktop crossing. **Autoplay actually being blocked couldn't be
+verified in this session's Chromium-based Browser tool** (autoplay
+succeeds almost immediately in that environment, and a `play()` patch
+doesn't survive the reload needed to test it cleanly) — the fallback
+logic is verified correct by construction (starts visible, only hides on
+a genuine `onPlaying`), but ask the user to confirm on a real throttled/
+Low-Power-Mode mobile device if this needs to be fully closed out.
+
+## Hero — still white on real iOS, native play-button bleeding through (Aug 2026)
+
+User tested the previous two fixes on a real iPhone and sent screenshots:
+one showing the hero still washed white with motion-blur visible (i.e. an
+actual video playing, not a static poster), another showing the correct
+navy poster with a native play/pause icon overlaid on top of it. Both are
+real, and both needed a third locked-file edit (asked first again, same
+standing rule).
+
+**Root cause of the white video (not the poster this time):** some newer
+iOS/Safari builds now report `canPlayType('video/webm')` as playable —
+Apple added baseline hardware VP9 decode on newer chips — but WebKit has
+never implemented the alpha side-channel Chromium invented for VP9-in-
+WebM. So on those devices the browser doesn't skip the WebM `<source>` at
+all (it "can" play it) — it decodes the color planes only and renders the
+transparent cutouts as flat white, live, in real time. This is the same
+underlying gotcha as the ffmpeg-CLI alpha lesson (documented twice already
+in this file) hitting a THIRD time, this time in an actual browser instead
+of a build tool. The MP4 fallback added earlier never got reached on these
+devices, because the WebM never failed its `<source>` check in the first
+place — the fallback logic was sound, the trigger condition for reaching
+it wasn't broad enough.
+
+**Fix:** stop relying on `<source>`/`canPlayType` negotiation for this
+specific case — it can't distinguish "plays" from "plays correctly."
+Added a `needsMp4Only` client check covering every WebKit-driven browser
+(iOS Safari, Chrome-iOS, Firefox-iOS — all WebKit under Apple's platform
+policy regardless of branding — plus desktop Safari), and simply don't
+render a WebM `<source>` at all for those engines, regardless of what they
+claim to support. Android Chrome and desktop Chrome/Firefox/Edge are
+unaffected (real VP9-alpha support) and keep the WebM as before.
+
+**A real timing hazard, caught before shipping it wrong:** `needsMp4Only`
+can only be known client-side (`navigator.userAgent`), but the native HTML
+parser starts evaluating `<source>` children and fetching the instant the
+`<video>` element exists in the DOM — before React hydration/effects would
+get a chance to correct a wrongly-guessed initial source list. Fixed by
+not rendering the `<video>` at all until `needsMp4Only` resolves from
+`null` to a real boolean (one tick after mount) — invisible in practice
+since the poster overlay from the previous fix already covers this exact
+gap regardless.
+
+**The native play-button bleed-through:** the poster-overlay `<div>` from
+the previous fix paints over the video via normal CSS stacking (same
+z-index, later in DOM order), which should be sufficient — but some mobile
+engines render a stalled/blocked inline `<video>`'s own "tap to play"
+affordance in a layer that doesn't respect normal page stacking (seen live
+on the user's device, not merely theoretical). Belt-and-suspenders fix:
+the `<video>` itself now also carries `opacity-0`/`opacity-100` tied to
+the same `isPlaying` state the overlay already uses, so the video is
+actually hidden, not just painted over, until it's confirmed playing.
+
+**Also fixed while touching this:** both poster PNGs are unchanged
+filenames from their old flat-white versions, so a browser that already
+cached the old bytes by URL had no signal to refetch them even after the
+files were replaced on disk. Added a `?v=2` cache-busting suffix — but
+only on the plain `<video poster>` attribute, which fetches the raw static
+file directly. Discovered live (not by inspection) that `next/image`
+rejects a query-string `src` for local images outright
+(`images.localPatterns`), so the poster-overlay `<Image>` keeps its plain
+un-suffixed path — that one already goes through Next's own optimizer
+pipeline, which doesn't have this particular staleness problem the same
+way.
+
+**Not independently fixed, needs a clearer report first:** the user also
+flagged the stats tiles getting cropped from the top "in some cases."
+Neither screenshot clearly isolates this from ordinary scroll position —
+both cut off right at the stats row, which is also exactly where an
+unscrolled screenshot would end. Nothing in this session's changes touched
+the stats section or its layout dependencies, and its `cqw`-based
+positioning was originally reverse-engineered from exact Figma dev-mode
+numbers (see "Tagchips" sections above) — not a good place to guess-fix
+without a screenshot that isolates the actual cropped box. Asked the user
+for one before touching it.
+
+Verified in this session's Chromium browser: `needsMp4Only` correctly
+classifies iOS Safari/Chrome-iOS/macOS Safari as `true` and Android
+Chrome/desktop Chrome as `false` (tested against real UA strings, not
+guessed); the live video element's source list on this (non-WebKit)
+browser still correctly includes all 4 sources; the poster's cache-bust
+suffix is present in the rendered `poster` attribute. **The three real-
+device-only behaviors (wrong WebM colors, native play-button bleed-
+through, stale cached poster) still cannot be exercised in this
+Chromium-based tool** — ask the user to re-test on the same iPhone before
+treating any of this as fully closed.
+
+## Hero — placeholder was freeze-covering the stats cards (Aug 2026)
+
+The "stats tiles cropped from top" report from two rounds ago turned out
+to be real and reproducible on both a Chromium-based browser and real
+iPhone Safari (confirmed by the user directly — not WebKit-specific,
+unlike everything else in the last few sections). Fourth locked-file edit
+this session — asked first again.
+
+**Root cause, once actually isolated:** the stats row has always let the
+video slightly overlap into each card's top edge on purpose — the
+documented "pipe peeking through the last tile" effect, where a moving
+video occasionally covers the ghost-digit watermark and that's fine
+because it's transient. The poster-image placeholder added two rounds ago
+sits in that exact same space (same box, same z-index) — but it's one
+frozen frame, not a moving video. Whenever it's showing (which is
+whenever autoplay hasn't succeeded — still happening per the user's
+reports), whatever pipe geometry happens to occupy that sliver in the
+poster's single source frame covers that part of the card PERMANENTLY
+instead of just passing through, which reads as the card being cropped or
+broken, not merely as an expected transient overlap.
+
+**Fix:** cap the placeholder's own height to stop short of the stats row
+entirely, using the exact same formula the three `z-[3]` legibility
+overlays elsewhere in this component already use to avoid the same band
+(`calc(...-4rem)` / `sm:calc(...-5rem)`) — just expressed against this
+element's own viewport-width-based height (`133.333vw`/`55.95vw`) since it
+lives at the section level, not nested in the `min-h` text box those
+three share. Same tapering `maskImage` too, so the shorter box doesn't
+read as a hard seam. **The real, playing video is completely untouched by
+this change** — still full height, still peeking into the stats row
+exactly as designed; only the static-fallback state's height changed.
+
+Verified by temporarily forcing the overlay visible (bypassing React
+state via direct style overrides) and measuring: the overlay's bottom
+edge now sits measurably above the first stat card's top edge (not
+overlapping at all), and all four ghost digits render fully uncovered.
+Re-verified the real playing video separately, confirming its own
+original full-height overlap behavior is unchanged.
+
+## Sitewide bug: `RevealOnScroll` content stuck permanently invisible (Aug 2026)
+
+A fresh screenshot for the "stats cropped" investigation showed something
+more precise than cropping: the large ghost/watermark digits were
+visible, but the REAL counter numbers and labels ("Years manufacturing
+piping systems" etc.) never appeared at all — not clipped, just never
+rendered visible. That distinction mattered: the ghost digit renders
+unconditionally, but the counter+label are wrapped in `RevealOnScroll`,
+which starts every child at `opacity: 0` and relies entirely on Framer
+Motion's `whileInView` (backed by the browser's IntersectionObserver) to
+ever move them to `opacity: 1`. There was no fallback of any kind — if
+that observer never fires, for any reason, the content stays invisible
+forever.
+
+**This is not a Hero-only bug.** `RevealOnScroll` wraps most sections
+sitewide (Legacy, Categories, CTA, and many more), which is exactly why
+the user separately described "the entire homepage" as looking wrong, not
+just the stats row. It's also not something this session introduced —
+this component was never touched before this fix — it's a pre-existing
+fragility that happened to surface clearly once the stats-specific
+symptom got precisely diagnosed.
+
+**Root cause not fully confirmed** — reproducible on a real iPhone Safari
+session and separately on an embedded desktop-app browser panel, but not
+in this session's own Chromium-based Browser tool, so the exact trigger
+condition for the observer never firing couldn't be directly inspected.
+Rather than chase an unconfirmed root cause further, fixed the actual
+failure mode instead: `RevealOnScroll` now also starts a 1.2s timeout
+alongside the normal `useInView` check, and reveals the content via
+whichever fires first. The normal case (observer fires quickly, as it
+does in every environment tested here) is visually unchanged — same
+animation, same timing. A failed/never-firing observer now self-heals
+about a second later instead of hiding content forever.
+
+Implementation note: switched from the declarative `whileInView` prop to
+an explicit `useInView` + `useAnimationControls` pair so both triggers
+(observer and timeout) can drive the same animation state. `StaggerGroup`/
+`StaggerItem` (the other two exports in this file, used for staggered
+list reveals elsewhere) were left untouched — same file, but a different,
+unaffected component, and out of scope for this specific report. They may
+carry the identical latent fragility; worth revisiting if a similar
+"content never appeared" report comes in for a staggered section.
+
+Verified: `tsc`/`eslint` clean; the normal reveal path still works
+correctly in this session's browser (counter+label render at full opacity
+immediately, matching pre-fix behavior for the working case). **The
+actual failure path (observer never firing) could not be reproduced or
+directly verified here** — ask the user to re-test on the same devices
+that showed invisible content before.
+
+## `RevealOnScroll`/`StaggerGroup`/`StaggerItem` fully disabled, not just given a fallback (Aug 2026, explicit request)
+
+Follow-up to the timeout-fallback fix immediately above, same day. Rather
+than wait on the 1.2s fallback (or trust it fully, given the root cause of
+the observer failing was never confirmed), explicit request to remove the
+`whileInView`/IntersectionObserver dependency entirely for now — suspected
+cause is a browser permission/setting blocking it on the affected
+devices, still unconfirmed.
+
+All three exports in `components/shared/RevealOnScroll.tsx` now render a
+plain `<div className={className}>{children}</div>` — no Framer Motion,
+no observer, no animation, content always immediately visible. The
+original animated implementations are kept commented out directly below
+each plain version (not deleted, not just in git history) specifically so
+restoring the animation later is a fast, local, obvious swap rather than
+a reconstruction. `delay`/`y`/`once`/`stagger` stayed in each component's
+prop interface but are simply unused now — every call site sitewide
+(Hero, Legacy, Categories, CTA, and others) keeps passing them without
+needing to change, since the props are still accepted.
+
+Verified: `tsc`/`eslint` clean; confirmed in-browser that content
+(specifically the stats counter+label from the original report) now
+renders at `opacity: 1` immediately on page load, with no scroll needed
+and no dependency on the observer ever firing.
+
+**This is explicitly a temporary state, not a design decision** — every
+section that used to fade/slide in on scroll now just appears instantly.
+Revisit once the actual cause (which permission/setting, on which
+browsers) is understood, by swapping each component back to its
+commented-out animated version.
+
 ## Planned next (remaining)
 
 1. **Product spec-sheet treatment** — dedicated Space Mono spec tables and dimension annotations (Ø, IS codes) on `ProductDetail`.
@@ -1071,10 +1405,48 @@ Hero → Categories → Legacy → CTA (`app/[locale]/page.tsx`).
 - **Hero (`Hero.tsx`) — LOCKED, considered done.** Video re-encoded at
   native resolution, stats-tile pipe occlusion + both gradients matched to
   Figma, tagchips card CSS/positioning verified pixel-exact, global heading
-  spec (see below) applied, scroll-driven curve removed. See every section
-  above from "Hero video — five real problems" onward for the full history.
+  spec (see below) applied, scroll-driven curve removed, and three rounds
+  of mobile-video fixes — Safari MP4 fallback, poster-mismatch +
+  autoplay-blocked placeholder, then (after real-device testing showed
+  both previous fixes were incomplete) excluding WebM entirely from every
+  WebKit engine plus hiding the video itself while unconfirmed, since some
+  newer iOS builds partially "support" WebM just well enough to decode it
+  WRONG rather than fail over to the fallback (all with explicit
+  permission — see "Hero — Safari MP4 fallback", "Hero — poster mismatch +
+  autoplay-blocked placeholder", and "Hero — still white on real iOS,
+  native play-button bleeding through" above). See every section above
+  from "Hero video — five real problems" onward for the full history.
   **Do not touch this file or anything it depends on without asking first
   — see Hard rules above.**
+  Also fixed: the stats-card "cropped from top" report — the poster
+  placeholder was freeze-covering part of each card whenever shown, since
+  it sits in the same intentionally-video-overlapping band as the stats
+  row; capped the placeholder's own height to stop short of that band
+  entirely (real video's overlap behavior is unchanged). Confirmed
+  reproducible on both Chromium and real iPhone Safari, so — unlike the
+  WebM/autoplay fixes above — this one isn't WebKit-specific. See "Hero —
+  placeholder was freeze-covering the stats cards" above.
+  **Not yet confirmed fixed on a real device** — none of the WebKit-
+  specific behaviors the earlier rounds address can be exercised in this
+  session's Chromium-based Browser tool; verified correct by construction
+  (UA classification tested against real Safari/Chrome-iOS/Android UA
+  strings, source list confirmed at runtime). The stats-card fix WAS
+  verified against the actual reported symptom (forced the overlay
+  visible, measured no overlap with the card). Ask the user to re-test on
+  the same iPhone before treating any of this Hero work as fully closed.
+- **`RevealOnScroll`/`StaggerGroup`/`StaggerItem` — TEMPORARILY DISABLED,
+  sitewide, not just Hero.** Content wrapped in these shared components
+  (most sections sitewide) could get stuck permanently invisible if the
+  browser's IntersectionObserver never fired `whileInView` — no fallback
+  existed originally. First fix added a 1.2s timeout fallback; per an
+  explicit follow-up request the same day, all three now skip the
+  observer/animation entirely and render children plainly at all times —
+  every section that used to fade/slide in on scroll now appears
+  instantly instead. The original animated code for all three is kept
+  commented out directly in the file (not deleted) for a fast revert once
+  the actual cause (suspected browser permission/setting, unconfirmed) is
+  understood. See "RevealOnScroll/StaggerGroup/StaggerItem fully disabled"
+  above. **This is a temporary state, not a design decision — revisit.**
 - **Global heading spec — done, sitewide.** Every `SectionHeading` title:
   `#0B0B52`, weight 300 (titleAccent: 700), 108% line-height, 0.32px
   tracking, uppercase, 48px at `md`+. Eyebrows removed sitewide (props
