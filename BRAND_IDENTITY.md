@@ -289,14 +289,47 @@ flex/aspect-square, not Figma's fixed 375px box.
   plain `<section>`. If a scroll-driven shape effect is ever wanted back
   on the Hero specifically, `SectionCurve.tsx` already has the working
   pattern to reuse rather than reintroducing bespoke state here.
-- **A `mt-[93px]` nav-clearance gap was added, then explicitly reverted.**
-  Figma's own nav sits in normal document flow (not fixed), so its hero body
-  genuinely starts at `top:93.32px` against an 80px header — a real ~13px
-  gap baked into the design. Once the Navbar went static/solid (see above),
-  the video's visible content began exactly at the nav's bottom edge with no
-  breathing room, so the margin was added to reproduce Figma's gap. Later
-  removed again on request — current state has no gap; the two options and
-  the reasoning for each are preserved here in case it comes up again.
+- **A `mt-[93px]` nav-clearance gap was added, then explicitly reverted,
+  then present again — this note was stale; corrected (Aug 2026) after a
+  request to diagnose an actual visible gap between the header and the
+  page content.** Figma's own nav sits in normal document flow (not
+  fixed), so its hero body genuinely starts at `top:93.32px` against an
+  80px header — a real ~13px gap baked into the design. Once the Navbar
+  went static/solid (see above), the video's visible content began
+  exactly at the nav's bottom edge with no breathing room, so the margin
+  was added to reproduce Figma's gap. This note used to say it was
+  "later removed again on request," but live inspection of the CURRENT
+  code (`components/home/Hero.tsx:181`,
+  `className="relative mt-[93px] overflow-hidden bg-ink"`) confirms it is
+  present now, not absent — whatever removed it before, it's back, and
+  this file's own claim was out of date until this correction. **Exact
+  mechanism, confirmed via `getBoundingClientRect` on the live page, not
+  just read from source:** the fixed `<header>` is exactly 80px tall
+  (`h-20`) and sits at `top:0`, painting its own `bg-paper/95` bar over
+  that band. Because `<header>` is `position: fixed`, it's out of normal
+  flow, so `<main>` (plain, no own styling) would start at `y:0` — but
+  Hero's `margin-top: 93px` on its first/only child **collapses upward
+  through `<main>`** (default CSS margin-collapsing: nothing on `<main>`
+  — no padding, border, or BFC — stops a child's top margin from
+  propagating to the parent's own effective top edge), so `<main>`'s own
+  measured `top` is ALSO `93px`, confirmed live. The result: **the 13px
+  from `y:80` (header's bottom / its `shadow-sm` edge) to `y:93` (where
+  Hero's navy `bg-ink` box actually starts) is neither the header's own
+  background nor Hero's — it's bare `<body>` background showing through
+  a margin-collapsed gap**, which is what reads as a visible seam between
+  the header and the page content. This is Figma's own literal spec
+  faithfully reproduced, not a layout bug — but it IS a real, visible,
+  currently-unstyled 13px band, so flag it to the user rather than assume
+  either "fix it" or "leave it" without asking; this file's own history
+  shows this exact tradeoff has been requested both ways before.
+  **Resolved (Aug 2026): changed to `mt-[80px]`.** User applied this
+  directly in `components/home/Hero.tsx:181` — the offset now matches the
+  fixed header's real height exactly (`h-20` = 80px), so the margin-collapse
+  gap described above no longer exists; Hero's navy `bg-ink` box now starts
+  flush against the header's bottom edge with zero `<body>`-background band
+  showing through. This departs from Figma's literal `93.32px` value on
+  purpose — see the "Diagnosed" entry near the end of this file for the
+  final state.
 - **Copy: kept accurate content over literal Figma text once, then matched
   Figma exactly once told to.** Figma's copy says "Manufacturing since 1991"
   and lists "uPVC, CPVC, HDPE, and SWR" in the hero description — but the
@@ -1380,6 +1413,116 @@ Revisit once the actual cause (which permission/setting, on which
 browsers) is understood, by swapping each component back to its
 commented-out animated version.
 
+## Hero — video's own overlap into mobile stats row removed too (Aug 2026)
+
+Follow-up, same day, to the placeholder height-cap fix. Once autoplay
+started working (confirmed on the user's real Vercel deployment — see
+below), the ACTUAL playing video was still overlapping row 1 of the
+mobile stats grid, since the earlier fix only capped the static
+placeholder, not the real `<video>` itself. The user suspected this was
+specifically an MP4-vs-WebM/format issue on iOS.
+
+**Ruled that out with a direct live test, not by inspection or theory:**
+on the user's real deployed site, swapped the actual `<video>` element's
+source live (via `video.load()` with the MP4 URL substituted for the
+WebM) and measured its rendered `getBoundingClientRect()` before and
+after — pixel-identical. The video's box size comes entirely from CSS
+(`133.333vw`), never from the underlying file's own dimensions, so
+switching formats structurally cannot change this layout. Also confirmed
+directly on the deployment that all 8 stat-related boxes (4 cards × 2
+layers) render at identical, correctly-uniform dimensions (155.5×139.75px
+in that test) — the CARDS themselves were never being resized; only
+content being painted over from above was ever in question.
+
+**Real cause:** the video's mobile height had never been capped (only the
+placeholder was, in the earlier fix) — Figma's original "pipe peeks over
+the card" effect is a single-row-of-4 desktop design; mobile's 2-row
+reflow means only row 1 (an accident of that reflow, not a Figma mobile
+spec — none exists) inherits any overlap at all, row 2 never had anything
+above it. Capped the real `<video>`'s mobile height with the exact same
+formula as the placeholder (`calc(133.333vw-4rem)` /
+`sm:calc(133.333vw-5rem)`) — desktop's `md:h-[55.95vw]` is completely
+untouched, so Figma's actual desktop spec (where this row-of-4 issue
+doesn't exist) still gets the real, designed overlap exactly as before.
+
+This is a deliberate, scoped exception to this file's own "never cap the
+video without capping the text box identically" rule from the earlier
+build — that rule protects the DESKTOP lockstep sizing this doesn't
+touch; on mobile, nothing else depends on the video's height matching the
+text box's `min-h` exactly, and the flat navy the video's own alpha gaps
+already reveal continues seamlessly past the now-shorter box with no
+visible seam.
+
+Verified locally: video (confirmed actually playing, `opacity: 1`) now
+has 40px of clearance before the first stat card's top edge, matching the
+placeholder's own already-verified clearance exactly. All four ghost
+digits render fully and identically. **Requires a new deployment to reach
+the user's live Vercel URL** — this fix exists only in the local working
+tree as of this writing.
+
+## Hero mobile stats fix, take three: mask instead of shrink (Aug 2026)
+
+The height-cap fix immediately above (capping the real `<video>`'s
+mobile height, not just the placeholder's) shipped a real regression,
+caught by the user on the actual deployed site: shrinking the video's own
+box changes what `object-cover` crops into view, since the crop is always
+relative to the box's current size. At some viewport widths this cut
+straight through the video's own pipe-fitting composition (a "cross"
+fitting specifically) instead of just hiding an already-fully-visible
+bottom strip — a real "cards being cropped" complaint became a real
+"video content being cropped" complaint.
+
+**Fixed by masking instead of resizing.** Both the video and the
+placeholder are back to their full, uncapped heights
+(`h-[133.333vw]`/`md:h-[55.95vw]`, matching the text box's own `min-h`
+exactly again, restoring the general "cap both together" invariant this
+file already documents). Below `md`, a `mask-image` fades the last
+`4rem`/`sm:5rem` to fully transparent (a 24px taper, then fully invisible)
+instead of touching the box size at all — the crop math `object-cover`
+performs is now identical to the fully-visible desktop case at every
+width; only which already-rendered pixels are allowed to paint changes.
+`md:[mask-image:none]`: desktop is completely unmasked, keeping Figma's
+real, designed video/stats overlap exactly as it's always been.
+
+Implemented via Tailwind arbitrary-property classes
+(`[mask-image:linear-gradient(...)]` with `sm:`/`md:` variants) rather
+than the `style` prop used elsewhere in this file for masks, specifically
+because this one needs to flip to `none` at `md` — a breakpoint-gated
+`style` object would need JS width-tracking this component doesn't
+otherwise have, while the Tailwind classes stay purely CSS-responsive.
+
+Verified: video's own rendered height is back to the full, unmasked
+value (confirmed via `getBoundingClientRect`, matching the pre-regression
+size); the "cross" fitting renders complete and uncropped at the same
+viewport width that showed it cut before; `mask-image`'s computed value
+confirmed correct via `getComputedStyle` (`linear-gradient(rgb(0,0,0)
+calc(100% - 88px), rgba(0,0,0,0) calc(100% - 64px))` at 375px width,
+i.e. opaque until 88px from the bottom, fully transparent by 64px from
+the bottom — same 40px clearance before the stats row as the previous
+(reverted) approach, now without touching the video's own crop.
+
+## Navbar — uppercase everywhere (Aug 2026)
+
+Explicit request: every text label in `Navbar.tsx` renders `uppercase`
+now — top-level nav items, the "Request a Quote" CTA (desktop and
+mobile), mega-menu dropdown links, and the mobile slide-out menu's items
+and flattened mega-menu links. Applied as a CSS `uppercase` class only —
+the underlying translation strings/keys are untouched (mixed-case, e.g.
+"About Us"), consistent with how every other all-caps treatment on this
+site works (global heading spec, Hero, CTASection, etc.) — never baking
+literal caps into stored copy. The mega-menu COLUMN HEADINGS (e.g.
+"COMPANY") were already uppercase before this change and needed no edit.
+
+## Hero description narrowed to 3 lines (Aug 2026)
+
+Explicit request: narrow the hero description paragraph ("Poddar Pipes
+designs and manufactures uPVC, CPVC...") and force a 3-line wrap instead
+of 2. Changed `max-w-xl` (576px) to `max-w-md` (448px) — checked against
+the actual live text first rather than guessing a value: 448px sits in
+the middle of a wide stable range (360–520px all wrap to exactly 3
+lines), confirmed via direct measurement (`getBoundingClientRect` /
+line-height math), not just eyeballed.
+
 ## Planned next (remaining)
 
 1. **Product spec-sheet treatment** — dedicated Space Mono spec tables and dimension annotations (Ø, IS codes) on `ProductDetail`.
@@ -1425,7 +1568,22 @@ Hero → Categories → Legacy → CTA (`app/[locale]/page.tsx`).
   entirely (real video's overlap behavior is unchanged). Confirmed
   reproducible on both Chromium and real iPhone Safari, so — unlike the
   WebM/autoplay fixes above — this one isn't WebKit-specific. See "Hero —
-  placeholder was freeze-covering the stats cards" above.
+  placeholder was freeze-covering the stats cards" above. **Follow-up
+  the same day, twice:** once autoplay started actually working (confirmed
+  on the user's real Vercel deployment), the REAL video was found still
+  overlapping mobile row 1 the same way the placeholder used to. First
+  attempt capped the real `<video>`'s mobile height too (ruling out the
+  user's MP4-vs-WebM theory along the way with a live source-swap test on
+  the real deployment) — but that itself regressed: shrinking the box
+  changes what `object-cover` crops in, which cut through the video's own
+  pipe-fitting composition at some widths (caught by the user on the real
+  deployment again). Final fix: `mask-image` instead of a height change,
+  on both the video and the placeholder — full-height box (so the crop
+  math is untouched), just fading the last `4rem`/`sm:5rem` to transparent
+  below `md`, `none` at `md`+. See "Hero — video's own overlap into mobile
+  stats row removed too" and "Hero mobile stats fix, take three" above.
+  **Not deployed to the live URL as of this writing** — exists only in
+  the local working tree.
   **Not yet confirmed fixed on a real device** — none of the WebKit-
   specific behaviors the earlier rounds address can be exercised in this
   session's Chromium-based Browser tool; verified correct by construction
@@ -1512,3 +1670,141 @@ Hero → Categories → Legacy → CTA (`app/[locale]/page.tsx`).
   lead/accent sentences are now `display: block`, matching the
   `SectionHeading`/`titleAccent` convention — no longer dependent on
   viewport width to force the break. Same section as above.
+- **Legacy + Categories heading color — done, a scoped exception.** Both
+  now render at `#4a4a4a` (gray), not the sitewide global-heading-spec
+  navy, via a new `titleColorClassName` prop on `SectionHeading` (defaults
+  to the navy for every other one of its ~27 other call sites — unaffected
+  by this). Came from a fresh Figma pull (node `43:415`) showing gray for
+  this specific frame, and an explicit request that Legacy and Categories
+  share one color regardless of which Figma frame is "more correct"
+  sitewide. See "Legacy + Categories heading color" above.
+- **CTA section re-checked against a focused Figma pull — done, two small
+  fixes.** Description `line-height: 1.5` (was inheriting `text-sm`'s
+  default ~1.43) and the secondary button's border width (Figma: `1.2px`,
+  was the variant's default `2px`) — the latter turned out to render
+  identically to `1px` in this browser regardless (confirmed live:
+  sub-integer `border-width` gets rounded), so don't chase sub-pixel
+  border fidelity elsewhere either. See "CTA section re-checked against a
+  focused Figma pull" above.
+- **Navbar — uppercase everywhere, done.** Every text label (top nav
+  items, "Request a Quote" desktop + mobile, mega-menu dropdown links,
+  mobile slide-out menu items) now renders `uppercase` via CSS —
+  translation strings themselves stay mixed-case, matching how every
+  other all-caps element on the site already works. Mega-menu column
+  headings (e.g. "COMPANY") were already uppercase, untouched. See
+  "Navbar — uppercase everywhere" above.
+- **Hero description narrowed to 3 lines — done.** The "Poddar Pipes
+  designs and manufactures..." paragraph is `max-w-md` (448px) now, not
+  `max-w-xl` (576px) — confirmed via direct measurement it wraps to
+  exactly 3 lines across a wide, stable width range (360–520px), not a
+  value that happens to just barely clear 2 lines. See "Hero description
+  narrowed to 3 lines" above.
+- **Diagnosed, then fixed: a real ~13px visible gap between the fixed
+  header and the page content, sitewide (every page, not Hero-specific).**
+  Root cause confirmed via live `getBoundingClientRect` measurement, not
+  guessed: the fixed `<header>` (`components/layout/Navbar.tsx`) is
+  exactly `80px` tall; `Hero.tsx:181`'s `mt-[93px]` (`components/home/
+  Hero.tsx`) is what actually created the gap — 80px of that was necessary
+  clearance for the fixed header, but the other 13px was a deliberate,
+  literal Figma-spec value (`top: 93.32px` in Figma's own — non-fixed —
+  header layout) that had been added and removed from this codebase more
+  than once already (see the corrected note under "Hero — August 2026
+  follow-up pass" above, which used to incorrectly claim it was removed).
+  Because `<main>` has no padding/border of its own, Hero's top margin
+  **collapsed through it** (confirmed live: `<main>`'s own measured `top`
+  equalled Hero's `93px`, not `0`) — so the visible 13px band between the
+  header's bottom edge and Hero's navy background was bare `<body>`
+  background showing through a margin-collapse gap, not a piece of either
+  the header or Hero. That was Figma's literal spec, faithfully
+  reproduced, not a layout bug — but it was a real, visible, unstyled
+  seam. **Fixed (Aug 2026): user changed `mt-[93px]` to `mt-[80px]`**
+  directly in `Hero.tsx:181`, matching the header's real height exactly —
+  Hero now sits flush against the header's bottom edge with no
+  `<body>`-background band showing through, a deliberate departure from
+  Figma's literal `93.32px` value.
+
+## Hero — mobile video/gradient rebuilt against Figma's own mobile frame (Aug 2026)
+
+A fresh Figma pull of the site's mobile-specific frame (node `50:669`,
+file `RFfPXq5WraSb2tFlgEO6yr`) showed a video box and legibility gradient
+that didn't match what was live — not a small tuning gap, a different
+composition. `<md` only; `md:`+ (desktop) is untouched throughout.
+
+**Key finding: Figma's mobile video needs no separate crop asset at
+all.** Its "MP4 2K 1" box is 798×446 inside a 402px-wide frame. That is
+exactly the existing desktop source (2576×1440) run through `object-cover`
+math: `max(402/2576, 446/1440) = 0.3097`, and `2576×0.3097 ≈ 798`,
+`1440×0.3097 ≈ 446` — matching to the pixel. The box is also left-biased,
+not centered (only 10px of the 396px horizontal overflow trimmed off the
+left edge, i.e. `object-position ≈ 2.525% 50%`, vs. centered 50%). So the
+whole mobile framing is reproduced with CSS sizing + `object-position` on
+the SAME file the desktop `<video>` already uses — no new crop, no new
+encode.
+
+**Removed as a result:** the separate `hero-fittings-mobile.webm` /
+`hero-fittings-mobile.mp4` / `hero-fittings-mobile-poster.png` sources
+(files themselves left on disk, just unreferenced from `Hero.tsx`), the
+`isMobile` state + `matchMedia` listener, the `MOBILE_MEDIA_QUERY`
+constant, the `key={isMobile ? ...}` remount on both the `<video>` and the
+poster `<Image>`, and the `<source media="...">` split inside the
+`<video>` element. All of that existed only to serve the now-obsolete
+separate mobile crop. This also means the old portrait 1080×1440 mobile
+video (recovered via template-matching, see the "mobile crop's exact
+region" history further up this file) is no longer the mobile
+composition Figma specifies — that whole crop-recovery effort predates
+this newer Figma frame.
+
+**What changed, concretely, below `md`:**
+- Video/poster box height: `133.333vw` → `110.945vw` (= 446/402 × 100,
+  Figma's own mobile ratio — noticeably shorter than the old value, which
+  came from the obsolete portrait clip's own aspect).
+- Added `object-[2.525%_50%]` on both the `<video>` and the poster
+  `<Image>` (reset via `md:object-center`), reproducing Figma's
+  near-left-flush crop instead of the browser's default centered crop.
+- `min-h` on the text box updated to match (`133.333vw` → `110.945vw`) so
+  it stays in sync with the shorter video box, per this file's existing
+  "don't cap one without capping the other" rule.
+- The bottom `mask-image` fade (added in an earlier round specifically to
+  avoid a crop regression — see "Hero mobile stats fix, take three"
+  above) was **kept as-is** rather than removed, even though Figma's
+  mobile frame shows a flat cutoff with no fade — a deliberate, explicit
+  choice to not re-touch a mechanism with a documented regression history,
+  at the cost of a small fade Figma's mock doesn't have.
+- The legibility gradient is now split in two, the same way the vignette
+  already was: a new `md:hidden` mobile version (Figma node `50:674`)
+  fading from `#14134f` to fully transparent across the FULL width (100%,
+  not capped at 50%) and the full box height (`inset-0`, not stopped short
+  before the stats row — Figma's own gradient is 753px tall against a
+  736px section, i.e. edge-to-edge), and the existing desktop version
+  (node `13:426`, 50%-width fade, capped `calc(100%-4rem)`/`sm:calc(100%-
+  5rem)`) now explicitly gated `hidden md:block` instead of applying
+  everywhere unconditionally as it silently did before this change.
+- Grid-dark texture and the desktop-only vignette were left exactly as
+  they were — out of scope for this pass, which was specifically about
+  video and gradient placement, not the tiled background texture.
+
+Verified live (not just visually) via `getComputedStyle`/
+`getBoundingClientRect` at 375px width: video renders at `416.03px`
+(`= 375 × 1.10945`, confirmed), `object-position: 2.525% 50%`, mobile
+gradient `display: block` with the desktop gradient `display: none`. At
+1280px: video renders at `716.16px` (`= 1280 × 0.5595`, unchanged),
+`object-position` resets to `50% 50%`, and the gradients swap back —
+confirming desktop is byte-for-byte unaffected by this change.
+
+**Follow-up, same day: the new mobile gradient bled onto the stats
+cards (caught by the user with a screenshot).** Root cause: it was built
+`inset-0` (full box height) to match Figma's literal 753px-tall gradient,
+but Figma's own mobile frame has no stats row overlapping its gradient's
+bottom — THIS layout's stats bar overlaps the text box by `-mt-16`/
+`-mt-20` (the same overlap the video/grid-dark/vignette layers were
+already capped short to avoid, per this file's own long-standing z-[3]
+block reasoning). An edge-to-edge gradient reached straight into that
+overlap band and tinted the top of the stat cards. **Fixed:** capped the
+mobile gradient at the same `calc(100%-4rem)`/`sm:calc(100%-5rem)` height
+(plus the same bottom `maskImage` taper) as the desktop version and the
+grid-dark layer, departing from Figma's literal full-height value on
+purpose — the same kind of deliberate departure this file already makes
+elsewhere when Figma's literal number doesn't survive contact with this
+specific layout. Verified via live measurement at 375/669/767/768/1280px:
+the gradient's bottom edge now lands exactly on the stats row's top edge
+(zero overlap) at every width, both below and at/above `md`.

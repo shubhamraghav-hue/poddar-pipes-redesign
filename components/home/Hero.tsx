@@ -25,59 +25,53 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * playback decodes it correctly), so extracting a poster frame from the
  * already-encoded WebM would silently ship an opaque poster.
  *
- * hero-fittings-mobile.webm is a separate 1080×1440 (3:4) crop from the
- * same source GIF, not the desktop clip resized — the mobile hero box is
- * portrait-shaped (see `133.333vw` below), and `object-cover`-ing the
- * landscape desktop clip into that shape would leave only an arbitrary
- * vertical sliver of the composition.
- *
- * hero-fittings.mp4 / hero-fittings-mobile.mp4 (Aug 2026) — Safari fallback.
- * Safari has never supported WebM (VP8 or VP9) at all, so without these the
- * `<video>` had no playable source there and rendered blank. Re-derived
- * from the same original source GIF (not from the .webm files — confirmed
- * ffmpeg's CLI decode of the VP9-alpha .webm silently drops the alpha
- * side-channel and returns an opaque frame with the transparent areas
- * baked in as flat WHITE, the same documented gotcha as the poster-PNG
- * lesson above, just rediscovered independently while building this
- * fallback). The GIF's real alpha (confirmed via `alphaextract`: a clean
- * binary mask, no partial/antialiased pixels) is instead composited onto
- * the section's own flat `#14134f` navy — NOT a copy of the blueprint grid
- * baked into the video: that grid is a separate CSS overlay
- * (`bg-grid-dark` below) that already paints on top of the ENTIRE video
- * regardless of source format, so baking a second copy into the video
- * itself would double it up incorrectly. Since what the alpha cutouts
- * actually reveal today is just that flat navy, compositing onto navy
- * reproduces the exact same result Chromium's real alpha decode already
- * produces — not an approximation.
- *
- * The mobile crop's exact region (`crop=1080:1440:700:0` from the full
- * 2576×1440 frame) was recovered by template-matching the shipped
- * `hero-fittings-mobile.webm`'s own (opaque-on-white) decoded frame against
- * the full GIF frame — confirmed a near-zero pixel diff at x=700, y=0,
- * 1080×1440, i.e. the crop is full-height (no vertical crop) — so this
- * fallback's framing matches the existing WebM's mobile crop exactly, not
- * a freshly-eyeballed one. Encoded H.264 `-crf 27 -preset slow` (7.4 MB /
- * 2.9 MB desktop/mobile) — visually clean at this fallback-only quality
- * bar; no need to match the primary WebM's own higher bitrate.
+ * hero-fittings.mp4 (Aug 2026) — Safari fallback. Safari has never
+ * supported WebM (VP8 or VP9) at all, so without this the `<video>` had no
+ * playable source there and rendered blank. Re-derived from the same
+ * original source GIF (not from the .webm file — confirmed ffmpeg's CLI
+ * decode of the VP9-alpha .webm silently drops the alpha side-channel and
+ * returns an opaque frame with the transparent areas baked in as flat
+ * WHITE, the same documented gotcha as the poster-PNG lesson above, just
+ * rediscovered independently while building this fallback). The GIF's real
+ * alpha (confirmed via `alphaextract`: a clean binary mask, no
+ * partial/antialiased pixels) is instead composited onto the section's own
+ * flat `#14134f` navy — NOT a copy of the blueprint grid baked into the
+ * video: that grid is a separate CSS overlay (`bg-grid-dark` below) that
+ * already paints on top of the ENTIRE video regardless of source format,
+ * so baking a second copy into the video itself would double it up
+ * incorrectly. Since what the alpha cutouts actually reveal today is just
+ * that flat navy, compositing onto navy reproduces the exact same result
+ * Chromium's real alpha decode already produces — not an approximation.
+ * Encoded H.264 `-crf 27 -preset slow` (7.4 MB) — visually clean at this
+ * fallback-only quality bar; no need to match the primary WebM's own
+ * higher bitrate.
  *
  * H.264/MP4 cannot carry alpha the way VP9/WebM can — this is Safari's
- * fallback specifically, ordered after each WebM `<source>` so browsers
+ * fallback specifically, ordered after the WebM `<source>` so browsers
  * that support WebM never reach it (see the `<source>` ordering below).
+ *
+ * One shared source for every breakpoint (Aug 2026) — there used to be a
+ * separate `hero-fittings-mobile.webm` (a hand-cropped portrait 1080×1440
+ * clip). Figma's own mobile frame (node 50:669) turned out to need no
+ * separate crop at all: its "MP4 2K 1" box is 798×446 inside a 402px-wide
+ * frame — exactly this same 2576×1440 source scaled down by object-cover
+ * (max(402/2576, 446/1440) = 0.3097 → 2576×0.3097 ≈ 798, 1440×0.3097 ≈
+ * 446, matching to the pixel), just left-biased instead of centered (only
+ * 10px of the 396px horizontal overflow trimmed from the left edge). So
+ * the mobile framing below is reproduced with `object-position` on this
+ * one file, not a second asset.
  */
 const HERO_VIDEO = "/hero/hero-fittings.webm";
 const HERO_VIDEO_MP4 = "/hero/hero-fittings.mp4";
 const HERO_POSTER = "/hero/hero-fittings-poster.png";
-const HERO_VIDEO_MOBILE = "/hero/hero-fittings-mobile.webm";
-const HERO_VIDEO_MOBILE_MP4 = "/hero/hero-fittings-mobile.mp4";
-const HERO_POSTER_MOBILE = "/hero/hero-fittings-mobile-poster.png";
 // Cache-busting suffix for the plain `<video poster>` attribute only
 // (below) — that fetches the raw static file directly, unlike the
 // `next/image` overlay, which goes through Next's own optimizer and
 // rejects a `?`-suffixed local `src` outright (`images.localPatterns`).
-// These two filenames are unchanged from the earlier flat-white versions,
-// so a browser that already cached the old bytes by URL has no other
-// signal to refetch. Bump the suffix again if either PNG is regenerated
-// in place a second time.
+// This filename is unchanged from the earlier flat-white version, so a
+// browser that already cached the old bytes by URL has no other signal to
+// refetch. Bump the suffix again if the PNG is regenerated in place a
+// second time.
 const CACHE_BUST = "?v=2";
 
 // Figma node 13:427 — radial vignette, transparent at (1102.7, 396.74,
@@ -91,9 +85,6 @@ const HERO_VIGNETTE_SVG =
   encodeURIComponent(
     `<svg viewBox="0 0 1512 846" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><rect x="0" y="0" width="100%" height="100%" fill="url(#grad)" opacity="0.35"/><defs><radialGradient id="grad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="10" gradientTransform="matrix(-110.27 44.926 -80.347 -173.26 1102.7 396.74)"><stop stop-color="rgba(11,11,82,0)" offset="0"/><stop stop-color="rgba(20,19,79,1)" offset="1"/></radialGradient></defs></svg>`
   );
-// Tailwind's `md` breakpoint — one literal since the JS poster pick and
-// the <source media> query below must agree exactly.
-const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
 // Figma's exact display strings — value/suffix kept separate so Counter's
 // count-up lands on "50,000"-free literal text.
@@ -107,17 +98,6 @@ const STATS = [
 export function Hero() {
   const t = useTranslations("home");
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // <video poster> is one attribute, not one per <source>, so the
-  // mobile/desktop poster swap needs JS even though the clip swap doesn't.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(MOBILE_MEDIA_QUERY);
-    setIsMobile(mq.matches);
-    const update = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
 
   // Mobile browsers (confirmed on real devices, not just a theoretical
   // policy edge case) can silently decline `autoPlay` even with `muted` +
@@ -133,15 +113,10 @@ export function Hero() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Belt-and-suspenders on `autoPlay`: observed it occasionally leaving the
-  // video paused on mount. `key={isMobile ? ...}` remounts this on every
-  // mobile/desktop crossing, and this re-fires alongside it. Also resets
-  // `isPlaying` — the remount means the fresh video element hasn't fired
-  // its own `onPlaying` yet, so the placeholder must come back until it
-  // does, not stay hidden from the previous breakpoint's state.
+  // video paused on mount.
   useEffect(() => {
-    setIsPlaying(false);
     videoRef.current?.play().catch(() => {});
-  }, [isMobile]);
+  }, []);
 
   // Real-device finding (Aug 2026): some newer iOS/Safari builds report
   // `canPlayType('video/webm')` as playable — Apple added base VP9 hardware
@@ -178,20 +153,40 @@ export function Hero() {
       // nav for its first 80px. Figma's own (non-fixed) nav has the hero
       // body start at top:93.32px against an 80px header — `mt-[93px]`
       // reproduces that ~13px gap.
-      className="relative mt-[93px] overflow-hidden bg-ink"
+      className="relative mt-[80px] overflow-hidden bg-ink"
     >
-      {/* Video sized to Figma's 846-at-1512 hero ratio, NOT clipped by its
-          own wrapper — it lives at the outer section level so its bottom
-          edge coexists with the translucent stat cards below, which start
-          63.68px before the video's own bottom edge (Figma node 13:314:
-          846 − 782.32). `h-[55.95vw]` is deliberately uncapped past 1512px:
-          the text box below shares this exact literal so the two stay in
-          lockstep at every width, which is what keeps the fixed
-          `-mt-16/-mt-20` stats overlap landing on the same relative point
-          on the video. Do not cap one without capping the other identically.
-          Below `md`, `h-[133.333vw]` (= 1440/1080, the mobile clip's own
-          3:4 ratio) matches the mobile crop's aspect exactly at every width
-          in that range — the text box below mirrors this literal too. */}
+      {/* Video sized to Figma's 846-at-1512 hero ratio at `md`+, NOT clipped
+          by its own wrapper — it lives at the outer section level so its
+          bottom edge coexists with the translucent stat cards below, which
+          start 63.68px before the video's own bottom edge (Figma node
+          13:314: 846 − 782.32). `md:h-[55.95vw]` is the desktop FULL,
+          uncapped height, matching the text box's own `md:min-h` exactly.
+
+          Below `md`, `h-[110.945vw]` matches Figma's own mobile frame
+          (node 50:669) exactly: its video box is 446px tall on a 402px
+          frame (446/402 × 100 = 110.945), noticeably shorter than
+          desktop's ratio — a real, distinct mobile composition, not the
+          same scene just narrower. `object-[2.525%_50%]` (reset to
+          `md:object-center`) biases the crop toward the left of the
+          source frame instead of centering it, matching Figma's own
+          near-left-flush crop (only 10px of the 396px horizontal overflow
+          trimmed from the left edge — see the constants above for the
+          math showing this is the same 2576×1440 source, not a separate
+          asset).
+
+          The `mask-image` fading the last `4rem`/`sm:5rem` to fully
+          transparent (instead of reducing the box's own `h-*` further) is
+          kept from the previous mobile treatment on purpose: shrinking the
+          box changes what `object-cover` crops in, which previously cut
+          through the video's own pipe-fitting composition at some
+          viewport widths (a real regression, caught by the user). A mask
+          leaves the box — and therefore the `object-cover` crop math —
+          completely identical to the unmasked case; it only changes which
+          already-rendered pixels are allowed to show, fading to invisible
+          (revealing the flat navy the video's own alpha gaps already
+          show, seamlessly) before reaching the stats row instead.
+          `md:[mask-image:none]`: desktop keeps Figma's real, designed
+          overlap with zero masking. */}
       {/* Not rendered at all until `needsMp4Only` resolves (see that state's
           comment) — mounting the `<video>` is what makes the browser's own
           HTML parser start evaluating `<source>`s and fetching, so the
@@ -207,9 +202,8 @@ export function Hero() {
           suspenders with the overlay below, closes that gap. */}
       {needsMp4Only !== null && (
         <video
-          key={isMobile ? "mobile" : "desktop"}
           ref={videoRef}
-          poster={(isMobile ? HERO_POSTER_MOBILE : HERO_POSTER) + CACHE_BUST}
+          poster={HERO_POSTER + CACHE_BUST}
           autoPlay
           muted
           loop
@@ -217,25 +211,18 @@ export function Hero() {
           preload="auto"
           aria-hidden="true"
           tabIndex={-1}
-          className={`absolute inset-x-0 top-0 z-[2] h-[133.333vw] w-full object-cover transition-opacity duration-700 md:h-[55.95vw] ${
+          className={`absolute inset-x-0 top-0 z-[2] h-[110.945vw] w-full object-cover object-[2.525%_50%] transition-opacity duration-700 [mask-image:linear-gradient(to_bottom,black_calc(100%-4rem-24px),transparent_calc(100%-4rem))] sm:[mask-image:linear-gradient(to_bottom,black_calc(100%-5rem-24px),transparent_calc(100%-5rem))] md:h-[55.95vw] md:object-center md:[mask-image:none] ${
             isPlaying ? "opacity-100" : "opacity-0"
           }`}
           onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
           onPlaying={() => setIsPlaying(true)}
           {...({ fetchPriority: "high" } as Record<string, string>)}
         >
-          {/* Browser walks these in order, skipping any whose `media`
-              doesn't match, and uses the first remaining one whose `type`
-              it can play — a single linear scan, not independently-chosen
-              per media group. Chromium/Firefox match the first mobile-or-
-              desktop WebM they reach; `needsMp4Only` engines never see a
-              WebM `<source>` at all (see that state's comment for why —
-              some can technically decode base VP9 now, just not this
-              file's alpha channel, which is worse than not offering it). */}
-          {!needsMp4Only && (
-            <source src={HERO_VIDEO_MOBILE} type="video/webm" media={MOBILE_MEDIA_QUERY} />
-          )}
-          <source src={HERO_VIDEO_MOBILE_MP4} type="video/mp4" media={MOBILE_MEDIA_QUERY} />
+          {/* Browser walks these in order and uses the first one whose
+              `type` it can play. `needsMp4Only` engines never see the WebM
+              `<source>` at all (see that state's comment for why — some
+              can technically decode base VP9 now, just not this file's
+              alpha channel, which is worse than not offering it). */}
           {!needsMp4Only && <source src={HERO_VIDEO} type="video/webm" />}
           <source src={HERO_VIDEO_MP4} type="video/mp4" />
         </video>
@@ -251,53 +238,43 @@ export function Hero() {
           video's real navy background) rather than falling through to a
           blank/mismatched frame; (2) a plain `<Image priority>` is a faster
           LCP candidate than waiting on video decode, on every screen size,
-          not just mobile — hence no `md:`-gated variant of this overlay.
-          `object-cover`, not `fill`'s own sizing alone, matches the video's
-          own crop behavior exactly since both share the same aspect
-          formulas. Reuses `HERO_POSTER`/`HERO_POSTER_MOBILE` — regenerated
-          from the source GIF composited onto the real navy background
-          (see the constants above); the previous poster PNGs were flat
+          not just mobile — hence this renders at every breakpoint, only
+          its mask (below) is `md:`-gated. `object-cover` plus the same
+          `object-[2.525%_50%]`/`md:object-center` split as the video above
+          — matches its crop behavior exactly since both share the same
+          source and aspect formulas. Reuses `HERO_POSTER` (regenerated
+          from the source GIF composited onto the real navy background —
+          see the constants above); the previous poster PNG was flat
           white, a real mismatch against the video that made blocked
           autoplay look broken rather than just static.
 
-          Height capped short of the video's own full height — real user
-          report: the stats row's cards intentionally let the video/pipe
-          imagery peek a little into their top edge (documented below, at
-          the stats section), which reads fine with a moving video but
-          reads as a permanently covered/"cropped" card when it's a single
-          frozen frame sitting there instead, which is exactly the state
-          this overlay is visible in. Same cap formula as the three z-[3]
-          layers further down (`calc(...-4rem)` / `sm:calc(...-5rem)`),
-          just expressed against this element's own viewport-width-based
-          height instead of a percentage, since this lives at the section
-          level rather than nested in the `min-h` text box those three
-          share. Same tapering `maskImage` as those three too, so the
-          shorter box doesn't read as a hard seam. The real, playing video
-          is untouched — still full height, still peeking into the stats
-          row exactly as designed; only the static-fallback state changes. */}
+          Full height, not reduced — masked the same way and for the same
+          reason as the video above: reducing the box itself changes what
+          `object-cover` crops into view, which can cut through the poster
+          PNG's own pipe-fitting composition awkwardly at some widths —
+          the same regression a height-based approach caused on the real
+          video, caught by the user, before landing on masking instead. */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-x-0 top-0 z-[2] h-[calc(133.333vw-4rem)] w-full transition-opacity duration-700 sm:h-[calc(133.333vw-5rem)] md:h-[calc(55.95vw-5rem)] ${
+        className={`pointer-events-none absolute inset-x-0 top-0 z-[2] h-[110.945vw] w-full transition-opacity duration-700 [mask-image:linear-gradient(to_bottom,black_calc(100%-4rem-24px),transparent_calc(100%-4rem))] sm:[mask-image:linear-gradient(to_bottom,black_calc(100%-5rem-24px),transparent_calc(100%-5rem))] md:h-[55.95vw] md:[mask-image:none] ${
           isPlaying ? "opacity-0" : "opacity-100"
         }`}
-        style={{ maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)" }}
       >
         <Image
-          key={isMobile ? "mobile" : "desktop"}
-          src={isMobile ? HERO_POSTER_MOBILE : HERO_POSTER}
+          src={HERO_POSTER}
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover"
+          className="object-cover object-[2.525%_50%] md:object-center"
         />
       </div>
 
       {/* Text box: `min-h`, not fixed height — this box only needs ENOUGH
-          room for the text, not exact room, and `min-h-[133.333vw]`/
+          room for the text, not exact room, and `min-h-[110.945vw]`/
           `md:min-h-[55.95vw]` mirror the video's own formulas so both stay
           in sync at every width without ever forcing an overflow. */}
-      <div className="relative flex min-h-[133.333vw] flex-col justify-center md:min-h-[55.95vw]">
+      <div className="relative flex min-h-[110.945vw] flex-col justify-center md:min-h-[55.95vw]">
         {/* `z-[3]` on this and the two layers below: they must paint above
             the video (`z-[2]`) — an unindexed sibling would lose to the
             video's explicit z-index regardless of DOM order — but below
@@ -312,11 +289,36 @@ export function Hero() {
           aria-hidden="true"
         />
 
-        {/* Legibility gradient (Figma node 13:426): ink at the left edge.
-            Figma's own value fades to transparent by 75% width; tuned to
-            50% on request so the pipe imagery past center stays untinted. */}
+        {/* Legibility gradient, mobile (Figma node 50:674, its own distinct
+            mobile-frame spec): ink at the left edge fading to FULLY
+            transparent by 100% width — not capped at 50% like the desktop
+            version below. Figma's own gradient runs edge-to-edge (753px
+            tall against a 736px section) with no stats row to clash with,
+            but THIS layout's stats bar overlaps the bottom of this box by
+            `-mt-16`/`-mt-20` (see the stats section below) — an edge-to-
+            edge gradient here bled a visible dark tint across the top of
+            the stat cards (caught by the user). Capped at the same
+            `calc(100%-4rem)`/`sm:calc(100%-5rem)` height (and given the
+            same bottom taper) as the desktop version and the grid-dark
+            layer above, for the same reason theirs already is: so it
+            stops short of the stats-tile overlap band instead of painting
+            over it. `md:hidden`: desktop uses its own separately-tuned
+            version instead, same split as the vignette further down. */}
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-[calc(100%-4rem)] sm:h-[calc(100%-5rem)]"
+          className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-[calc(100%-4rem)] sm:h-[calc(100%-5rem)] md:hidden"
+          style={{
+            background: "linear-gradient(to right, #14134f, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Legibility gradient, desktop (Figma node 13:426): ink at the
+            left edge. Figma's own value fades to transparent by 75% width;
+            tuned to 50% on request so the pipe imagery past center stays
+            untinted. */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-[3] hidden h-[calc(100%-4rem)] sm:h-[calc(100%-5rem)] md:block"
           style={{
             background: "linear-gradient(to right, #14134f, transparent 50%)",
             maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
@@ -326,7 +328,8 @@ export function Hero() {
 
         {/* Vignette (node 13:427, see HERO_VIGNETTE_SVG). `md:` only — this
             belongs to Figma's desktop 1512×846 composition, which has no
-            equivalent for the mobile crop's own distinct composition. */}
+            equivalent in Figma's own distinct mobile-frame composition
+            (node 50:669). */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-[3] hidden h-[calc(100%-4rem)] sm:h-[calc(100%-5rem)] md:block"
           style={{
@@ -337,7 +340,7 @@ export function Hero() {
           aria-hidden="true"
         />
 
-        <div className="container-edge relative z-10 flex flex-col gap-8 pt-20 pb-12 sm:gap-10 sm:pt-24 sm:pb-16 md:gap-12 md:pt-28 lg:gap-[60px]">
+        <div className="container-edge relative z-10 flex flex-col gap-8 pb-12 sm:gap-10 sm:pb-16 md:gap-12 lg:gap-[60px]">
           <div className="flex max-w-2xl flex-col gap-5">
             {/* Figma node 13:430 — reaches its exact 16px/1.6px-tracking size
                 at `md`, graduated up from smaller rather than jumping at `sm`. */}
@@ -349,7 +352,14 @@ export function Hero() {
               <span className="block">{t("heroSlide_growth_line2")}</span>
               <span className="block font-normal">{t("heroSlide_growth_bold")}</span>
             </h1>
-            <p className="max-w-xl text-balance text-sm leading-[1.3] text-white sm:text-base sm:leading-[1.2]">
+            {/* `max-w-md` (448px), not the `max-w-xl` (576px) every other
+                line in this box uses — explicit request to make this
+                description narrower and force a 3-line wrap instead of 2.
+                Tested against the actual live text: 448px sits in the
+                middle of a wide stable range (360–520px all wrap to
+                exactly 3 lines), not a value that barely clears 2 lines
+                by chance. */}
+            <p className="max-w-md text-balance text-sm leading-[1.3] text-white sm:text-base sm:leading-[1.2]">
               {t("heroSlide_growth_desc")}
             </p>
           </div>

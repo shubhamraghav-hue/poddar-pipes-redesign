@@ -65,7 +65,7 @@ export function Navbar() {
                   aria-haspopup={item.megaMenu ? "true" : undefined}
                   aria-expanded={item.megaMenu ? activeMenu === item.key : undefined}
                   className={cn(
-                    "flex items-center gap-1 rounded-full px-4 py-2.5 font-display text-sm font-medium tracking-tight transition-colors",
+                    "flex items-center gap-1 rounded-full px-4 py-2.5 font-display text-sm font-medium uppercase tracking-tight transition-colors",
                     "text-slate-700 hover:text-ocean-700",
                     active && "text-ocean-700"
                   )}
@@ -91,7 +91,7 @@ export function Navbar() {
           <LanguageSwitcher dark={false} />
           <Button asChild variant="primary" size="sm">
             <Link href="/contact">
-              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              <span className="uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                 {t("requestQuote")}
               </span>
               {/* <ArrowUpRight className="h-4 w-4" /> */}
@@ -134,7 +134,7 @@ export function Navbar() {
                         <li key={link.label}>
                           <Link
                             href={link.href}
-                            className="text-sm text-slate-700 transition-colors hover:text-ocean-700"
+                            className="text-sm uppercase text-slate-700 transition-colors hover:text-ocean-700"
                           >
                             {t(link.label as never)}
                           </Link>
@@ -163,7 +163,7 @@ export function Navbar() {
                 <div key={item.key}>
                   <Link
                     href={item.href}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-slate-800 hover:bg-slate-100"
+                    className="block rounded-lg px-3 py-3 text-base font-medium uppercase text-slate-800 hover:bg-slate-100"
                   >
                     {t(item.key as never)}
                   </Link>
@@ -173,7 +173,7 @@ export function Navbar() {
                         <Link
                           key={link.label}
                           href={link.href}
-                          className="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100"
+                          className="rounded-lg px-3 py-2 text-sm uppercase text-slate-600 hover:bg-slate-100"
                         >
                           {t(link.label as never)}
                         </Link>
@@ -184,7 +184,7 @@ export function Navbar() {
               ))}
               <Button asChild className="mt-3" size="sm">
                 <Link href="/contact">
-                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                  <span className="uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                     {t("requestQuote")}
                   </span>
                   <ArrowUpRight className="h-4 w-4" />
