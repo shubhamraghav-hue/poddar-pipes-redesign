@@ -2027,11 +2027,44 @@ result cannot distinguish "our file is malformed" from "this engine can't do
 it" — so do not treat the opaque result above as proof x265's alpha is
 unusable, only that this ffmpeg-muxed version of it is.
 
-**Next avenues, in order of confidence:** (1) mux with GPAC/MP4Box, which
-understands layered HEVC and auxiliary tracks where ffmpeg does not;
-(2) encode on macOS via `hevc_videotoolbox` (a GitHub Actions `macos-latest`
-runner needs no Mac ownership) — the only producer any source confirms Safari
-honours. Note Jake Archibald's write-up rates even ffmpeg-on-macOS output as
-poor next to Apple Compressor, so quality is worth checking either way. Also
-note Apple expects PREMULTIPLIED alpha (`-vf premultiply=inplace=1`), which
-the x265 attempt above did not apply.
+### Attempt 2 (GPAC / MP4Box mux): also fails — and shows WHY
+
+GPAC 26.07 muxes the x265 bitstream far more faithfully than ffmpeg does. It
+recognises the layered structure instead of flattening it:
+
+```
+HEVC L-HEVC Import results: Slices: 1 I 13 P 36 B
+LHVC Info: ... dependency layers 2 ... num_operating_points 2
+RFC6381 Codec Parameters: hvc1.1.6.L150.90
+```
+
+One `hvc1` track with a genuine auxiliary layer. Yet WebKit went from
+"decodes opaque" (ffmpeg version) to **refusing to decode it at all** (load
+timeout).
+
+**The diagnostic line is `Operating Points Information - scalability_mask 12
+(unknown)`.** GPAC cannot identify what kind of scalable layer this is —
+because x265's `--alpha` emits a GENERIC L-HEVC auxiliary/scalable layer, not
+Apple's specific alpha signalling (an auxiliary picture layer carrying
+`aux_id = ALPHA`). MP4Box has no option to stamp that on retroactively: its
+import flags cover `svc`/`lhvc`/`svcmode` splitting only, with nothing for
+alpha or `auxv` beyond selecting an existing auxiliary track.
+
+**Conclusion: the Windows/x265 route is a dead end for Safari.** The problem
+is not the muxer — it is that the bitstream itself is not in the format Apple
+looks for, and no Windows tool can add that signalling after the fact. This
+matches the earlier research finding that Apple's own encoder is the only
+producer anyone has demonstrated Safari honouring.
+
+Caveat, stated honestly: Playwright's WebKit on Windows may not support HEVC
+alpha at all, so "WebKit refuses it" is not by itself proof Safari would too.
+But combined with the unrecognised scalability mask, the weight of evidence is
+clear enough not to sink more time into this path.
+
+**Remaining avenue: encode on macOS** via
+`-c:v hevc_videotoolbox -alpha_quality 0.9 -tag:v hvc1` — a GitHub Actions
+`macos-latest` runner needs no Mac ownership. Apple Compressor and Rotato
+Converter also produce it, and Jake Archibald's write-up rates ffmpeg-on-macOS
+output as noticeably poorer than Compressor, so check quality either way. Note
+Apple expects PREMULTIPLIED alpha (`-vf premultiply=inplace=1`), which neither
+attempt above applied.

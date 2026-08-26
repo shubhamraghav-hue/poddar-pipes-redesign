@@ -1,0 +1,164 @@
+# Encodes the hero video as HEVC with a REAL alpha channel, on macOS.
+#
+# Why this exists: Safari/iOS cannot use the site's VP9/WebM alpha, and the
+# H.264 fallback carries no alpha at all — it is pre-composited onto flat navy
+# and is therefore fully opaque. That opaque rectangle is what paints a navy
+# bar across the top of the hero stat cards on Apple devices, instead of the
+# pipe overlapping them the way Figma (and Chromium) render it.
+#
+# HEVC with an alpha channel (`hvc1`) is the only transparent-video format
+# WebKit supports. It could not be produced on Windows: x265 built with
+# ENABLE_ALPHA does emit a two-layer stream, but a GENERIC L-HEVC auxiliary
+# layer, not Apple's `aux_id = ALPHA` signalling — GPAC reports its
+# scalability mask as "unknown", ffmpeg flattens it to one opaque track, and
+# WebKit either renders it opaque or refuses it outright. No Windows tool can
+# add that signalling after the fact.
+#
+# macOS VideoToolbox produces Apple's native format by definition, which is
+# why this runs here. No Mac ownership required — GitHub hosts the runner.
+#
+# The result is uploaded as a build artifact rather than committed
+# automatically: it is a multi-MB binary and should be reviewed before landing
+# in git.
+
+name: Encode HEVC with alpha (macOS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Source video (must carry a real alpha channel)"
+        default: "public/hero/hero-fittings.webm"
+        required: true
+      alpha_quality:
+        description: "VideoToolbox alpha channel quality, 0.0-1.0"
+        default: "0.9"
+        required: true
+      quality:
+        description: "VideoToolbox video quality, 1-100 (higher = better)"
+        default: "60"
+        required: true
+      premultiply:
+        description: "Premultiply alpha (Apple expects premultiplied)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: encode-hevc-alpha
+  cancel-in-progress: true
+
+jobs:
+  encode:
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ffmpeg + gpac
+        # Homebrew's ffmpeg ships both libvpx (needed to READ the source's VP9
+        # alpha) and videotoolbox (needed to WRITE Apple's HEVC alpha).
+        # gpac is only used to inspect the result.
+        run: |
+          brew update
+          brew install ffmpeg gpac
+
+      - name: Confirm required encoder/decoder are present
+        run: |
+          set -euo pipefail
+          echo "--- hevc_videotoolbox ---"
+          ffmpeg -hide_banner -encoders | grep hevc_videotoolbox
+          echo "--- libvpx-vp9 decoder ---"
+          ffmpeg -hide_banner -decoders | grep libvpx-vp9
+
+      - name: Verify the SOURCE actually has alpha
+        # Non-negotiable guard. ffmpeg's DEFAULT vp9 decoder silently reports
+        # yuv420p and throws the alpha away; only `-c:v libvpx-vp9` reads it.
+        # Without this check a silently-opaque source would sail through and
+        # produce a "working" file that is transparent nowhere.
+        run: |
+          set -euo pipefail
+          SRC="${{ inputs.source }}"
+          ffmpeg -v error -c:v libvpx-vp9 -ss 1 -i "$SRC" \
+            -vf "alphaextract,format=gray,scale=80:45" \
+            -frames:v 1 -f rawvideo -pix_fmt gray alpha.raw
+          # Deliberately NOT a heredoc: a heredoc body would have to sit at
+          # column 0, which terminates the surrounding YAML block scalar.
+          python3 -c 'import sys; d=open("alpha.raw","rb").read(); lo,hi=min(d),max(d); print("source alpha plane: min=%d max=%d bytes=%d" % (lo,hi,len(d))); sys.exit("::error::Source alpha is FLAT (%d) - the decoder dropped it. Refusing to encode an opaque alpha video." % lo) if lo==hi else print("source alpha OK - real transparency present")'
+
+      - name: Encode HEVC with alpha
+        run: |
+          set -euo pipefail
+          SRC="${{ inputs.source }}"
+          OUT="hero-fittings-alpha.mp4"
+
+          # Apple expects PREMULTIPLIED alpha; straight alpha can fringe at
+          # the edges of the cutouts.
+          if [ "${{ inputs.premultiply }}" = "true" ]; then
+            VF="premultiply=inplace=1"
+          else
+            VF="null"
+          fi
+
+          # -allow_sw 1 matters: GitHub's macOS runners are VMs and may expose
+          # no hardware HEVC encoder, in which case VideoToolbox must be
+          # permitted to fall back to software or the encode simply fails.
+          # -tag:v hvc1 is required — Safari ignores the 'hev1' flavour.
+          ffmpeg -y -v warning -stats \
+            -c:v libvpx-vp9 -i "$SRC" \
+            -vf "$VF" \
+            -c:v hevc_videotoolbox \
+            -allow_sw 1 \
+            -alpha_quality "${{ inputs.alpha_quality }}" \
+            -q:v "${{ inputs.quality }}" \
+            -pix_fmt yuva420p \
+            -tag:v hvc1 \
+            -an \
+            "$OUT"
+
+          ls -lh "$OUT"
+
+      - name: Inspect the result
+        # ffmpeg CANNOT verify its own alpha here — decoding HEVC alpha in
+        # ffmpeg returns an all-0xFF alpha plane no matter what the file holds.
+        # So this step only reports structure; real proof comes from WebKit or
+        # a device (see the summary below).
+        run: |
+          set -euo pipefail
+          OUT="hero-fittings-alpha.mp4"
+          echo "===== ffprobe ====="
+          ffprobe -v error -show_entries \
+            stream=codec_name,codec_tag_string,width,height,pix_fmt,nb_frames \
+            -of default=nw=1 "$OUT"
+          echo
+          echo "===== MP4Box -info (look for auxiliary / alpha signalling) ====="
+          MP4Box -info "$OUT" 2>&1 | sed -n '1,80p' || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hero-fittings-alpha
+          path: hero-fittings-alpha.mp4
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: How to use this artifact
+        # Plain appends rather than a heredoc, for the same YAML-indentation
+        # reason noted above. Single quotes keep backticks literal.
+        run: |
+          S="$GITHUB_STEP_SUMMARY"
+          echo '## HEVC-with-alpha encoded' >> "$S"
+          echo '' >> "$S"
+          echo 'Download the **hero-fittings-alpha** artifact and drop the file at `public/hero/hero-fittings-alpha.mp4`.' >> "$S"
+          echo '' >> "$S"
+          echo '### Verify before committing' >> "$S"
+          echo '```bash' >> "$S"
+          echo 'node scripts/verify-hevc-alpha.mjs   # WebKit: expect ">15% backdrop"' >> "$S"
+          echo 'node scripts/compare-engines.mjs     # every row should read "engines match"' >> "$S"
+          echo '```' >> "$S"
+          echo 'The opaque H.264 control in the first script must read ~0%. If it does not, the harness is broken and the other numbers mean nothing.' >> "$S"
+          echo '' >> "$S"
+          echo '### Then wire it up in `components/home/Hero.tsx`' >> "$S"
+          echo '1. Serve this file to `needsMp4Only` engines **ahead of** the H.264 fallback. Steer by that existing UA branch, not by `<source type>` fallthrough: Safari does not support WebM alpha and Chrome does not support HEVC alpha, and a browser that half-claims support would pick the wrong one and render it opaque.' >> "$S"
+          echo '2. Delete the `needsMp4Only ? "md:h-[calc(55.95vw-24px)]" : ...` branch and the taper'"'"'s `md:hidden` exception. Both sides go back to `md:h-[55.95vw]`, restoring Figma'"'"'s pipe-over-card overlap on every engine, which is the entire point of this workflow.' >> "$S"
+          echo '' >> "$S"
+          echo 'Note: `Hero.tsx` is a locked file; get sign-off before editing it.' >> "$S"

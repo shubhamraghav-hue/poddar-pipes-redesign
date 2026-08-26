@@ -25,9 +25,6 @@ const BG = { r: 255, g: 0, b: 255 }; // magenta: nothing in the footage is near 
 
 const CASES = [
   { label: "HEVC+alpha .mp4", src: "/hero/hero-fittings-alpha.mp4", expect: "transparent" },
-  // Apple's own tooling emits .mov for alpha HEVC, so the container itself is
-  // a variable worth testing, not just the codec tag.
-  { label: "HEVC+alpha .mov", src: "/hero/hero-fittings-alpha.mov", expect: "transparent" },
   { label: "H.264 (opaque control)", src: "/hero/hero-fittings.mp4", expect: "opaque" },
 ];
 
@@ -50,6 +47,9 @@ for (const c of CASES) {
 
   const state = await page.evaluate(async () => {
     const v = document.getElementById("v");
+    // A missing element must not throw out of the evaluate — a file that
+    // simply is not there should report cleanly, not crash the whole run.
+    if (!v) return { ok: false, error: "video element not created", w: 0, readyState: 0 };
     try {
       await new Promise((res, rej) => {
         if (v.readyState >= 2) return res();
@@ -61,7 +61,7 @@ for (const c of CASES) {
       await new Promise((r) => setTimeout(r, 1200));
       return { ok: true, w: v.videoWidth, h: v.videoHeight, readyState: v.readyState };
     } catch (e) {
-      return { ok: false, error: String(e.message || e), w: v.videoWidth, readyState: v.readyState };
+      return { ok: false, error: String(e.message || e), w: v.videoWidth || 0, readyState: v.readyState };
     }
   });
 
