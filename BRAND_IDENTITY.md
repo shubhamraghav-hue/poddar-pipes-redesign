@@ -2091,6 +2091,169 @@ GPAC may not recognise it). **Re-run the workflow; any artifact produced
 before this fix is opaque and must not be wired in** — serving an opaque HEVC
 *and* removing the clip branch would restore the original navy-bar bug.
 
+## SOLVED (prototype): transparent video in WebKit with plain H.264 (Aug 2026)
+
+**Alpha packing works, is verified in WebKit locally, and needs no HEVC, no
+VideoToolbox and no Apple hardware.** After three dead ends chasing
+HEVC-with-alpha, the answer was to stop storing alpha in the file at all and
+reconstruct it at runtime.
+
+**How.** `public/hero/hero-fittings-packed.mp4` is ordinary H.264, 2576×2880,
+no alpha channel:
+- top 1440 rows — the colour image, **premultiplied** by alpha (so its
+  "transparent" regions are black). Premultiplying matters: without it those
+  regions decode WHITE and compression bleed shows as white haloes on every
+  cutout edge.
+- bottom 1440 rows — the alpha matte as luminance. Luma is **not**
+  chroma-subsampled in 4:2:0, so the matte survives compression accurately;
+  this source's mask is binary, which compresses almost for free.
+
+A WebGL fragment shader samples both halves and emits
+`vec4(rgb, matte)` with premultiplied blending
+(`blendFunc(ONE, ONE_MINUS_SRC_ALPHA)`).
+
+Build command (note `-c:v libvpx-vp9`, still load-bearing for reading the
+source alpha):
+
+```
+ffmpeg -c:v libvpx-vp9 -i public/hero/hero-fittings.webm -filter_complex \
+  "[0:v]format=yuva420p,split=2[c][a];\
+   [c]premultiply=inplace=1,format=yuv420p[color];\
+   [a]alphaextract,format=yuv420p[matte];\
+   [color][matte]vstack=inputs=2[out]" \
+  -map "[out]" -c:v libx264 -crf 23 -preset medium -pix_fmt yuv420p \
+  -movflags +faststart -an public/hero/hero-fittings-packed.mp4
+```
+
+**Measured** (`scripts/check-packed-alpha.mjs`, magenta-backdrop screenshot
+sampling, both engines):
+
+| encode | WebKit | Chromium |
+|---|---|---|
+| full 2576×2880 (14.63 MB) | **61.7%** backdrop | 64.0% |
+| half 1288×1440 (3.29 MB) | **61.8%** backdrop | 62.8% |
+
+Both engines agree to ~2 points, and the WebKit screenshot shows fully opaque
+pipes over a fully magenta ground with no edge haloes.
+
+**One gotcha that cost real time, worth not repeating:** the hidden `<video>`
+feeding the texture must be **off-screen at a real size**, not `1px` with
+`opacity:0`. With the 1px/invisible styling WebKit reported `videoWidth` as
+`1` and produced no texture data at all — it will not surface frames from an
+element it treats as non-rendering. Chromium was unaffected, so this looked
+like a WebKit codec problem when it was purely a CSS-visibility problem.
+(Related quirk, harmless: this WebKit build reports `videoWidth` as the
+element's CSS size rather than the intrinsic size.)
+
+Prototype page: `public/_alpha-packed-test.html` (`?src=` switches encodes).
+
+### Shipped to production (Aug 2026)
+
+`components/home/AlphaVideo.tsx` — a self-contained canvas+WebGL component
+holding all of the above. `Hero.tsx` renders it INSTEAD of the `<video>` only
+when `needsMp4Only` is true, so Chromium and Firefox keep their cheap native
+WebM-alpha path untouched and pay no GPU cost for a problem they do not have.
+
+Three behaviours worth keeping if this is ever refactored:
+
+1. **`alphaUnsupported` fallback.** If a WebKit engine also has no WebGL,
+   `AlphaVideo` reports it and the Hero falls back to the plain opaque MP4 —
+   and only THEN re-applies the 24px clip. That is why the clip branch still
+   exists; it is now keyed on `clipForOpaqueVideo`, not on `needsMp4Only`.
+   Do not delete it thinking it is dead.
+2. **Mobile gets the half-scale encode** (3.3 MB vs 14.6 MB). The packed file
+   is twice the height of the visible frame, so size matters more here than
+   for a normal clip.
+3. **Rendering pauses off-screen and on hidden tabs** (IntersectionObserver +
+   `document.hidden`). The hero sits atop a long page; without this the
+   per-frame texture upload runs the whole time someone reads further down,
+   on exactly the mobile devices this path exists for.
+
+The shader reproduces `object-fit: cover` plus `object-position` from
+`OBJECT_POS_X_MOBILE`/`OBJECT_POS_X`, so both paths frame the shot
+identically. **If the CSS crop on the `<video>` changes, change those
+constants to match or the two paths will silently diverge.**
+
+Verified with `scripts/compare-engines.mjs` — all five widths report
+`engines match`, with the `md`+ rows at `+24px` on both engines (Figma's
+designed pipe-over-card overlap) and 375px at `-40px` on both:
+
+| width | Chromium | WebKit |
+|---|---|---|
+| 375 | −40 | −40 |
+| 768 | +24 | +24 |
+| 1024 | +24 | +24 |
+| 1280 | +24 | +24 |
+| 1640 | +24 | +24 |
+
+### Two WebKit-only defects found after integration — both fixed, both easy to reintroduce
+
+Caught by eye on a real WebKit window, not by the parity harness: the
+geometry matched perfectly while the *pixels* were wrong. Worth remembering
+that `compare-engines.mjs` measures layout, so it cannot catch either of
+these on its own.
+
+**1. Blurry video (WebKit only).** WebKit uploads a video texture at the
+element's **rendered CSS size**, not its intrinsic size. The off-screen
+element was 512px wide, so the texture was 512px wide and everything scaled
+up from there. Measured with an edge-energy probe on the same frame:
+
+| element size | WebKit reports | edge energy |
+|---|---|---|
+| 512×576 | **512×572** | **108** (soft) |
+| 2576×2880 | 2576×2880 | **467** (sharp) |
+| Chromium, either | 2576×2880 | ~375 (unaffected) |
+
+Fix: the off-screen `<video>` is laid out at the packed file's FULL
+dimensions, which is why `AlphaVideo` takes `{src, width, height}` rather
+than a bare URL. `position: fixed` means a 2576px element costs no layout.
+**Do not "tidy" that element smaller.**
+
+**2. A white line across the top of the stat cards.** At the bottom edge of
+the box `uv.y` reaches 1.0, so the colour sample lands exactly on `y = 0.5` —
+the seam between the colour and matte halves — and LINEAR filtering blended
+the WHITE matte into the colour, drawing a bright line along the video's
+bottom edge, which is precisely where it overlaps the cards.
+
+Fix: the shader clamps each sample one texel away from the seam
+(`u_seam = 1 / packedHeight`). Any future change to the packing layout must
+keep that guard.
+
+Still to confirm on a real iPhone: visual result, and battery/CPU of the
+per-frame upload. Playwright's WebKit is strong evidence, not proof.
+
+### Attempt 3b: the run log settles it — GitHub macOS runners CANNOT do this
+
+The workflow log resolved every open question, and corrected a guess of mine
+along the way.
+
+- Source alpha guard **passed**: `min=0 max=255`. The alpha was there.
+- ffmpeg reported: `Incompatible pixel format 'yuva420p' for codec
+  'hevc_videotoolbox', auto-selecting format 'ayuv'`. **`ayuv` is a 4:4:4
+  packed format WITH alpha** — so the earlier assumption that ffmpeg fell back
+  to opaque `yuv420p` was wrong. Alpha genuinely reached the encoder.
+- The encode completed cleanly: 378 frames, no errors, 18 MB out.
+- And the output was: `Profile Main @ Level 5 - Chroma Format YUV 4:2:0`,
+  one track, no LHVC, no auxiliary layer. **Alpha in, no alpha out.**
+- The runner also logged `IOServiceMatchingfailed for:
+  AppleM2ScalerParavirtDriver` — no hardware video engine.
+
+**Conclusion: VideoToolbox's SOFTWARE HEVC encoder discards alpha, and
+GitHub-hosted macOS runners are VMs with no hardware encoder.** `-allow_sw 1`
+is what turned "cannot do this" into a silently opaque file that passed every
+other checkpoint — right codec, right `hvc1` tag, right dimensions, right
+frame count, clean logs.
+
+Workflow hardened so this cannot recur: `allow_sw` is now an input defaulting
+to **0**, so a missing hardware encoder fails loudly; and a gate inspects the
+OUTPUT profile and fails the run if it is `Chroma Format YUV 4:2:0`
+single-layer. Keep both — this failure mode is invisible without them.
+
+**This means HEVC-with-alpha requires real Apple hardware.** Options: a Mac
+you or a teammate can run one ffmpeg command on, Apple Compressor, or Rotato
+Converter. A cloud macOS host with a real GPU (MacStadium, AWS EC2 Mac) would
+also work; GitHub's hosted runners will not.
+
 **Encoding on macOS** —
 `-c:v hevc_videotoolbox -alpha_quality 0.9 -tag:v hvc1` — a GitHub Actions
 `macos-latest` runner needs no Mac ownership. Apple Compressor and Rotato

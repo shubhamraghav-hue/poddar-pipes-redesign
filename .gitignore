@@ -13,9 +13,11 @@ eslint.config.zip
 # and machine-specific, so it is rebuilt rather than committed.
 build/
 
-# Dev-only device-frame preview page. Lives under public/ so its iframe is
-# same-origin with the app, but it is not part of the site and should not ship.
+# Dev-only pages under public/. They live there so they are same-origin with
+# the app (an iframe / a media subresource both need that), but they are not
+# part of the site and should not ship.
 public/_device-mockup.html
+public/_alpha-packed-test.html
 
 # Screenshots emitted by scripts/webkit-hero-check.mjs when run without an outDir.
 hero-webkit.png

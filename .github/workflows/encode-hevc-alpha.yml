@@ -42,6 +42,14 @@ on:
         description: "Premultiply alpha (Apple expects premultiplied)"
         type: boolean
         default: true
+      allow_sw:
+        description: >-
+          VideoToolbox software fallback. Keep 0. A run on a GitHub-hosted
+          macOS VM with allow_sw=1 silently produced Main-profile 4:2:0 with
+          NO alpha: the software encoder accepted alpha input and discarded
+          it. 0 makes a missing hardware encoder fail loudly instead.
+        default: "0"
+        required: true
 
 concurrency:
   group: encode-hevc-alpha
@@ -115,7 +123,7 @@ jobs:
             -c:v libvpx-vp9 -i "$SRC" \
             -vf "$VF" \
             -c:v hevc_videotoolbox \
-            -allow_sw 1 \
+            -allow_sw "${{ inputs.allow_sw }}" \
             -alpha_quality "${{ inputs.alpha_quality }}" \
             -q:v "${{ inputs.quality }}" \
             -pix_fmt bgra \
@@ -123,7 +131,23 @@ jobs:
             -an \
             "$OUT" 2>&1 | tee encode.log
 
-          ls -lh "$OUT"
+          # ALSO emit .mov. Every published working example of HEVC-with-alpha
+          # writes a QuickTime container, and an .mp4 produced identically has
+          # so far come back with the alpha layer missing. Cheap to produce
+          # both and test which one WebKit actually honours.
+          ffmpeg -y -v warning -stats \
+            -c:v libvpx-vp9 -i "$SRC" \
+            -vf "$VF" \
+            -c:v hevc_videotoolbox \
+            -allow_sw "${{ inputs.allow_sw }}" \
+            -alpha_quality "${{ inputs.alpha_quality }}" \
+            -q:v "${{ inputs.quality }}" \
+            -pix_fmt bgra \
+            -tag:v hvc1 \
+            -an \
+            hero-fittings-alpha.mov
+
+          ls -lh "$OUT" hero-fittings-alpha.mov
 
       - name: Gate — confirm alpha actually reached the encoder
         # Without this, the previous run shipped a fully opaque file that
@@ -137,6 +161,21 @@ jobs:
 
           if grep -qE "hevc_videotoolbox\)\)?$|-> hevc .*yuv420p" encode.log && ! grep -q "bgra" encode.log; then
             echo "::error::ffmpeg did not feed bgra to the encoder — alpha was dropped."
+            exit 1
+          fi
+
+          # Hard gate on the OUTPUT's own profile. This is what would have
+          # caught the silent failure: alpha went in as ayuv (4:4:4 + alpha)
+          # and came out as Main-profile 4:2:0 single-layer with no alpha,
+          # and every other checkpoint still looked healthy.
+          echo "--- output profile ---"
+          PROF=$(MP4Box -info hero-fittings-alpha.mp4 2>&1 | grep -i "HEVC Info" || true)
+          echo "$PROF"
+          if echo "$PROF" | grep -qi "Chroma Format YUV 4:2:0"; then
+            echo "::error::Output is 4:2:0 single-layer — the alpha channel was \
+          discarded during encoding. On GitHub-hosted macOS VMs this happens \
+          because there is no hardware video encoder and the VideoToolbox \
+          software path drops alpha. Run this on real Apple hardware."
             exit 1
           fi
 
@@ -170,7 +209,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: hero-fittings-alpha
-          path: hero-fittings-alpha.mp4
+          path: |
+            hero-fittings-alpha.mp4
+            hero-fittings-alpha.mov
+            encode.log
           if-no-files-found: error
           retention-days: 14
 

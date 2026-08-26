@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Counter } from "@/components/shared/Counter";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
+import { AlphaVideo } from "@/components/home/AlphaVideo";
 
 /**
  * Single Figma-matched scene (node 13:312): one always-playing video, no
@@ -64,6 +65,24 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 const HERO_VIDEO = "/hero/hero-fittings.webm";
 const HERO_VIDEO_MP4 = "/hero/hero-fittings.mp4";
 const HERO_POSTER = "/hero/hero-fittings-poster.png";
+// Alpha-packed H.264 for WebKit — ordinary video with no alpha channel,
+// carrying the colour image and its alpha matte stacked in one frame for
+// `AlphaVideo` to recombine in a shader. Two sizes because the packed file is
+// twice the height of the visible frame: the full encode is 14.6 MB, the
+// half-scale one 3.3 MB and visually ample at phone widths.
+// Dimensions are the PACKED size (twice the visible frame's height) and are
+// required, not decorative: WebKit uploads a video texture at the element's
+// rendered size, so the off-screen element has to be laid out at full
+// resolution or the hero renders visibly soft on Safari only.
+// Module-level constants so their identity is stable — inlining these objects
+// in JSX would rebuild AlphaVideo's WebGL context on every Hero render.
+const HERO_PACKED = { src: "/hero/hero-fittings-packed.mp4", width: 2576, height: 2880 };
+const HERO_PACKED_MOBILE = { src: "/hero/hero-fittings-packed-half.mp4", width: 1288, height: 1440 };
+// Must match the `object-[2.525%_50%]` / `md:object-center` crop the plain
+// <video> path uses, so both paths frame the shot identically.
+const OBJECT_POS_X_MOBILE = 0.02525;
+const OBJECT_POS_X = 0.5;
+const MOBILE_QUERY = "(max-width: 767px)";
 // Cache-busting suffix for the plain `<video poster>` attribute only
 // (below) — that fetches the raw static file directly, unlike the
 // `next/image` overlay, which goes through Next's own optimizer and
@@ -146,6 +165,13 @@ export function Hero() {
     setNeedsMp4Only(isIOS || isDesktopSafari);
   }, []);
 
+  // Set only if a WebKit engine also turns out to have no WebGL, in which
+  // case `AlphaVideo` cannot run and we fall back to the plain, opaque MP4 —
+  // which then genuinely does need the 24px clip to keep it off the cards.
+  const [alphaUnsupported, setAlphaUnsupported] = useState(false);
+  const useAlphaVideo = needsMp4Only === true && !alphaUnsupported;
+  const clipForOpaqueVideo = needsMp4Only === true && alphaUnsupported;
+
   return (
     <section
       // Navbar is `fixed` (out of flow) and always-solid, so without this
@@ -223,22 +249,18 @@ export function Hero() {
           overlap therefore paints a solid navy bar across the top of all
           four tiles instead of a pipe.
 
-          So MP4 engines clip 24px shorter — the video ends exactly at the
-          card's top edge instead of painting over it — while WebM engines
-          keep Figma's real overlap. **This branch is a STOPGAP, not the
-          intended end state.** The goal is for iOS to match Figma and the
-          WebM exactly, which needs genuine alpha on Safari: HEVC with an
-          alpha channel (`hvc1`), the one transparent-video format WebKit
-          supports (iOS 13+). Once a `hero-fittings-alpha.mp4` exists and
-          is served to `needsMp4Only` engines ahead of the H.264 file, DELETE
-          this branch entirely — both sides become `md:h-[55.95vw]` and every
-          engine gets the designed pipe-over-card overlap. Encoding note for
-          whoever picks this up: x265 gained alpha support in 4.0 and this
-          repo's FFmpeg advertises `yuva420p` for libx265, but the Gyan
-          Windows build's libx265 is not compiled with `ENABLE_ALPHA`
-          ("Loaded libx265 does not support alpha layer encoding"), so it
-          needs either an alpha-enabled x265 build or macOS
-          (`-c:v hevc_videotoolbox -alpha_quality … -tag:v hvc1`). */}
+          **This is now SOLVED, and the clip only survives as a fallback.**
+          `AlphaVideo` gives WebKit real transparency by reconstructing alpha
+          at runtime from an ordinary H.264 file (colour and matte stacked in
+          one frame, recombined in a shader) — see that component for the
+          full reasoning and for why HEVC-with-alpha was abandoned. So
+          `needsMp4Only` engines now get the designed pipe-over-card overlap
+          exactly like WebM engines, and `md:h-[55.95vw]` applies to both.
+
+          The 24px clip is retained ONLY for `alphaUnsupported` — an engine
+          on the MP4 path that also has no WebGL. There the video really is
+          opaque and really would paint a bar across the tiles, so cutting it
+          short remains correct. */}
       {/* Not rendered at all until `needsMp4Only` resolves (see that state's
           comment) — mounting the `<video>` is what makes the browser's own
           HTML parser start evaluating `<source>`s and fetching, so the
@@ -255,9 +277,27 @@ export function Hero() {
       {needsMp4Only !== null && (
         <div
           className={`absolute inset-x-0 top-0 z-[2] h-[calc(110.945vw-4rem)] overflow-hidden sm:h-[calc(110.945vw-5rem)] ${
-            needsMp4Only ? "md:h-[calc(55.95vw-24px)]" : "md:h-[55.95vw]"
+            clipForOpaqueVideo ? "md:h-[calc(55.95vw-24px)]" : "md:h-[55.95vw]"
           }`}
         >
+          {/* WebKit path: real transparency rebuilt in a shader from an
+              alpha-packed H.264, so the pipes overlap the stat cards exactly
+              as they do on WebM. Falls back to the plain <video> below if
+              WebGL is unavailable. */}
+          {useAlphaVideo ? (
+            <AlphaVideo
+              desktop={HERO_PACKED}
+              mobile={HERO_PACKED_MOBILE}
+              mobileQuery={MOBILE_QUERY}
+              objectPosXMobile={OBJECT_POS_X_MOBILE}
+              objectPosX={OBJECT_POS_X}
+              onPainted={() => setIsPlaying(true)}
+              onUnsupported={() => setAlphaUnsupported(true)}
+              className={`h-[110.945vw] w-full transition-opacity duration-700 md:h-[55.95vw] ${
+                isPlaying ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ) : (
           <video
             ref={videoRef}
             poster={HERO_POSTER + CACHE_BUST}
@@ -283,6 +323,7 @@ export function Hero() {
             {!needsMp4Only && <source src={HERO_VIDEO} type="video/webm" />}
             <source src={HERO_VIDEO_MP4} type="video/mp4" />
           </video>
+          )}
 
           {/* Taper at the clip edge — replaces what the old `mask-image`
               did, without depending on masks. Fades to the section's own
@@ -297,7 +338,7 @@ export function Hero() {
           <div
             aria-hidden="true"
             className={`pointer-events-none absolute inset-x-0 bottom-0 h-6 ${
-              needsMp4Only ? "" : "md:hidden"
+              clipForOpaqueVideo ? "" : "md:hidden"
             }`}
             style={{ background: "linear-gradient(to bottom, rgba(20,19,79,0), #14134f)" }}
           />
@@ -334,7 +375,7 @@ export function Hero() {
       <div
         aria-hidden="true"
         className={`pointer-events-none absolute inset-x-0 top-0 z-[2] h-[calc(110.945vw-4rem)] overflow-hidden transition-opacity duration-700 sm:h-[calc(110.945vw-5rem)] ${
-          needsMp4Only ? "md:h-[calc(55.95vw-24px)]" : "md:h-[55.95vw]"
+          clipForOpaqueVideo ? "md:h-[calc(55.95vw-24px)]" : "md:h-[55.95vw]"
         } ${isPlaying ? "opacity-0" : "opacity-100"}`}
       >
         <div className="relative h-[110.945vw] w-full md:h-[55.95vw]">
@@ -351,7 +392,7 @@ export function Hero() {
         {/* Same taper as the video's, same reasoning (see there). */}
         <div
           className={`pointer-events-none absolute inset-x-0 bottom-0 h-6 ${
-            needsMp4Only ? "" : "md:hidden"
+            clipForOpaqueVideo ? "" : "md:hidden"
           }`}
           style={{ background: "linear-gradient(to bottom, rgba(20,19,79,0), #14134f)" }}
         />
