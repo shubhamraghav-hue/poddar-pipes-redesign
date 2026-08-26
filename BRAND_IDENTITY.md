@@ -2061,7 +2061,37 @@ alpha at all, so "WebKit refuses it" is not by itself proof Safari would too.
 But combined with the unrecognised scalability mask, the weight of evidence is
 clear enough not to sink more time into this path.
 
-**Remaining avenue: encode on macOS** via
+### Attempt 3 (macOS VideoToolbox): first run produced an OPAQUE file — `-pix_fmt` bug
+
+A `macos-latest` GitHub Actions workflow
+(`.github/workflows/encode-hevc-alpha.yml`) encoded a 17.6 MB
+`hero-fittings-alpha.mp4`. It passed every surface check — `codec_name=hevc`,
+`codec_tag_string=hvc1`, 2576×1440, all 378 frames, 15.12s — and WebKit
+decoded it at the correct dimensions. It was also **completely opaque**:
+0% backdrop in the alpha probe, with the opaque H.264 control correctly
+reading 0% too, so the harness was sound.
+
+`MP4Box -diso` settled it: **one plain `hvc1` sample entry, no auxiliary or
+alpha box anywhere in the file.** No alpha was ever encoded — so this was a
+bad file, not a WebKit-on-Windows limitation. Useful precedent: a box-level
+dump is what distinguishes "the file is wrong" from "the player can't show
+it", and it is far faster than another round of player testing.
+
+**Cause: the pixel format.** `hevc_videotoolbox` accepts only
+`videotoolbox_vld`, `nv12`, `yuv420p`, `bgra`, `p010le`. **`yuva420p` is not
+among them.** The workflow passed `-pix_fmt yuva420p`, so ffmpeg quietly
+negotiated down to `yuv420p` — dropping the alpha before the encoder saw it,
+with no error or warning. **`bgra` is the only alpha-carrying format
+VideoToolbox will take.**
+
+Fixed: the workflow now forces `-pix_fmt bgra` and has a post-encode gate
+that fails the run if alpha did not reach the encoder, plus a GPAC box scan
+(a warning, not a hard failure — Apple's alpha signalling is out-of-spec and
+GPAC may not recognise it). **Re-run the workflow; any artifact produced
+before this fix is opaque and must not be wired in** — serving an opaque HEVC
+*and* removing the clip branch would restore the original navy-bar bug.
+
+**Encoding on macOS** —
 `-c:v hevc_videotoolbox -alpha_quality 0.9 -tag:v hvc1` — a GitHub Actions
 `macos-latest` runner needs no Mac ownership. Apple Compressor and Rotato
 Converter also produce it, and Jake Archibald's write-up rates ffmpeg-on-macOS

@@ -100,23 +100,56 @@ jobs:
             VF="null"
           fi
 
+          # -pix_fmt bgra is MANDATORY and is the whole ballgame.
+          # hevc_videotoolbox accepts only: videotoolbox_vld, nv12, yuv420p,
+          # bgra, p010le. `yuva420p` is NOT in that list — passing it makes
+          # ffmpeg silently negotiate down to yuv420p, which has no alpha, and
+          # you get a perfectly valid, perfectly OPAQUE file with no error.
+          # bgra is the only alpha-carrying format VideoToolbox will take.
+          #
           # -allow_sw 1 matters: GitHub's macOS runners are VMs and may expose
           # no hardware HEVC encoder, in which case VideoToolbox must be
           # permitted to fall back to software or the encode simply fails.
           # -tag:v hvc1 is required — Safari ignores the 'hev1' flavour.
-          ffmpeg -y -v warning -stats \
+          ffmpeg -y -v info -stats \
             -c:v libvpx-vp9 -i "$SRC" \
             -vf "$VF" \
             -c:v hevc_videotoolbox \
             -allow_sw 1 \
             -alpha_quality "${{ inputs.alpha_quality }}" \
             -q:v "${{ inputs.quality }}" \
-            -pix_fmt yuva420p \
+            -pix_fmt bgra \
             -tag:v hvc1 \
             -an \
-            "$OUT"
+            "$OUT" 2>&1 | tee encode.log
 
           ls -lh "$OUT"
+
+      - name: Gate — confirm alpha actually reached the encoder
+        # Without this, the previous run shipped a fully opaque file that
+        # looked correct at every other checkpoint: right codec, right hvc1
+        # tag, right dimensions, right duration. Only a box-level inspection
+        # revealed it had no alpha at all. Fail loudly here instead.
+        run: |
+          set -euo pipefail
+          echo "--- encoder input format actually chosen by ffmpeg ---"
+          grep -E "Stream #0:0 -> #0:0|hevc_videotoolbox" encode.log || true
+
+          if grep -qE "hevc_videotoolbox\)\)?$|-> hevc .*yuv420p" encode.log && ! grep -q "bgra" encode.log; then
+            echo "::error::ffmpeg did not feed bgra to the encoder — alpha was dropped."
+            exit 1
+          fi
+
+          echo "--- ISO box structure: look for an auxiliary/alpha track ---"
+          MP4Box -diso -out boxes.xml hero-fittings-alpha.mp4 >/dev/null 2>&1 || true
+          if grep -qiE "auxi|auxv|alpha|hvcE|lhvC" boxes.xml; then
+            echo "alpha/auxiliary signalling PRESENT"
+          else
+            echo "::warning::No alpha/auxiliary box found by GPAC. Apple's alpha \
+          signalling is out-of-spec and GPAC may simply not recognise it, so this \
+          is a warning rather than a hard failure — but treat the artifact as \
+          suspect until scripts/verify-hevc-alpha.mjs passes in WebKit."
+          fi
 
       - name: Inspect the result
         # ffmpeg CANNOT verify its own alpha here — decoding HEVC alpha in
