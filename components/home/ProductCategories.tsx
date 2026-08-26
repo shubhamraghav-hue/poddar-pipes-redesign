@@ -137,9 +137,9 @@ export async function ProductCategories() {
               >
                 {/* GOLD badge — Figma: 70.08×26.4 at a 400px-wide card,
                     top-right, unaffected by hover. */}
-                <div className="absolute right-[3.48%] top-[3.47%] z-20 flex h-[7.04%] w-[17.52%] items-center justify-center rounded-full bg-[#e0af40]">
+                {/*<div className="absolute right-[3.48%] top-[3.47%] z-20 flex h-[7.04%] w-[17.52%] items-center justify-center rounded-full bg-[#e0af40]">
                   <img src={GOLD_BADGE} alt="" className="h-[55%] w-auto" />
-                </div>
+                </div>*/}
 
                 {/* Photo — Figma's own per-category photo assets each end
                     a bit above where the wordmark begins (a real, if
