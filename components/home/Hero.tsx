@@ -174,19 +174,71 @@ export function Hero() {
           math showing this is the same 2576×1440 source, not a separate
           asset).
 
-          The `mask-image` fading the last `4rem`/`sm:5rem` to fully
-          transparent (instead of reducing the box's own `h-*` further) is
-          kept from the previous mobile treatment on purpose: shrinking the
-          box changes what `object-cover` crops in, which previously cut
-          through the video's own pipe-fitting composition at some
-          viewport widths (a real regression, caught by the user). A mask
-          leaves the box — and therefore the `object-cover` crop math —
-          completely identical to the unmasked case; it only changes which
-          already-rendered pixels are allowed to show, fading to invisible
-          (revealing the flat navy the video's own alpha gaps already
-          show, seamlessly) before reaching the stats row instead.
-          `md:[mask-image:none]`: desktop keeps Figma's real, designed
-          overlap with zero masking. */}
+          Below `md` the video's last `4rem`/`sm:5rem` must not reach the
+          stats row (that band is mobile's 2-row grid reflow, not a Figma
+          spec — see the stats section below). Two earlier approaches both
+          failed, in different ways:
+
+          1. Shrinking the video's own `h-*`. Broke the composition —
+             `object-cover`'s crop is relative to the box's current size,
+             so a shorter box cut straight through the pipe fittings at
+             some viewport widths (caught by the user).
+          2. `mask-image` on the `<video>` itself. Correct in Chromium,
+             but on real iOS the fade silently didn't apply at all and the
+             video's hard rectangular edge sliced across the top of the
+             stat cards (also caught by the user, on-device). NOT a
+             missing vendor prefix — Tailwind v4's Lightning CSS does emit
+             `-webkit-mask-image` here, confirmed in the compiled output.
+             It's WebKit's long-standing weakness with masks over
+             hardware-composited subtrees: `<video>` decodes in its own
+             compositing layer, and masking across that boundary is
+             unreliable there.
+
+          Current approach avoids masks entirely, so nothing depends on
+          video compositing behavior. This wrapper is CLIPPED short
+          (`overflow-hidden`) while the `<video>` inside keeps its FULL
+          `110.945vw`/`md:55.95vw` height — so `object-cover` still measures
+          against the full box and the crop math is byte-for-byte identical
+          to the unclipped case, sidestepping failure (1). The taper is a
+          plain background-gradient div at the clip edge (below),
+          sidestepping failure (2). `overflow: hidden` and background
+          gradients are universally supported, so this renders the same on
+          every engine.
+
+          The `md:` height branches on `needsMp4Only` because of a THIRD,
+          separate bug — the one that actually caused the reported "tiles
+          look cropped" on iOS (the mask theory above turned out not to be
+          it).
+          The stats cards sit at `z-[1]`, BELOW this video's `z-[2]`, and
+          the video overlaps their top edge by exactly 24px at every
+          breakpoint from `sm` up (`-mt-20` minus the stats row's own
+          `py-14`; below `sm` it's `-mt-16` minus `py-10`, also 24px).
+          Figma intends that overlap — the pipe is supposed to render in
+          FRONT of the card — and on WebM it works, because the clip's
+          alpha lets the card show through everywhere there's no pipe.
+          **But H.264/MP4 cannot carry alpha**, so the Safari/iOS fallback
+          is pre-composited onto flat navy (see the constants above) and is
+          100% OPAQUE — measured: 0 transparent samples across that bottom
+          band, vs ~95% transparent on the WebM. On every MP4 engine the
+          overlap therefore paints a solid navy bar across the top of all
+          four tiles instead of a pipe.
+
+          So MP4 engines clip 24px shorter — the video ends exactly at the
+          card's top edge instead of painting over it — while WebM engines
+          keep Figma's real overlap. **This branch is a STOPGAP, not the
+          intended end state.** The goal is for iOS to match Figma and the
+          WebM exactly, which needs genuine alpha on Safari: HEVC with an
+          alpha channel (`hvc1`), the one transparent-video format WebKit
+          supports (iOS 13+). Once a `hero-fittings-alpha.mp4` exists and
+          is served to `needsMp4Only` engines ahead of the H.264 file, DELETE
+          this branch entirely — both sides become `md:h-[55.95vw]` and every
+          engine gets the designed pipe-over-card overlap. Encoding note for
+          whoever picks this up: x265 gained alpha support in 4.0 and this
+          repo's FFmpeg advertises `yuva420p` for libx265, but the Gyan
+          Windows build's libx265 is not compiled with `ENABLE_ALPHA`
+          ("Loaded libx265 does not support alpha layer encoding"), so it
+          needs either an alpha-enabled x265 build or macOS
+          (`-c:v hevc_videotoolbox -alpha_quality … -tag:v hvc1`). */}
       {/* Not rendered at all until `needsMp4Only` resolves (see that state's
           comment) — mounting the `<video>` is what makes the browser's own
           HTML parser start evaluating `<source>`s and fetching, so the
@@ -201,31 +253,55 @@ export function Hero() {
           order. Actually hiding the video element itself, belt-and-
           suspenders with the overlay below, closes that gap. */}
       {needsMp4Only !== null && (
-        <video
-          ref={videoRef}
-          poster={HERO_POSTER + CACHE_BUST}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-          tabIndex={-1}
-          className={`absolute inset-x-0 top-0 z-[2] h-[110.945vw] w-full object-cover object-[2.525%_50%] transition-opacity duration-700 [mask-image:linear-gradient(to_bottom,black_calc(100%-4rem-24px),transparent_calc(100%-4rem))] sm:[mask-image:linear-gradient(to_bottom,black_calc(100%-5rem-24px),transparent_calc(100%-5rem))] md:h-[55.95vw] md:object-center md:[mask-image:none] ${
-            isPlaying ? "opacity-100" : "opacity-0"
+        <div
+          className={`absolute inset-x-0 top-0 z-[2] h-[calc(110.945vw-4rem)] overflow-hidden sm:h-[calc(110.945vw-5rem)] ${
+            needsMp4Only ? "md:h-[calc(55.95vw-24px)]" : "md:h-[55.95vw]"
           }`}
-          onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
-          onPlaying={() => setIsPlaying(true)}
-          {...({ fetchPriority: "high" } as Record<string, string>)}
         >
-          {/* Browser walks these in order and uses the first one whose
-              `type` it can play. `needsMp4Only` engines never see the WebM
-              `<source>` at all (see that state's comment for why — some
-              can technically decode base VP9 now, just not this file's
-              alpha channel, which is worse than not offering it). */}
-          {!needsMp4Only && <source src={HERO_VIDEO} type="video/webm" />}
-          <source src={HERO_VIDEO_MP4} type="video/mp4" />
-        </video>
+          <video
+            ref={videoRef}
+            poster={HERO_POSTER + CACHE_BUST}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            tabIndex={-1}
+            className={`h-[110.945vw] w-full object-cover object-[2.525%_50%] transition-opacity duration-700 md:h-[55.95vw] md:object-center ${
+              isPlaying ? "opacity-100" : "opacity-0"
+            }`}
+            onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
+            onPlaying={() => setIsPlaying(true)}
+            {...({ fetchPriority: "high" } as Record<string, string>)}
+          >
+            {/* Browser walks these in order and uses the first one whose
+                `type` it can play. `needsMp4Only` engines never see the WebM
+                `<source>` at all (see that state's comment for why — some
+                can technically decode base VP9 now, just not this file's
+                alpha channel, which is worse than not offering it). */}
+            {!needsMp4Only && <source src={HERO_VIDEO} type="video/webm" />}
+            <source src={HERO_VIDEO_MP4} type="video/mp4" />
+          </video>
+
+          {/* Taper at the clip edge — replaces what the old `mask-image`
+              did, without depending on masks. Fades to the section's own
+              `bg-ink` (`#14134f`) rather than to transparent, which is
+              visually identical here (the video's own alpha gaps already
+              reveal exactly that navy) but works on every engine.
+              `rgba(20,19,79,0)`, NOT the keyword `transparent`: Safari
+              resolves bare `transparent` as transparent BLACK, which makes
+              a fade to it read as a dark smudge instead of a clean fade.
+              `md:hidden` — nothing is clipped at `md`+, so there's no edge
+              to taper there. */}
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-x-0 bottom-0 h-6 ${
+              needsMp4Only ? "" : "md:hidden"
+            }`}
+            style={{ background: "linear-gradient(to bottom, rgba(20,19,79,0), #14134f)" }}
+          />
+        </div>
       )}
 
       {/* Poster-image overlay (Aug 2026) — same box as the video (identical
@@ -248,25 +324,36 @@ export function Hero() {
           white, a real mismatch against the video that made blocked
           autoplay look broken rather than just static.
 
-          Full height, not reduced — masked the same way and for the same
-          reason as the video above: reducing the box itself changes what
-          `object-cover` crops into view, which can cut through the poster
-          PNG's own pipe-fitting composition awkwardly at some widths —
-          the same regression a height-based approach caused on the real
-          video, caught by the user, before landing on masking instead. */}
+          Clipped and tapered exactly like the video above, for exactly the
+          same two reasons — the inner full-height box keeps `fill`'s own
+          sizing (and therefore `object-cover`'s crop) measured against the
+          real `110.945vw` height rather than the clipped wrapper, so
+          shortening the wrapper can't cut through the poster PNG's
+          pipe-fitting composition. See the video's comment above for the
+          full history of why this is clip-plus-gradient and not a mask. */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-x-0 top-0 z-[2] h-[110.945vw] w-full transition-opacity duration-700 [mask-image:linear-gradient(to_bottom,black_calc(100%-4rem-24px),transparent_calc(100%-4rem))] sm:[mask-image:linear-gradient(to_bottom,black_calc(100%-5rem-24px),transparent_calc(100%-5rem))] md:h-[55.95vw] md:[mask-image:none] ${
-          isPlaying ? "opacity-0" : "opacity-100"
-        }`}
+        className={`pointer-events-none absolute inset-x-0 top-0 z-[2] h-[calc(110.945vw-4rem)] overflow-hidden transition-opacity duration-700 sm:h-[calc(110.945vw-5rem)] ${
+          needsMp4Only ? "md:h-[calc(55.95vw-24px)]" : "md:h-[55.95vw]"
+        } ${isPlaying ? "opacity-0" : "opacity-100"}`}
       >
-        <Image
-          src={HERO_POSTER}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[2.525%_50%] md:object-center"
+        <div className="relative h-[110.945vw] w-full md:h-[55.95vw]">
+          <Image
+            src={HERO_POSTER}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[2.525%_50%] md:object-center"
+          />
+        </div>
+
+        {/* Same taper as the video's, same reasoning (see there). */}
+        <div
+          className={`pointer-events-none absolute inset-x-0 bottom-0 h-6 ${
+            needsMp4Only ? "" : "md:hidden"
+          }`}
+          style={{ background: "linear-gradient(to bottom, rgba(20,19,79,0), #14134f)" }}
         />
       </div>
 
@@ -282,10 +369,25 @@ export function Hero() {
             (`5rem` at `sm:`) rather than `inset-0` so none of the three
             reach into the stats-tile overlap band below; `maskImage` tapers
             the last 20% of that height so the cutoff doesn't read as a
-            hard seam. */}
+            hard seam.
+
+            `WebkitMaskImage` alongside every `maskImage` on this and the
+            layers below: React inline styles are assigned straight onto
+            the DOM node and never pass through PostCSS/Lightning CSS, so
+            unlike the Tailwind arbitrary-value mask utilities used
+            elsewhere in this file, these get NO automatic vendor prefix
+            and silently did nothing on iOS — the taper never applied and
+            each layer ended in a hard horizontal seam instead. Masking a
+            plain `<div>` (no composited video inside) is reliable in
+            WebKit once the prefix is actually present, which is why these
+            keep using masks while the video/poster above had to drop them
+            entirely. */}
         <div
           className="absolute inset-x-0 top-0 z-[3] h-[calc(100%-4rem)] bg-grid-dark sm:h-[calc(100%-5rem)]"
-          style={{ maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)" }}
+          style={{
+            WebkitMaskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
+          }}
           aria-hidden="true"
         />
 
@@ -303,11 +405,19 @@ export function Hero() {
             layer above, for the same reason theirs already is: so it
             stops short of the stats-tile overlap band instead of painting
             over it. `md:hidden`: desktop uses its own separately-tuned
-            version instead, same split as the vignette further down. */}
+            version instead, same split as the vignette further down.
+
+            `rgba(20,19,79,0)` rather than the keyword `transparent` (same
+            on the desktop version below): Safari resolves bare
+            `transparent` as transparent BLACK, so a fade from navy to it
+            passes through grey/black and reads as a dark smudge rather
+            than a clean fade. Spelling out a zero-alpha version of the
+            SAME navy keeps the interpolation clean on every engine. */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-[3] h-[calc(100%-4rem)] sm:h-[calc(100%-5rem)] md:hidden"
           style={{
-            background: "linear-gradient(to right, #14134f, transparent 100%)",
+            background: "linear-gradient(to right, #14134f, rgba(20,19,79,0) 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
             maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
           }}
           aria-hidden="true"
@@ -320,7 +430,8 @@ export function Hero() {
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-[3] hidden h-[calc(100%-4rem)] sm:h-[calc(100%-5rem)] md:block"
           style={{
-            background: "linear-gradient(to right, #14134f, transparent 50%)",
+            background: "linear-gradient(to right, #14134f, rgba(20,19,79,0) 50%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
             maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
           }}
           aria-hidden="true"
@@ -335,6 +446,7 @@ export function Hero() {
           style={{
             backgroundImage: `url("${HERO_VIGNETTE_SVG}")`,
             backgroundSize: "100% 100%",
+            WebkitMaskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
             maskImage: "linear-gradient(to bottom, black 80%, transparent 100%)",
           }}
           aria-hidden="true"

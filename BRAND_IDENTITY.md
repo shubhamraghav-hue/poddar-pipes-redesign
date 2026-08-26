@@ -1808,3 +1808,230 @@ elsewhere when Figma's literal number doesn't survive contact with this
 specific layout. Verified via live measurement at 375/669/767/768/1280px:
 the gradient's bottom edge now lands exactly on the stats row's top edge
 (zero overlap) at every width, both below and at/above `md`.
+
+## Hero — mobile fade rebuilt WITHOUT masks, for iOS (Aug 2026)
+
+**Real-device bug:** on a real iPhone the mobile video showed no fade at
+all — its hard rectangular bottom edge sliced straight across the top of
+the stat cards ("the tiles got cropped till the video frame ended"). Not
+reproducible in this session's Chromium-based Browser tool, where the
+same code was already verified pixel-correct.
+
+**Ruled out first — it is NOT a missing vendor prefix on the video.**
+Checked the actual compiled CSS in `.next`, not the source: Tailwind v4's
+Lightning CSS engine DOES emit `-webkit-mask-image` alongside
+`mask-image` for arbitrary-value utilities like
+`[mask-image:linear-gradient(...)]`. Worth knowing generally — this
+project has **no autoprefixer and no browserslist config at all** (its
+`postcss.config.mjs` registers only `@tailwindcss/postcss`), so Tailwind
+v4's own prefixing is the only thing generating `-webkit-` anywhere.
+
+**Actual cause:** WebKit's long-standing unreliability applying CSS masks
+across a hardware-composited subtree. `<video>` decodes in its own
+compositing layer, and masking that layer is a documented source of
+Safari rendering failures (the same family of bug behind the classic
+`border-radius` + `overflow:hidden` + transform Safari workarounds, and
+behind WebKit's own "disable accelerated compositing for the video tag"
+fixes). The prefix being present doesn't help — WebKit simply doesn't
+composite the mask over the video layer.
+
+**Fix — dropped masks on the video/poster entirely** rather than
+attempting a mask-based workaround (`isolation: isolate`,
+`transform: translateZ(0)`, masking a wrapper), because none of those
+could be verified from this session: the Browser tool is Chromium-only
+and the bug is WebKit-only, so any mask-based fix would have shipped as
+untested guesswork.
+
+Both the `<video>` and the poster `<Image>` now sit inside an
+`overflow-hidden` wrapper CLIPPED to `calc(110.945vw-4rem)` /
+`sm:calc(110.945vw-5rem)`, with the media inside keeping its FULL
+`110.945vw` height. This is the key detail that makes clipping safe here
+where an earlier height-reduction attempt failed: `object-cover` measures
+against the media element's own box, which is untouched — only the
+wrapper is short — so the crop math is byte-for-byte identical to the
+unclipped case and cannot cut through the pipe-fitting composition (the
+regression documented two sections above). The taper is a plain 24px
+background-gradient div at the clip edge. `overflow: hidden` and
+background gradients have no compositing dependency and behave
+identically on every engine.
+
+The poster needs one extra nested div: `next/image`'s `fill` sizes
+against its nearest positioned ancestor, so an inner full-height box sits
+between the clip wrapper and the `<Image>` — without it, `fill` would
+size to the CLIPPED wrapper and re-introduce the exact crop regression
+this design avoids.
+
+`md:` is unaffected throughout: the wrapper's `md:h-[55.95vw]` equals the
+video's own `md:` height exactly, so nothing is clipped and Figma's
+designed pipe-over-card overlap survives untouched (measured: still 24px
+of overlap into the cards at 1280px).
+
+**Two related iOS fixes in the same pass:**
+1. **The four inline-style masks now carry `WebkitMaskImage` companions**
+   (grid-dark texture, both legibility gradients, vignette). React inline
+   styles are assigned straight onto the DOM node and never pass through
+   PostCSS/Lightning CSS, so unlike the Tailwind utility classes these get
+   NO automatic prefix. Defensive hardening for older iOS rather than a
+   confirmed bug fix — **do not read this as "they were broken"**:
+   unprefixed `mask-image` has been supported since Safari 15.4 (2022), and
+   a later WebKit run confirmed all four values are accepted unprefixed, so
+   on any current iPhone these were almost certainly already working. They
+   keep using masks (rather than being rebuilt like the video) because
+   they're plain `<div>`s with no composited child.
+2. **Both legibility gradients now fade to `rgba(20,19,79,0)` instead of
+   the keyword `transparent`.** Safari resolves bare `transparent` as
+   transparent BLACK, so a navy→`transparent` fade passes through grey and
+   reads as a dark smudge rather than a clean fade. Spelling out a
+   zero-alpha version of the same navy keeps interpolation clean
+   everywhere. Worth applying to any future fade-to-transparent on this
+   site.
+
+Verified live at 375 / 700 / 1280px, on BOTH the WebM and the MP4 (the
+source iOS actually receives), with matching results on each: video's own
+height stays full (`416.03px` at 375px = `375 × 1.10945`), wrapper clips
+to `352.03px`, visible video ends at exactly the stats row's top edge with
+40px of clearance before the first card, `maskImage` on the video reads
+`none` in both prefixed and unprefixed form, and at 1280px wrapper and
+video heights match exactly with the taper hidden. **Still unverified on
+a real device** — but unlike the previous approach, nothing here depends
+on WebKit-specific mask or compositing behavior.
+
+## Hero — the REAL cause of "cropped tiles" on iOS: MP4 has no alpha (Aug 2026)
+
+**The mask/compositing diagnosis in the section above was wrong.** It was a
+plausible theory that survived because it couldn't be tested from a
+Windows machine. The actual cause was found once the same crop was
+reproduced at iPad width, and it is much simpler.
+
+**Measured, not theorised.** Sampling the alpha channel of the video's
+bottom 40px strip — the band that lands over the stat cards:
+
+| source | transparent samples | opaque samples |
+|---|---|---|
+| `hero-fittings.webm` | 2654 (95%) | 131 |
+| `hero-fittings.mp4` | **0** | **2785 (100%)** |
+
+H.264/MP4 cannot carry alpha, so the Safari/iOS fallback was encoded
+pre-composited onto flat navy (this was always documented in `Hero.tsx`'s
+header — its consequence just wasn't followed through). The video sits at
+`z-[2]`, directly above the stat card shells at `z-[1]`, and overlaps
+their top edge by **exactly 24px at every breakpoint** (`-mt-20` minus the
+stats row's `py-14`; below `sm`, `-mt-16` minus `py-10` — also 24px).
+
+On WebM that overlap is Figma's intended "pipe renders in FRONT of the
+card" effect: the clip's alpha lets each card show through everywhere
+there isn't a pipe. On MP4 the identical geometry paints a **solid navy
+bar across the top of all four tiles**, because nothing in that band is
+transparent. That is the reported "tiles got cropped till the video frame
+ended", exactly.
+
+It only surfaced at `md`+ because below that the clip (previous section)
+already removes the band before it reaches the cards — which is why iPhone
+looked fine and iPad did not.
+
+**Current state is a deliberate STOPGAP, not the end state.** The `md:`
+height now branches on `needsMp4Only`: MP4 engines clip 24px shorter so the
+video ends exactly at the card's top edge, WebM engines keep Figma's real
+overlap untouched. Verified in WebKit and Chromium side by side at 1280px —
+WebKit: MP4, wrapper 692.16px, 0px overlap; Chromium: WebM, wrapper
+716.16px, 24px overlap.
+
+**The intended end state** (explicitly requested: iOS should match Figma
+and the WebM, not merely avoid the artefact) is genuine alpha on Safari via
+**HEVC with an alpha channel (`hvc1`)** — the only transparent-video format
+WebKit supports, since iOS 13 / macOS Catalina. When a
+`hero-fittings-alpha.mp4` exists and is served to `needsMp4Only` engines
+ahead of the H.264 file, **delete the branch**: both sides return to
+`md:h-[55.95vw]` and every engine gets the designed overlap.
+
+Encoding notes for that work, already investigated:
+- x265 gained alpha support in 4.0, and this repo's FFmpeg (8.1.2, x265
+  4.2+37) advertises `yuva420p` for libx265 — but the Gyan Windows build is
+  not compiled with `ENABLE_ALPHA`, failing at runtime with "Loaded libx265
+  does not support alpha layer encoding". So it needs an alpha-enabled x265
+  build, or macOS
+  (`-c:v hevc_videotoolbox -alpha_quality 0.9 -tag:v hvc1`), or a macOS CI
+  runner. Apple Compressor and Rotato Converter also produce it.
+- Chrome does NOT support HEVC alpha and Safari does NOT support WebM
+  alpha, so the two files must be steered by the existing `needsMp4Only`
+  UA branch rather than by `<source type>` fallthrough — a browser that
+  half-claims HEVC support would otherwise pick it and render it opaque,
+  the same trap already documented for VP9-in-WebM on iOS. (Measured:
+  Chromium reports empty string for `canPlayType('video/mp4;
+  codecs="hvc1"')`, i.e. no HEVC at all, so in practice it will not grab
+  the HEVC source — but steer explicitly anyway rather than relying on
+  that.)
+
+### Correction: ffmpeg CAN read the WebM's alpha — with the right decoder
+
+This file (and `Hero.tsx`'s own header comment) has long stated flatly that
+"ffmpeg's CLI decode of the VP9-alpha .webm silently drops the alpha
+channel". **That is only true of ffmpeg's DEFAULT/native VP9 decoder.**
+Measured on ffmpeg 8.1.2:
+
+- Native decoder — `ffprobe` reports `pix_fmt=yuv420p`, and
+  `-vf alphaextract` fails outright with "Requested planes not available".
+- **`-c:v libvpx-vp9`** (forcing the libvpx decoder) — `alphaextract`
+  succeeds and returns a real, varying alpha plane (`min=0, max=255`).
+
+This matters practically: the original 91 MB source GIF is **not in the
+repo**, so before this finding there appeared to be no alpha master to
+encode from. There is — `public/hero/hero-fittings.webm` itself, read with
+`-c:v libvpx-vp9`. It also means the old rule "always regenerate posters
+from the GIF, never from the WebM" was over-broad; regenerating from the
+WebM is fine as long as the libvpx decoder is forced. The underlying
+lesson still stands in spirit — a silent alpha drop is easy to ship by
+accident — so keep verifying alpha explicitly (e.g. `alphaextract` +
+min/max) rather than assuming any given decode preserved it.
+
+Source for the HEVC encode is therefore:
+`ffmpeg -c:v libvpx-vp9 -i public/hero/hero-fittings.webm -pix_fmt yuva420p
+-f rawvideo -` (2576×1440, 25 fps) piped into an `ENABLE_ALPHA` x265.
+
+### Attempt 1 (x265 on Windows): encodes fine, MUXES WRONG — not yet usable
+
+Tried end to end. Recorded here so nobody repeats the dead end.
+
+**What worked.** MSYS2 + a from-source x265 build with `-DENABLE_ALPHA=ON`
+(`scripts/build-x265-alpha.sh`) produces a binary whose `--fullhelp` really
+does list `--alpha`, and encoding genuinely emits a two-layer stream — x265
+logs `tools: … deblock alpha` and prints TWO per-frame summaries (base layer
++ alpha layer). Gotchas hit along the way, all fixed in the script:
+- Clone must NOT be `--depth 1`: x265's `CMakeLists.txt:1124` regex-parses
+  `X265_LATEST_TAG` from `git describe`, and with no tags configure dies with
+  "list GET given empty list".
+- This network cannot reach `mirror.msys2.org` (TLS "wrong version number" /
+  timeouts) nor GitHub release assets; `repo.msys2.org` works. Pacman mirrors
+  were pinned accordingly, and MSYS2 itself downloaded from there.
+- A fresh MSYS2 needs `pacman-key --init && pacman-key --populate msys2`.
+
+**What failed.** ffmpeg cannot mux the result correctly. It refuses the raw
+bitstream outright ("Invalid data found") unless forced with `-f hevc`, and
+once forced it writes a SINGLE `hvc1` track reporting `pix_fmt=yuv420p` with
+no alpha auxiliary-layer signalling whatsoever. WebKit decodes that file at
+the correct 2576×1440 and renders it **fully opaque**. Confirmed in both
+`.mp4` and `.mov` containers — the container is not the variable.
+
+**Verification method matters here.** The first probe used canvas
+`drawImage` + alpha byte sampling; in Playwright's WebKit on Windows that
+silently draws nothing while reporting success, which made the OPAQUE
+control read "100% transparent" — a false pass, worse than no test. The
+working approach (`scripts/verify-hevc-alpha.mjs`) lays the video over a
+magenta backdrop and samples a real screenshot, and always runs the opaque
+H.264 as a control: **if the control is not ~0%, the harness is broken and
+every other row is meaningless.**
+
+**Still unknown:** whether Playwright's WebKit on Windows supports HEVC
+alpha at all. Without a known-good Apple-produced reference file, a negative
+result cannot distinguish "our file is malformed" from "this engine can't do
+it" — so do not treat the opaque result above as proof x265's alpha is
+unusable, only that this ffmpeg-muxed version of it is.
+
+**Next avenues, in order of confidence:** (1) mux with GPAC/MP4Box, which
+understands layered HEVC and auxiliary tracks where ffmpeg does not;
+(2) encode on macOS via `hevc_videotoolbox` (a GitHub Actions `macos-latest`
+runner needs no Mac ownership) — the only producer any source confirms Safari
+honours. Note Jake Archibald's write-up rates even ffmpeg-on-macOS output as
+poor next to Apple Compressor, so quality is worth checking either way. Also
+note Apple expects PREMULTIPLIED alpha (`-vf premultiply=inplace=1`), which
+the x265 attempt above did not apply.

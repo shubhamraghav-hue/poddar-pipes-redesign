@@ -7,3 +7,16 @@ out
 package-lock.json
 *.tsbuildinfo
 eslint.config.zip
+
+# Local toolchain build output (x265-with-alpha source + binary, intermediate
+# .265 bitstreams). Produced by scripts/build-x265-alpha.sh; several hundred MB
+# and machine-specific, so it is rebuilt rather than committed.
+build/
+
+# Dev-only device-frame preview page. Lives under public/ so its iframe is
+# same-origin with the app, but it is not part of the site and should not ship.
+public/_device-mockup.html
+
+# Screenshots emitted by scripts/webkit-hero-check.mjs when run without an outDir.
+hero-webkit.png
+hero-chromium.png
