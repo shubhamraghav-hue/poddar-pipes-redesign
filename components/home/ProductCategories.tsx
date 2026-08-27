@@ -21,7 +21,8 @@ const CATEGORIES = [
     logo: "/products/category-cards/cpvc-wordmark.png",
     logoW: 645,
     logoH: 213,
-    photo: "/products/category-cards/cpvc.png",
+    photo: "/products/category-cards/cpvc-card.png",
+    photoPos: "50% 100%",
   },
   {
     id: "upvc",
@@ -31,7 +32,8 @@ const CATEGORIES = [
     logo: "/products/category-cards/upvc-wordmark.png",
     logoW: 663,
     logoH: 213,
-    photo: "/products/category-cards/upvc.png",
+    photo: "/products/category-cards/upvc-card.png",
+    photoPos: "50% 100%",
   },
   {
     id: "swr",
@@ -41,7 +43,8 @@ const CATEGORIES = [
     logo: "/products/category-cards/swr-wordmark.png",
     logoW: 618,
     logoH: 213,
-    photo: "/products/category-cards/swr.png",
+    photo: "/products/category-cards/swr-card.png",
+    photoPos: "50% 100%",
   },
   {
     id: "agri",
@@ -51,7 +54,8 @@ const CATEGORIES = [
     logo: "/products/category-cards/agri-wordmark.png",
     logoW: 627,
     logoH: 213,
-    photo: "/products/category-cards/agri.png",
+    photo: "/products/category-cards/agri-card.png",
+    photoPos: "50% 100%",
   },
   {
     id: "ugd",
@@ -61,7 +65,8 @@ const CATEGORIES = [
     logo: "/products/category-cards/ugd-wordmark.png",
     logoW: 576,
     logoH: 213,
-    photo: "/products/category-cards/ugd.png",
+    photo: "/products/category-cards/ugd-card.png",
+    photoPos: "50% 100%",
   },
   {
     id: "tanks",
@@ -71,10 +76,12 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    // The only SVG card art (embedded raster, its own drop shadow). Rendered
-    // with a plain <img>: next/image blocks local SVGs unless
-    // `images.dangerouslyAllowSVG` is set, which this project does not set.
-    photo: "/products/category-cards/tank.svg",
+    photo: "/products/category-cards/tank-card.png",
+    // The tank is 828px tall against a 656px visible slice, so unlike the
+    // pipe shots it cannot fit whole. Biased to keep the lid, shoulders and
+    // wordmark — the parts that actually read as "tank" — rather than
+    // centring and losing the lid.
+    photoPos: "50% 65%",
   },
 ] as const;
 
@@ -122,20 +129,20 @@ export async function ProductCategories() {
                     to leave Figma's gap. Shares the wordmark's hover
                     translate so the two move in lockstep. */}
                 <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]">
-                  {cat.photo.endsWith(".svg") ? (
-                    // `object-contain`, not `-cover`: this asset composites
-                    // its own artwork and shadow on a transparent canvas, so
-                    // cropping would cut the composition, not re-frame it.
-                    <img src={cat.photo} alt="" className="size-full object-contain object-center" />
-                  ) : (
-                    <Image
-                      src={cat.photo}
-                      alt=""
-                      fill
-                      sizes="(min-width: 640px) 33vw, 100vw"
-                      className="object-cover object-center"
-                    />
-                  )}
+                  {/* `photoPos` per card, not a blanket `object-center`.
+                      These are tall studio shots with the product sitting in
+                      the bottom third; centring the crop would frame empty
+                      backdrop and hide the product at rest. Values are
+                      measured from each file, not eyeballed. Set via `style`
+                      because Tailwind cannot generate classes from data. */}
+                  <Image
+                    src={cat.photo}
+                    alt=""
+                    fill
+                    sizes="(min-width: 640px) 33vw, 100vw"
+                    style={{ objectPosition: cat.photoPos }}
+                    className="object-cover"
+                  />
                 </div>
 
                 {/* Wordmark box is Figma's exact numbers as percentages of
