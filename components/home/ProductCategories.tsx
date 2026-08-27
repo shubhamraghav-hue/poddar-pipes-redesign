@@ -6,21 +6,12 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-// Display order per brand team request: CPVC, UPVC, SWR, AGRI, UGD, TANKS
-// (Figma's own layout order is UPVC/CPVC/UGD, AGRI/SWR/TANK — deliberately
-// not followed here, per that earlier request). `photo` + the gold badge
-// are the exact assets exported from Figma (node 13:83 and siblings).
+// Display order is the brand team's, NOT Figma's layout order — deliberate.
 //
-// `logo` fresh-exported directly from Figma (node 707:7360 and siblings —
-// each card's "Default"-variant wordmark frame, fileKey
-// 6jLHH8FxOKbRcIWOpIiWcx) at 3x scale, replacing the old hand-built
-// `*-logo.svg` files. Those older SVGs each bundled an EXTRA embedded
-// "GOLD" pill next to the wordmark, invisible at the old ~40px render
-// height but clearly visible (and duplicating the separate gold ribbon
-// badge below) once enlarged to Figma's actual proportion — the fresh
-// export is scoped to just the wordmark sub-frame, with no gold pill
-// baked in at all. `logoW`/`logoH` are these new PNGs' real pixel
-// dimensions (all 213px tall at 3x, width varies by name length).
+// `logo` files are exported from each card's wordmark sub-frame only. The
+// older hand-built `*-logo.svg`s each had an extra "GOLD" pill baked in,
+// invisible at ~40px but obvious once scaled up and duplicating the separate
+// badge. `logoW`/`logoH` are the PNGs' real pixel dimensions.
 const CATEGORIES = [
   {
     id: "cpvc",
@@ -80,12 +71,9 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    // User-supplied artwork (the two overlapping tank shots with their own
-    // drop shadow, matching Figma's real TankCard composition) — an SVG
-    // with an embedded raster, not the plain PNG crop every other card
-    // uses. Rendered via a plain <img> below (next/image blocks local SVGs
-    // unless `images.dangerouslyAllowSVG` is set, which this project
-    // doesn't set — same reason the GOLD_BADGE SVG above bypasses it too).
+    // The only SVG card art (embedded raster, its own drop shadow). Rendered
+    // with a plain <img>: next/image blocks local SVGs unless
+    // `images.dangerouslyAllowSVG` is set, which this project does not set.
     photo: "/products/category-cards/tank.svg",
   },
 ] as const;
@@ -109,29 +97,19 @@ export async function ProductCategories() {
         />
 
         <div className="flex flex-col items-center gap-10">
-          {/* Figma card is 400×375 (aspect ~1.067, not square) at a 26px
-              grid gap — both real mismatches from the previous build (a
-              260px-capped square card at a 12px gap), fixed here via
-              `aspect-[400/375]` + `gap-6` (24px, close enough to Figma's 26
-              without hand-tuning a non-standard gap value) rather than
-              literal fixed pixels, so it stays correct at any container
-              width instead of only at Figma's own 1512px reference. */}
+          {/* Figma's card is 400×375 (not square) at a ~26px gap. Expressed
+              as a ratio + `gap-6` so it holds at any container width, not
+              just Figma's 1512px reference. */}
           <RevealOnScroll className="grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.id}
                 href={cat.href}
-                // `@container` + `cqw` below: only for the properties that
-                // don't natively scale with the parent box (font-size,
-                // letter-spacing, border-radius) — top/right/width/height
-                // percentages already resolve against this card's own
-                // rendered box per normal CSS, no container query needed
-                // for those. `min(25px,6.25cqw)`, not a flat `6.25cqw`:
-                // Figma's radius is a fixed 25px, not a proportional one —
-                // 6.25cqw only equals 25px at the 400px reference width and
-                // grows past it on any wider-rendered card. `min()` caps it
-                // at the true 25px ceiling while still scaling down (not
-                // capping) on cards narrower than 400px.
+                // `cqw` is only for what does not natively scale with the
+                // box (font-size, tracking, radius); plain percentages
+                // already resolve against the card. `min(25px,6.25cqw)`
+                // because Figma's radius is a fixed 25px — a flat `6.25cqw`
+                // would overshoot on any card wider than 400px.
                 className="group @container relative block aspect-[400/375] w-full overflow-hidden rounded-[min(25px,6.25cqw)] bg-white"
               >
                 {/* GOLD badge — Figma: 70.08×26.4 at a 400px-wide card,
@@ -140,23 +118,14 @@ export async function ProductCategories() {
                   <img src={GOLD_BADGE} alt="" className="h-[55%] w-auto" />
                 </div>*/}
 
-                {/* Photo — Figma's own per-category photo assets each end
-                    a bit above where the wordmark begins (a real, if
-                    per-category-variable, gap); this simplified uniform
-                    photo crop stops at 68% (vs. the wordmark's exact 74.67%
-                    top below) to leave a comparable gap rather than
-                    touching/overlapping it. Rises with the wordmark on
-                    hover — see that element's comment for the shared
-                    translate amount and the `cqw`-not-`%` reasoning. */}
+                {/* Photo stops at 68%, short of the wordmark's 74.67% top,
+                    to leave Figma's gap. Shares the wordmark's hover
+                    translate so the two move in lockstep. */}
                 <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]">
                   {cat.photo.endsWith(".svg") ? (
-                    // next/image blocks local SVGs unless
-                    // `images.dangerouslyAllowSVG` is set (it isn't here) —
-                    // same reason GOLD_BADGE above uses a plain <img>.
-                    // `object-contain`, not `-cover`: this asset already
-                    // composites its own artwork + drop shadow against a
-                    // transparent canvas, so cropping it would cut into
-                    // that composition rather than just re-framing a photo.
+                    // `object-contain`, not `-cover`: this asset composites
+                    // its own artwork and shadow on a transparent canvas, so
+                    // cropping would cut the composition, not re-frame it.
                     <img src={cat.photo} alt="" className="size-full object-contain object-center" />
                   ) : (
                     <Image
@@ -169,28 +138,12 @@ export async function ProductCategories() {
                   )}
                 </div>
 
-                {/* Wordmark — exact Figma box (node 707:7360 and siblings,
-                    read directly off this instance's own dev-mode
-                    inspector: left 40px, top 280px, width 220.816px,
-                    height 70.75px on a 380×375 card = left 10.53%, top
-                    74.67%, width 58.11% (max — the fresh-exported PNG's own
-                    aspect ratio is what actually constrains rendered
-                    width, via `object-contain object-left`, so this is a
-                    ceiling not a stretch target), height 18.87%. Previously
-                    positioned via `mt-[2%]` after an 85%-tall photo in a
-                    flex column — an approximation that actually landed the
-                    wordmark ~10 percentage points higher than Figma's real
-                    74.67%, not this exact box. Kept as an independent
-                    absolutely-positioned element (not grouped with the
-                    photo in a shared wrapper) specifically so its position
-                    is a direct, unambiguous read of Figma's own numbers —
-                    a nested-percentage wrapper would need re-deriving this
-                    same box relative to the wrapper's own size instead of
-                    the card's, an unnecessary extra step. Shares the
-                    photo's exact hover translate so the two move in
-                    lockstep despite being independent elements, matching
-                    Figma's own two-independently-positioned-layers reality
-                    more closely than a shared wrapper would. */}
+                {/* Wordmark box is Figma's exact numbers as percentages of
+                    the card. Kept absolutely positioned rather than nested
+                    in a wrapper with the photo, so these stay a direct read
+                    of Figma rather than needing re-derivation against a
+                    wrapper's own box. `max-w` is a ceiling — the PNG's
+                    aspect ratio is what actually sets the width. */}
                 <Image
                   src={cat.logo}
                   alt={cat.title}
@@ -199,37 +152,23 @@ export async function ProductCategories() {
                   className="absolute left-[10.53%] top-[74.67%] h-[18.87%] w-auto max-w-[58.11%] object-contain object-left transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]"
                 />
 
-                {/* Description + CTA — Figma keeps this pair entirely
-                    below the visible 375px-tall card frame at rest
-                    (description top:395, CTA bottom:-90 — both PAST the
-                    card's own bottom edge, clipped by its own
-                    `overflow-clip`), sliding up into view on hover
-                    (top:285 / bottom:20 — a matching 110px = 27.5% of the
-                    card's WIDTH shift for both, confirmed identical across
-                    all 6 cards). Modeled the OPPOSITE way from the group
-                    above: this block's own untransformed CSS position IS
-                    the Figma hover/visible position, with a `translate-y`
-                    pushing it down out of view at rest — rather than
-                    starting fully off-frame and translating up on hover —
-                    since its natural bottom-anchored layout already
-                    matches the visible state; only rest needs an offset.
-                    `cqw`, not `%`: CSS `translate` percentages resolve
-                    against the TRANSLATED ELEMENT's own box, not its
-                    parent — `27.5%` of this small text block's own height
-                    is nowhere near enough to clear the card, `cqw` resolves
-                    against the `@container` card instead, correctly. */}
+                {/* Description + CTA sit below the card at rest and slide up
+                    on hover. Modelled inverted from the group above: the
+                    untransformed position is the VISIBLE state, and the
+                    translate pushes it out of view at rest.
+
+                    `cqw`, not `%`: translate percentages resolve against the
+                    translated element's own box, so `27.5%` of this small
+                    block would not clear the card. */}
                 <div className="absolute inset-x-0 bottom-0 translate-y-[27.5cqw] px-[10%] pb-[5.3%] transition-transform duration-500 ease-out group-hover:translate-y-0">
                   <p className="line-clamp-2 text-[4cqw] leading-[1.1] text-[#606060]">
                     {t(cat.descKey)}
                   </p>
                   <div className="mt-[2%] flex items-center gap-[1.5%]">
-                    {/* Anek Devanagari reserves an asymmetric descender
-                        allowance for Indic matras, so a bare text node next
-                        to a flex-centered icon renders visibly high —
-                        `text-box-trim` on the label's own span (not the
-                        row) is the sitewide fix for this (see button.tsx /
-                        BRAND_IDENTITY.md); this span had `leading-none` but
-                        was missing the trim itself. */}
+                    {/* Anek reserves an asymmetric descender allowance for
+                        Indic matras, so text beside a flex-centred icon sits
+                        visibly high. `text-box-trim` on the span itself (not
+                        the row) is the sitewide fix. */}
                     <span className="text-[4.5cqw] font-medium leading-none tracking-[0.09cqw] text-[#171796] [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                       VIEW PRODUCTS
                     </span>
@@ -240,16 +179,10 @@ export async function ProductCategories() {
             ))}
           </RevealOnScroll>
 
-          {/* Figma: solid brand-orange fill + navy text (node 810:1157),
-              not the previous outlined blue-border/blue-text button — the
-              same spec Hero's primary CTA already uses (`accent-ink`
-              variant), reused as-is rather than duplicated. Text color
-              override to Figma's literal `#0B0B52` (not the variant's own
-              `ink` token, `#14134F` — a different, distinct navy, same
-              reasoning as the tagchips/legacy-section fidelity passes)
-              applied locally via className, not by editing the shared
-              `accent-ink` variant itself (Hero also uses that variant and
-              is locked — this stays scoped to just this one button). */}
+          {/* Text colour overridden to Figma's literal `#0B0B52`, which is a
+              different navy from the variant's `ink` token. Applied locally
+              rather than by editing the shared `accent-ink` variant, which
+              Hero also uses. */}
           <RevealOnScroll>
             <Button
               asChild

@@ -3,36 +3,22 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Renders a transparent video in engines that cannot decode one.
+ * Transparent video for engines that cannot decode one.
  *
- * WHY THIS EXISTS: Safari/iOS cannot use the site's VP9/WebM alpha, and
- * H.264 carries no alpha at all — the plain MP4 fallback is pre-composited
- * onto flat navy and fully opaque, which paints a bar over the hero's stat
- * cards instead of letting the pipes overlap them. HEVC-with-alpha is the
- * only transparent video format WebKit supports natively, and producing it
- * was ruled out three separate ways (see BRAND_IDENTITY.md): x265's
- * ENABLE_ALPHA emits a generic L-HEVC layer Apple does not recognise, ffmpeg
- * and GPAC both fail to mux it correctly, and VideoToolbox's *software*
- * encoder silently discards alpha — which is all a GitHub-hosted macOS VM
- * can offer, since it has no hardware video engine.
+ * Safari/iOS can use neither the site's VP9/WebM alpha nor HEVC-with-alpha
+ * (ruled out three ways — see BRAND_IDENTITY.md). So alpha is not stored in
+ * the file at all: the source is ORDINARY H.264 with the colour image and its
+ * alpha matte stacked vertically, and a shader recombines them into real
+ * per-pixel alpha.
  *
- * So alpha is not stored in the file at all; it is reconstructed at runtime.
- * The source is ORDINARY H.264 with no alpha, stacked vertically:
- *   - top half    — the colour image, already PREMULTIPLIED by alpha
- *   - bottom half — the alpha matte, as luminance
- * A fragment shader samples both halves and emits real per-pixel alpha.
- * Every engine can decode plain H.264, so this works on Safari and iOS with
- * no HEVC and no Apple hardware.
+ * Two encode details are load-bearing:
+ *   - Colour must be PREMULTIPLIED, or transparent regions decode WHITE and
+ *     compression bleed shows as haloes around every cutout.
+ *   - The matte must be in LUMA, which is not chroma-subsampled in 4:2:0 and
+ *     so survives compression intact.
  *
- * Two details in the encode are load-bearing, both verified:
- *   - PREMULTIPLIED colour. Without it the transparent regions decode WHITE,
- *     and compression bleed shows as white haloes around every cutout.
- *   - The matte in LUMA. Luma is not chroma-subsampled in 4:2:0, so the mask
- *     survives compression accurately (and this mask is binary, so it costs
- *     almost nothing to store).
- *
- * `onUnsupported` fires if WebGL is unavailable, so the caller can fall back
- * to the opaque MP4 rather than rendering nothing.
+ * `onUnsupported` fires when WebGL is missing, so the caller can fall back to
+ * the opaque MP4 rather than rendering nothing.
  */
 
 const VERT = `
@@ -82,13 +68,10 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
 }
 
 /**
- * A packed encode plus its FULL pixel dimensions (including the matte half,
- * so `height` is twice the visible frame). The dimensions are not cosmetic:
- * WebKit uploads a video texture at the element's RENDERED size, not its
- * intrinsic size, so the off-screen element must be laid out at full
- * resolution or the texture comes back downscaled and visibly soft.
- * Measured: a 512px-wide element yielded roughly a quarter of the edge detail
- * of a 2576px one in WebKit, while Chromium was identical either way.
+ * A packed encode plus its FULL pixel dimensions (height includes the matte
+ * half). The dimensions are not cosmetic: WebKit uploads a video texture at
+ * the element's RENDERED size, so a small off-screen element yields a
+ * downscaled, visibly soft texture. Chromium is unaffected either way.
  */
 export type PackedSource = { src: string; width: number; height: number };
 
@@ -124,10 +107,8 @@ export function AlphaVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const paintedRef = useRef(false);
 
-  // Resolved before the <video> is rendered at all, for the same reason the
-  // Hero resolves `needsMp4Only` first: the browser starts fetching the
-  // moment the element exists, so the URL must be right the first time
-  // rather than corrected a tick later.
+  // Resolved before the <video> exists: the browser starts fetching the
+  // moment it does, so the URL must be right first time.
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   useEffect(() => {
     const mq = window.matchMedia(mobileQuery);
@@ -221,10 +202,9 @@ export function AlphaVideo({
     ro.observe(canvas);
     resize();
 
-    // Only render while actually on screen and with the tab visible. The
-    // hero sits at the top of a long page, so without this the texture
-    // upload keeps running the whole time someone reads further down —
-    // needless battery drain on the mobile devices this path exists for.
+    // Render only while on screen and visible. The hero sits atop a long
+    // page; without this the texture upload runs the entire time someone
+    // reads further down, on the mobile devices this path exists for.
     let onScreen = true;
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -262,24 +242,18 @@ export function AlphaVideo({
       gl.deleteBuffer(buf);
       if (prog) gl.deleteProgram(prog);
     };
-    // `onPainted`/`onUnsupported` deliberately excluded: they are stable
-    // callbacks from the parent and including them would tear down and
-    // rebuild the whole GL context on every parent render.
+    // Callbacks excluded on purpose — including them would rebuild the GL
+    // context on every parent render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, mobileQuery, objectPosX, objectPosXMobile, desktop, mobile]);
 
   return (
     <>
       <canvas ref={canvasRef} className={className} aria-hidden="true" />
-      {/* Off-screen at FULL RESOLUTION, never `1px`/`opacity:0` and never
-          merely small. Two distinct WebKit behaviours force this:
-            - an element it treats as non-rendering (1px + opacity:0) reports
-              videoWidth 1 and hands WebGL no texture data at all, which looks
-              exactly like a codec failure but is purely a visibility problem;
-            - the texture is uploaded at the element's RENDERED size, so a
-              small element silently yields a soft, low-resolution frame.
-          `position: fixed` keeps it out of layout, so a 2576px-wide element
-          costs nothing and cannot create a scrollbar. */}
+      {/* Off-screen at FULL RESOLUTION — never `1px`/`opacity:0`, never
+          merely small. WebKit hands WebGL no texture data at all for an
+          element it treats as non-rendering, and uploads at the RENDERED
+          size otherwise. `position: fixed` keeps it out of layout. */}
       {isMobile !== null && (
         <video
           ref={videoRef}

@@ -3,12 +3,9 @@
 import { motion } from "framer-motion";
 
 /**
- * HeroVisual — an original, on-brand animated illustration standing in for
- * real product photography or a product video (e.g. a plumber installing
- * pipe, water flowing through a fitting). Built entirely from SVG/CSS so it
- * ships with zero licensing risk. Swap this component out for a
- * <video>/<Image> once real photography/video assets are available —
- * see the comment block at the bottom of this file for how to do that.
+ * UNUSED — nothing imports this. It was the placeholder hero illustration
+ * before Hero.tsx moved to real video, kept only in case the SVG/CSS artwork
+ * is wanted elsewhere. Safe to delete.
  */
 export function HeroVisual() {
   return (
@@ -118,29 +115,3 @@ export function HeroVisual() {
     </div>
   );
 }
-
-/*
- * TO USE REAL PHOTOGRAPHY OR VIDEO INSTEAD:
- *
- * Image:
- *   import Image from "next/image";
- *   <Image
- *     src="/hero/plumbing-installation.jpg"
- *     alt="Poddar Pipes installation in progress"
- *     fill
- *     priority
- *     className="rounded-3xl object-cover"
- *   />
- *
- * Video (muted, autoplaying, like Ashirvad's hero):
- *   <video
- *     autoPlay muted loop playsInline
- *     poster="/hero/poster.jpg"
- *     className="h-full w-full rounded-3xl object-cover"
- *   >
- *     <source src="/hero/plumbing-loop.webm" type="video/mp4" />
- *   </video>
- *
- * Either way, drop the asset in /public/hero/ and swap the markup in Hero.tsx
- * where <HeroVisual /> is currently rendered.
- */

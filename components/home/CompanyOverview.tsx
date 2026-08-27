@@ -4,30 +4,20 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 /**
- * Figma "2. legacy" (node 13:448) — the stat counters that used to live in
- * this section moved into Hero's stats bar, matching the mock's structure:
- * stats belong to the hero, this section is heading + copy + facility photo
- * only. Desktop layout mirrors Figma's proportions (wide heading up top,
- * then description alongside the photo) via a responsive grid rather than
- * literal absolute positioning, which stays intact at every viewport width.
+ * Figma "2. legacy" (node 13:448) — heading, copy and facility photo. The
+ * stat counters belong to Hero's stats bar, per the mock's structure.
+ * Figma's proportions are matched with a responsive layout rather than its
+ * absolute coordinates, so it holds at every viewport width.
  */
 export async function CompanyOverview() {
   const t = await getTranslations("home");
 
   return (
     <section className="container-edge py-24 md:py-32">
-      {/* Figma places the photo tight against the paragraph's own right
-          edge (599px text, then a ~282px gap, then a fixed 331px square —
-          not spread across a half-width grid column). A CSS Grid here
-          stretched both children to their own full column width first,
-          THEN aligned within it, leaving a much larger gap than Figma's
-          actual relationship (text/image both narrower than their grid
-          tracks). Flex packs them directly against each other instead:
-          text is `flex-1` up to Figma's own 599px cap (so it's what
-          flexes on medium widths, not the image), image stays a fixed
-          331px — Figma's literal size — from `md:` up rather than
-          resizing with the viewport. Stacks below `md` (no Figma mobile
-          frame to match; full-width image capped at the same 331px). */}
+      {/* Flex, not grid: grid stretched both children to their full column
+          width before aligning, which opened a much larger gap than Figma's
+          actual text-then-photo relationship. Text flexes up to Figma's
+          599px cap; the image stays a fixed 331px from `md:` up. */}
       <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-start md:gap-10 lg:gap-16">
         <div className="flex min-w-0 flex-1 flex-col">
           <RevealOnScroll>
@@ -45,24 +35,11 @@ export async function CompanyOverview() {
           </RevealOnScroll>
         </div>
 
-        {/* Wide letterboxed crop for the entire stacked range (no Figma
-            mobile frame to match — a full 331×331 square reads too tall/
-            dominant/cramped below `md`, whether on a narrow phone or a
-            734px tablet), switching to Figma's literal 331px square only
-            once it actually sits beside the text at `md`. Previously
-            switched to a small `max-w-sm` square starting at `sm` —
-            per request, that stretched/full-width mobile treatment now
-            runs the whole way to `md` instead, centered (`mx-auto` is a
-            no-op at `w-full` but keeps this safe if a cap is ever
-            reintroduced below `md`).
-            No `self-end` before `md`: the outer wrapper is still a
-            column (stacked) between `sm` and `md`, and `self-end` there
-            means "align to the right edge" — with the image capped
-            narrower than the stacked column, that right-aligned it with
-            a large dead gap on its left, which is what broke at ~734px.
-            `self-start` only starts meaning anything once `md:flex-row`
-            actually applies below, where its axis flips to vertical
-            (top-align next to the text). */}
+        {/* Letterboxed while stacked (a 331px square reads too tall and
+            cramped below `md`), becoming Figma's literal square only once it
+            sits beside the text. `self-start`, never `self-end`: while the
+            wrapper is still a column, `self-end` right-aligns the image and
+            leaves a dead gap — that is what broke around 734px. */}
         <RevealOnScroll delay={0.14} className="mx-auto w-full shrink-0 md:w-[331px] md:max-w-none md:self-start">
           <div className="group relative aspect-[21/10] w-full overflow-hidden rounded-3xl md:aspect-square">
             <Image

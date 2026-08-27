@@ -4,45 +4,20 @@ import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 import { SocialIcons } from "@/components/shared/SocialIcons";
 
 /**
- * Footer redesign (Figma "Poddar Pipes - Footer Ideation 2", node 8:7) —
- * matched literally to the mock's own hex colors, tracking, and font
- * weights (per explicit request), rather than mapped onto the site's
- * flow-cyan brand-guideline tokens used elsewhere:
+ * Footer (Figma node 8:7). Colours, tracking and sizes are the mock's literal
+ * values rather than the site's brand tokens or Tailwind's nearest named
+ * step — deliberate, so the type matches pixel-for-pixel.
  *
- *   text-white       -> primary text (logo wordmark, address block, email/
- *                        phone, newsletter heading, nav headings)
- *   text-[#c0c0c0]   -> secondary text (nav links, legal line)
- *   text-[#86868c]   -> newsletter description (muted, lighter than the
- *                        standard secondary gray)
- *   amber-600 (#F28000) -> the single orange accent (logo mark, send button)
- *   border-white/10  -> the two dividers between sections
+ * Hover is the footer's own opacity-70 → 100 convention, not the flow-cyan
+ * colour shift used on other dark surfaces; the mock has no hover variant.
  *
- * Hover mechanic: the Figma mock is a static frame with no hover variant, so
- * this keeps the site's pre-existing footer convention — opacity-70 resting,
- * opacity-100 on hover — applied uniformly across nav links, contact links,
- * legal links, and social icons, rather than the sitewide flow-cyan
- * color-shift hover used on non-footer dark surfaces.
+ * Social icons render once at any width: with the logo column from `lg` up,
+ * and as their own row below it, gated by `lg:hidden` / `hidden lg:block`
+ * rather than duplicated markup.
  *
- * Tracking/size values (tracking-[0.56px] on nav headings+links, 18px/
- * tracking-[0.36px] on the newsletter heading, 12px legal text, etc.) are
- * copied verbatim from the Figma export instead of Tailwind's nearest named
- * step, so the type matches the mock pixel-for-pixel rather than
- * approximately.
- *
- * Ideation 2 restructures Ideation 1: the newsletter block moves to its own
- * full-width row up top (compact heading + inline form, not a giant "Let's
- * Talk" hero). Social icons sit with the logo/address column from `lg` up
- * (matching the Figma desktop layout), but below `lg` they render as their
- * own step between the nav columns and the legal row — mobile order is:
- * newsletter (centered) -> logo & address -> Company/Products/Resources ->
- * social icons -> legal row. Implemented as one extra flex sibling gated by
- * `lg:hidden` / `hidden lg:block` rather than duplicating markup elsewhere,
- * so there's exactly one interactive copy of the social links at any width.
- *
- * Note: the design mock spells the legal entity "Poddar Plumbing Systems" —
- * kept as "Poddar Plumbing System" (singular) here since that's the name
- * verified against the company's own press coverage (MB Patil's announcement,
- * Deccan Herald, First Construction Council, etc.), not a deviation.
+ * The legal entity is "Poddar Plumbing System" (singular), verified against
+ * the company's press coverage. The mock's plural spelling is wrong — this
+ * is not a deviation to "fix".
  */
 export function Footer() {
   const t = useTranslations("footer");

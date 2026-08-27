@@ -1,35 +1,21 @@
 import Image from "next/image";
 
 /**
- * Figma "legacy section" (node 51:488) — the milestone timeline that runs
- * along a stepped CPVC pipe.
+ * Figma "legacy section" (node 51:488) — milestone timeline along a stepped
+ * CPVC pipe.
  *
- * LAYOUT APPROACH: this one is a literal, absolutely-positioned
- * reproduction, which is a deliberate departure from `CompanyOverview`
- * (the other Legacy block), where a responsive grid was chosen over Figma's
- * absolute coordinates on purpose. Here the copy is pinned to specific
- * elbows of a single background illustration, so the text and the artwork
- * cannot be allowed to reflow independently — the relationship IS the
- * design. Exact placement was also explicitly requested.
+ * Absolutely positioned on purpose, unlike `CompanyOverview`: the copy is
+ * pinned to specific elbows of one background illustration, so text and
+ * artwork must not reflow independently.
  *
- * HOW THE NUMBERS WORK: the Figma frame is 1512×1350. The wrapper is an
- * `@container` locked to that aspect ratio, and every value below is that
- * frame's own pixel measurement expressed against it —
- *   x / 1512 * 100  → left %          y / 1350 * 100 → top %
- *   px / 1512 * 100 → `cqw` font size
- * so the entire composition scales as one unit and stays pixel-faithful to
- * the mock at any width. This is the same technique the Hero stat cards
- * already use (`% = value / 281.5`), just against a different box.
+ * The frame is 1512×1350 and the wrapper is an `@container` locked to that
+ * ratio, so every value below is Figma's own pixel measurement expressed
+ * against it (x/1512 → left %, y/1350 → top %, px/1512 → `cqw`). Same
+ * technique as the Hero stat cards, different box.
  *
- * NO MOBILE FRAME EXISTS for this node. Because everything scales with the
- * container, the type shrinks with it — around 18px body copy at the design
- * width, but proportionally smaller on a phone. A dedicated small-screen
- * treatment needs a design, not a guess, so none is invented here.
- *
- * Copy is inlined rather than pulled from `next-intl`. This is a preview
- * build and the project carries ELEVEN locale files; adding keys means
- * either real translations for all of them or ten placeholder rows. Wire
- * these strings up to `home.*` keys before this ships.
+ * TODO before shipping: no mobile frame exists for this node, so type scales
+ * down with the container on phones; and the copy is inlined rather than
+ * translated — wire it to `home.*` keys across all eleven locales.
  */
 
 // Figma exports the artwork as three separate layers, kept as three files so
@@ -139,24 +125,15 @@ export function LegacyStory() {
   return (
     <section className="relative w-full overflow-hidden bg-white">
       <div className="@container relative aspect-[1512/1350] w-full">
-        {/* Gold line-work backdrop (node 51:489).
-            Figma's own PNG export of this layer is BLANK — 2,883 bytes in
-            which all four channels are 0 across every pixel, confirmed twice
-            and not a truncated download. The asset used here is instead a
-            Figma-side render of that same node, which comes back already
-            composed at the frame's 1512×1350, so it drops straight in at
-            `inset-0` rather than needing the layer's own oversized
-            2254px-tall, 210px-offset geometry. If the export is ever fixed
-            upstream, switch back to the layer asset and restore that
-            geometry — do not hand-draw a replacement. */}
+        {/* Gold line-work backdrop (node 51:489). Figma's PNG export of this
+            layer is BLANK — all four channels 0 on every pixel, verified
+            twice. This asset is a Figma-side RENDER of the node instead,
+            which arrives already composed at the frame's 1512×1350 and so
+            sits at `inset-0`. Do not hand-draw a replacement.
+
+            `unoptimized` because Next's optimiser caches by source path and
+            kept serving its cached copy of the earlier blank file. */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          {/* `unoptimized` deliberately: Next's image optimiser caches by
-              source path, so replacing this file's bytes while keeping its
-              name kept serving the previously-cached (blank) version — the
-              backdrop measured pure white, sd=0, against a reference that
-              clearly had content. Bypassing the optimiser sidesteps a whole
-              class of stale-cache confusion for what is already a
-              frame-sized, ready-to-serve PNG. */}
           <Image src={GOLD_BG} alt="" fill sizes="100vw" unoptimized className="object-cover" />
         </div>
 
@@ -173,21 +150,15 @@ export function LegacyStory() {
           }}
         />
 
-        {/* The pipe (node 51:493). Wider than the frame so it runs off both
-            edges, and masked by Figma's own vector so the render is cut to the
-            drawn silhouette. Both `-webkit-` and standard mask properties are
-            set: React inline styles never pass through PostCSS/Lightning CSS,
-            so unlike a Tailwind class they get no automatic prefix.
+        {/* The pipe (node 51:493), wider than the frame and masked to Figma's
+            own vector silhouette. Both `-webkit-` and standard mask
+            properties are set: React inline styles bypass PostCSS/Lightning
+            CSS and get no automatic prefix.
 
-            Figma's `-40px 40px 40px rgba(0,0,0,0.15)` shadow lives on the
-            OUTER wrapper as a `drop-shadow` filter, not as a `box-shadow` on
-            the masked element. Two reasons: a CSS mask clips the element's
-            entire rendering, box-shadow included, so it would simply be
-            masked away; and `drop-shadow` follows the pipe's real alpha
-            silhouette rather than its rectangular box. Applying it to the
-            parent means it operates on the already-masked result.
-            Offsets are `cqw` so the shadow scales with the composition
-            instead of staying a fixed 40px at every size. */}
+            Figma's shadow is a `drop-shadow` on the OUTER wrapper, not a
+            `box-shadow` on the masked element — a mask clips the element's
+            whole rendering including its shadow, and drop-shadow follows the
+            pipe's real alpha rather than its box. */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2"
