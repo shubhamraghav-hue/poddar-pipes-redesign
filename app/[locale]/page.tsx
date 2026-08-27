@@ -4,6 +4,7 @@ import { Hero } from "@/components/home/Hero";
 import { CompanyOverview } from "@/components/home/CompanyOverview";
 import { SectionReveal } from "@/components/shared/SectionReveal";
 import { ProductCategories } from "@/components/home/ProductCategories";
+import { LegacyStory } from "@/components/home/LegacyStory";
 import { CTASection } from "@/components/home/CTASection";
 
 export async function generateMetadata({
@@ -37,6 +38,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <CompanyOverview />
       </SectionReveal>
       <ProductCategories />
+      {/* PREVIEW PLACEMENT — Figma node 51:488. Dropped in below the six
+          categories so it can be reviewed in context; its final position in
+          the page order has not been decided. */}
+      <LegacyStory />
       <CTASection
         variant="flush"
         primaryLabel={t("ctaPrimaryHome")}

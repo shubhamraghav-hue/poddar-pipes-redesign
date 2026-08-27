@@ -22,10 +22,10 @@ interface SectionHeadingProps {
   /** Heading element to render — "h2" (default, for in-page sections) or "h1" for pages that use this as the page's own top heading (no separate hero above it). */
   as?: "h1" | "h2";
   /** Override the light-background title/titleAccent color (a `text-*`
-      class). Defaults to the sitewide global-heading-spec navy
-      (`text-[#0B0B52]`) — only pass this to deviate for a specific section
-      confirmed against its own Figma frame, not as a general styling knob.
-      No effect when `dark` is true (dark sections always use white). */
+      class). Defaults to the sitewide grey (`text-[#4a4a4a]`) — only pass
+      this to deviate for a specific section confirmed against its own Figma
+      frame, not as a general styling knob. No effect when `dark` is true
+      (dark sections always use white). */
   titleColorClassName?: string;
 }
 
@@ -49,18 +49,26 @@ export function SectionHeading({
         className
       )}
     >
-      {/* Global heading spec (Figma, confirmed sitewide): #0B0B52 / weight
-          300 / line-height 108% / letter-spacing 0.32px / uppercase, 48px
-          at `md` and up — the existing 30/36/48px scale already tops out
-          exactly there, so it's kept rather than flattened to a single
-          non-responsive size. `titleAccent`'s one deliberate difference
-          from `title`: always weight 700 (bold), same color/size/spacing —
-          no accent COLOR, just heavier weight, confirmed explicitly. */}
+      {/* Global heading spec: weight 300 / line-height 108% / letter-spacing
+          0.32px / uppercase, 48px at `md` and up — the existing 30/36/48px
+          scale already tops out exactly there, so it's kept rather than
+          flattened to a single non-responsive size. `titleAccent`'s one
+          deliberate difference from `title`: always weight 700 (bold), same
+          color/size/spacing — no accent COLOR, just heavier weight,
+          confirmed explicitly.
+
+          COLOR: `#4a4a4a` grey sitewide. This was previously the navy
+          `#0B0B52`, with grey applied as a per-section override on
+          Categories and Legacy only; the grey was then adopted as the global
+          default on request, and those two overrides removed as redundant.
+          Changing this one line restyles every light-background heading on
+          the site (21 call sites) — `dark` sections are untouched and stay
+          white. */}
       <Heading
         className={cn(
           "max-w-2xl font-display text-3xl uppercase leading-[1.08] tracking-[0.32px] sm:text-4xl md:text-5xl",
           animate ? "text-pretty" : "text-balance",
-          dark ? "text-white" : titleColorClassName ?? "text-[#0B0B52]"
+          dark ? "text-white" : titleColorClassName ?? "text-[#4a4a4a]"
         )}
       >
         {titleAccent ? (

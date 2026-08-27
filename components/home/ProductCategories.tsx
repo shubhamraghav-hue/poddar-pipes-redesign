@@ -98,15 +98,14 @@ export async function ProductCategories() {
   return (
     <section className="bg-[#F5F5F5] py-24 md:py-32">
       <div className="container-edge flex flex-col gap-10">
-        {/* `#4a4a4a`, not the sitewide global-heading-spec navy — matches
-            Legacy's own heading override (see CompanyOverview.tsx), per
-            explicit request that the two sections share one heading color. */}
+        {/* No `titleColorClassName` here any more: the `#4a4a4a` grey this
+            section pioneered is now `SectionHeading`'s sitewide default, so
+            the override became a no-op. */}
         <SectionHeading
           eyebrow={t("categoriesEyebrow")}
           title={t("categoriesH1")}
           titleAccent={t("categoriesH2")}
           description={t("categoriesDesc")}
-          titleColorClassName="text-[#4a4a4a]"
         />
 
         <div className="flex flex-col items-center gap-10">

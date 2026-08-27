@@ -1064,6 +1064,12 @@ conflict rather than silently picking one; user's direction: make Legacy
 and Categories share the same color (not a resolution of which Figma
 frame is "more correct" sitewide â€” scoped to just these two).
 
+> **SUPERSEDED (Aug 2026) â€” `#4a4a4a` is now the GLOBAL default.** What
+> follows describes the interim state, when grey was a two-site override.
+> On request the grey was promoted to `SectionHeading`'s own default for
+> every light-background heading, and both overrides below were deleted as
+> redundant. See "Section headings: grey sitewide" at the end of this file.
+
 **Added `titleColorClassName` to `SectionHeading`** â€” an optional prop
 overriding the default `text-[#0B0B52]` on light backgrounds (no effect
 when `dark`, which always stays white). This is the same shape of escape
@@ -2261,3 +2267,38 @@ Converter also produce it, and Jake Archibald's write-up rates ffmpeg-on-macOS
 output as noticeably poorer than Compressor, so check quality either way. Note
 Apple expects PREMULTIPLIED alpha (`-vf premultiply=inplace=1`), which neither
 attempt above applied.
+
+## Section headings: grey sitewide (Aug 2026)
+
+`#4a4a4a` is now `SectionHeading`'s DEFAULT title colour on light
+backgrounds, replacing the navy `#0B0B52` that the global heading spec
+previously called for. Requested explicitly: the grey that Categories and
+Legacy had been using as a two-site override should apply to every section
+heading.
+
+What changed:
+- `SectionHeading.tsx` — the default in `titleColorClassName ?? "..."` flips
+  from `text-[#0B0B52]` to `text-[#4a4a4a]`. One line; it restyles all 21
+  light-background call sites at once.
+- `ProductCategories.tsx` and `CompanyOverview.tsx` — their
+  `titleColorClassName="text-[#4a4a4a]"` overrides were DELETED, not
+  changed. They now inherit the same value they used to force.
+- `LegacyStory.tsx` — its heading does not go through `SectionHeading` (it
+  is absolutely positioned inside a pixel-matched frame), so it was updated
+  by hand. **This is a deliberate departure from its Figma node**, which
+  draws that heading in `#0b0b52`; the sitewide convention was judged to
+  outrank the per-node value. The constant is named `HEADING` and carries a
+  comment saying how to revert.
+
+`titleColorClassName` still exists as the escape hatch — it is simply
+unused now. `dark` sections are untouched and still render white.
+
+Verified live across `/`, `/en/products` and `/en/contact`: every
+light-background heading computes to `rgb(74, 74, 74)`, dark-section
+headings stay `rgb(255, 255, 255)`.
+
+One thing that looked like a bug and is not: `CTASection`'s `<h2>` computes
+to `rgb(28, 26, 31)` on a navy ground, which reads as dark-on-dark. The
+element has no text of its own — its child spans set white and orange — so
+the parent's inherited colour never paints. It renders correctly and is
+unrelated to this change.

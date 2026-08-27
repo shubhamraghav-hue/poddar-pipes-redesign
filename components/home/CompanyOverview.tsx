@@ -31,17 +31,11 @@ export async function CompanyOverview() {
       <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-start md:gap-10 lg:gap-16">
         <div className="flex min-w-0 flex-1 flex-col">
           <RevealOnScroll>
-            {/* Figma node 43:415 (a separate, more recent pull of this same
-                section than the 810:1159 node the rest of this section was
-                originally checked against) has this heading at `#4a4a4a`,
-                not the sitewide global-heading-spec navy — kept in sync
-                with Categories' own heading below via the same override,
-                per explicit request that both share one color. */}
-            <SectionHeading
-              title={t("overviewH1")}
-              titleAccent={t("overviewH2")}
-              titleColorClassName="text-[#4a4a4a]"
-            />
+            {/* Figma node 43:415 has this heading at `#4a4a4a`. That grey
+                started as a per-section override here and on Categories, and
+                is now `SectionHeading`'s sitewide default — so the override
+                is gone as redundant, not lost. */}
+            <SectionHeading title={t("overviewH1")} titleAccent={t("overviewH2")} />
           </RevealOnScroll>
 
           <RevealOnScroll delay={0.08} className="mt-8 md:max-w-[599px]">
