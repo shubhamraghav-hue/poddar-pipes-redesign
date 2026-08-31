@@ -41,7 +41,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* PREVIEW PLACEMENT — Figma node 51:488. Dropped in below the six
           categories so it can be reviewed in context; its final position in
           the page order has not been decided. */}
-      <LegacyStory />
+      {/* <LegacyStory /> */}
       <CTASection
         variant="flush"
         primaryLabel={t("ctaPrimaryHome")}
