@@ -76,22 +76,22 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    // The studio shot PADDED horizontally (1029 -> 2101, edge-replicated),
-    // not the raw export. With `object-cover` the visible slice is always
-    // `imageWidth / boxAspect`, so widening the canvas is the only way to
-    // shrink the tank within the frame.
+    // A second, wider-framed studio shot — an unmodified photograph. It
+    // replaced an earlier attempt that padded the original with ~1,070px of
+    // edge-replicated pixels to shrink the tank in frame; this needs no
+    // padding at all.
     //
-    // The width is set by the HOVER state, not the resting one. Hover lifts
-    // this photo by `22.5cqw` against a `0.6375cqw`-tall box, hiding the top
-    // 35.3% of it — so only 64.7% of the slice survives. Fitting the 828px
-    // tank into that needs a slice of at least 1280px, i.e. a canvas of at
-    // least ~2008px. 2101 leaves margin: the tank sits fully inside both the
-    // resting crop (rows 78-1417) and the hover crop (rows 551-1417).
+    // Size here is governed by the HOVER state, not the resting one: hover
+    // lifts this photo by `22.5cqw` against a `0.6375cqw`-tall box, hiding
+    // the top 35.3%, so only 64.7% of the crop survives. The tank is 333px
+    // in a 656px slice and clears both comfortably — 91px of offset margin.
     //
-    // Do not reduce the padding, and do not reuse an earlier filename —
+    // Alternative crops of this same photo (the tank is centred, so cropping
+    // the width zooms in) are saved with measurements in
+    // build/tank-options/README.txt. If switching, copy under a NEW filename:
     // Next's optimiser caches by source path and will serve the old crop.
-    photo: "/products/category-cards/tank-card-xwide.png",
-    photoPos: "50% 41%",
+    photo: "/products/category-cards/tank-card-studio.png",
+    photoPos: "50% 71%",
   },
 ] as const;
 
