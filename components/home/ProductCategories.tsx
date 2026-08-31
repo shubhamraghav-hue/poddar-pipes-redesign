@@ -76,12 +76,17 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    photo: "/products/category-cards/tank-card.png",
-    // The tank is 828px tall against a 656px visible slice, so unlike the
-    // pipe shots it cannot fit whole. Biased to keep the lid, shoulders and
-    // wordmark — the parts that actually read as "tank" — rather than
-    // centring and losing the lid.
-    photoPos: "50% 65%",
+    // `-wide` is the studio shot PADDED horizontally (1029 -> 1441,
+    // edge-replicated), not the raw export. With `object-cover` the visible
+    // slice is always `imageWidth / boxAspect`, so widening the canvas is the
+    // only way to shrink the tank within the frame — at the original width
+    // the slice was 656px against an 828px tank, forcing the lid or base to
+    // be cut. At 1441 the slice is 919px and the whole tank fits. Do not
+    // "optimise" the padding away, and do not rename this back to
+    // `tank-card.png`: Next's optimiser caches by source path, so reusing the
+    // old name silently serves the old, narrower crop.
+    photo: "/products/category-cards/tank-card-wide.png",
+    photoPos: "50% 86%",
   },
 ] as const;
 
