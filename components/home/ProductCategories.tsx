@@ -76,17 +76,22 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    // `-wide` is the studio shot PADDED horizontally (1029 -> 1441,
-    // edge-replicated), not the raw export. With `object-cover` the visible
-    // slice is always `imageWidth / boxAspect`, so widening the canvas is the
-    // only way to shrink the tank within the frame — at the original width
-    // the slice was 656px against an 828px tank, forcing the lid or base to
-    // be cut. At 1441 the slice is 919px and the whole tank fits. Do not
-    // "optimise" the padding away, and do not rename this back to
-    // `tank-card.png`: Next's optimiser caches by source path, so reusing the
-    // old name silently serves the old, narrower crop.
-    photo: "/products/category-cards/tank-card-wide.png",
-    photoPos: "50% 86%",
+    // The studio shot PADDED horizontally (1029 -> 2101, edge-replicated),
+    // not the raw export. With `object-cover` the visible slice is always
+    // `imageWidth / boxAspect`, so widening the canvas is the only way to
+    // shrink the tank within the frame.
+    //
+    // The width is set by the HOVER state, not the resting one. Hover lifts
+    // this photo by `22.5cqw` against a `0.6375cqw`-tall box, hiding the top
+    // 35.3% of it — so only 64.7% of the slice survives. Fitting the 828px
+    // tank into that needs a slice of at least 1280px, i.e. a canvas of at
+    // least ~2008px. 2101 leaves margin: the tank sits fully inside both the
+    // resting crop (rows 78-1417) and the hover crop (rows 551-1417).
+    //
+    // Do not reduce the padding, and do not reuse an earlier filename —
+    // Next's optimiser caches by source path and will serve the old crop.
+    photo: "/products/category-cards/tank-card-xwide.png",
+    photoPos: "50% 41%",
   },
 ] as const;
 
