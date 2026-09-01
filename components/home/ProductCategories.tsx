@@ -86,12 +86,32 @@ const CATEGORIES = [
     // the top 35.3%, so only 64.7% of the crop survives. The tank is 333px
     // in a 656px slice and clears both comfortably — 91px of offset margin.
     //
-    // Alternative crops of this same photo (the tank is centred, so cropping
-    // the width zooms in) are saved with measurements in
-    // build/tank-options/README.txt. If switching, copy under a NEW filename:
-    // Next's optimiser caches by source path and will serve the old crop.
-    photo: "/products/category-cards/tank-card-studio.png",
-    photoPos: "50% 71%",
+    // ---- TANK SIZE / POSITION: swap the ACTIVE pair below ----------------
+    // Each alternative is a crop of this same photo. Cropping the width both
+    // zooms in AND pushes the tank right, because `object-cover` always fills
+    // the width — so the two cannot be tuned separately from this source.
+    // Comment out the active pair, uncomment one alternative, save; the dev
+    // server hot-reloads. Side-by-side previews: build/tank-options/CHECK-*.png
+    //
+    //   size = share of the photo box the tank fills · across = its centre
+    //   "clips" = how much of the lid the hover lift cuts off
+    //
+    // R1  59% size · 58% across · hover OK
+    // photo: "/products/category-cards/tank-alt-R1.png", photoPos: "50% 71%",
+    //
+    // R2  61% size · 60% across · hover OK   <-- recommended
+    // photo: "/products/category-cards/tank-alt-R2.png", photoPos: "50% 72%",
+    //
+    // R3  64% size · 63% across · clips 13px of lid on hover
+    // photo: "/products/category-cards/tank-alt-R3.png", photoPos: "50% 72%",
+    //
+    // R4  68% size · 67% across · clips 33px of lid on hover
+    photo: "/products/category-cards/tank-alt-R4.png", photoPos: "50% 73%",
+    //
+    // ACTIVE — G: 51% size · 50% across (dead centre) · hover OK, 91px margin
+    // photo: "/products/category-cards/tank-card-studio.png",
+    // photoPos: "50% 71%",
+    // ---------------------------------------------------------------------
   },
 ] as const;
 
@@ -129,11 +149,6 @@ export async function ProductCategories() {
                 // would overshoot on any card wider than 400px.
                 className="group @container relative block aspect-[400/375] w-full overflow-hidden rounded-[min(25px,6.25cqw)] bg-white"
               >
-                {/* GOLD badge — Figma: 70.08×26.4 at a 400px-wide card,
-                    top-right, unaffected by hover. */}
-                {/*<div className="absolute right-[3.48%] top-[3.47%] z-20 flex h-[7.04%] w-[17.52%] items-center justify-center rounded-full bg-[#e0af40]">
-                  <img src={GOLD_BADGE} alt="" className="h-[55%] w-auto" />
-                </div>*/}
 
                 {/* Photo stops at 68%, short of the wordmark's 74.67% top,
                     to leave Figma's gap. Shares the wordmark's hover

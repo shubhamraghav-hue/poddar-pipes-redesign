@@ -67,7 +67,7 @@ export function Navbar() {
                   className={cn(
                     "flex items-center gap-1 rounded-full px-4 py-2.5 font-display text-sm font-medium uppercase tracking-tight transition-colors",
                     "text-slate-700 hover:text-ocean-700",
-                    active && "text-ocean-700"
+                    active && "font-semibold text-ocean-700"
                   )}
                 >
                   <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">

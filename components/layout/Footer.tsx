@@ -59,8 +59,12 @@ export function Footer() {
             <h3 className="text-[18px] font-normal uppercase tracking-[0.36px] text-white">
               {t("newsletterTitle")}
             </h3>
-            <p className="text-sm font-light tracking-[0.14px] text-[#86868c]">{t("newsletterDescription")}</p>
+
+            <p className="max-w-[380px] text-sm font-light leading-[1.5] tracking-[0.14px] text-[#86868c]">
+              {t("newsletterDescription")}
+            </p>
           </div>
+
           <NewsletterSignup />
         </div>
 
@@ -72,14 +76,19 @@ export function Footer() {
             <Link href="/" className="flex items-center justify-center gap-2.5 lg:justify-start">
               <img src="/logo.svg" alt="Poddar Pipes" className="h-16 w-auto" />
             </Link>
-            <div className="flex flex-col gap-1.5 text-[14px] font-normal leading-relaxed tracking-[0.28px] text-white">
-              <p>4th Floor, 1202, HAL 2nd Stage, Domlur,</p>
-              <p>100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008</p>
+            <div className="flex flex-col text-[14px] font-normal leading-[1.3] tracking-[0.28px] text-white">
+              <p className="whitespace-nowrap">
+                4th Floor, 1202, HAL 2nd Stage, Domlur,100 Feet Road,
+              </p>
+              <p className="whitespace-nowrap">
+                Indiranagar, Bengaluru, Karnataka – 560008
+              </p>
             </div>
-            <div className="flex flex-col gap-1 text-[14px] font-normal tracking-[0.28px] text-white">
+            <div className="flex flex-row items-center gap-2 text-[14px] font-normal tracking-[0.28px] text-white">
               <a href="mailto:hello@poddarpipes.com" className={hoverLink}>
                 hello@poddarpipes.com
               </a>
+              <span>|</span>
               <a href="tel:+919888822333" className={hoverLink}>
                 +91 98888 22333
               </a>
