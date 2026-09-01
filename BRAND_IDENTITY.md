@@ -2302,3 +2302,123 @@ to `rgb(28, 26, 31)` on a navy ground, which reads as dark-on-dark. The
 element has no text of its own � its child spans set white and orange � so
 the parent's inherited colour never paints. It renders correctly and is
 unrelated to this change.
+
+## Category card photography replaced (Aug 2026)
+
+All six homepage category cards now use new studio product shots — pipes and
+the tank on a dark backdrop with a top-left light shaft. The six previous
+photos were deleted (4.08 MB) once confirmed unreferenced, and the tank's old
+`.svg` card art went with them, which also removed the last plain `<img>` in
+this component.
+
+**Each card carries its own `photoPos`, and this is load-bearing.** These are
+tall frames with the product in the bottom third, so the previous blanket
+`object-center` would have cropped to empty backdrop and hidden the product
+at rest. The five pipe shots sit at `50% 100%`; the tank differs (below).
+Values were measured per file, not eyeballed — the product's vertical extent
+was detected in each image and compared against the slice height the crop
+actually yields.
+
+Two things worth knowing before touching this again:
+
+- **The detection needs to exclude the light shaft.** A plain brightness
+  threshold reports the product spanning nearly the whole frame, because the
+  diagonal beam is bright too. The backdrop and beam are blue-dominant while
+  the products (white, grey, cream, orange) are not, so key on `B - R < 20`
+  alongside luminance.
+- **Never reuse a filename when swapping an asset.** Next's optimiser caches
+  by source path; replacing bytes under the same name silently keeps serving
+  the old image. This bit us twice in one session — once on the Legacy gold
+  backdrop, once on the tank. Every variant here has a distinct filename for
+  that reason.
+
+### The tank card: size is governed by HOVER, not rest
+
+The tank went through several passes because the constraint is not the
+resting composition. Hover lifts the photo by `22.5cqw` against a
+`0.6375cqw`-tall box, hiding the **top 35.3%** — so only 64.7% of the crop
+survives. That imposes a hard ceiling: a tank taller than ~64.7% of the frame
+will always lose its lid on hover, and **no amount of repositioning or
+re-shooting changes that.** The only levers are the hover distance itself
+(shared with the wordmark across all six cards) or the 68% photo-box height
+(which would eat into the wordmark's space).
+
+Two dead ends recorded so we do not repeat them:
+
+- `object-position` alone cannot zoom out. With `object-cover` the visible
+  slice is always `imageWidth / boxAspect`; position only slides that window.
+- Padding the original horizontally (1029 → 2101, edge-replicated) *did*
+  shrink the tank in frame and worked, but meant shipping ~1,070px of
+  fabricated pixels. Superseded by a second, wider-framed studio shot that
+  needs no padding.
+
+With a portrait source, `object-cover` always fills the width, so
+`object-position` X does nothing. **Cropping the width is therefore the only
+way to move the tank right — and it zooms in at the same time.** Size and
+horizontal placement cannot be tuned independently from this photo.
+
+Crops of that second shot, all saved under `build/tank-options/` with
+`CHECK-*.png` preview sheets showing rest and hover side by side:
+
+| option | crop | tank fills | centre | hover |
+|---|---|---|---|---|
+| G | 1029px (uncropped) | 51% | 50% | OK, 91px margin |
+| R1 | 880px | 59% | 58% | OK |
+| R2 | 850px | 61% | 60% | OK |
+| R3 | 820px | 64% | 63% | clips 13px of lid |
+| **R4 (LIVE)** | **770px** | **68%** | **67%** | **clips 33px of lid** |
+
+**R4 is live, chosen deliberately over the fully-safe options.** It is the
+largest and furthest right, and it accepts a 33px lid clip while hovered as
+the price of that. This is a considered trade, not an oversight — do not
+"fix" it back to R2 without asking. All four alternates are committed at
+`public/products/category-cards/tank-alt-R*.png` and are listed as
+commented-out swap pairs in `ProductCategories.tsx`, so switching is two
+lines.
+
+If a re-shot is ever commissioned, deliver at the card's own photo-box
+aspect so nothing is cropped: **2400 × 1530** (1.5686:1), tank inside a
+**641 × 900** box at left 1359 / top 580, centre 70% across, and nothing
+important above `y = 540` (the hover-hidden band). Tank height must stay
+**≤ 990px**.
+
+## Footer and Navbar refinements (Aug 2026)
+
+Applied directly, after the Figma-literal pass documented earlier:
+
+- **Newsletter description** — capped at `max-w-[380px]` with `leading-[1.5]`
+  so it wraps as a block rather than one long line.
+- **Registered address** — rebroken across two `whitespace-nowrap` lines at a
+  different point ("…Domlur,100 Feet Road," / "Indiranagar, Bengaluru…") with
+  `leading-[1.3]` and no row gap. The `nowrap` is deliberate: it prevents the
+  address fragmenting further at narrow widths.
+- **Email and phone** — now one row separated by a `|`, instead of stacked.
+- **Navbar active item** — `font-semibold` in addition to `text-ocean-700`,
+  so the current page reads as current by weight as well as colour.
+
+## Current state of the Legacy Story section
+
+`components/home/LegacyStory.tsx` is complete and pixel-verified against
+Figma node 51:488 (mean 6.32/px difference, 1.41% of pixels differing —
+glyph antialiasing only), but its render in `app/[locale]/page.tsx` is
+**commented out**, so it is not live. It was only ever placed below the six
+categories for preview. Uncomment that one line to bring it back.
+
+Still outstanding on it if revived: the copy is inlined rather than pulled
+from `next-intl` (eleven locale files), and there is no mobile Figma frame,
+so type scales down with the container on phones.
+
+## Known lint error: orphaned GOLD_BADGE
+
+`ProductCategories.tsx` still declares `GOLD_BADGE`, and the commented-out
+badge markup that referenced it has now been deleted — so it is unambiguously
+dead and `npx eslint` fails on that one file:
+
+```
+error  'GOLD_BADGE' is assigned a value but never used
+```
+
+Deleting the constant clears it. The gold ribbon badge itself is a real Figma
+element (top-right of each card) that is currently not rendered; if it is
+ever wanted back, the asset is still at
+`public/products/category-cards/gold-badge.svg`.

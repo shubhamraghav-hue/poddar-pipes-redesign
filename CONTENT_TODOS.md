@@ -69,6 +69,14 @@ in the user's Downloads folder that just hadn't been pointed to yet:
     golden-rule enforcement and slipped through unflagged. Only 1975 and 1997 are now
     confirmed real; the other four remain unverified guesses.
 
+- **Category card product photography — now supplied and live.** All six cards
+  (`components/home/ProductCategories.tsx`) render real studio shots of the actual
+  products on the brand's dark backdrop; the earlier placeholder-ish crops and the
+  tank's `.svg` card art were deleted once unreferenced. Each card carries its own
+  measured `photoPos` crop value — see BRAND_IDENTITY.md, "Category card photography
+  replaced", before changing any of them, and note the hover-visibility ceiling that
+  governs the tank's size.
+
 ## Still open — brand assets
 
 - **3 of 4 logo variants still missing** — only Orange-on-White exists. Need
