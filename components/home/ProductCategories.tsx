@@ -76,42 +76,50 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    // A second, wider-framed studio shot — an unmodified photograph. It
-    // replaced an earlier attempt that padded the original with ~1,070px of
-    // edge-replicated pixels to shrink the tank in frame; this needs no
-    // padding at all.
+    // A closer pair-of-tanks studio shot (Sep 2026), cropped to zoom in.
     //
-    // Size here is governed by the HOVER state, not the resting one: hover
-    // lifts this photo by `22.5cqw` against a `0.6375cqw`-tall box, hiding
-    // the top 35.3%, so only 64.7% of the crop survives. The tank is 333px
-    // in a 656px slice and clears both comfortably — 91px of offset margin.
+    // Size is governed by the HOVER state, not the resting one: hover lifts
+    // the photo by `22.5cqw` against a 63.75cqw-tall box, hiding the top
+    // 35.3% — so only 64.7% of the box survives, and the product has to fit
+    // inside THAT, not just inside the resting frame. 64.7% is therefore a
+    // hard ceiling on the tanks' height, whatever the source.
     //
-    // ---- TANK SIZE / POSITION: swap the ACTIVE pair below ----------------
-    // Each alternative is a crop of this same photo. Cropping the width both
-    // zooms in AND pushes the tank right, because `object-cover` always fills
-    // the width — so the two cannot be tuned separately from this source.
-    // Comment out the active pair, uncomment one alternative, save; the dev
-    // server hot-reloads. Side-by-side previews: build/tank-options/CHECK-*.png
+    // The source frames the tanks small (323x324 in a 1549x1460 field, just
+    // 21% of the width): dropped in whole they would fill only 32.8% of the
+    // box. Every file below is a crop of it, cut to the photo box's OWN
+    // aspect (1.5686) — so `object-cover` has nothing left to trim and
+    // `photoPos` is INERT. The crop rectangle is the only framing control;
+    // changing `photoPos` does nothing.
     //
-    //   size = share of the photo box the tank fills · across = its centre
-    //   "clips" = how much of the lid the hover lift cuts off
+    // ---- TANK SIZE ------------------------------------------------------
+    // Only the live crop is committed. Regenerate any alternative with:
+    //   node scripts/crop-tank-card.mjs "<Tanks v3 (1).png>" --all --right 0.92 --tag g2
+    // then point `photo` below at the file you want. `--right` slides the
+    // tanks across (0.92 = the current right-corner placement, 0.75 = nearer
+    // the middle); the bare number is the zoom (crop width). Pass `--tag`
+    // whenever the SOURCE photo changes — Next's optimiser caches by path, so
+    // reusing a filename serves the old bytes. `g2` = second background
+    // gradient.
     //
-    // R1  59% size · 58% across · hover OK
-    // photo: "/products/category-cards/tank-alt-R1.png", photoPos: "50% 71%",
+    // "clip" is how much of the lids the hover lift cuts off. Hover hides the
+    // top 35.3% of the box, so a tank taller than 64.7% of it CANNOT survive
+    // hover intact — a hard ceiling, not a tuning problem, and why everything
+    // below a 820px crop trades lid for size:
     //
-    // R2  61% size · 60% across · hover OK   <-- recommended
-    // photo: "/products/category-cards/tank-alt-R2.png", photoPos: "50% 72%",
-    //
-    // R3  64% size · 63% across · clips 13px of lid on hover
-    // photo: "/products/category-cards/tank-alt-R3.png", photoPos: "50% 72%",
-    //
-    // R4  68% size · 67% across · clips 33px of lid on hover
-    photo: "/products/category-cards/tank-alt-R4.png", photoPos: "50% 73%",
-    //
-    // ACTIVE — G: 51% size · 50% across (dead centre) · hover OK, 91px margin
-    // photo: "/products/category-cards/tank-card-studio.png",
-    // photoPos: "50% 71%",
+    //   z1000 50.6% of box · 32.4% wide · no clip
+    //   z900  56.3% · 36.0% · no clip
+    //   z850  59.6% · 38.1% · no clip
+    //   z820  61.8% · 39.5% · no clip   <- largest that survives hover
+    //   z800  63.3% · 40.5% ·  2px
+    //   z780  65.0% · 41.5% ·  6px
+    //   z750  67.6% · 43.2% · 13px
+    //   z720  70.4% · 45.0% · 20px
+    //   z700  72.4% · 46.3% · 25px
+    //   z660  76.7% · 49.1% · 37px      <- LIVE, chosen over the clean options
+    //   z620  81.8% · 52.3% · 50px         so the card does not read empty
     // ---------------------------------------------------------------------
+    photo: "/products/category-cards/tank-card-g2-z660.png",
+    photoPos: "50% 50%",
   },
 ] as const;
 
