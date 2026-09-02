@@ -7,6 +7,19 @@ in with invented data — replace with verified information only.
 
 ## Resolved since the last pass
 
+- **About Us page rebuilt from Figma (node 1001:5531), Sep 2026.** The old page and its
+  five About-only components were deleted; the new one reuses `LegacyStory` and
+  `CTASection` and adds two new sections. Copy for both new sections is real, translated
+  content in **all eleven locale files**, not placeholders. Two content side-effects:
+  - `gu.json` never had an `about` namespace at all, so `/gu/about` and the Facilities
+    section on `/gu/manufacturing` had nothing to render. It has been seeded with the new
+    About copy plus the eight `facilities*` keys. (Gujarati is still unrouted — see
+    `i18n/routing.ts` — so this only matters when the locale is re-enabled.)
+  - The `about` namespace dropped from 76 keys to 29 in every locale: the removed
+    sections' keys (story, values, leadership, members, presence, timeline, milestones,
+    and the About-local `cta*`) are gone. The `facilities*` keys were deliberately kept —
+    `/manufacturing` still renders `components/about/Facilities.tsx` against them.
+
 - **Category logo assets — fully resolved.** Auditing the homepage category grid
   (`components/home/ProductCategories.tsx`) first found that 4 of the 6 wordmark SVGs at
   `public/products/*-logo.svg` did not contain the artwork their filename claimed:
@@ -76,8 +89,50 @@ in the user's Downloads folder that just hadn't been pointed to yet:
   measured `photoPos` crop value — see BRAND_IDENTITY.md, "Category card photography
   replaced", before changing any of them, and note the hover-visibility ceiling that
   governs the tank's size.
+  - **Tank card re-supplied twice, Sep 2026** — pair-of-tanks shots replaced the
+    single-tank `tank-alt-R4.png` crop. Sizing is now scripted:
+    `node scripts/crop-tank-card.mjs "<src>" --all --right 0.92 --tag g2` writes a
+    `tank-card-<tag>-z<width>.png` per zoom step and prints what each does on the card.
+    `tank-card-g2-z660.png` is live (tanks at 76.7% of the photo box); `g2` is the
+    second background gradient, supplied Sep 2026 with the tanks in the same position. See
+    BRAND_IDENTITY.md, "LIVE — the tank pair, sized by script", for the hover
+    ceiling that governs the choice.
+    - Source files (`Tanks v2.png` / `Tanks v3.png`) live in the user's Downloads,
+      not the repo — only the crops are committed.
+- **Architectural line drawing supplied Sep 2026** — a building with its underground
+  water/drainage runs, now at `public/home/legacy-blueprint.webp`. It replaces the
+  `manufacturing-floor.jpg` photo in the homepage "A 50-year legacy of excellence in
+  plumbing" section (`CompanyOverview.tsx`). Pre-cropped to a square right-hand
+  1024x1024 because the source's left 45% is empty; the card went light (the linework
+  is 6.39:1 on white vs 3.00:1 on the old navy scrim) and the caption moved to the top
+  so the bottom gradient stops veiling the pipe run. See BRAND_IDENTITY.md,
+  "CompanyOverview image: blueprint drawing replaces the photo".
+  - It was first tried as the `LegacyStory` backdrop on `/about` and **reverted** —
+    that section is back to Figma's gold line-work. Don't re-add it there.
+  - `public/home/manufacturing-floor.jpg` is now unreferenced but left in place.
 
 ## Still open — brand assets
+
+- **About hero water-ripple video** — Figma node 1027:8205 is a video *fill*, not a
+  timeline, so `export_video` refuses it and the file cannot be pulled through MCP. The
+  brand/design team needs to supply the actual footage. A Figma-side render of the node
+  currently stands in as the poster at `public/about/water-ripple-poster.webp`
+  (1024x607) — it is a still, so the hero does not move.
+
+  To enable it, drop the file(s) into `public/about/` and add one entry to
+  `RIPPLE_SOURCES` in `components/about/AboutHero.tsx`:
+
+  ```ts
+  const RIPPLE_SOURCES = [
+    { src: "/about/water-ripple.webm", type: "video/webm" },
+    { src: "/about/water-ripple.mp4", type: "video/mp4" },
+  ];
+  ```
+
+  No other change is needed — the `<video>` element, poster and `object-left` crop are
+  already wired. Spec to match the node: 1688x946, silent, seamless loop. Follow the
+  hero-video budget in the asset-requirements doc, and re-render the poster from the
+  real first frame once the footage lands.
 
 - **3 of 4 logo variants still missing** — only Orange-on-White exists. Need
   Orange-on-Blue, White-on-Black, and Black-on-White as SVG files. (`Poddar Icon Logo.dwg`
@@ -110,8 +165,11 @@ in the user's Downloads folder that just hadn't been pointed to yet:
 
 ## People
 
-- **Leadership names** — `lib/data/team.ts` has 4 role-only entries with bracketed name
-  placeholders and no photographs.
+- **Leadership names** — no longer blocking anything on the live site. The About page
+  rebuild (Sep 2026) removed the Leadership section, and `lib/data/team.ts` (4 role-only
+  entries with bracketed name placeholders and no photographs) went with it as its only
+  consumer. Real names, titles and photographs are still needed if a leadership section
+  is ever rebuilt; recover the old file from git history rather than re-inventing it.
 
 ## Manufacturing facilities
 
@@ -122,7 +180,8 @@ in the user's Downloads folder that just hadn't been pointed to yet:
 
 Not sourced from any catalogue or other verified material — inherited placeholder-style
 content, still need verification or removal before launch:
-- "500+ dealers/distributors" (`CompanyOverview.tsx`, `Facilities.tsx` `GlobalPresence`, `WhyChooseUs.tsx`)
+- "500+ dealers/distributors" (`CompanyOverview.tsx`, `WhyChooseUs.tsx` — the third
+  consumer, `Facilities.tsx`'s `GlobalPresence`, was deleted with the old About page)
 - "28 states with dealer coverage", "22 regional distribution hubs" (`Facilities.tsx`)
 - "50,000+ tonnes annual production capacity" (`CompanyOverview.tsx`)
 

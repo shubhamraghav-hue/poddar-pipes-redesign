@@ -9,7 +9,8 @@ plus fittings, valves, and accessories). Built to the company's real Brand Playb
 This is a **template with realistic placeholder content**, not verified company data. Before
 going live, replace:
 
-- Leadership names (`lib/data/team.ts`) — currently role-only placeholders
+- Leadership names — no longer on the site (the Sep 2026 About rebuild removed the
+  Leadership section and `lib/data/team.ts` with it); needed again only if it is rebuilt
 - Office/plant addresses and phone numbers (`lib/data/offices.ts`, `Facilities.tsx`) — bracketed placeholders
 - Dealer contact numbers (`lib/data/dealers.ts`) — placeholder format
 - Certificate numbers and issuing details (`lib/data/certifications.ts`) — references standard
