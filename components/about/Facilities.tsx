@@ -1,21 +1,18 @@
-import { Factory, MapPin } from "lucide-react";
+import { Factory } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
-import { Counter } from "@/components/shared/Counter";
 
+/**
+ * Kept in `components/about/` for its import path only — the About page no
+ * longer renders it, and /manufacturing is now its single consumer. The
+ * companion `GlobalPresence` section was removed with the old About page.
+ */
 const FACILITY_CITIES = [
   { city: "[Plant City 1]", state: "[State]" },
   { city: "[Plant City 2]", state: "[State]" },
   { city: "[Plant City 3]", state: "[State]" },
   { city: "[Plant City 4]", state: "[State]" },
-];
-
-const PRESENCE_STATS = [
-  { value: 28, suffix: "" },
-  { value: 4, suffix: "+" },
-  { value: 22, suffix: "" },
-  { value: 500, suffix: "+" },
 ];
 
 export async function Facilities() {
@@ -43,38 +40,6 @@ export async function Facilities() {
             </div>
           </RevealOnScroll>
         ))}
-      </div>
-    </section>
-  );
-}
-
-export async function GlobalPresence() {
-  const t = await getTranslations("about");
-  return (
-    <section className="bg-ink py-24 text-white md:py-28">
-      <div className="container-edge">
-        <SectionHeading
-          eyebrow={t("presenceEyebrow")}
-          title={t("presenceH1")}
-          dark
-        />
-        <div className="mt-14 grid grid-cols-2 gap-8 md:grid-cols-4">
-          {PRESENCE_STATS.map((stat, i) => (
-            <div key={i} className="flex flex-col gap-2 border-l border-white/15 pl-5">
-              <Counter
-                value={stat.value}
-                suffix={stat.suffix}
-                className="font-display text-3xl font-medium text-white md:text-4xl"
-              />
-              <p className="flex items-center gap-1.5 text-sm text-slate-400">
-                <MapPin className="h-3.5 w-3.5 text-ocean-300" />
-                <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-                  {t(`presenceStat${i}Label` as never)}
-                </span>
-              </p>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );

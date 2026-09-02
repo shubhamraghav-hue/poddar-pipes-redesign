@@ -121,10 +121,70 @@ const YEAR_SIZE = "3.1746cqw"; // 48px at the 1512 design width
 const YEAR_TRACKING = "0.0212cqw"; // 0.32px
 const BODY_SIZE = "1.1905cqw"; // 18px
 
-export function LegacyStory() {
+interface LegacyStoryProps {
+  /**
+   * First heading line, above the bold "Story". The landing-page node
+   * (51:488) reads "Legacy"; the About page draws the same section with "Our"
+   * (node 1001:6008). Everything else about the two frames is identical —
+   * same 1512x1350 box, same artwork, same six milestones at the same
+   * coordinates — so this is a prop rather than a second component.
+   */
+  titleLead?: string;
+  /** Milestone year colour: amber on the landing node, navy on About. */
+  yearColor?: string;
+}
+
+export function LegacyStory({
+  titleLead = "Legacy",
+  yearColor = AMBER,
+}: LegacyStoryProps = {}) {
   return (
     <section className="relative w-full overflow-hidden bg-white">
-      <div className="@container relative aspect-[1512/1350] w-full">
+      {/* Below `md` the aspect-locked frame shrinks the whole composition with
+          the viewport, which put the milestone copy at ~4px on a phone. That
+          was invisible while this component was unused; the About page ships
+          it. Figma has no mobile frame for this node, so the fallback below is
+          a conventional stacked timeline built from the SAME data and colours
+          rather than an invented redesign — replace it when a mobile frame
+          exists. */}
+      <div className="container-edge py-20 md:hidden">
+        <h2
+          className="font-display text-3xl uppercase leading-[1.08] tracking-[0.32px]"
+          style={{ color: HEADING }}
+        >
+          <span className="block font-light">{titleLead}</span>
+          <span className="block font-bold">Story</span>
+        </h2>
+
+        <ol className="mt-10 flex flex-col">
+          {MILESTONES.map((m) => (
+            <li
+              key={m.year}
+              className="border-l-2 border-black/10 pb-8 pl-5 last:pb-0"
+            >
+              <p
+                className="text-3xl font-semibold leading-[1.08] tracking-[0.32px]"
+                style={{ color: yearColor }}
+              >
+                {m.year}
+              </p>
+              {m.label && (
+                <p
+                  className="mt-2 text-base font-semibold leading-[1.1]"
+                  style={{ color: BODY_GREY }}
+                >
+                  {m.label}
+                </p>
+              )}
+              <p className="mt-1 text-base leading-[1.3]" style={{ color: BODY_GREY }}>
+                {m.desc.join(" ")}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="@container relative hidden aspect-[1512/1350] w-full md:block">
         {/* Gold line-work backdrop (node 51:489). Figma's PNG export of this
             layer is BLANK — all four channels 0 on every pixel, verified
             twice. This asset is a Figma-side RENDER of the node instead,
@@ -198,7 +258,7 @@ export function LegacyStory() {
             color: HEADING,
           }}
         >
-          <span className="block font-light">Legacy</span>
+          <span className="block font-light">{titleLead}</span>
           <span className="block font-bold">Story</span>
         </h2>
 
@@ -219,7 +279,7 @@ export function LegacyStory() {
                   fontSize: YEAR_SIZE,
                   letterSpacing: YEAR_TRACKING,
                   lineHeight: 1.08,
-                  color: AMBER,
+                  color: yearColor,
                 }}
               >
                 {m.year}
