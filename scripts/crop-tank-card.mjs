@@ -30,27 +30,21 @@
  *                            frame. 0.92 = tucked into the right corner
  *                            (current), 0.75 = nearer the middle.
  *                            Works with --all, unlike the old positional.
- *   --box <pct>              MUST MATCH `PHOTO_BOX_HEIGHT` in
- *                            ProductCategories.tsx (default 68). It sets the
- *                            photo box's aspect ratio, and the crop is cut to
- *                            that ratio so `object-cover` has nothing to trim.
- *                            Pass the wrong value and the card silently crops
- *                            the sides off your framing.
- *                            A taller box is also hidden LESS by the hover
- *                            lift (68% -> 35.3% hidden, 72% -> 33.3%), so
- *                            raising it shrinks the lid clip at the same zoom.
- *   --floor <px>             UPLIFT. How much floor sits under the bases in
- *                            the source. Raising it slides the crop window
- *                            DOWN the photo, so the tanks ride HIGHER in the
- *                            frame. Default 10. Every px you add is a px
- *                            taken off the headroom above the lids, which is
- *                            what the hover lift eats — so watch the "lid
- *                            clip" column as you raise it.
+ *   --slack <px>             Vertical SLACK: extra crop height beyond the
+ *                            frame's aspect ratio. This is what makes
+ *                            `photoPos` live — with slack 0 the crop exactly
+ *                            fills the frame and object-cover has nothing to
+ *                            slide. Default 100.
+ *   --floor <px>             px of floor left under the bases at photoPos
+ *                            Y = 0%. Default 10. For UPLIFT prefer photoPos Y
+ *                            in the component — it needs no regeneration.
  *
- * Why a crop and not `object-position`: the output is cut to the photo box's
- * own aspect ratio (1.5686:1), so `object-cover` has nothing left to trim and
- * `photoPos` in ProductCategories.tsx is inert. The crop rectangle IS the
- * framing control.
+ * Division of labour: this script sets the ZOOM and the HORIZONTAL framing,
+ * which are baked into the file. VERTICAL placement stays editable in
+ * ProductCategories.tsx via `photoPos` Y, which is what --slack exists to
+ * enable — the crop is cut taller than the frame so object-cover has overflow
+ * to slide through. `photoPos` X does nothing: object-cover consumes the full
+ * width, so there is never horizontal overflow.
  *
  * The tank bounding box is detected, not hardcoded, so this works on any
  * future tank photo: tanks are near-white and neutral, while the navy
@@ -75,8 +69,7 @@ import path from "node:path";
 // BOX_PCT of that height, and hover lifts a fixed 22.5cqw over it.
 const CARD_W = 400;
 const CARD_H_RATIO = 375 / 400;
-const boxPctArg = process.argv.indexOf("--box");
-const BOX_PCT = boxPctArg >= 0 ? Number(process.argv[boxPctArg + 1]) : 68;
+const BOX_PCT = 68; // constant for every card — see ProductCategories.tsx
 const BOX_H_IN_CARD_W = (BOX_PCT / 100) * CARD_H_RATIO; // box height / card width
 const BOX_ASPECT = 1 / BOX_H_IN_CARD_W;
 const HOVER_HIDDEN = 0.225 / BOX_H_IN_CARD_W;
@@ -111,19 +104,30 @@ async function tankBox(src) {
   return { imgW: width, imgH: height, x0, x1, y0, y1, w: x1 - x0, h: y1 - y0 };
 }
 
-function plan(box, zoom, right, floor) {
+function plan(box, zoom, right, floor, slack) {
   const cropW = Math.round(zoom);
-  const cropH = Math.round(cropW / BOX_ASPECT);
+  const frameH = Math.round(cropW / BOX_ASPECT); // what the frame actually shows
+  const cropH = frameH + slack;                  // taller, so photoPos can slide
   const left = Math.round(box.x1 - right * cropW);
-  const top = Math.round(box.y1 + floor - cropH);
-  const band = HOVER_HIDDEN * cropH; // hidden top strip
-  const tankTopInCrop = box.y0 - top;
-  const clip = Math.max(0, band - tankTopInCrop);
+  // Anchoring the crop bottom below the bases by floor+slack keeps the tanks'
+  // position at photoPos Y = 0% identical to a slack-free crop, so adding
+  // slack only ever ADDS upward travel — it never shifts the baseline.
+  const top = Math.round(box.y1 + floor + slack - cropH);
+  const toCard = 400 / cropW;
+  const band = HOVER_HIDDEN * frameH;            // hover-hidden strip, crop px
+  const tankTop = frameH - box.h - floor;        // tank top at Y = 0%
+  // photoPos Y slides the visible window DOWN the crop, which lifts the tanks
+  // UP the frame. Past tankTop/slack the lids leave the frame even at rest.
+  const maxY = slack > 0 ? Math.min(1, tankTop / slack) : 0;
+  const clipAt = (y) => Math.max(0, y * slack + band - tankTop) * toCard;
   return {
-    cropW, cropH, left, top,
-    heightShare: (box.h / cropH) * 100,
+    cropW, cropH, frameH, left, top, slack,
+    heightShare: (box.h / frameH) * 100,
     widthShare: (box.w / cropW) * 100,
-    clipOnCard: (clip * 400) / cropW,
+    clipOnCard: clipAt(0),
+    maxYPct: maxY * 100,
+    clipAtMaxY: clipAt(maxY),
+    upliftAtMaxY: maxY * slack * toCard,
     fits: left >= 0 && top >= 0 && left + cropW <= box.imgW && top + cropH <= box.imgH,
   };
 }
@@ -168,7 +172,7 @@ if (args.includes("--rect")) {
 const floorRaw = flagVal("--floor");
 const rightRaw = flagVal("--right");
 const rightArg = rightRaw === null ? null : Number(rightRaw);
-const FLAGS_WITH_VALUES = ["--rect", "--out", "--tag", "--right", "--floor", "--box"];
+const FLAGS_WITH_VALUES = ["--rect", "--out", "--tag", "--right", "--floor", "--slack"];
 const valueIndexes = new Set(
   FLAGS_WITH_VALUES.map((f) => args.indexOf(f)).filter((i) => i >= 0).map((i) => i + 1)
 );
@@ -177,7 +181,9 @@ const nums = args
   .map(Number);
 const zoom = nums[0] || 750;
 const right = rightArg ?? 0.92;
-const floor = args.indexOf("--floor") >= 0 ? Number(args[args.indexOf("--floor") + 1]) : FLOOR_DEFAULT;
+const floor = floorRaw === null ? FLOOR_DEFAULT : Number(floorRaw);
+const slackRaw = flagVal("--slack");
+const slack = slackRaw === null ? 100 : Number(slackRaw);
 if (rightArg !== null && !(rightArg > 0 && rightArg <= 1)) {
   console.error(`--right must be between 0 and 1 (got ${rightArg})`);
   process.exit(1);
@@ -195,13 +201,16 @@ console.log(`source ${path.basename(src)}  ${box.imgW}x${box.imgH}`);
 console.log(`tanks  x ${box.x0}-${box.x1}  y ${box.y0}-${box.y1}  (${box.w}x${box.h})\n`);
 
 const zooms = all || tableOnly ? SET : [zoom];
-console.log(`photo box ${BOX_PCT}% -> aspect ${BOX_ASPECT.toFixed(4)}, hover hides top ${(HOVER_HIDDEN*100).toFixed(1)}%`);
+console.log(
+  `frame ${BOX_PCT}% of card height, constant for all six cards ` +
+    `-> aspect ${BOX_ASPECT.toFixed(4)}, hover hides its top ${(HOVER_HIDDEN * 100).toFixed(1)}%`
+);
 const zoomNote = all || tableOnly ? "" : `  zoom ${zoom}`;
-console.log(`placement: --right ${right}  --floor ${floor}${zoomNote}\n`);
-console.log("  zoom | tank height  | tank width  | lid clip on hover | file");
-console.log("  -----|--------------|-------------|-------------------|-----");
+console.log(`--right ${right}  --floor ${floor}  --slack ${slack}${zoomNote}\n`);
+console.log("  zoom |   tank height   |  tank width | clip Y=0% | usable photoPos Y     | file");
+console.log("  -----|-----------------|-------------|-----------|-----------------------|-----");
 for (const z of zooms) {
-  const p = plan(box, z, right, floor);
+  const p = plan(box, z, right, floor, slack);
   const name = `tank-card${TAG}-z${z}.png`.replace("card--", "card-");
   if (!p.fits) {
     console.log(`  ${String(z).padStart(4)} | crop falls outside the photo — try a different RIGHT value`);
@@ -213,22 +222,26 @@ for (const z of zooms) {
       .png({ compressionLevel: 9 })
       .toFile(path.join(OUT_DIR, name));
   }
+  const range =
+    `0-${p.maxYPct.toFixed(0)}% (+${p.upliftAtMaxY.toFixed(0)}px lift, ${p.clipAtMaxY.toFixed(0)}px clip)`;
   console.log(
     `  ${String(z).padStart(4)} |` +
-      ` ${(p.heightShare.toFixed(1) + "% of box").padStart(12)} |` +
+      ` ${(p.heightShare.toFixed(1) + "% of frame").padStart(15)} |` +
       ` ${(p.widthShare.toFixed(1) + "% wide").padStart(11)} |` +
-      ` ${(p.clipOnCard > 0.5 ? p.clipOnCard.toFixed(0) + "px" : "none").padStart(17)} |` +
+      ` ${(p.clipOnCard > 0.5 ? p.clipOnCard.toFixed(0) + "px" : "none").padStart(9)} |` +
+      ` ${range.padStart(21)} |` +
       ` ${tableOnly ? "(not written)" : name}`
   );
 }
 
 console.log(`
-Now point the TANKS entry in components/home/ProductCategories.tsx at the file
-you want:
+Point the TANKS entry in components/home/ProductCategories.tsx at the file you
+want, then tune the PLACEMENT there without re-running this:
 
-    photo: "/products/category-cards/tank-card-z750.png",
-    photoPos: "50% 50%",           // inert — leave it alone
+    photo: "/products/category-cards/${`tank-card${TAG}-z${zoom}.png`.replace("card--", "card-")}",
+    photoPos: "50% 0%",      // <- Y is the uplift. 0% = tanks lowest.
 
-Save, and the dev server hot-reloads. "lid clip" is how much of the tank tops
-the hover lift cuts off; anything up to ~30px has been considered acceptable
-before, and "none" means the lids survive hover completely.`);
+Raising Y lifts the tanks up the frame; the "photoPos Y range" column is how
+far you can go before the lids leave the frame even at rest. "clip" is how
+much of the lid tops the hover lift cuts off — up to ~30px has been accepted
+before. X does nothing: object-cover uses the full width, so only Y slides.`);
