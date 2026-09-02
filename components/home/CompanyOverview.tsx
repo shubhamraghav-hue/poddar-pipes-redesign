@@ -35,29 +35,56 @@ export async function CompanyOverview() {
           </RevealOnScroll>
         </div>
 
-        {/* Letterboxed while stacked (a 331px square reads too tall and
-            cramped below `md`), becoming Figma's literal square only once it
-            sits beside the text. `self-start`, never `self-end`: while the
-            wrapper is still a column, `self-end` right-aligns the image and
-            leaves a dead gap — that is what broke around 734px. */}
+        {/* Square at EVERY width now, where the old photo was letterboxed to
+            21:10 while stacked. The artwork is a line drawing pre-cropped to
+            its own 1:1, so a square box shows all of it and any other ratio
+            would crop the building or the pipe run. Figma's literal square
+            from `md` up is unchanged.
+
+            `self-start`, never `self-end`: while the wrapper is still a
+            column, `self-end` right-aligns the image and leaves a dead gap —
+            that is what broke around 734px. */}
         <RevealOnScroll delay={0.14} className="mx-auto w-full shrink-0 md:w-[331px] md:max-w-none md:self-start">
-          <div className="group relative aspect-[21/10] w-full overflow-hidden rounded-3xl md:aspect-square">
+          {/* `bg-white` is load-bearing, not decoration: the drawing keeps its
+              alpha, so without it the card shows whatever the page background
+              happens to be. */}
+          <div className="group relative aspect-square w-full overflow-hidden rounded-3xl bg-white">
             <Image
-              src="/home/manufacturing-floor.jpg"
-              alt="An engineer inspecting large-diameter pipe on the manufacturing floor"
+              src="/home/legacy-blueprint.webp"
+              alt="Architectural line drawing of a building with its underground water and drainage pipe runs"
               fill
               sizes="(min-width: 768px) 331px, 100vw"
               className="object-cover transition-transform duration-[1.2s] group-hover:scale-105"
             />
-            {/* Figma: near-black rgba(9,12,40, 0→0.92), not ink/95 (#14134f-
-                based — visibly more purple/lighter than the source). */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(9,12,40,0.92)] via-[rgba(9,12,40,0.3)] to-transparent" />
-            <div className="absolute bottom-0 left-0 p-5 sm:p-6">
-              {/* Figma: #f28000 (= amber-600 token), not flow-300. */}
-              <span className="tech-label text-amber-600">{t("overviewFacilityLabel")}</span>
-              <p className="mt-2 font-display text-base font-semibold leading-snug text-white">
+            {/* Caption sits TOP-left, where the photograph had it bottom-left.
+                The drawing's only empty region is its sky; the pipe run is
+                along the bottom, so a bottom scrim veiled exactly the part of
+                the artwork worth showing on a piping site.
+
+                The scrim is also LIGHT, inverted from the near-black one the
+                photograph needed. The linework is `#2061a1`: 6.39:1 on white
+                but only 3.00:1 on the old `rgba(9,12,40,…)` navy, so the
+                drawing has to sit on paper — which flips the caption from
+                white-on-dark to dark-on-light.
+
+                `rgba(255,255,255,0)`, never the `transparent` keyword: Safari
+                resolves bare `transparent` to transparent BLACK, which turns
+                this fade into a grey smudge. */}
+            <div
+              className="absolute inset-x-0 top-0 h-1/2"
+              style={{
+                background:
+                  "linear-gradient(to bottom, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0))",
+              }}
+            />
+            <div className="absolute left-0 top-0 max-w-[78%] p-5 sm:p-6">
+              {/* Ocean, not amber. The Playbook is explicit that orange text
+                  on a light surface fails AA (~2.7:1) — the amber here was
+                  only legible against the photo's dark scrim. */}
+              {/* <span className="tech-label text-[#171796]">{t("overviewFacilityLabel")}</span>
+              <p className="mt-2 font-display text-sm font-semibold leading-snug text-[#0b0b52]">
                 {t("overviewFacilityCaption")}
-              </p>
+              </p> */}
             </div>
           </div>
         </RevealOnScroll>
