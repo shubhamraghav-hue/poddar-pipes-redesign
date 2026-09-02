@@ -79,49 +79,75 @@ const CATEGORIES = [
     // A closer pair-of-tanks studio shot (Sep 2026), cropped to zoom in.
     //
     // Size is governed by the HOVER state, not the resting one: hover lifts
-    // the photo by `22.5cqw` against a 63.75cqw-tall box, hiding the top
-    // 35.3% — so only 64.7% of the box survives, and the product has to fit
-    // inside THAT, not just inside the resting frame. 64.7% is therefore a
-    // hard ceiling on the tanks' height, whatever the source.
+    // the photo a FIXED 22.5cqw, hiding the top of the box, so the product
+    // has to fit in what SURVIVES that — not just in the resting frame. How
+    // much survives depends on the box height (see PHOTO_BOX_HEIGHT below):
+    // 64.7% of it at Figma's 68%, 66.7% at the 72% this card now uses.
     //
-    // The source frames the tanks small (323x324 in a 1549x1460 field, just
-    // 21% of the width): dropped in whole they would fill only 32.8% of the
-    // box. Every file below is a crop of it, cut to the photo box's OWN
-    // aspect (1.5686) — so `object-cover` has nothing left to trim and
-    // `photoPos` is INERT. The crop rectangle is the only framing control;
-    // changing `photoPos` does nothing.
+    // The source frames the tanks small — 323x324 in a 1549x1460 field, just
+    // 21% of the width — so dropped in whole they would fill barely a third
+    // of the box. This file is therefore a measured crop.
     //
-    // ---- TANK SIZE ------------------------------------------------------
-    // Only the live crop is committed. Regenerate any alternative with:
-    //   node scripts/crop-tank-card.mjs "<Tanks v3 (1).png>" --all --right 0.92 --tag g2
-    // then point `photo` below at the file you want. `--right` slides the
-    // tanks across (0.92 = the current right-corner placement, 0.75 = nearer
-    // the middle); the bare number is the zoom (crop width). Pass `--tag`
-    // whenever the SOURCE photo changes — Next's optimiser caches by path, so
-    // reusing a filename serves the old bytes. `g2` = second background
-    // gradient.
+    // ---- TANK SIZE AND PLACEMENT ---------------------------------------
+    // Only the live crop is committed. Regenerate with:
+    //   node scripts/crop-tank-card.mjs "<Tanks v3 (1).png>" 660 --box 72     //        --right 0.92 --floor 10 --tag g2-b72
     //
-    // "clip" is how much of the lids the hover lift cuts off. Hover hides the
-    // top 35.3% of the box, so a tank taller than 64.7% of it CANNOT survive
-    // hover intact — a hard ceiling, not a tuning problem, and why everything
-    // below a 820px crop trades lid for size:
+    //   660        zoom = crop WIDTH. Smaller = bigger tanks, fuller card.
+    //   --box 72   MUST equal PHOTO_BOX_HEIGHT.tanks below. It sets the box's
+    //              aspect ratio, and the crop is cut to match so object-cover
+    //              has nothing to trim. Mismatch it and the card silently
+    //              crops the sides off the framing.
+    //   --right    slides the tanks across (0.92 = right corner, 0.75 = mid).
+    //   --floor    UPLIFT: px of floor under the bases. Higher = tanks ride
+    //              higher in the frame, at the cost of headroom above the
+    //              lids, which is exactly what the hover lift eats.
+    //   --tag      changes the output FILENAME. Always pass a new one when
+    //              the source photo or --box changes: Next's optimiser caches
+    //              by path, so reusing a name serves the old bytes.
     //
-    //   z1000 50.6% of box · 32.4% wide · no clip
-    //   z900  56.3% · 36.0% · no clip
-    //   z850  59.6% · 38.1% · no clip
-    //   z820  61.8% · 39.5% · no clip   <- largest that survives hover
-    //   z800  63.3% · 40.5% ·  2px
-    //   z780  65.0% · 41.5% ·  6px
-    //   z750  67.6% · 43.2% · 13px
-    //   z720  70.4% · 45.0% · 20px
-    //   z700  72.4% · 46.3% · 25px
-    //   z660  76.7% · 49.1% · 37px      <- LIVE, chosen over the clean options
-    //   z620  81.8% · 52.3% · 50px         so the card does not read empty
+    // `photoPos` is INERT for this card — the crop matches the box aspect, so
+    // object-cover has no overflow to slide. Reframe by re-cropping.
+    //
+    // "clip" is how much of the lids the hover lift cuts off. Hover hides a
+    // FIXED 22.5cqw, so the taller box (72%) hides proportionally less of it
+    // than Figma's 68% did — which is what bought the clip down from 37px to
+    // 22px at this same tank size. At --box 72:
+    //
+    //   z820  58.3% of box · 39.5% wide · no clip
+    //   z780  61.3% · 41.5% · no clip
+    //   z750  63.8% · 43.2% · no clip   <- largest that survives hover
+    //   z720  66.5% · 45.0% ·  5px
+    //   z700  68.4% · 46.3% · 10px
+    //   z660  72.6% · 49.1% · 22px      <- LIVE, kept large so the card
+    //   z620  77.3% · 52.3% · 35px         does not read empty
     // ---------------------------------------------------------------------
-    photo: "/products/category-cards/tank-card-g2-z660.png",
+    photo: "/products/category-cards/tank-card-g2-b72-z660.png",
     photoPos: "50% 50%",
   },
 ] as const;
+
+/**
+ * Height of the photo area, as a % of card height.
+ *
+ * 68% is Figma's and is shared by every card. Anything in PHOTO_BOX_HEIGHT
+ * overrides it FOR THAT CARD ONLY — the five pipe cards are untouched by
+ * whatever you put here.
+ *
+ * Two things bound how far you can raise it:
+ *
+ *  - The wordmark starts at `top-[74.67%]`. At 68% there is Figma's 6.67% gap
+ *    beneath the photo; at 74% that gap is gone. Past ~74% the photo runs
+ *    under the wordmark.
+ *  - A TALLER box is hidden LESS by the hover lift, which is good: the lift is
+ *    a fixed 22.5cqw, so it hides 22.5 / (height% x 93.75) of the box. At 68%
+ *    that is 35.3%; at 72% it is 33.3%. So raising this buys back headroom and
+ *    the tanks can be taller before the lids clip — re-run the crop script
+ *    after changing it, because its printed "lid clip" column assumes 68%.
+ */
+const PHOTO_BOX_HEIGHT_DEFAULT = "68%";
+const PHOTO_BOX_HEIGHT: Partial<Record<(typeof CATEGORIES)[number]["id"], string>> = {
+  tanks: "72%",
+};
 
 const GOLD_BADGE = "/products/category-cards/gold-badge.svg";
 
@@ -161,7 +187,10 @@ export async function ProductCategories() {
                 {/* Photo stops at 68%, short of the wordmark's 74.67% top,
                     to leave Figma's gap. Shares the wordmark's hover
                     translate so the two move in lockstep. */}
-                <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]">
+                <div
+                  className="absolute inset-x-0 top-0 overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]"
+                  style={{ height: PHOTO_BOX_HEIGHT[cat.id] ?? PHOTO_BOX_HEIGHT_DEFAULT }}
+                >
                   {/* `photoPos` per card, not a blanket `object-center`.
                       These are tall studio shots with the product sitting in
                       the bottom third; centring the crop would frame empty

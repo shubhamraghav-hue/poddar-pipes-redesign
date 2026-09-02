@@ -22,7 +22,7 @@
  * sampling the served pixels, which still came back as the previous
  * background gradient. A new filename is the only reliable fix.
  *
- * TWO KNOBS, and they do separate things:
+ * THREE KNOBS, and they do separate things:
  *
  *   ZOOM  (bare number, px)  crop WIDTH. SMALLER = more zoomed = BIGGER tanks
  *                            and less empty card. 620 (huge) .. 1000 (small).
@@ -30,16 +30,27 @@
  *                            frame. 0.92 = tucked into the right corner
  *                            (current), 0.75 = nearer the middle.
  *                            Works with --all, unlike the old positional.
+ *   --box <pct>              MUST MATCH `PHOTO_BOX_HEIGHT` in
+ *                            ProductCategories.tsx (default 68). It sets the
+ *                            photo box's aspect ratio, and the crop is cut to
+ *                            that ratio so `object-cover` has nothing to trim.
+ *                            Pass the wrong value and the card silently crops
+ *                            the sides off your framing.
+ *                            A taller box is also hidden LESS by the hover
+ *                            lift (68% -> 35.3% hidden, 72% -> 33.3%), so
+ *                            raising it shrinks the lid clip at the same zoom.
+ *   --floor <px>             UPLIFT. How much floor sits under the bases in
+ *                            the source. Raising it slides the crop window
+ *                            DOWN the photo, so the tanks ride HIGHER in the
+ *                            frame. Default 10. Every px you add is a px
+ *                            taken off the headroom above the lids, which is
+ *                            what the hover lift eats — so watch the "lid
+ *                            clip" column as you raise it.
  *
  * Why a crop and not `object-position`: the output is cut to the photo box's
  * own aspect ratio (1.5686:1), so `object-cover` has nothing left to trim and
  * `photoPos` in ProductCategories.tsx is inert. The crop rectangle IS the
  * framing control.
- *
- * The vertical placement is not a knob — it is derived. The tanks are pushed
- * down to sit FLOOR px above the bottom, because hover hides the top of the
- * box and every pixel of headroom is wasted space that pushes the lids into
- * the hidden band.
  *
  * The tank bounding box is detected, not hardcoded, so this works on any
  * future tank photo: tanks are near-white and neutral, while the navy
@@ -59,10 +70,17 @@
 import sharp from "sharp";
 import path from "node:path";
 
-// Card geometry, from ProductCategories.tsx. Change only if the card changes.
-const BOX_ASPECT = 400 / 255; // photo box is 400x255 on a 400x375 card
-const HOVER_HIDDEN = 0.225 / 0.6375; // hover lifts 22.5cqw over a 63.75cqw box
-const FLOOR = 10; // source px of floor left under the bases
+// Card geometry, from ProductCategories.tsx.
+// Card is 400x375, so its height is 0.9375 x its width. The photo box is
+// BOX_PCT of that height, and hover lifts a fixed 22.5cqw over it.
+const CARD_W = 400;
+const CARD_H_RATIO = 375 / 400;
+const boxPctArg = process.argv.indexOf("--box");
+const BOX_PCT = boxPctArg >= 0 ? Number(process.argv[boxPctArg + 1]) : 68;
+const BOX_H_IN_CARD_W = (BOX_PCT / 100) * CARD_H_RATIO; // box height / card width
+const BOX_ASPECT = 1 / BOX_H_IN_CARD_W;
+const HOVER_HIDDEN = 0.225 / BOX_H_IN_CARD_W;
+const FLOOR_DEFAULT = 10; // source px of floor left under the bases
 const SKIP_TOP = 0.4; // ignore the top 40% — see the note above
 const OUT_DIR = "public/products/category-cards";
 
@@ -93,11 +111,11 @@ async function tankBox(src) {
   return { imgW: width, imgH: height, x0, x1, y0, y1, w: x1 - x0, h: y1 - y0 };
 }
 
-function plan(box, zoom, right) {
+function plan(box, zoom, right, floor) {
   const cropW = Math.round(zoom);
   const cropH = Math.round(cropW / BOX_ASPECT);
   const left = Math.round(box.x1 - right * cropW);
-  const top = Math.round(box.y1 + FLOOR - cropH);
+  const top = Math.round(box.y1 + floor - cropH);
   const band = HOVER_HIDDEN * cropH; // hidden top strip
   const tankTopInCrop = box.y0 - top;
   const clip = Math.max(0, band - tankTopInCrop);
@@ -118,9 +136,16 @@ if (!src) {
 const args = process.argv.slice(3);
 const all = args.includes("--all");
 const tableOnly = args.includes("--table");
-const rectArg = args[args.indexOf("--rect") + 1];
-const outArg = args[args.indexOf("--out") + 1];
-const tagArg = args.indexOf("--tag") >= 0 ? args[args.indexOf("--tag") + 1] : null;
+// NOTE the index guards. `args[args.indexOf("--x") + 1]` reads args[0] when
+// the flag is ABSENT (indexOf returns -1), which silently swallowed the bare
+// zoom argument as if it were a --rect value.
+const flagVal = (name) => {
+  const i = args.indexOf(name);
+  return i >= 0 ? args[i + 1] : null;
+};
+const rectArg = flagVal("--rect");
+const outArg = flagVal("--out");
+const tagArg = flagVal("--tag");
 const TAG = tagArg ? `-${tagArg}` : "";
 
 // --rect bypasses detection entirely: exact reproduction of a shipped framing.
@@ -140,12 +165,19 @@ if (args.includes("--rect")) {
 // which made `--all 0.80` silently mean "zoom 0.80" (ignored under --all)
 // while placement stayed on its default — the crops came out in a different
 // position than the command claimed, with nothing to hint at it.
-const rightArg = args.indexOf("--right") >= 0 ? Number(args[args.indexOf("--right") + 1]) : null;
+const floorRaw = flagVal("--floor");
+const rightRaw = flagVal("--right");
+const rightArg = rightRaw === null ? null : Number(rightRaw);
+const FLAGS_WITH_VALUES = ["--rect", "--out", "--tag", "--right", "--floor", "--box"];
+const valueIndexes = new Set(
+  FLAGS_WITH_VALUES.map((f) => args.indexOf(f)).filter((i) => i >= 0).map((i) => i + 1)
+);
 const nums = args
-  .filter((a) => !a.startsWith("--") && a !== rectArg && a !== outArg && a !== tagArg && a !== String(rightArg))
+  .filter((a, i) => !a.startsWith("--") && !valueIndexes.has(i))
   .map(Number);
 const zoom = nums[0] || 750;
 const right = rightArg ?? 0.92;
+const floor = args.indexOf("--floor") >= 0 ? Number(args[args.indexOf("--floor") + 1]) : FLOOR_DEFAULT;
 if (rightArg !== null && !(rightArg > 0 && rightArg <= 1)) {
   console.error(`--right must be between 0 and 1 (got ${rightArg})`);
   process.exit(1);
@@ -163,10 +195,13 @@ console.log(`source ${path.basename(src)}  ${box.imgW}x${box.imgH}`);
 console.log(`tanks  x ${box.x0}-${box.x1}  y ${box.y0}-${box.y1}  (${box.w}x${box.h})\n`);
 
 const zooms = all || tableOnly ? SET : [zoom];
+console.log(`photo box ${BOX_PCT}% -> aspect ${BOX_ASPECT.toFixed(4)}, hover hides top ${(HOVER_HIDDEN*100).toFixed(1)}%`);
+const zoomNote = all || tableOnly ? "" : `  zoom ${zoom}`;
+console.log(`placement: --right ${right}  --floor ${floor}${zoomNote}\n`);
 console.log("  zoom | tank height  | tank width  | lid clip on hover | file");
 console.log("  -----|--------------|-------------|-------------------|-----");
 for (const z of zooms) {
-  const p = plan(box, z, right);
+  const p = plan(box, z, right, floor);
   const name = `tank-card${TAG}-z${z}.png`.replace("card--", "card-");
   if (!p.fits) {
     console.log(`  ${String(z).padStart(4)} | crop falls outside the photo — try a different RIGHT value`);
