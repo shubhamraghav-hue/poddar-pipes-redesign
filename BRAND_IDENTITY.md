@@ -2759,18 +2759,31 @@ which recolours the ink to pencil while preserving every bit of tonal
 variation. Desaturating instead would have mapped the hue to whatever its
 luminance happened to be (~`#555`) with no say in the tone.
 
-**Full height, hard right.** `absolute inset-y-0 right-0`, 62% wide (66% from
-`xl`), `object-cover`. The service run emerges from beneath the copy and
-travels right into the building; pipes carrying on past the frame is the one
-idea the section is built around.
+**Fills the right side, hard right.** `absolute bottom-0 right-0`, height
+100% of the band, with `aspectRatio: 1536/1024` deriving the WIDTH from that
+height and `max-w` (66%, 72% from `xl`) capping how far left it may reach.
+Where the cap does not bind, the box matches the drawing's ratio exactly and it
+fills the band edge to edge with no crop and no dead space — from roughly
+1375px up. The service run emerges from beneath the copy and travels right into
+the building; pipes carrying on past the frame is the one idea the section is
+built around.
 
-**The crop is anchored `100% 100%`, and that matters.** The drawing is 1.5:1
-and the right side of the section is nearer 1:1, so `object-cover` always has
-width to discard. Pinned right-bottom, it keeps the building flush to the
-viewport edge and spends the crop on the far end of the pipe run, which the
-fade has already dissolved. Left centred, it would shave the building's own
-edge instead — and the amount discarded is not small: 356px at 1024, 240px at
-1226.
+The band's `min-h` steps 560 / 660 / 760 across `lg` / `xl` / `2xl`. That is
+load-bearing, not padding: because the box's width is *derived* from the
+height, a fixed height would freeze the drawing at 990px wide and leave it a
+half-width detail on a large monitor. At 1920 the steps put it at 1140x760,
+59% of the viewport.
+
+**`object-contain`, NOT cover — this is the part that bit.** Cover looks
+identical at most widths because it only crops vertically once the box grows
+wider than the drawing's own 1.5:1, which does not happen until about 1500px.
+Above that it started slicing, and with the crop anchored bottom it took the
+slice off the TOP: **44px of tower at 1600, ~185px at 1920.** Invisible on a
+1440 laptop, obvious on a wide monitor. Contain guarantees the whole drawing at
+every width; `object-bottom` keeps the pipe run on the section's baseline and
+puts any spare height above, where the drawing is empty sky on a white page and
+so reads as nothing at all. Verified: drawing top 27px *below* the section top
+at 1226, zero dead space at 1440/1600/1920, 116px at 1024.
 
 **Removed outright below `lg`, not stacked.** At 768 the box is only ~437 wide
 against a ~788 tall section, and `object-cover` then throws away three quarters
