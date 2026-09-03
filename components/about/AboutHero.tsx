@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
@@ -18,26 +19,25 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * literal pixel values from `md` up and compressed below it.
  */
 
-// Figma's video sits at 1688x946, offset (0, -51) in the 1512-wide frame —
-// flush to the LEFT edge with the overflow cropped off the right, which is
-// what `object-left` reproduces under `object-cover`.
-// 1512x895 — the node's full natural size. Figma renders screenshots at 1024
-// on its longer edge by default, which is what the first version of this file
-// was, and it went soft anywhere the hero was drawn wider than ~1500 device
-// px. Re-rendered with `maxDimension`, it carries 36% more high-frequency
-// detail (measured, not assumed). 1512 is the CEILING: asking Figma for 4096
-// still returns 1512, because that is the node's own canvas size.
+// The backdrop artwork. Figma places it at 1688x946, offset (0, -51) in the
+// 1512-wide frame — flush to the LEFT edge with the overflow cropped off the
+// right, which is what `object-left` reproduces under `object-cover`.
 //
-// So a 2x display at 1512 CSS px still upscales this 2x and will look soft.
-// That is not fixable from Figma — it needs the real footage, at which point
-// the poster should be re-cut from its first frame. See CONTENT_TODOS.md.
-const RIPPLE_POSTER = "/about/water-ripple-poster-1512.webp";
-
-// Empty until the artwork lands. A <video> with no <source> children makes no
-// network request and holds its `poster` frame indefinitely, so the section
-// renders correctly today and starts animating the moment a file is added —
-// no markup change, and no 404 in the meantime. See CONTENT_TODOS.md.
-const RIPPLE_SOURCES: { src: string; type: string }[] = [];
+// This is a STILL, and it is rendered as one. It was briefly a <video> with an
+// empty source list, on the assumption that node 1027:8205 was a video fill
+// waiting on footage; it is an image. An empty <video> was the wrong element
+// for it — it announces a media player to assistive tech, and `poster` is a
+// plain attribute that Next's optimiser never touches, so it shipped one fixed
+// file to every device. As an <Image> it gets responsive widths and AVIF/WebP.
+//
+// 1512x895 is the node's full natural size and the CEILING available from
+// Figma: `get_screenshot` defaults to 1024 on the longer edge (which the first
+// version of this file inherited, and which went soft on wide or 2x screens),
+// and asking for 4096 still returns 1512. Figma exports no asset for this node
+// at all, so the source bytes cannot be pulled either. Genuine sharpness beyond
+// this needs the original image file from the design team — see
+// CONTENT_TODOS.md.
+const RIPPLE_STILL = "/about/water-ripple-poster-1512.webp";
 
 // Figma's literal hexes. `rgba(11,11,82,0)` is spelled out rather than the
 // `transparent` keyword throughout: Safari resolves bare `transparent` to
@@ -124,19 +124,16 @@ export async function AboutHero() {
         className="pointer-events-none absolute inset-x-0 top-0"
         style={{ height: BACKDROP_HEIGHT }}
       >
-        <video
-          className="absolute inset-0 h-full w-full object-cover object-left"
-          poster={RIPPLE_POSTER}
-          autoPlay
-          muted
-          loop
-          playsInline
-          disablePictureInPicture
-        >
-          {RIPPLE_SOURCES.map((s) => (
-            <source key={s.src} src={s.src} type={s.type} />
-          ))}
-        </video>
+        {/* `priority` because this is the LCP element — it sits at the very top
+            of the page, so Next must not lazy-load it. */}
+        <Image
+          src={RIPPLE_STILL}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-left"
+        />
 
         {/* Bottom fade (node 1027:8206) — y 499 to 895 of the backdrop. */}
         <div

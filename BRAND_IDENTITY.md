@@ -2693,11 +2693,13 @@ in DOM order and collapses to one ordered column on mobile.
   and the hero band measures 1400 against 1365. Assurances lands at 904 exactly.
   The h1's mid-Y is 211, matching Figma's 211.
 
-### The water-ripple video
+### The water-ripple backdrop
 
-Node 1027:8205 is a video **fill**, not a timeline, so `export_video` refuses
-it ("Export root must be a top-level frame") and there is no way to pull the
-file through MCP. A Figma-side render of the node ships as the poster at
+Node 1027:8205 is a **still image**, notwithstanding its "Water Ripple Video"
+layer name — which is what led to it first being built as a `<video>`. Figma
+exports no asset for it at all (`get_design_context` returns an empty div), so
+the source bytes cannot be pulled through MCP either way. A Figma-side render
+of the node ships instead, at
 `public/about/water-ripple-poster-1512.webp` (1512×895, 103KB).
 
 That is the node's full natural size. Figma renders screenshots at **1024 on
@@ -2711,16 +2713,20 @@ have shown no gain).
 
 **1512 is the ceiling.** Asking for `maxDimension: 4096` still returns 1512,
 because that is the node's own canvas size — so a 2x display at 1512 CSS px
-still upscales 2x and will look soft. Not fixable from Figma; it needs the real
-footage, and the poster should then be re-cut from its first frame.
+still upscales 2x and will look soft. Not fixable from Figma. The fix is the
+ORIGINAL image file from the design team, which is a far smaller ask than the
+"supply the footage" this was originally written up as. See CONTENT_TODOS.md.
 
-`AboutHero.tsx` renders a real `<video>` whose `RIPPLE_SOURCES` array is
-**empty**. A `<video>` with no `<source>` children makes no network request and
-holds its `poster` frame indefinitely, so the section looks right today with no
-404s, and adding one entry to that array makes it animate. No markup change
-needed. See CONTENT_TODOS.md.
+`AboutHero.tsx` renders it as `next/image` with `priority`, being the LCP
+element. It was briefly a `<video>` with an empty `RIPPLE_SOURCES` array, on
+the assumption that the node was a video fill awaiting footage. That was the
+wrong element for a still: it announces a media player to assistive tech, and
+`poster` is a plain attribute Next's optimiser never touches, so one fixed file
+went to every device regardless of width. As an `<Image>` it gets responsive
+widths and AVIF/WebP. If the section is ever meant to actually move, that is a
+separate asset and means swapping the element back.
 
-Figma places the video at 1688×946, offset (0, −51) in the 1512 frame — flush
+Figma places it at 1688×946, offset (0, −51) in the 1512 frame — flush
 left with the overflow cropped off the right, which is what `object-left` under
 `object-cover` reproduces. Both navy fades are written as `rgba(11,11,82,0)`
 rather than the `transparent` keyword: Safari resolves bare `transparent` to

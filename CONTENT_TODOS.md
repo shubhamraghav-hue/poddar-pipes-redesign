@@ -113,29 +113,26 @@ in the user's Downloads folder that just hadn't been pointed to yet:
 
 ## Still open — brand assets
 
-- **About hero water-ripple video** — Figma node 1027:8205 is a video *fill*, not a
-  timeline, so `export_video` refuses it and the file cannot be pulled through MCP. The
-  brand/design team needs to supply the actual footage. A Figma-side render of the node
-  currently stands in as the poster at
-  `public/about/water-ripple-poster-1512.webp` (1512x895, the node's full natural
-  size) — it is a still, so the hero does not move. Even at 1512 it upscales on a
-  2x display; Figma cannot render the node any larger, so real sharpness needs the
-  footage. **Re-cut the poster from the video's first frame when it arrives.**
+- **About hero backdrop — need the SOURCE IMAGE.** The About hero's water-ripple
+  backdrop (Figma node 1027:8205) is a still image, despite the node being named
+  "Water Ripple Video". Figma exports **no asset at all** for it — `get_design_context`
+  returns an empty div — so the original bytes cannot be pulled through MCP.
 
-  To enable it, drop the file(s) into `public/about/` and add one entry to
-  `RIPPLE_SOURCES` in `components/about/AboutHero.tsx`:
+  What ships today is a Figma-side *render* of the node at
+  `public/about/water-ripple-poster-1512.webp` (1512x895, 103KB). 1512 is the hard
+  ceiling: that is the node's own canvas size, and `get_screenshot` returns 1512 even
+  when asked for 4096. Full-bleed, that is pixel-perfect at a 1512 viewport but still
+  upscales ~2x on a 2x display, which is why it reads soft on wide/retina screens.
 
-  ```ts
-  const RIPPLE_SOURCES = [
-    { src: "/about/water-ripple.webm", type: "video/webm" },
-    { src: "/about/water-ripple.mp4", type: "video/mp4" },
-  ];
-  ```
+  **The ask is small: the original image file** (whatever was placed into that Figma
+  frame — it looks like stock photography, so the licensed original is likely 3000px+).
+  Drop it in `public/about/`, point `RIPPLE_STILL` in `components/about/AboutHero.tsx`
+  at it, and the softness is gone. Use a NEW filename — Next's optimiser caches by
+  path.
 
-  No other change is needed — the `<video>` element, poster and `object-left` crop are
-  already wired. Spec to match the node: 1688x946, silent, seamless loop. Follow the
-  hero-video budget in the asset-requirements doc, and re-render the poster from the
-  real first frame once the footage lands.
+  Separately, if the section is ever meant to *move*, that is a different ask — real
+  footage at 1688x946, silent, seamless loop — and would mean swapping the `<Image>`
+  back for a `<video>`.
 
 - **3 of 4 logo variants still missing** — only Orange-on-White exists. Need
   Orange-on-Blue, White-on-Black, and Black-on-White as SVG files. (`Poddar Icon Logo.dwg`
