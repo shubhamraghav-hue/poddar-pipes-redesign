@@ -2649,13 +2649,40 @@ The two panels (nodes 1029:8303 / 1029:8304) are a single vector whose
 top-right quotation mark is **subtracted** from the fill — a hole, not an
 overlay. A `bg-white/5` div cannot punch it, so the exported asset ships at
 `public/about/vision-mission-card.svg` (825 bytes). It is drawn at Figma's
-literal geometry: 582×518 pinned top-left inside a 592×450 clipped box, so it
+literal geometry: 582×518 pinned top-left inside the clipped card box, so it
 overhangs the bottom and leaves a 10px empty strip down the right.
 
-Each card is `@container` + `aspect-[592/450]`, the same technique as the
-product category cards, so the 64px title and 28px body hold Figma's
-proportion at any width. Verified: title mid-Y **47.11%** and body mid-Y
-**71.56%** against Figma's 47.11 / 71.56, left inset 8.44% against 8.45%.
+Each card is `@container` + the frame's own ratio, the same technique as the
+product category cards, so the title and body hold Figma's proportion at any
+width.
+
+#### Re-fetched Sep 2026 — node 1187:5893
+
+The boxes were reworked in Figma. The card lost 90px of height and the type
+came down with it:
+
+| | Was (1001:5975) | Now (1187:5893) |
+| --- | --- | --- |
+| Card box | 592×450 | **592×360** |
+| Title | 64px, −0.64px tracking | **48px, −0.48px** |
+| Body | 28px, no tracking | **18px, 0.18px** |
+| Title mid-Y | 47.11% | **52.78%** |
+| Body mid-Y | 71.56% | **73.61%** |
+| Section height | 1365 | **1245** |
+
+The card **ratio had to change with it** — every value here is `cqw` against
+the card, so leaving `aspect-[592/450]` in place would have scaled the new
+font sizes against the wrong box and quietly got them all wrong. Knock-ons:
+the Subtract now overhangs far more (518 into 360, so `h-[143.8889%]`), the
+backdrop is 895 of 1245 rather than 1365 (`71.8876%`), and the band's bottom
+padding drops 180 → 150.
+
+The artwork itself is unchanged — the re-fetched Subtract SVG is
+**byte-identical** to the committed one, so only geometry and type moved.
+
+Verified live, measured back to Figma's 592px card: title 48px / −0.48px /
+weight 600 / uppercase, body 18px / 0.18px / line-height 1.2, ratio 1.6445
+against 1.6444, title mid-Y 52.77%, body mid-Y 73.61%.
 
 ### Assurances: the row rules are NOT artwork
 

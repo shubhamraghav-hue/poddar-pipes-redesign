@@ -45,8 +45,8 @@ const RIPPLE_STILL = "/about/water-ripple-poster-1512.webp";
 const NAVY = "#0b0b52";
 const NAVY_0 = "rgba(11,11,82,0)";
 
-// The backdrop covers the band's top 895 of 1365px.
-const BACKDROP_HEIGHT = "65.57%";
+// The backdrop covers the band's top 895 of 1245px.
+const BACKDROP_HEIGHT = "71.8876%";
 
 const CARD_SHAPE = "/about/vision-mission-card.svg";
 
@@ -56,10 +56,16 @@ const CARD_SHAPE = "/about/vision-mission-card.svg";
  * from the fill — a hole, not an overlay — so it has to be the exported
  * asset; a plain `bg-white/5` div cannot punch it.
  *
- * `@container` plus the frame's own 592x450 ratio, so the 64px title and 28px
+ * `@container` plus the frame's own 592x360 ratio, so the 48px title and 18px
  * body stay in Figma's proportion at every width (the same technique as the
- * product category cards). On a 343px phone card that lands the title at
- * ~37px and the body at ~16px, which reads correctly.
+ * product category cards).
+ *
+ * Re-fetched Sep 2026 from node 1187:5893, which reworked these boxes: the
+ * card lost 90px of height (450 -> 360) and the type came down with it —
+ * title 64 -> 48px at -0.64 -> -0.48px tracking, body 28 -> 18px and now
+ * carrying 0.18px tracking of its own. Because every value here is expressed
+ * in `cqw` against the card, the ratio had to change too; leaving it at
+ * 592/450 would have scaled the new sizes against the wrong box.
  */
 function VisionMissionCard({
   title,
@@ -72,15 +78,16 @@ function VisionMissionCard({
   bodyWidth: string;
 }) {
   return (
-    <div className="@container relative aspect-[592/450] w-full overflow-hidden rounded-[25px]">
-      {/* 582x518 pinned top-left inside a 592x450 box, exactly as Figma has
-          it: the shape overhangs the bottom and is clipped, and the 10px
-          strip down the right stays empty navy. */}
+    <div className="@container relative aspect-[592/360] w-full overflow-hidden rounded-[25px]">
+      {/* 582x518 pinned top-left inside a 592x360 box, exactly as Figma has
+          it. The shape now overhangs the bottom by considerably more than it
+          used to — 518 into 360 — and is clipped; the 10px strip down the
+          right stays empty navy. */}
       <img
         src={CARD_SHAPE}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 h-[115.11%] w-[98.31%] max-w-none"
+        className="pointer-events-none absolute left-0 top-0 h-[143.8889%] w-[98.3108%] max-w-none"
       />
 
       {/* Both blocks are vertically centred on their Figma y, hence the
@@ -89,9 +96,9 @@ function VisionMissionCard({
         className="absolute -translate-y-1/2 font-semibold uppercase leading-none text-white"
         style={{
           left: "8.4459%",
-          top: "47.1111%",
-          fontSize: "10.8108cqw",
-          letterSpacing: "-0.1081cqw",
+          top: "52.7778%",
+          fontSize: "8.1081cqw",
+          letterSpacing: "-0.0811cqw",
         }}
       >
         {title}
@@ -100,9 +107,10 @@ function VisionMissionCard({
         className="absolute -translate-y-1/2 text-white"
         style={{
           left: "8.4459%",
-          top: "71.5556%",
+          top: "73.6111%",
           width: bodyWidth,
-          fontSize: "4.7297cqw",
+          fontSize: "3.0405cqw",
+          letterSpacing: "0.0304cqw",
           lineHeight: 1.2,
         }}
       >
@@ -156,7 +164,7 @@ export async function AboutHero() {
         />
       </div>
 
-      <div className="container-edge relative pb-24 pt-24 md:pb-[180px] md:pt-[150px]">
+      <div className="container-edge relative pb-24 pt-24 md:pb-[150px] md:pt-[150px]">
         <RevealOnScroll>
           <h1 className="max-w-[511px] font-display text-[40px] uppercase leading-[1.02] tracking-[0.32px] text-white sm:text-5xl md:text-[60px]">
             <span className="font-light">{t("heroTitle")} </span>
