@@ -41,9 +41,13 @@ export default async function AboutPage({
     <>
       <AboutHero />
       <Assurances />
-      {/* Node 1001:6008 reads "OUR / Story" and draws the years in `#171796`
-          navy, where the landing-page frame uses "LEGACY" and amber. */}
-      <LegacyStory titleLead="Our" yearColor="#171796" />
+      {/* Node 1001:6008 reads "OUR / Story" where the landing-page frame reads
+          "LEGACY". The milestone years were briefly navy `#171796` per that
+          node, but the brand team's type spec puts them in `#F28000` amber —
+          which is `LegacyStory`'s default, so no `yearColor` override here.
+          The rest of that spec (Anek Devanagari, 600, 48px, 108%, 0.32px,
+          uppercase) the component already matched exactly. */}
+      <LegacyStory titleLead="Our" />
       <CTASection
         variant="flush"
         primaryLabel={t("ctaPrimaryHome")}

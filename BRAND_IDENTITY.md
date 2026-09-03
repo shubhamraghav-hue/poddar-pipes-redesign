@@ -2405,6 +2405,32 @@ nothing left to trim and **`photoPos` is inert** — the crop rectangle is the
 only framing control. Changing `photoPos` does nothing; this is the single
 easiest thing to get wrong here.
 
+### Milestone year type spec (Sep 2026)
+
+The brand team supplied a type spec for the milestone dates:
+
+```
+color: #F28000;  font-family: "Anek Devanagari";  font-size: 48px;
+font-weight: 600;  line-height: 108%;  letter-spacing: 0.32px;
+text-transform: uppercase;  text-align: right;
+```
+
+Verified against the live render: the component **already matched every
+property except the colour** — measured back at the 1512 design width,
+`Anek Devanagari` / 48px / 600 / 108% / 0.321px / uppercase. The years had
+briefly been navy `#171796`, taken from the About node itself; they are amber
+again, which is `LegacyStory`'s default, so `/about` passes no `yearColor`
+override at all. Both the desktop frame and the mobile fallback pick this up
+(all six years amber in each, verified).
+
+`text-align: right` in that spec is a **no-op on these elements** and was not
+applied as written. Each year is `whitespace-nowrap` with auto width — the box
+is exactly as wide as the digits (61px for "1975", 65px for "1998"), so there
+is no slack for alignment to act on. The years also deliberately alternate
+`text-left` / `text-right` to match Figma's own zig-zag down the pipe;
+forcing them all right would change the layout rather than the type. Worth
+confirming with the designer if the intent was actually to move them.
+
 ### Frame constant, placement editable (Sep 2026)
 
 An earlier pass made the photo box a per-card height (72% for TANKS). That was
@@ -2549,7 +2575,7 @@ differ, so both are props rather than a forked component:
 | Prop | Landing (51:488) | About (1001:5996) |
 | --- | --- | --- |
 | `titleLead` | `"Legacy"` (default) | `"Our"` |
-| `yearColor` | `#f28000` amber (default) | `#171796` navy |
+| `yearColor` | `#f28000` amber (default) | `#f28000` amber (default) |
 
 Still outstanding: the milestone copy is inlined rather than pulled from
 `next-intl` (eleven locale files). That was harmless while the component was
