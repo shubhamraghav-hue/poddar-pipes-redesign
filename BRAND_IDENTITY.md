@@ -2738,49 +2738,54 @@ trap already documented for LegacyStory's white fade).
 The homepage "A 50-YEAR LEGACY OF / EXCELLENCE IN PLUMBING." section
 (`components/home/CompanyOverview.tsx`) now carries an architectural line
 drawing — a building with its underground water and drainage runs — in place
-of `manufacturing-floor.jpg`. Asset: `public/home/legacy-blueprint-wide.webp`.
+of `manufacturing-floor.jpg`. Asset: `public/home/legacy-blueprint-pencil.webp`.
 
 This drawing was first tried as the LegacyStory backdrop on `/about` and
 reverted; that section is back to Figma's gold line-work. Do not re-add it
 there.
 
-### Then unboxed entirely (Sep 2026)
+### Then unboxed, greyed, and made to fill the right side (Sep 2026)
 
-The card treatment above was the templated answer — text left, image card
+The card treatment below was the templated answer — text left, image card
 right, rounded corners, hover zoom — and it shrank an architectural section
-drawing into a 331px thumbnail, cropped square so the building filled it and
-the buried pipe run barely registered. The section now uses the same idea as
-the About hero: the drawing **bleeds to the viewport edge and is faded back
-under the copy**, with no card, no radius, no hover state, no scrim.
+drawing into a 331px thumbnail. The section now fills its whole right side with
+the drawing, faded back under the copy: no card, no radius, no hover, no scrim.
 
-- The **full 1536x1024 drawing** is used, not the square crop the box needed
-  (`legacy-blueprint-wide.webp`). Anchored bottom-right, the service run
-  emerges from under the copy, travels right into the building, and meets the
-  section's bottom edge — where the product categories band starts. Pipes
-  carrying on past the frame is the one idea the section is built around.
-- The **shade** is a left-to-right white gradient over the drawing, opaque
-  under the copy column and clear by 56% across. Written `rgba(255,255,255,0)`
-  rather than the `transparent` keyword — Safari's bare `transparent` is
-  transparent BLACK and would grey the fade.
-- Below `md` it runs **full-bleed under the copy** instead of beside it, faded
-  from the top so it reads as ground the text sits on.
+**Graphite, not blueprint blue.** `legacy-blueprint-pencil.webp`. The source
+ink is a single hue (`#2061a1`) whose line weight and darkness live entirely in
+the ALPHA channel — only ~11% of pixels carry any alpha. So the RGB was
+flattened to a flat `#606060` (the site's own body grey) with alpha untouched,
+which recolours the ink to pencil while preserving every bit of tonal
+variation. Desaturating instead would have mapped the hue to whatever its
+luminance happened to be (~`#555`) with no say in the tone.
 
-**Two sizing traps, both caught by measuring rather than looking:**
+**Full height, hard right.** `absolute inset-y-0 right-0`, 62% wide (66% from
+`xl`), `object-cover`. The service run emerges from beneath the copy and
+travels right into the building; pipes carrying on past the frame is the one
+idea the section is built around.
 
-1. `aspectRatio` is what gives the absolute box a width at all — the image
-   inside is `fill` and contributes none, so the box collapses without it.
-2. Height-driven alone the box is 1.5x the section height (~818px against a
-   620px section) — **wider than the viewport itself between `md` and
-   ~1100px**, laying un-faded linework under the copy. `maxWidth: 58%` caps
-   it. When that cap binds the box goes off-ratio (aspect-ratio only supplies a
-   *missing* dimension; it will not shrink a specified height) and
-   `object-contain object-bottom` letterboxes the drawing to the bottom — which
-   degrades gracefully, since the spare space is transparent and the drawing
-   still sits on the baseline. The copy is also held to `md:max-w-[48%]` until
-   `lg`, where Figma's 599px finally clears the fade.
+**The crop is anchored `100% 100%`, and that matters.** The drawing is 1.5:1
+and the right side of the section is nearer 1:1, so `object-cover` always has
+width to discard. Pinned right-bottom, it keeps the building flush to the
+viewport edge and spends the crop on the far end of the pipe run, which the
+fade has already dissolved. Left centred, it would shave the building's own
+edge instead — and the amount discarded is not small: 356px at 1024, 240px at
+1226.
 
-Verified clear of the un-faded artwork at 820 / 1024 / 1280 / 1440, and no
-horizontal overflow at 390.
+**Removed outright below `lg`, not stacked.** At 768 the box is only ~437 wide
+against a ~788 tall section, and `object-cover` then throws away three quarters
+of the drawing's width — leaving a hugely zoomed building and no pipe run at
+all. It needs width to read as a drawing. Below `lg` the section is also
+content-height rather than a tall empty band, and the copy drops its width cap
+since there is nothing to clear.
+
+**The shade** is a left-to-right white gradient over the drawing, opaque under
+the copy and clear by 52% across. Written `rgba(255,255,255,0)` rather than the
+`transparent` keyword — Safari's bare `transparent` is transparent BLACK and
+would grey the fade.
+
+Verified: nothing painted at 390 / 767 / 1023; flush right with the copy clear
+of un-faded artwork at 1024 and 1440; no horizontal overflow at 390.
 
 ### Three things the swap forced, none of them obvious
 

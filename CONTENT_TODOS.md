@@ -100,7 +100,8 @@ in the user's Downloads folder that just hadn't been pointed to yet:
     - Source files (`Tanks v2.png` / `Tanks v3.png`) live in the user's Downloads,
       not the repo — only the crops are committed.
 - **Architectural line drawing supplied Sep 2026** — a building with its underground
-  water/drainage runs, now at `public/home/legacy-blueprint-wide.webp`. It replaces the
+  water/drainage runs, recoloured to graphite grey and stored at
+  `public/home/legacy-blueprint-pencil.webp`. It replaces the
   `manufacturing-floor.jpg` photo in the homepage "A 50-year legacy of excellence in
   plumbing" section (`CompanyOverview.tsx`). Pre-cropped to a square right-hand
   1024x1024 because the source's left 45% is empty; the card went light (the linework
