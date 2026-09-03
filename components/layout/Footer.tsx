@@ -78,7 +78,7 @@ export function Footer() {
             </Link>
             <div className="flex flex-col text-[14px] font-normal leading-[1.3] tracking-[0.28px] text-white">
               <p className="whitespace-nowrap">
-                4th Floor, 1202, HAL 2nd Stage, Domlur,100 Feet Road,
+                3rd Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road,
               </p>
               <p className="whitespace-nowrap">
                 Indiranagar, Bengaluru, Karnataka – 560008
