@@ -112,7 +112,7 @@ const CATEGORIES = [
     // X does nothing here: object-cover consumes the full width, so there is
     // no horizontal overflow to slide. Use --right to move them sideways.
     photo: "/products/category-cards/tank-card-g3-z660.png",
-    photoPos: "50% 0%",
+    photoPos: "50% 70%",
   },
 ] as const;
 
