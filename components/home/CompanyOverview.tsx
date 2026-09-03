@@ -4,90 +4,100 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 /**
- * Figma "2. legacy" (node 13:448) — heading, copy and facility photo. The
- * stat counters belong to Hero's stats bar, per the mock's structure.
- * Figma's proportions are matched with a responsive layout rather than its
- * absolute coordinates, so it holds at every viewport width.
+ * Figma "2. legacy" (node 13:448) — the homepage's 50-year legacy section.
+ * The stat counters belong to Hero's stats bar, per the mock's structure.
+ *
+ * The artwork is handled the way the About hero handles its backdrop: the
+ * drawing BLEEDS to the viewport edge and is faded back under the copy with a
+ * gradient, rather than sitting in a card. It previously used the boxed
+ * treatment a photograph needs — rounded corners, a scrim, a hover zoom — and
+ * that shrank an architectural section drawing into a 331px thumbnail, cropped
+ * so the building filled it and the buried pipe run barely read.
+ *
+ * The full 1536x1024 drawing is used here, not the square crop the card
+ * needed. Anchored bottom-right, the service run emerges from beneath the copy,
+ * travels right into the building, and meets the section's bottom edge — where
+ * the product categories band begins. Pipes carrying on past the frame is the
+ * one idea this section is built around, so everything else stays quiet: no
+ * card, no radius, no hover state, no scrim.
  */
+
+// Alpha-transparent line drawing, so it composes straight onto the page.
+const BLUEPRINT = "/home/legacy-blueprint-wide.webp";
+
+// The "shade". `rgba(255,255,255,0)` rather than the `transparent` keyword:
+// Safari resolves bare `transparent` to transparent BLACK, which would turn
+// this fade into a grey smudge.
+const FADE_UNDER_COPY =
+  "linear-gradient(to right, #ffffff 0%, rgba(255,255,255,0.92) 20%, rgba(255,255,255,0) 56%)";
+const FADE_UNDER_COPY_MOBILE =
+  "linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.85) 12%, rgba(255,255,255,0) 45%)";
+
+const ALT =
+  "Architectural section drawing of a building with its underground water and drainage pipe runs";
+
 export async function CompanyOverview() {
   const t = await getTranslations("home");
 
   return (
-    <section className="container-edge py-24 md:py-32">
-      {/* Flex, not grid: grid stretched both children to their full column
-          width before aligning, which opened a much larger gap than Figma's
-          actual text-then-photo relationship. Text flexes up to Figma's
-          599px cap; the image stays a fixed 331px from `md:` up. */}
-      <div className="mt-10 flex flex-col gap-8 md:flex-row md:items-start md:gap-10 lg:gap-16">
-        <div className="flex min-w-0 flex-1 flex-col">
+    // `min-h` from `md` up so the drawing has room to stand at full height.
+    // Without it the section is only as tall as its copy, and anchoring the
+    // drawing to the bottom pushed the tower up past the top edge, where
+    // `overflow-hidden` cut it off.
+    <section className="relative overflow-hidden py-24 md:min-h-[620px] md:py-32">
+      {/* Bleeds to the right viewport edge — deliberately outside
+          `container-edge`, which only wraps the copy below. Height-driven, not
+          width-driven, so it always fits the section vertically and the
+          aspect ratio decides how far left it reaches. */}
+      <div
+        className="pointer-events-none absolute bottom-0 right-0 hidden md:block"
+        // `aspectRatio` is what gives this box a WIDTH at all — the image
+        // inside is `fill`, so it contributes none, and the box would collapse
+        // without it.
+        //
+        // `maxWidth` is a guard, not decoration. Height-driven alone the box is
+        // 1.5x the section height — ~818px against a 620px section — which is
+        // wider than the viewport itself between `md` and ~1100px, and it then
+        // laid un-faded linework under the copy. When the cap binds the box
+        // simply goes off-ratio (aspect-ratio only supplies a missing
+        // dimension; it will not shrink a specified height), and
+        // `object-contain object-bottom` letterboxes the drawing to the bottom
+        // of it. That degrades gracefully: the extra space is transparent, and
+        // the drawing still sits on the section's baseline.
+        style={{ height: "88%", maxWidth: "58%", aspectRatio: "1536 / 1024" }}
+      >
+        <Image src={BLUEPRINT} alt={ALT} fill sizes="60vw" className="object-contain object-bottom" />
+        <div className="absolute inset-0" style={{ background: FADE_UNDER_COPY }} />
+      </div>
+
+      <div className="container-edge relative">
+        {/* Narrower between `md` and `lg` so the copy stops short of where the
+            drawing is still at full strength — Figma's 599px only has room to
+            clear the fade once the viewport is wide enough. */}
+        <div className="flex flex-col md:max-w-[48%] lg:max-w-[599px]">
           <RevealOnScroll>
-            {/* Figma node 43:415 has this heading at `#4a4a4a`. That grey
-                started as a per-section override here and on Categories, and
-                is now `SectionHeading`'s sitewide default — so the override
-                is gone as redundant, not lost. */}
+            {/* Figma node 43:415 has this heading at `#4a4a4a`, which is now
+                `SectionHeading`'s sitewide default — so the override is gone
+                as redundant, not lost. */}
             <SectionHeading title={t("overviewH1")} titleAccent={t("overviewH2")} />
           </RevealOnScroll>
 
-          <RevealOnScroll delay={0.08} className="mt-8 md:max-w-[599px]">
+          <RevealOnScroll delay={0.08} className="mt-8">
             <p className="text-balance text-base leading-relaxed text-[#606060] md:text-lg">
               {t("overviewDesc")}
             </p>
           </RevealOnScroll>
         </div>
+      </div>
 
-        {/* Square at EVERY width now, where the old photo was letterboxed to
-            21:10 while stacked. The artwork is a line drawing pre-cropped to
-            its own 1:1, so a square box shows all of it and any other ratio
-            would crop the building or the pipe run. Figma's literal square
-            from `md` up is unchanged.
-
-            `self-start`, never `self-end`: while the wrapper is still a
-            column, `self-end` right-aligns the image and leaves a dead gap —
-            that is what broke around 734px. */}
-        <RevealOnScroll delay={0.14} className="mx-auto w-full shrink-0 md:w-[331px] md:max-w-none md:self-start">
-          {/* `bg-white` is load-bearing, not decoration: the drawing keeps its
-              alpha, so without it the card shows whatever the page background
-              happens to be. */}
-          <div className="group relative aspect-square w-full overflow-hidden rounded-3xl bg-white">
-            <Image
-              src="/home/legacy-blueprint.webp"
-              alt="Architectural line drawing of a building with its underground water and drainage pipe runs"
-              fill
-              sizes="(min-width: 768px) 331px, 100vw"
-              className="object-cover transition-transform duration-[1.2s] group-hover:scale-105"
-            />
-            {/* Caption sits TOP-left, where the photograph had it bottom-left.
-                The drawing's only empty region is its sky; the pipe run is
-                along the bottom, so a bottom scrim veiled exactly the part of
-                the artwork worth showing on a piping site.
-
-                The scrim is also LIGHT, inverted from the near-black one the
-                photograph needed. The linework is `#2061a1`: 6.39:1 on white
-                but only 3.00:1 on the old `rgba(9,12,40,…)` navy, so the
-                drawing has to sit on paper — which flips the caption from
-                white-on-dark to dark-on-light.
-
-                `rgba(255,255,255,0)`, never the `transparent` keyword: Safari
-                resolves bare `transparent` to transparent BLACK, which turns
-                this fade into a grey smudge. */}
-            <div
-              className="absolute inset-x-0 top-0 h-1/2"
-              style={{
-                background:
-                  "linear-gradient(to bottom, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0))",
-              }}
-            />
-            <div className="absolute left-0 top-0 max-w-[78%] p-5 sm:p-6">
-              {/* Ocean, not amber. The Playbook is explicit that orange text
-                  on a light surface fails AA (~2.7:1) — the amber here was
-                  only legible against the photo's dark scrim. */}
-              {/* <span className="tech-label text-[#171796]">{t("overviewFacilityLabel")}</span>
-              <p className="mt-2 font-display text-sm font-semibold leading-snug text-[#0b0b52]">
-                {t("overviewFacilityCaption")}
-              </p> */}
-            </div>
-          </div>
-        </RevealOnScroll>
+      {/* Below `md` the drawing runs full-bleed under the copy instead of
+          beside it, faded from the top so it reads as ground the text sits on.
+          Sized by width here, since there is no side-by-side to fit into. */}
+      <div className="relative mt-10 md:hidden">
+        <div className="relative aspect-[1536/1024] w-full">
+          <Image src={BLUEPRINT} alt={ALT} fill sizes="100vw" className="object-contain object-bottom" />
+          <div className="absolute inset-0" style={{ background: FADE_UNDER_COPY_MOBILE }} />
+        </div>
       </div>
     </section>
   );

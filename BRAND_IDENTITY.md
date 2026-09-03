@@ -2738,11 +2738,49 @@ trap already documented for LegacyStory's white fade).
 The homepage "A 50-YEAR LEGACY OF / EXCELLENCE IN PLUMBING." section
 (`components/home/CompanyOverview.tsx`) now carries an architectural line
 drawing — a building with its underground water and drainage runs — in place
-of `manufacturing-floor.jpg`. Asset: `public/home/legacy-blueprint.webp`.
+of `manufacturing-floor.jpg`. Asset: `public/home/legacy-blueprint-wide.webp`.
 
 This drawing was first tried as the LegacyStory backdrop on `/about` and
 reverted; that section is back to Figma's gold line-work. Do not re-add it
 there.
+
+### Then unboxed entirely (Sep 2026)
+
+The card treatment above was the templated answer — text left, image card
+right, rounded corners, hover zoom — and it shrank an architectural section
+drawing into a 331px thumbnail, cropped square so the building filled it and
+the buried pipe run barely registered. The section now uses the same idea as
+the About hero: the drawing **bleeds to the viewport edge and is faded back
+under the copy**, with no card, no radius, no hover state, no scrim.
+
+- The **full 1536x1024 drawing** is used, not the square crop the box needed
+  (`legacy-blueprint-wide.webp`). Anchored bottom-right, the service run
+  emerges from under the copy, travels right into the building, and meets the
+  section's bottom edge — where the product categories band starts. Pipes
+  carrying on past the frame is the one idea the section is built around.
+- The **shade** is a left-to-right white gradient over the drawing, opaque
+  under the copy column and clear by 56% across. Written `rgba(255,255,255,0)`
+  rather than the `transparent` keyword — Safari's bare `transparent` is
+  transparent BLACK and would grey the fade.
+- Below `md` it runs **full-bleed under the copy** instead of beside it, faded
+  from the top so it reads as ground the text sits on.
+
+**Two sizing traps, both caught by measuring rather than looking:**
+
+1. `aspectRatio` is what gives the absolute box a width at all — the image
+   inside is `fill` and contributes none, so the box collapses without it.
+2. Height-driven alone the box is 1.5x the section height (~818px against a
+   620px section) — **wider than the viewport itself between `md` and
+   ~1100px**, laying un-faded linework under the copy. `maxWidth: 58%` caps
+   it. When that cap binds the box goes off-ratio (aspect-ratio only supplies a
+   *missing* dimension; it will not shrink a specified height) and
+   `object-contain object-bottom` letterboxes the drawing to the bottom — which
+   degrades gracefully, since the spare space is transparent and the drawing
+   still sits on the baseline. The copy is also held to `md:max-w-[48%]` until
+   `lg`, where Figma's 599px finally clears the fade.
+
+Verified clear of the un-faded artwork at 820 / 1024 / 1280 / 1440, and no
+horizontal overflow at 390.
 
 ### Three things the swap forced, none of them obvious
 
