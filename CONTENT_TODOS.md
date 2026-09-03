@@ -116,8 +116,11 @@ in the user's Downloads folder that just hadn't been pointed to yet:
 - **About hero water-ripple video** — Figma node 1027:8205 is a video *fill*, not a
   timeline, so `export_video` refuses it and the file cannot be pulled through MCP. The
   brand/design team needs to supply the actual footage. A Figma-side render of the node
-  currently stands in as the poster at `public/about/water-ripple-poster.webp`
-  (1024x607) — it is a still, so the hero does not move.
+  currently stands in as the poster at
+  `public/about/water-ripple-poster-1512.webp` (1512x895, the node's full natural
+  size) — it is a still, so the hero does not move. Even at 1512 it upscales on a
+  2x display; Figma cannot render the node any larger, so real sharpness needs the
+  footage. **Re-cut the poster from the video's first frame when it arrives.**
 
   To enable it, drop the file(s) into `public/about/` and add one entry to
   `RIPPLE_SOURCES` in `components/about/AboutHero.tsx`:

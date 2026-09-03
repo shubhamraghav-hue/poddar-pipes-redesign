@@ -21,7 +21,17 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 // Figma's video sits at 1688x946, offset (0, -51) in the 1512-wide frame —
 // flush to the LEFT edge with the overflow cropped off the right, which is
 // what `object-left` reproduces under `object-cover`.
-const RIPPLE_POSTER = "/about/water-ripple-poster.webp";
+// 1512x895 — the node's full natural size. Figma renders screenshots at 1024
+// on its longer edge by default, which is what the first version of this file
+// was, and it went soft anywhere the hero was drawn wider than ~1500 device
+// px. Re-rendered with `maxDimension`, it carries 36% more high-frequency
+// detail (measured, not assumed). 1512 is the CEILING: asking Figma for 4096
+// still returns 1512, because that is the node's own canvas size.
+//
+// So a 2x display at 1512 CSS px still upscales this 2x and will look soft.
+// That is not fixable from Figma — it needs the real footage, at which point
+// the poster should be re-cut from its first frame. See CONTENT_TODOS.md.
+const RIPPLE_POSTER = "/about/water-ripple-poster-1512.webp";
 
 // Empty until the artwork lands. A <video> with no <source> children makes no
 // network request and holds its `poster` frame indefinitely, so the section

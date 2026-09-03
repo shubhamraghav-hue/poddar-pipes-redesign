@@ -2698,7 +2698,21 @@ in DOM order and collapses to one ordered column on mobile.
 Node 1027:8205 is a video **fill**, not a timeline, so `export_video` refuses
 it ("Export root must be a top-level frame") and there is no way to pull the
 file through MCP. A Figma-side render of the node ships as the poster at
-`public/about/water-ripple-poster.webp` (1024×607, 55KB).
+`public/about/water-ripple-poster-1512.webp` (1512×895, 103KB).
+
+That is the node's full natural size. Figma renders screenshots at **1024 on
+the longer edge by default** (`maxDimension`), which the first version of this
+poster inherited — and at 1024 it went soft anywhere the full-bleed hero was
+drawn wider than ~1500 device px: 1.9x upscale at 1920, 3.8x at 1920@2x, while
+mobile stayed fine at 1.1x. Re-rendered with an explicit `maxDimension`, it
+carries **36% more high-frequency detail** (mean |laplacian|, both sampled at
+1512 — measured rather than assumed, since an upscale of the same source would
+have shown no gain).
+
+**1512 is the ceiling.** Asking for `maxDimension: 4096` still returns 1512,
+because that is the node's own canvas size — so a 2x display at 1512 CSS px
+still upscales 2x and will look soft. Not fixable from Figma; it needs the real
+footage, and the poster should then be re-cut from its first frame.
 
 `AboutHero.tsx` renders a real `<video>` whose `RIPPLE_SOURCES` array is
 **empty**. A `<video>` with no `<source>` children makes no network request and
