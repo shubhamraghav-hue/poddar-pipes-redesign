@@ -53,8 +53,22 @@ export function NewsletterSignup() {
         variant="accent"
         className="h-[54px] w-[54px] shrink-0 rounded-full bg-amber-600 hover:bg-amber-700"
       >
-        {/* 23.33px is the mock's own icon size (node 1187:1488); this was 20px. */}
-        <Send className="size-[23.33px]" />
+        {/* 23.33px is the mock's own icon size (node 1187:1488).
+
+            The nudge is OPTICAL centring, not a fudge. The glyph is already
+            centred geometrically — its bounding box is a symmetric 2-22 in
+            both axes and the flex centring puts it within 0.01px of the
+            button's middle. But a paper plane is a triangle: rasterising it
+            and taking the centroid of the ink puts its visual mass at
+            (13.81, 10.10) in a viewBox centred on (12, 12), because the body
+            fills the lower-left while only a thin tip reaches the upper-right.
+            That reads as up-and-right of centre inside a circle, which has no
+            edges to reference against.
+
+            So it is shifted back by that offset — expressed as a share of the
+            icon's own box (1.81/24 and 1.90/24) rather than in px, so it holds
+            if the icon size ever changes. */}
+        <Send className="size-[23.33px] translate-x-[-7.5%] translate-y-[7.9%]" />
       </Button>
     </form>
   );
