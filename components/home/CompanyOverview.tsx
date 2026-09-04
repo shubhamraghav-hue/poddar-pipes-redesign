@@ -60,10 +60,10 @@ export async function CompanyOverview() {
           cap does not bind, the box matches the drawing's ratio exactly and it
           fills the band edge to edge with no crop and no dead space — that
           happens from about 1375px up. */}
-      <div
+      {/* <div
         className="pointer-events-none absolute bottom-0 right-0 hidden max-w-[66%] lg:block xl:max-w-[72%]"
         style={{ height: "100%", aspectRatio: "1536 / 1024" }}
-      >
+      > */}
         {/* `object-contain`, NOT cover. Cover only crops vertically once the
             box grows wider than the drawing's 1.5:1 — which happens above
             ~1500px — and with the crop anchored to the bottom it took the
@@ -72,9 +72,9 @@ export async function CompanyOverview() {
             every width; `object-bottom` keeps the pipe run on the section's
             baseline and puts any spare space above, where the drawing is
             empty sky anyway. */}
-        <Image src={BLUEPRINT} alt={ALT} fill sizes="72vw" className="object-contain object-bottom" />
-        <div className="absolute inset-0" style={{ background: FADE_UNDER_COPY }} />
-      </div>
+        {/* <Image src={BLUEPRINT} alt={ALT} fill sizes="72vw" className="object-contain object-bottom" /> */}
+        {/* <div className="absolute inset-0" style={{ background: FADE_UNDER_COPY }} />
+      </div> */}
 
       <div className="container-edge relative">
         {/* Unconstrained below `lg`, where there is no drawing to clear;

@@ -143,7 +143,7 @@ const CATEGORIES = [
 const PHOTO_PAN: Partial<
   Record<(typeof CATEGORIES)[number]["id"], { zoom: number; x: number; y: number }>
 > = {
-  tanks: { zoom: 125, x: 50, y: 50 },
+  tanks: { zoom: 125, x: 60, y: 85 },
 };
 
 /** Turns a pan into the layer's size and offset. */
