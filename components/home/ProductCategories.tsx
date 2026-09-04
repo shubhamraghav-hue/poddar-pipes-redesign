@@ -76,45 +76,86 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    // A pair-of-tanks studio shot (Sep 2026), cropped to zoom in. The frame is
-    // the shared `h-[68%]` box — same for all six cards — so everything below
-    // only affects THIS card.
+    // A pair-of-tanks studio shot (Sep 2026). The frame is the shared
+    // `h-[68%]` box, same for all six cards, and nothing below touches it.
     //
-    // TWO SEPARATE CONTROLS, and it matters which one you reach for:
+    // PLACEMENT lives in PHOTO_PAN below (see its note): x and y, both
+    // editable here with no regeneration, both axes free. `photoPos` is
+    // IGNORED for this card — the pan layer replaces it, because
+    // `object-position` can only ever move along one axis.
     //
-    //  * SIZE and HORIZONTAL framing are baked into the file. Change them by
-    //    regenerating:
-    //      node scripts/crop-tank-card.mjs "<Tanks v3 (1).png>" 660     //           --right 0.92 --floor 10 --slack 100 --tag g3
-    //    (bare number = zoom/crop width, smaller = bigger tanks; --right
-    //    slides them across, 0.92 = right corner. Always pass a NEW --tag:
-    //    Next's optimiser caches by path, so reusing a filename serves stale
-    //    bytes.)
+    // SIZE comes from the crop, and needs regenerating:
+    //   node scripts/crop-tank-card.mjs "<Tanks v3 (1).png>" 820
+    //        --right 0.82 --floor 61 --slack 0 --tag g4
     //
-    //  * VERTICAL placement is `photoPos` below, editable right here with no
-    //    regeneration. The crop is cut 100px TALLER than the frame (--slack),
-    //    which is what gives object-cover the overflow to slide through.
-    //
-    // photoPos Y — the uplift. 0% sits the tanks lowest in the frame (10px of
-    // floor under the bases); raising it lifts them. At this zoom the usable
-    // range is 0-88%; past that the lids leave the frame even at rest.
-    //
-    //   Y = 0%    tanks lowest   ·  37px of lid clipped on hover
-    //   Y = 20%   +12px lift     ·  49px
-    //   Y = 40%   +24px lift     ·  61px
-    //   Y = 88%   +53px lift     ·  90px  (maximum)
-    //
-    // The clip is the cost of uplift: hover lifts the photo a FIXED 22.5cqw,
-    // hiding the top 35.3% of the frame, so every pixel you raise the tanks
-    // pushes their lids further into that hidden band. Tanks taller than 64.7%
-    // of the frame cannot survive hover intact at any Y — a hard ceiling, and
-    // this zoom is deliberately over it so the card does not read empty.
-    //
-    // X does nothing here: object-cover consumes the full width, so there is
-    // no horizontal overflow to slide. Use --right to move them sideways.
-    photo: "/products/category-cards/tank-card-g3-z660.png",
-    photoPos: "50% 70%",
+    //   820        crop width. SMALLER = bigger tanks. Note the pan `zoom`
+    //              multiplies this, so at zoom 125 a crop of 820 renders the
+    //              tanks the same size a 660 crop did with no pan.
+    //   --slack 0  REQUIRED for panning: it cuts the crop to the frame's own
+    //              aspect, so the pan layer is the only thing moving.
+    //   --right    where the tanks sit in the CROP. Keep them inside the
+    //              pannable band — at zoom 125 only the middle 80% of the
+    //              crop is ever visible, so 0.82 rather than 0.92.
+    //   --floor    floor under the bases in the crop. 61 rather than 10,
+    //              because the zoom would otherwise push the bases out of the
+    //              bottom of the frame before x/y could pull them back.
+    //   --tag      always a NEW one when the source or these numbers change:
+    //              Next's optimiser caches by path.
+    photo: "/products/category-cards/tank-card-g4-z820.png",
+    // No `photoPos` on purpose. It is inert once a card pans, and leaving a
+    // dead value sitting here invites editing it and seeing nothing happen.
+    // Placement for this card is PHOTO_PAN.tanks, immediately below.
   },
 ] as const;
+
+/**
+ * Two-axis placement inside the photo frame, for cards that opt in.
+ *
+ * WHY THIS EXISTS: `object-position` can only ever move a `object-cover` image
+ * along ONE axis — whichever dimension is proportionally larger overflows the
+ * frame, and the other fits exactly with nothing to slide. That is why the
+ * tank card's `photoPos` Y worked while its X did nothing at all. No amount of
+ * tuning `photoPos` can give you both.
+ *
+ * So instead the photo goes in a LAYER that is `zoom`% of the frame in BOTH
+ * axes, and that layer is slid around inside it. The frame is untouched — the
+ * card's geometry, the hover lift and the other five cards are all unaffected.
+ *
+ *   zoom  how much bigger than the frame the photo layer is. This is the
+ *         travel budget: at 125 you get 25% of the frame's width and height to
+ *         move through. More zoom = more room to pan, but more of the photo
+ *         falls outside the frame and the image is upscaled further.
+ *   x, y  0-100, and they read exactly like `object-position`: 0 shows the
+ *         photo's left/top edge (content sits right/low), 100 shows its
+ *         right/bottom edge (content sits left/high), 50 is centred.
+ *
+ * The photo file must be cropped to the FRAME's aspect ratio (1.5686) for this
+ * to behave predictably — then the layer's aspect matches too, `object-cover`
+ * has nothing of its own to crop, and x/y are the only things moving.
+ * `scripts/crop-tank-card.mjs --slack 0` produces that.
+ *
+ * Measured for the tank card at zoom 125 on a 400px card: 100px of horizontal
+ * travel and 64px of vertical. Useful ranges are x 11-100 (below 11 the tanks
+ * push out of the right edge) and y 43-100 (below 43 their bases drop out of
+ * the bottom). Raising y lifts the tanks and costs lid on hover: roughly
+ * 6.5 + 0.64y px clipped, so 34px at y=43, 38px at y=50, 70px at y=100.
+ */
+const PHOTO_PAN: Partial<
+  Record<(typeof CATEGORIES)[number]["id"], { zoom: number; x: number; y: number }>
+> = {
+  tanks: { zoom: 125, x: 50, y: 50 },
+};
+
+/** Turns a pan into the layer's size and offset. */
+function panStyle({ zoom, x, y }: { zoom: number; x: number; y: number }) {
+  const slack = 100 - zoom; // negative: how far the layer may travel
+  return {
+    width: `${zoom}%`,
+    height: `${zoom}%`,
+    left: `${(slack * x) / 100}%`,
+    top: `${(slack * y) / 100}%`,
+  };
+}
 
 const GOLD_BADGE = "/products/category-cards/gold-badge.svg";
 
@@ -155,20 +196,40 @@ export async function ProductCategories() {
                     to leave Figma's gap. Shares the wordmark's hover
                     translate so the two move in lockstep. */}
                 <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]">
-                  {/* `photoPos` per card, not a blanket `object-center`.
-                      These are tall studio shots with the product sitting in
-                      the bottom third; centring the crop would frame empty
-                      backdrop and hide the product at rest. Values are
-                      measured from each file, not eyeballed. Set via `style`
-                      because Tailwind cannot generate classes from data. */}
-                  <Image
-                    src={cat.photo}
-                    alt=""
-                    fill
-                    sizes="(min-width: 640px) 33vw, 100vw"
-                    style={{ objectPosition: cat.photoPos }}
-                    className="object-cover"
-                  />
+                  {PHOTO_PAN[cat.id] ? (
+                    // Pan layer: bigger than the frame in BOTH axes, then slid
+                    // within it. This is the only way to get two-axis freedom
+                    // — see the note on PHOTO_PAN. The frame itself is
+                    // untouched, so the card's geometry is unaffected.
+                    <div className="absolute" style={panStyle(PHOTO_PAN[cat.id]!)}>
+                      <Image
+                        src={cat.photo}
+                        alt=""
+                        fill
+                        sizes="(min-width: 640px) 42vw, 125vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    // `photoPos` per card, not a blanket `object-center`.
+                    // These are tall studio shots with the product sitting in
+                    // the bottom third; centring the crop would frame empty
+                    // backdrop and hide the product at rest. Values are
+                    // measured from each file, not eyeballed. Set via `style`
+                    // because Tailwind cannot generate classes from data.
+                    <Image
+                      src={cat.photo}
+                      alt=""
+                      fill
+                      sizes="(min-width: 640px) 33vw, 100vw"
+                      // Guarded read: the panning card deliberately has no
+                      // `photoPos`, so this union member may not carry one.
+                      style={{
+                        objectPosition: "photoPos" in cat ? cat.photoPos : undefined,
+                      }}
+                      className="object-cover"
+                    />
+                  )}
                 </div>
 
                 {/* Wordmark box is Figma's exact numbers as percentages of

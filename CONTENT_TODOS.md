@@ -91,9 +91,9 @@ in the user's Downloads folder that just hadn't been pointed to yet:
   governs the tank's size.
   - **Tank card re-supplied twice, Sep 2026** — pair-of-tanks shots replaced the
     single-tank `tank-alt-R4.png` crop. Sizing is now scripted:
-    `node scripts/crop-tank-card.mjs "<src>" 660 --right 0.92 --slack 100 --tag g3` writes a
+    `node scripts/crop-tank-card.mjs "<src>" 820 --right 0.82 --floor 61 --slack 0 --tag g4` writes a
     `tank-card-<tag>-z<width>.png` per zoom step and prints what each does on the card.
-    `tank-card-g3-z660.png` is live (tanks at 76.7% of the shared 68% frame; vertical placement is `photoPos` Y in the component, no regeneration needed); `g2` is the
+    `tank-card-g4-z820.png` is live (tanks at ~78% of the shared 68% frame; placement is `PHOTO_PAN.tanks` x/y in the component — both axes, no regeneration needed); `g2` is the
     second background gradient, supplied Sep 2026 with the tanks in the same position. See
     BRAND_IDENTITY.md, "LIVE — the tank pair, sized by script", for the hover
     ceiling that governs the choice.

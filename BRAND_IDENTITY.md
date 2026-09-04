@@ -2474,6 +2474,57 @@ Past 88% the lids leave the frame even at rest. Note the constant frame costs
 some hover quality: the 72% box had this at 23px, and 37px is the floor at 68%
 for this zoom.
 
+### Two-axis placement: the pan layer (Sep 2026)
+
+`object-position` can only ever move an `object-cover` image along **one**
+axis. Whichever dimension is proportionally larger overflows the frame; the
+other fits exactly and has nothing to slide. That is why the tank card's
+`photoPos` Y worked while its X did nothing whatsoever — and no amount of
+tuning `photoPos` could have fixed it.
+
+So the panning card now puts its photo in a LAYER that is `zoom`% of the frame
+in **both** axes, and slides that layer inside the frame's `overflow-hidden`.
+`PHOTO_PAN` in `ProductCategories.tsx`:
+
+```ts
+const PHOTO_PAN = { tanks: { zoom: 125, x: 50, y: 50 } };
+```
+
+- `zoom` is the travel budget — at 125 there is 25% of the frame's width and
+  height to move through. More travel costs more of the photo falling outside
+  the frame, and more upscaling.
+- `x` / `y` are 0-100 and read exactly like `object-position`, so the mental
+  model carries over: 0 shows the left/top edge, 100 the right/bottom, 50 is
+  centred. Raising `y` still lifts the tanks.
+- The frame is untouched, so card geometry, the hover lift and the other five
+  cards are all unaffected. Those five still use `photoPos`; the branch is
+  keyed on presence in `PHOTO_PAN`.
+
+**The crop must be cut to the frame's own aspect** (`--slack 0`), so the
+layer's aspect matches and `object-cover` has nothing of its own to crop —
+otherwise x/y are fighting a second, invisible crop. Two consequences that are
+easy to miss:
+
+- Only the middle `100/zoom` of the crop is ever visible, so `--right` has to
+  keep the tanks inside that band: **0.82, not 0.92**.
+- The zoom scales the crop up about its centre, which pushes the bases below
+  the frame unless the crop carries more floor. `--floor 61`, not 10.
+- And because zoom multiplies apparent size, the crop width has to grow to
+  compensate: **820 at zoom 125 renders the tanks the same size 660 did with
+  no pan.**
+
+Verified live, normalised to a 400x255 frame: tank 198x199 (against ~197x197
+before, so the framing is preserved), 100px of horizontal travel and 64px of
+vertical, the two provably independent — moving `x` leaves the tank's top and
+bottom identical and vice versa. Useful ranges **x 11-100** (at x=15 the tanks
+reach 395 of 400) and **y 43-100** (at y=45 the bases reach 253 of 255). Lid
+clipped on hover is roughly `6.5 + 0.64y` px: 34px at y=43, 38px at y=50
+(matching the 37px before), 70px at y=100.
+
+`photoPos` is deliberately ABSENT from the tanks entry rather than left at a
+stale value — a dead knob sitting in the file invites editing it and seeing
+nothing happen. The render reads it with an `in` guard for that reason.
+
 ### The hover ceiling — a hard limit, not a tuning problem
 
 Hover lifts the photo `22.5cqw` against a `63.75cqw`-tall box, hiding the top
