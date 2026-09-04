@@ -28,22 +28,33 @@ export function NewsletterSignup() {
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full max-w-sm items-center gap-2.5">
+      {/* Radius is a PILL, per Figma node 1187:1484. The spec value is
+          `100px`, which on a 54px-tall field clamps to half the height — so
+          `rounded-full` is the faithful expression of it, not an
+          approximation. Both this and the button previously carried
+          `rounded-2xl` (16px), standing in for the earlier 18px spec.
+
+          `placeholder:font-light` because the mock sets the placeholder in
+          Anek Light 300, where the field would otherwise inherit 400. */}
       <Input
         type="email"
         required
         name="email"
         aria-label={t("newsletterPlaceholder")}
         placeholder={t("newsletterPlaceholder")}
-        className="h-[54px] flex-1 rounded-2xl border-[#c0c0c0] bg-transparent px-5 text-white placeholder:text-[#c0c0c0] focus-visible:border-amber-500"
+        className="h-[54px] flex-1 rounded-full border-[#c0c0c0] bg-transparent px-5 text-white placeholder:font-light placeholder:text-[#c0c0c0] focus-visible:border-amber-500"
       />
+      {/* `rounded-full` is also `Button`'s own base value — stated explicitly
+          here only because the override it replaces was squaring it off. */}
       <Button
         type="submit"
         size="icon"
         aria-label={t("newsletterSubmit")}
         variant="accent"
-        className="h-[54px] w-[54px] shrink-0 rounded-2xl bg-amber-600 hover:bg-amber-700"
+        className="h-[54px] w-[54px] shrink-0 rounded-full bg-amber-600 hover:bg-amber-700"
       >
-        <Send className="h-5 w-5" />
+        {/* 23.33px is the mock's own icon size (node 1187:1488); this was 20px. */}
+        <Send className="size-[23.33px]" />
       </Button>
     </form>
   );
