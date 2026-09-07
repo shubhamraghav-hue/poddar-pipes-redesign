@@ -2837,20 +2837,55 @@ which recolours the ink to pencil while preserving every bit of tonal
 variation. Desaturating instead would have mapped the hue to whatever its
 luminance happened to be (~`#555`) with no say in the tone.
 
-**Fills the right side, hard right.** `absolute bottom-0 right-0`, height
+**Fills the right side, inset.** `absolute bottom-0 right-[4.56%]`, height
 100% of the band, with `aspectRatio: 1536/1024` deriving the WIDTH from that
 height and `max-w` (66%, 72% from `xl`) capping how far left it may reach.
-Where the cap does not bind, the box matches the drawing's ratio exactly and it
-fills the band edge to edge with no crop and no dead space — from roughly
-1375px up. The service run emerges from beneath the copy and travels right into
-the building; pipes carrying on past the frame is the one idea the section is
-built around.
+Where the cap does not bind, the box matches the drawing's ratio exactly, so
+there is no crop and no dead space.
 
-The band's `min-h` steps 560 / 660 / 760 across `lg` / `xl` / `2xl`. That is
-load-bearing, not padding: because the box's width is *derived* from the
-height, a fixed height would freeze the drawing at 990px wide and leave it a
-half-width detail on a large monitor. At 1920 the steps put it at 1140x760,
-59% of the viewport.
+The band height is load-bearing, not padding: because the box's width is
+*derived* from the height, a fixed height would freeze the drawing's width and
+leave it a half-width detail on a large monitor.
+
+### Resized to Figma node 1197:6064 (Sep 2026)
+
+The band was `min-h` 560 / 660 / 760 across `lg` / `xl` / `2xl`, and the
+drawing sat flush to the right viewport edge. Checked against Figma node
+**1197:6064** — a 1512-wide frame — that made the band 660px against its 608px
+and the drawing 990px against its 911px, and put the artwork hard on the edge
+where Figma fades it out short of it.
+
+Both numbers now live in `section.legacy-band` in `styles/globals.css` as
+proportions of the viewport, so the band holds Figma's ratio rather than
+matching at one width and drifting either side: `min-height: clamp(560px,
+40.2vw, 780px)` and `padding-top: clamp(128px, 9.92vw, 190px)`, from 40.2%
+and 9.92% of Figma's 1512. `vw` INCLUDING the scrollbar is correct here —
+Figma's 1512 is the whole window, not the content box. Floors keep `lg`/`xl`
+at the values they had; the cap stops growth on a very large monitor.
+
+**Only the band height needed setting.** The box takes its height from the
+section and derives its width from the drawing's own 1.5:1, so a 608px band
+makes it 912px wide — Figma's 911px, within a pixel — and padding-top then
+leaves exactly Figma's 205px under the copy without that gap being written
+anywhere.
+
+The selector is `section.legacy-band`, not `.legacy-band`: it has to beat
+`md:py-32`'s padding-top, and element+class outranks a lone class whatever
+order Tailwind emits them in.
+
+Measured at 1512 against Figma, all exact: band **608**, heading top **150**,
+heading-to-body **41**, body **108** (5 lines at `leading-[1.2]`), copy block
+bottom **403**, space below **205**, box **912x608**, right inset **68** (69
+in Figma; the 1px is the scrollbar). Ladder either side: 560/128 at
+1024–1280, 772/190 at 1920. Mobile and `md` deliberately untouched — 96px and
+128px padding, `leading-relaxed`, 32px heading gap.
+
+**`leading-[1.2]` is Figma's and it is tight for a paragraph.** It is applied
+from `lg` up only, where the mock actually specifies it; the comfortable
+1.625 stays on the narrow widths Figma does not cover. If the desktop
+paragraph ever reads too cramped, that one value is the thing to relax — it
+will cost the 608px band match, since the 108px copy height is what produces
+it.
 
 **`object-contain`, NOT cover — this is the part that bit.** Cover looks
 identical at most widths because it only crops vertically once the box grows
@@ -2870,13 +2905,43 @@ all. It needs width to read as a drawing. Below `lg` the section is also
 content-height rather than a tall empty band, and the copy drops its width cap
 since there is nothing to clear.
 
-**The shade** is a left-to-right white gradient over the drawing, opaque under
-the copy and clear by 52% across. Written `rgba(255,255,255,0)` rather than the
-`transparent` keyword — Safari's bare `transparent` is transparent BLACK and
-would grey the fade.
+**The shade** is a white gradient over the drawing, fading it out at BOTH
+ends: opaque under the copy, clear from 52% to 87%, then back to opaque at the
+right edge. Written `rgba(255,255,255,0)` rather than the `transparent`
+keyword — Safari's bare `transparent` is transparent BLACK and would grey the
+fade.
 
-Verified: nothing painted at 390 / 767 / 1023; flush right with the copy clear
-of un-faded artwork at 1024 and 1440; no horizontal overflow at 390.
+The right-hand stop is not decoration. The drawing's ink runs **edge to edge**
+— measured alpha bounding box x 0->1535 of 1536, zero clear margin either side,
+and the rightmost tenth still carries substantial ink — so once the box stops
+short of the viewport edge its own edge cuts the buildings off with a hard
+vertical line. Figma solves it identically, with a 120px fade over its 911px
+artwork, i.e. the last 13.2%; hence 87%.
+
+The LEFT stop stays much wider than Figma's matching 120px, deliberately.
+Below ~1500px the drawing reaches further under the copy than it does on
+Figma's 1512 frame, and a 120px fade would leave it legible behind the
+paragraph.
+
+Verified: nothing painted at 390 / 767 / 1023; the copy clear of un-faded
+artwork at 1024 and 1440; no horizontal overflow at 390.
+
+### Still outstanding against 1197:6064
+
+- **The band is `#f7f7f7` in Figma, not white.** Both its fade gradients use
+  that same grey, and its exported artwork is a flattened JPEG pre-composited
+  onto it. Ours sets no background and inherits the page white, with white
+  fades to match. `#f7f7f7` appears nowhere in the codebase and is NOT
+  `bg-paper-2` (`#f4f2ee`, warm); it is neutral. Worth confirming whether the
+  neighbouring bands share it before changing one section in isolation.
+  Our local asset keeps its alpha channel, so it would composite onto a grey
+  band correctly with no re-export — it is strictly more flexible than
+  Figma's flattened one.
+- **Copy sits 113px from the left, Figma 150px.** That is `container-edge`
+  (max-w-1400 centred, then 64px padding), so it is sitewide rather than this
+  section's choice. Figma's page gutter reads as ~150px — the same 1512 frame
+  put Core Values' 1210px span at a 151px offset, which matched only because
+  that row is centred.
 
 ### Three things the swap forced, none of them obvious
 

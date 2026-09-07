@@ -25,11 +25,21 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 // luminance happened to be, with no say in the tone.
 const BLUEPRINT = "/home/legacy-blueprint-pencil.webp";
 
-// The "shade". `rgba(255,255,255,0)` rather than the `transparent` keyword:
-// Safari resolves bare `transparent` to transparent BLACK, which would turn
-// this fade into a grey smudge.
-const FADE_UNDER_COPY =
-  "linear-gradient(to right, #ffffff 0%, rgba(255,255,255,0.94) 18%, rgba(255,255,255,0) 52%)";
+// The "shade", fading the drawing out at BOTH ends. `rgba(255,255,255,0)`
+// rather than the `transparent` keyword: Safari resolves bare `transparent`
+// to transparent BLACK, which would turn this fade into a grey smudge.
+//
+// The right-hand stop is not decoration. The drawing's ink runs edge to edge
+// — measured bounding box x 0->1535 of 1536, no clear margin either side — so
+// now that the box stops short of the viewport edge, its right edge would cut
+// the buildings off with a hard vertical line. Figma solves it the same way,
+// with a 120px fade over its 911px artwork (the last 13.2%), hence 87%.
+//
+// The left stop stays much wider than Figma's matching 120px: below ~1500px
+// the drawing reaches further under the copy than it does on Figma's 1512
+// frame, and a 120px fade would leave it legible behind the paragraph.
+const FADE =
+  "linear-gradient(to right, #ffffff 0%, rgba(255,255,255,0.94) 18%, rgba(255,255,255,0) 52%, rgba(255,255,255,0) 87%, #ffffff 100%)";
 
 const ALT =
   "Pencil sketch of a building with its underground water and drainage pipe runs";
@@ -38,32 +48,34 @@ export async function CompanyOverview() {
   const t = await getTranslations("home");
 
   return (
-    // `min-h` only where the drawing actually renders. It steps up at `xl` so
-    // the band's proportions stay close to the drawing's own 1.5:1 — the
-    // closer those match, the less dead space `object-contain` leaves. Below
-    // `lg` the section is content-height, which suits a tablet better than a
-    // tall band with nothing in it.
-    // The `2xl` step matters: the box width is derived from the band's height,
-    // so without it the drawing stops growing at 990px and shrinks to a
-    // half-width detail on a large monitor.
-    <section className="relative overflow-hidden py-24 md:py-32 lg:min-h-[560px] xl:min-h-[660px] 2xl:min-h-[760px]">
-      {/* Hard to the right viewport edge and as tall as the section allows —
-          deliberately outside `container-edge`, which only wraps the copy.
-          Removed outright below `lg`, rather than stacked under the copy.
+    // Band height and top padding are the `section.legacy-band` rule in
+    // globals.css — both proportional to the viewport so they hold Figma's
+    // 608px / 150px at its 1512 frame and keep that ratio either side. They
+    // replaced a three-step `lg/xl/2xl:min-h` ladder that was 660px at 1512,
+    // which made the drawing 990px against Figma's 911px. Below `lg` the
+    // section is content-height, which suits a tablet better than a tall band
+    // with nothing in it.
+    <section className="legacy-band relative overflow-hidden py-24 md:py-32">
+      {/* As tall as the section allows and inset from the right — deliberately
+          outside `container-edge`, which only wraps the copy. Removed outright
+          below `lg`, rather than stacked under the copy.
 
           `lg` and not `md`: at 768 the box is only ~437 wide against a ~788
           tall section, which leaves the drawing far too small to read. It needs
           the width.
 
+          The 4.56% right inset is Figma's 69px on its 1512 frame. The drawing
+          does NOT bleed off the viewport edge there — it stops short and fades
+          out, which is why the gradient above gained a right-hand stop.
+
           Sizing: height comes from the section, `aspectRatio` derives the
           width from it, and `max-w` caps how far left it may reach. Where the
-          cap does not bind, the box matches the drawing's ratio exactly and it
-          fills the band edge to edge with no crop and no dead space — that
-          happens from about 1375px up. */}
-      {/* <div
-        className="pointer-events-none absolute bottom-0 right-0 hidden max-w-[66%] lg:block xl:max-w-[72%]"
+          cap does not bind the box matches the drawing's ratio exactly, so
+          there is no crop and no dead space. */}
+      <div
+        className="pointer-events-none absolute bottom-0 right-[4.56%] hidden max-w-[66%] lg:block xl:max-w-[72%]"
         style={{ height: "100%", aspectRatio: "1536 / 1024" }}
-      > */}
+      >
         {/* `object-contain`, NOT cover. Cover only crops vertically once the
             box grows wider than the drawing's 1.5:1 — which happens above
             ~1500px — and with the crop anchored to the bottom it took the
@@ -72,9 +84,9 @@ export async function CompanyOverview() {
             every width; `object-bottom` keeps the pipe run on the section's
             baseline and puts any spare space above, where the drawing is
             empty sky anyway. */}
-        {/* <Image src={BLUEPRINT} alt={ALT} fill sizes="72vw" className="object-contain object-bottom" /> */}
-        {/* <div className="absolute inset-0" style={{ background: FADE_UNDER_COPY }} />
-      </div> */}
+        <Image src={BLUEPRINT} alt={ALT} fill sizes="72vw" className="object-contain object-bottom" />
+        <div className="absolute inset-0" style={{ background: FADE }} />
+      </div>
 
       <div className="container-edge relative">
         {/* Unconstrained below `lg`, where there is no drawing to clear;
@@ -88,8 +100,13 @@ export async function CompanyOverview() {
             <SectionHeading title={t("overviewH1")} titleAccent={t("overviewH2")} />
           </RevealOnScroll>
 
-          <RevealOnScroll delay={0.08} className="mt-8">
-            <p className="text-balance text-base leading-relaxed text-[#606060] md:text-lg">
+          {/* 41px under the heading, and `leading-[1.2]` from `lg` up: both
+              are Figma's, and together they put the 5-line paragraph at 108px
+              so the copy block totals its 403px. 1.2 is tight for a paragraph
+              — it is kept to the mock at desktop only, with the comfortable
+              1.625 left in place on the narrow widths Figma does not cover. */}
+          <RevealOnScroll delay={0.08} className="mt-8 lg:mt-[41px]">
+            <p className="text-balance text-base leading-relaxed text-[#606060] md:text-lg lg:leading-[1.2]">
               {t("overviewDesc")}
             </p>
           </RevealOnScroll>

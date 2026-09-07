@@ -204,6 +204,33 @@ button[aria-label="Select language"] svg {
     text-wrap: balance;
   }
 
+  /* Homepage legacy band (components/home/CompanyOverview.tsx), Figma node
+     1197:6064. That frame is 1512 wide and measures a 608px band with its
+     heading 150px down — 40.2% and 9.92% of the frame width. Both are held as
+     `vw` so the band keeps Figma's proportion instead of matching at one
+     width and drifting either side of it: at 1512 they resolve to 608px and
+     150px exactly. `vw` INCLUDING the scrollbar is the right unit here, since
+     Figma's 1512 is the whole window rather than the content box.
+
+     Floored at the values this band used before so nothing below ~1400px gets
+     shorter, and capped so it stops growing on a very large monitor.
+
+     The band height is the only number that needs setting: the drawing's box
+     takes its height from the section and derives its width from the
+     drawing's own 1.5:1, so a 608px band makes it 912px wide — Figma's 911px,
+     within a pixel. Padding-top then leaves exactly Figma's 205px under the
+     copy without that gap being specified anywhere.
+
+     Selector is `section.legacy-band`, not `.legacy-band`: it has to beat
+     `md:py-32`'s padding-top, and element+class outranks a lone class
+     whatever order Tailwind emits them in. */
+  @media (min-width: 64rem) {
+    section.legacy-band {
+      min-height: clamp(560px, 40.2vw, 780px);
+      padding-top: clamp(128px, 9.92vw, 190px);
+    }
+  }
+
   /* Core Values (components/home/CoreValues.tsx).
 
      ONE number drives the whole section: `--cv-disc`, the disc diameter.
