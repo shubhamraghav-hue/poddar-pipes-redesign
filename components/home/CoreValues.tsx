@@ -27,6 +27,11 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * gutters need ~1200px of content — more than a 1024px screen has. Rather
  * than let that caption spill to a third line, the disc tracks the grid cell
  * (via `cqw`) and tops out at Figma's 150px, reached at about 1392px.
+ *
+ * Five-across starts at `lg` so the row matches Figma as early as possible,
+ * which costs a step DOWN in size at 1024 — five columns in 944px of content
+ * are narrower than three, so the type shrinks to hold two lines. Chosen
+ * deliberately over keeping three columns at a larger size.
  */
 
 // Each icon is a different shape at a different size, and Figma centres them
@@ -64,7 +69,7 @@ export async function CoreValues() {
             sort ahead of `sm:` and never win. */}
         <RevealOnScroll
           delay={0.08}
-          className="mt-14 grid grid-cols-2 gap-x-6 gap-y-8 max-[425px]:grid-cols-1 sm:mt-16 sm:grid-cols-3 sm:gap-y-10 md:gap-x-10 xl:mt-20 xl:grid-cols-5 xl:gap-y-12"
+          className="mt-14 grid grid-cols-2 gap-x-6 gap-y-8 max-[425px]:grid-cols-1 sm:mt-16 sm:grid-cols-3 sm:gap-y-10 md:gap-x-10 lg:mt-20 lg:grid-cols-5 lg:gap-y-12"
         >
           {VALUES.map((v, i) => (
             // The container is the grid cell; `.cv-scale` sits on the child so

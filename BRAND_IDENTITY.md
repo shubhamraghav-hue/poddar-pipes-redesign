@@ -2953,9 +2953,14 @@ than "corrected" to dead centre. The numbers live in `VALUES` as percentages
 of the disc, so they scale with it.
 
 **Layout is responsive, not Figma's absolute coordinates.** 1 column at and
-below 425px, 2 below `sm`, 3 to `xl`, 5 from `xl` — five 150px discs and their
-captions need ~1200px of content and would otherwise shrink to thumbnails with
-unreadable captions.
+below 425px, 2 below `sm`, 3 from `sm`, 5 from `lg`.
+
+Five-across starts at `lg` so the row matches Figma as early as possible, and
+that **costs a step down in size at 1024**: five columns in 944px of content
+are narrower than three, so the disc drops 112.5px to 104.4px and the type
+shrinks with it to keep every caption on two lines. Explicitly chosen over
+holding three columns at a larger size. It is the one non-monotonic point in
+the ladder — everywhere else, widening the window never shrinks the discs.
 
 **The whole cluster scales as one ratio.** Only the disc diameter changes per
 breakpoint — `--cv-disc`, the `.cv-scale` ladder in `styles/globals.css` — and
@@ -2972,10 +2977,20 @@ the discs:
 | --- | --- | --- | --- | --- |
 | ≤425 | 1 | 100px | 0.667 | 16px |
 | 426–639 | 2 | 100px | 0.667 | 16px |
-| 640–1279 | 3 | 112.5px | 0.75 | 18px |
-| 1280 | 5 | 132.6px | 0.884 | 21.2px |
+| 640–1023 | 3 | 112.5px | 0.75 | 18px |
+| 1024 | 5 | 104.4px | 0.696 | 16.7px |
+| 1100 | 5 | 114.7px | 0.765 | 18.4px |
+| 1240–1280 | 5 | 132.6px | 0.884 | 21.2px |
 | 1366 | 5 | 144.4px | 0.962 | 23.1px |
 | ≥1440 | 5 | **150px** | **1.000** | **24px** |
+
+The 1240–1280 plateau is deliberate. `container-edge` widens its padding from
+40px to 64px at `xl`, which NARROWS the cell exactly as the window gets wider,
+so the `lg` step is capped at the disc size the `xl` step opens with (132.6px)
+to absorb it. Measured 132.6px at 1240, 1279, 1280 and 132.9px at 1282 —
+continuous across the boundary. That cap figure is **measured, not derived**: a
+classic scrollbar takes ~15px of viewport and so ~3px off every cell, which the
+arithmetic misses; deriving it gave 134.5px and left a visible 1.9px dip.
 
 **The five-across band is fluid rather than stepped, because Figma's own
 proportions cannot survive a narrow window.** The widest caption line
