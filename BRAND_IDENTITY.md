@@ -2957,11 +2957,14 @@ of the disc, so they scale with it.
 only thing that changes is how many items fit per row:
 
 ```
-  >=1024          640-1023        426-639         <=425
-  1  2  3  4  5   1  2  3         1  2            1
-                    4  5          3  4            2
-                                    5             3 ...
+  >=1024          640-1023        <640
+  1  2  3  4  5   1  2  3         1  2
+                    4  5          3  4
+                                    5
 ```
+
+There is no single-column band — two-up holds all the way down to the
+narrowest screens, with the fifth disc centred beneath the pair above it.
 
 **The stagger is emergent, not hand-offset.** A centred short row lands
 exactly half a pitch off the row above it, so five items over two rows give
@@ -2999,9 +3002,10 @@ never shrinks the discs:
 
 | viewport | rows | disc | caption | gutter | span |
 | --- | --- | --- | --- | --- | --- |
-| ≤425 | 1-1-1-1-1 | 100px | 16px | — | — |
-| 430 | 2-2-1 | 105.2px | 16.8px | 80.6px | 291px |
-| 639 | 2-2-1 | 106px | 17px | 81.3px | 293px |
+| 320 | 2-2-1 | 90.6px | 14.5px | 42.6px | 224px |
+| 360 | 2-2-1 | 103.9px | 16.6px | 48.9px | 257px |
+| 390–425 | 2-2-1 | 106px | 17px | 61–79px | 273–291px |
+| 480–639 | 2-2-1 | 106px | 17px | **81.3px** | 293px |
 | 640 | 3-2 | 109.5px | 17.5px | 84px | 496px |
 | 910–1023 | 3-2 | **150px** | **24px** | **115px** | 680px |
 | 1024 | 5 | 133.7px | 21.4px | 63px | 921px |
@@ -3021,10 +3025,19 @@ Above 1024 the disc grows to Figma's 150px by about 1140px, after which the
 1366. So five-across compresses the gutter, not the disc, across almost its
 whole range.
 
+**Two-up compresses the gutter on phones**, for exactly the same reason
+five-up does at 1024. Holding Figma's 0.767-disc gutter down there would have
+forced a 71px disc with an **11px** caption at 320px. Compressing to the
+caption minimum instead measures 106px / 17px from 390px up — the size the
+old single-column band gave — and only falls to 90.6px / 14.5px at 320px.
+Figma's proportion returns from about 480px.
+
 Worth recording how much the disc-plus-gutter model bought here: an earlier
 grid attempt at the same brief could only afford a **104px disc and 16.7px
 type** at 1024, because it reserved a half gutter outside the first and last
-column. Same width, same constraint, 28% bigger disc.
+column. Same width, same constraint, 28% bigger disc. The gutter being a real
+dimension rather than dead space inside each item is what makes both the
+phone and the 1024 case survive at a readable size.
 
 Verified: heading 48px `#4a4a4a`, captions 24px semibold `#606060`,
 heading-to-disc gap **80px** and disc-to-caption gap **32px** — both Figma's

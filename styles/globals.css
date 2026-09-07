@@ -238,30 +238,39 @@ button[aria-label="Select language"] svg {
      LAYOUT. One `flex-wrap` + `justify-content: center` row set at every
      width, with only the count per row changing:
 
-       >=1024        640-1023      426-639       <=425
-       1 2 3 4 5     1 2 3         1 2           1
-                      4 5          3 4           2
-                                    5            3 ...
+       >=1024        640-1023      <640
+       1 2 3 4 5     1 2 3         1 2
+                      4 5          3 4
+                                     5
 
      The stagger is emergent, not hand-offset: a centred short row lands
      exactly half a pitch off the row above it. Five items over two rows give
      3/2, over three rows 2/2/1 — both centre for free. Nothing is positioned,
-     so the short row cannot fall out of alignment.
+     so the short row cannot fall out of alignment. Two-up holds all the way
+     down; there is no single-column band.
 
      A row holds exactly `--cv-per-row` items because its max-width is exactly
-     that many discs plus gutters. `--cv-disc` is fluid inside the 2-up and
-     3-up bands so the row always fits the space available (with 2% slack):
-     27.5cqw is `0.98 / (2 * 1.767)` and 18.49cqw `0.98 / (3 * 1.767)`, the
-     caption ink being `1.767 * n` discs wide. `cqw` resolves against the
-     full-width wrapper, NOT the capped row, which is why the `@container`
-     sits outside it.
+     that many discs plus gutters. `--cv-disc` is fluid in every band so the
+     captions always fit the space available (with 2% slack), the caption ink
+     across a row being `pitch * n` wide: 18.49cqw is `0.98 / (3 * 1.767)`
+     for the 3-up band at Figma's pitch, and 33.3cqw / 14.4cqw are the same
+     sum for 2-up and 5-up at the compressed pitch of 1.471. `cqw` resolves
+     against the full-width wrapper, NOT the capped row, which is why the
+     `@container` sits outside it.
 
      Sizes, all measured:
 
-       <=425      disc 100px                    gutter n/a
-       426-639    disc 100 -> 106px             gutter 0.767 disc
+       <640       disc 91 -> 106px @ ~390px     gutter compressed -> 0.767 disc
        640-1023   disc 106 -> 150px @ ~906px    gutter 0.767 disc
        >=1024     disc 134 -> 150px @ ~1140px   gutter 63 -> 115px @ ~1366px
+
+     TWO-UP COMPRESSES THE GUTTER ON PHONES, for the same reason five-up does
+     at 1024. Holding Figma's 0.767-disc gutter down there would force a 71px
+     disc with an 11px caption on a 320px screen. Compressing the gutter to
+     the caption minimum instead measures 106px / 17px from 390px up and
+     104px / 16.6px at 360px — the size the single-column band used to give —
+     falling only to 91px / 14.5px at 320px. Figma's proportion returns from
+     about 480px up.
 
      FIVE-ACROSS AT `lg` COSTS ONE STEP DOWN, and it is the only one in the
      ladder: the disc drops 150px to ~134px crossing 1024. Five discs plus
@@ -286,9 +295,13 @@ button[aria-label="Select language"] svg {
      640. Learned the hard way. */
   .cv-row {
     --cv-pitch: 1.767;
-    --cv-disc: 100px;
-    --cv-per-row: 1;
-    --cv-gutter: calc((var(--cv-pitch) - 1) * var(--cv-disc));
+    --cv-per-row: 2;
+    --cv-disc: clamp(72px, 33.3cqw, 106px);
+    --cv-gutter: clamp(
+      calc(0.471 * var(--cv-disc)),
+      calc(50cqw - var(--cv-disc) - 4px),
+      calc(0.767 * var(--cv-disc))
+    );
 
     max-width: min(
       100%,
@@ -319,19 +332,13 @@ button[aria-label="Select language"] svg {
     font-size: calc(var(--cv-disc) * 0.16);
   }
 
-  /* 2 / 2 / 1 */
-  @media (min-width: 26.625rem) {
-    .cv-row {
-      --cv-per-row: 2;
-      --cv-disc: clamp(100px, 27.5cqw, 106px);
-    }
-  }
-
-  /* 3 / 2 — 640 to 1023 */
+  /* 3 / 2 — 640 to 1023. Wide enough to carry Figma's proportional gutter
+     outright, so the three-way clamp is not needed here. */
   @media (min-width: 40rem) {
     .cv-row {
       --cv-per-row: 3;
       --cv-disc: clamp(106px, 18.49cqw, 150px);
+      --cv-gutter: calc((var(--cv-pitch) - 1) * var(--cv-disc));
     }
   }
 

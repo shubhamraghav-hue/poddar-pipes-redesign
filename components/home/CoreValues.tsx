@@ -17,8 +17,8 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  *
  * LAYOUT AND SIZING both live in the `.cv-*` block in `styles/globals.css`,
  * which carries the full reasoning. In short: one centred flex row set whose
- * only variable is how many items fit per row (5 / 3 / 2 / 1), so the short
- * last row centres itself into a half-pitch stagger, and one length —
+ * only variable is how many items fit per row (5 / 3 / 2), so the short last
+ * row centres itself into a half-pitch stagger, and one length —
  * `--cv-disc` — from which every other dimension is a Figma ratio.
  *
  * Only the per-icon offsets are inline here, because they are per-value data
