@@ -15,23 +15,14 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * is the `ocean-600` token. Only the five ICONS are real artwork and ship as
  * SVGs.
  *
- * SIZING. Every dimension is a ratio of the disc diameter, which is the one
- * number that changes per breakpoint: `--cv-disc`, set by the `.cv-scale`
- * ladder in `styles/globals.css`. Figma draws a 150px disc with a 24px
- * caption 32px below it, so those are the 0.16 and 0.2133 factors here, and
- * a 150px disc reproduces Figma exactly.
+ * LAYOUT AND SIZING both live in the `.cv-*` block in `styles/globals.css`,
+ * which carries the full reasoning. In short: one centred flex row set whose
+ * only variable is how many items fit per row (5 / 3 / 2 / 1), so the short
+ * last row centres itself into a half-pitch stagger, and one length —
+ * `--cv-disc` — from which every other dimension is a Figma ratio.
  *
- * The five-across band is FLUID rather than stepped, because Figma's own
- * proportions cannot survive a narrow window: the widest caption line
- * ("DEFINING INDUSTRY") is 8.644em, so at Figma's 24px five of them plus
- * gutters need ~1200px of content — more than a 1024px screen has. Rather
- * than let that caption spill to a third line, the disc tracks the grid cell
- * (via `cqw`) and tops out at Figma's 150px, reached at about 1392px.
- *
- * Five-across starts at `lg` so the row matches Figma as early as possible,
- * which costs a step DOWN in size at 1024 — five columns in 944px of content
- * are narrower than three, so the type shrinks to hold two lines. Chosen
- * deliberately over keeping three columns at a larger size.
+ * Only the per-icon offsets are inline here, because they are per-value data
+ * rather than layout.
  */
 
 // Each icon is a different shape at a different size, and Figma centres them
@@ -60,27 +51,14 @@ export async function CoreValues() {
           <SectionHeading title={t("coreValuesH1")} titleAccent={t("coreValuesH2")} />
         </RevealOnScroll>
 
-        {/* Figma's gap from the heading's baseline to the top of the discs is
-            80px, scaled down with everything else. One column at and below
-            425px, then 2 / 3 / 5 — five 150px discs and their captions need
-            ~1200px of content and would otherwise shrink to thumbnails.
-            The single column is a `max-` variant rather than the base with
-            `min-[426px]:` above it, because an arbitrary `min-` variant would
-            sort ahead of `sm:` and never win. */}
-        <RevealOnScroll
-          delay={0.08}
-          className="mt-14 grid grid-cols-2 gap-x-6 gap-y-8 max-[425px]:grid-cols-1 sm:mt-16 sm:grid-cols-3 sm:gap-y-10 md:gap-x-10 lg:mt-20 lg:grid-cols-5 lg:gap-y-12"
-        >
-          {VALUES.map((v, i) => (
-            // The container is the grid cell; `.cv-scale` sits on the child so
-            // its `cqw` resolves against the cell rather than against the
-            // cell's own parent.
-            <div key={v.id} className="@container">
-              <div className="cv-scale flex w-full flex-col items-center">
-                <div
-                  className="relative aspect-square rounded-full bg-[#171796]"
-                  style={{ width: "var(--cv-disc)" }}
-                >
+        {/* The `@container` has to sit OUTSIDE `.cv-row`, because the row caps
+            its own width and the fluid disc sizes measure the space available
+            to it — reading `cqw` off the capped row would be circular. */}
+        <RevealOnScroll delay={0.08} className="@container">
+          <ul className="cv-row mx-auto flex flex-wrap justify-center">
+            {VALUES.map((v, i) => (
+              <li key={v.id} className="cv-item flex flex-col items-center">
+                <div className="cv-disc relative aspect-square rounded-full bg-[#171796]">
                   <img
                     src={`${ICON_DIR}/${v.icon}`}
                     alt=""
@@ -98,24 +76,17 @@ export async function CoreValues() {
                 {/* Figma sets every caption on exactly two lines, so the two
                     lines are stored as separate keys and emitted as separate
                     blocks — that pins the break where Figma puts it and stops
-                    a narrow cell from choosing its own. Each locale splits its
+                    a narrow item from choosing its own. Each locale splits its
                     own copy; the Indic wording is long enough that an English
                     break point would land mid-phrase. Stored in natural case
-                    and uppercased here, which is a no-op for Indic scripts.
-                    24px semibold `#606060`, 32px under the disc. */}
-                <p
-                  className="text-center font-semibold uppercase leading-[1.2] text-[#606060]"
-                  style={{
-                    marginTop: "calc(var(--cv-disc) * 0.2133)",
-                    fontSize: "calc(var(--cv-disc) * 0.16)",
-                  }}
-                >
+                    and uppercased here, which is a no-op for Indic scripts. */}
+                <p className="cv-caption text-center font-semibold uppercase leading-[1.2] text-[#606060]">
                   <span className="block">{t(`coreValue${i}A` as never)}</span>
                   <span className="block">{t(`coreValue${i}B` as never)}</span>
                 </p>
-              </div>
-            </div>
-          ))}
+              </li>
+            ))}
+          </ul>
         </RevealOnScroll>
       </div>
     </section>

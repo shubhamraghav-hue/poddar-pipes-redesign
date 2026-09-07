@@ -2952,76 +2952,98 @@ deliberate optical nudge for a wide, shallow shape, so it is reproduced rather
 than "corrected" to dead centre. The numbers live in `VALUES` as percentages
 of the disc, so they scale with it.
 
-**Layout is responsive, not Figma's absolute coordinates.** 1 column at and
-below 425px, 2 below `sm`, 3 from `sm`, 5 from `lg`.
+**Layout is a centred, staggered row set — not a grid.** One
+`flex-wrap` + `justify-content: center` container at every width, where the
+only thing that changes is how many items fit per row:
 
-Five-across starts at `lg` so the row matches Figma as early as possible, and
-that **costs a step down in size at 1024**: five columns in 944px of content
-are narrower than three, so the disc drops 112.5px to 104.4px and the type
-shrinks with it to keep every caption on two lines. Explicitly chosen over
-holding three columns at a larger size. It is the one non-monotonic point in
-the ladder — everywhere else, widening the window never shrinks the discs.
+```
+  >=1280          640-1279        426-639         <=425
+  1  2  3  4  5   1  2  3         1  2            1
+                    4  5          3  4            2
+                                    5             3 ...
+```
 
-**The whole cluster scales as one ratio.** Only the disc diameter changes per
-breakpoint — `--cv-disc`, the `.cv-scale` ladder in `styles/globals.css` — and
-the caption (×0.16) and the gap beneath it (×0.2133) are derived from it, so a
-150px disc reproduces Figma exactly and nothing can drift out of proportion.
-It has to be a **length** rather than a unitless ratio, because the
-five-across step is fluid via `cqw` and `clamp()` cannot mix a number with a
-length.
+**The stagger is emergent, not hand-offset.** A centred short row lands
+exactly half a pitch off the row above it, so five items over two rows give
+3-2 and over three rows 2-2-1, both for free. Nothing is absolutely
+positioned, so the short row cannot drift out of alignment. Measured row
+offsets equal half the pitch to the tenth of a pixel at every width — 132.5
+against a 265px pitch at 1024, 96.7 against 193.4 at 640, 92.9 against 185.8
+at 430.
 
-Measured ladder, monotonic all the way up — widening the window never shrinks
-the discs:
+**The item is the DISC and the pitch is a real `column-gap`.** Sizing each
+item to a whole pitch instead looks equivalent and is not: it reserves a half
+gutter outside the first and last disc, pushing the five-across row to 1325px
+— wider than the 1272px `container-edge` actually offers at `xl`. That version
+measured **104px gutters and a 1168px span** and could never reach Figma's
+geometry. With the gutter as a real gap, the measured result at 1366px and up
+is **disc 150px, gutter 115px, pitch 265px, span 1210px — Figma to the
+pixel**, better than the original grid managed (112px and 1200px).
 
-| viewport | cols | disc | ratio | caption |
+**The caption is wider than its disc and overflows into the gutters**, exactly
+as Figma sets it — its 219px caption hangs off a 150px disc. It is one pitch
+wide, so captions tile the row edge to edge and can never overlap, and
+`align-items: center` spreads the overhang evenly with no negative margins.
+This is also what retired the two-line problem the grid kept hitting: the
+widest caption line measures 8.644em, so it occupies `8.644 × 0.16 = 1.383`
+discs against a 1.767-disc pitch — **a constant 78.3% at every size**,
+measured identically in every Figma-proportioned band. The caption can no
+longer fit at one breakpoint and overflow at another.
+
+**One number drives the whole section**, `--cv-disc`; everything else is a
+Figma ratio of it — caption 0.16 (24/150), gap under the disc 0.2133 (32/150),
+row gap 0.32 (48/150), heading offset 0.5333 (80/150), gutter 0.767 (115/150).
+So `--cv-disc: 150px` reproduces Figma exactly and the cluster cannot drift out
+of proportion. Measured ladder, monotonic all the way up — widening the window
+never shrinks the discs:
+
+| viewport | rows | disc | caption | gutter |
 | --- | --- | --- | --- | --- |
-| ≤425 | 1 | 100px | 0.667 | 16px |
-| 426–639 | 2 | 100px | 0.667 | 16px |
-| 640–1023 | 3 | 112.5px | 0.75 | 18px |
-| 1024 | 5 | 104.4px | 0.696 | 16.7px |
-| 1100 | 5 | 114.7px | 0.765 | 18.4px |
-| 1240–1280 | 5 | 132.6px | 0.884 | 21.2px |
-| 1366 | 5 | 144.4px | 0.962 | 23.1px |
-| ≥1440 | 5 | **150px** | **1.000** | **24px** |
+| ≤425 | 1-1-1-1-1 | 100px | 16px | — |
+| 430 | 2-2-1 | 105.2px | 16.8px | 80.6px |
+| 639 | 2-2-1 | 106px | 17px | 81.3px |
+| 640 | 3-2 | 109.5px | 17.5px | 84px |
+| ≥910 | 3-2 | **150px** | **24px** | **115px** |
+| 1280 | 5 | **150px** | **24px** | 96.2px |
+| ≥1366 | 5 | **150px** | **24px** | **115px** |
 
-The 1240–1280 plateau is deliberate. `container-edge` widens its padding from
-40px to 64px at `xl`, which NARROWS the cell exactly as the window gets wider,
-so the `lg` step is capped at the disc size the `xl` step opens with (132.6px)
-to absorb it. Measured 132.6px at 1240, 1279, 1280 and 132.9px at 1282 —
-continuous across the boundary. That cap figure is **measured, not derived**: a
-classic scrollbar takes ~15px of viewport and so ~3px off every cell, which the
-arithmetic misses; deriving it gave 134.5px and left a visible 1.9px dip.
+**Five-across waits for `xl`, then compresses the GUTTER rather than the
+disc.** Five discs plus Figma's gutters need 1210px and only 1137px is
+available at 1280, so the gutter goes fluid from ~96px up to Figma's 115px,
+which it reaches by 1366. Nothing changes size across the 1280 boundary — only
+the arrangement — which is the point: an earlier attempt that kept five-across
+and shrank the type instead was rejected on sight.
 
-**The five-across band is fluid rather than stepped, because Figma's own
-proportions cannot survive a narrow window.** The widest caption line
-("DEFINING INDUSTRY") measures **8.644em** — 207.5px at 24px in Anek
-Devanagari 600 — so five of them plus gutters need ~1200px of content, more
-than a 1024px screen has. Rather than let that caption spill to a third line,
-the disc tracks the grid cell via `cqw` and tops out at Figma's 150px, reached
-at about 1392px. The `67.9cqw` coefficient is that constraint solved for the
-disc: the caption occupies `8.644 × 0.16 × disc`, which must sit inside ~94%
-of the cell. Measured worst-case fit across every breakpoint is **93.9%** — no
-caption wraps to a third line at any width from 320px to 1920px, in English or
-Hindi.
+Below `xl` the 3-2 stagger carries **Figma's full 150px disc from about
+910px**, which is the real argument for it over five columns: five columns at
+1024 can only afford a 104px disc and 16.7px type. The trade is that the
+cluster sits in more air between 1024 and 1279 — 680px of content centred in
+1136px at the widest — which reads as a deliberately airy composition rather
+than a cramped row.
 
-Verified at 1440+: 5-across in one row, heading 48px `#4a4a4a`, captions 24px
-semibold `#606060`, heading-to-disc gap **80px** and disc-to-caption gap
-**32px** — both Figma's own values exactly — and the first icon at 52.29%
-width / 24% left, matching its spec to two decimals.
+Verified: heading 48px `#4a4a4a`, captions 24px semibold `#606060`,
+heading-to-disc gap **80px** and disc-to-caption gap **32px** — both Figma's
+own values exactly — and the first icon at 52.29% width / 24% left, matching
+its spec to two decimals. No caption reaches a third line and no page
+scrolls horizontally at any width from 360px to 1920px, in English or Hindi.
 
-**Two hazards worth remembering, both hit while building this:**
+**Three hazards worth remembering, all hit while building this:**
 
 - **Tailwind emits every arbitrary `min-[…]` variant BEFORE the named
   breakpoints.** A `min-[1152px]:grid-cols-5` silently lost to `sm:grid-cols-3`
   at every width above 640, because `sm` came later in the stylesheet and won
-  on order. Confirmed by reading the generated CSS. The single column is
-  therefore a `max-[425px]:` variant over a `grid-cols-2` base — a `max-`
-  variant only has to beat the unvariant base rule, which always precedes it.
+  on order. Confirmed by reading the generated CSS. That is why the whole
+  ladder is plain media queries in `styles/globals.css` rather than Tailwind
+  variants — there, source order is under our control.
 - **`clamp()` cannot mix a unitless number with a length.**
   `clamp(0.75, 0.453cqw, 1)` is invalid, so the custom property never
   resolved and `calc(var(--cv) * 150px)` collapsed the disc to 0 width — which
   renders as a silently *missing* disc, not an error. Hence a length-valued
   variable with ratio multipliers hanging off it.
+- **`cqw` must be read from a wrapper OUTSIDE the row.** The row caps its own
+  width, and the fluid disc sizes measure the space available *to* the row, so
+  putting the `@container` on the row itself would be circular. It sits on the
+  `RevealOnScroll` wrapper instead.
 
 **Captions are set on exactly two lines, as Figma sets them.** Each is stored
 as a *pair* of keys (`coreValue0A`/`coreValue0B`, …) and emitted as two

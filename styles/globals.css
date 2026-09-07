@@ -204,58 +204,134 @@ button[aria-label="Select language"] svg {
     text-wrap: balance;
   }
 
-  /* Core Values (components/home/CoreValues.tsx) size ladder. `--cv-disc` is
-     the disc diameter, and every other dimension in the cluster is a fixed
-     ratio of it (Figma: 150px disc, 24px caption, 32px between them), so the
-     whole group scales as one unit and 150px reproduces Figma exactly.
+  /* Core Values (components/home/CoreValues.tsx).
 
-     It has to be a LENGTH rather than a unitless ratio: the five-across step
-     is fluid via `cqw`, and `clamp()` cannot mix a number with a length.
+     ONE number drives the whole section: `--cv-disc`, the disc diameter.
+     Everything else is a fixed ratio of it, taken from Figma — caption 0.16
+     (24/150), gap under the disc 0.2133 (32/150), gap between rows 0.32
+     (48/150), heading offset 0.5333 (80/150) — so the cluster scales as a
+     single unit and `--cv-disc: 150px` reproduces Figma exactly.
 
-     Two columns can only carry a two-thirds cluster and three columns
-     three-quarters. From `lg` five fit and the size goes fluid against the
-     grid cell, reaching full size at about a 1392px viewport. The 67.9cqw
-     coefficient is the two-line constraint solved for the disc: the widest
-     caption line ("DEFINING INDUSTRY") measures 8.644em, so it occupies
-     `8.644 * 0.16 * --cv-disc` px, which has to sit inside ~94% of the cell.
+     `--cv-pitch` is the second Figma ratio, 265/150: its 150px discs sit on a
+     265px column pitch, which makes the gutter 0.767 discs (115px at 150px).
 
-     Going five-across at `lg` steps the disc DOWN, 112.5px to ~106px: five
-     columns in 944px of content give narrower cells than three do, so the
-     type has to shrink to keep every caption on two lines. That trade is
-     deliberate — five-across matching Figma was preferred over holding the
-     size. It is the one non-monotonic point in the ladder.
+     The item is the DISC and the pitch is a real `column-gap`. Sizing the item
+     to a whole pitch instead looks equivalent but is not: it reserves a half
+     gutter outside the first and last disc, which pushes the five-across row
+     to 1325px — wider than the 1272px `container-edge` actually offers at
+     `xl`, so the row could never reach Figma's geometry. Measured 104px
+     gutters and a 1168px span before this was corrected.
 
-     The 132.6px cap on the `lg` step exists because `container-edge` widens
-     its padding from 40px to 64px at `xl`, which NARROWS the cell exactly as
-     the window gets wider. Capping the lower band at the value the upper band
-     measures at 1280 absorbs that, so nothing shrinks on the way past it.
-     That figure is measured, not derived: a classic scrollbar takes ~15px of
-     viewport and so ~3px off each cell, which the arithmetic misses. Without
-     a scrollbar the cap leaves a ~2px RISE instead, which is harmless.
+     The caption is wider than its disc and overflows into the gutters,
+     exactly as Figma sets it (its 219px caption hangs off a 150px disc). It is
+     one pitch wide, so captions tile the row edge to edge and can never
+     overlap, and `align-items: center` on the item spreads that overhang
+     evenly without any negative margins. The widest caption line ("DEFINING
+     INDUSTRY") measures 8.644em, so it occupies `8.644 * 0.16 = 1.383` discs
+     against a 1.767-disc pitch — a constant 78% at EVERY size. That is what
+     retires the two-line problem the earlier grid kept hitting: the caption
+     cannot overflow at one breakpoint and fit at another, because the ratio
+     never changes.
 
-     The breakpoints here must stay in step with the grid-column classes in
-     the component. Written as plain media queries because Tailwind emits
-     every arbitrary `min-[…]` variant BEFORE the named breakpoints, so a
-     `min-[1152px]:` rule silently loses to `sm:` at every width above 640. */
-  .cv-scale {
+     LAYOUT. One `flex-wrap` + `justify-content: center` row set at every
+     width, with only the count per row changing:
+
+       >=1280        640-1279      426-639       <=425
+       1 2 3 4 5     1 2 3         1 2           1
+                      4 5          3 4           2
+                                    5            3 ...
+
+     The stagger is emergent, not hand-offset: a centred short row lands
+     exactly half a pitch off the row above it. Five items over two rows give
+     3/2, over three rows 2/2/1 — both centre for free. Nothing is positioned,
+     so the short row cannot fall out of alignment.
+
+     A row holds exactly `--cv-per-row` items because its max-width is exactly
+     that many discs plus gutters. `--cv-disc` is fluid inside the 2-up and
+     3-up bands so the row always fits the space available (with 2% slack):
+     27.5cqw is `0.98 / (2 * 1.767)` and 18.49cqw `0.98 / (3 * 1.767)`, the
+     caption ink being `1.767 * n` discs wide. `cqw` resolves against the
+     full-width wrapper, NOT the capped row, which is why the `@container`
+     sits outside it.
+
+     Each band is capped at the size the next band opens with, so the ladder
+     is monotonic — widening the window never shrinks the discs:
+
+       <=425      100px                    caption 16px
+       426-639    100px -> 106px           caption 16 -> 17px
+       640-1279   106px -> 150px @ ~906px  caption 17 -> 24px
+       >=1280     150px                    caption 24px
+
+     Five-across waits for `xl` and then holds the disc at Figma's 150px,
+     compressing the GUTTER instead: 5 discs plus Figma's gutters need 1210px
+     and only 1137px is available at 1280. So the gutter is fluid from ~96px
+     up to Figma's 115px, which it reaches at about 1353px — from there the
+     geometry is Figma's to the pixel: disc 150px, gutter 115px, span 1210px.
+     Nothing changes size across 1280, only the arrangement.
+
+     Written as plain media queries, not Tailwind variants, because Tailwind
+     emits every arbitrary `min-[...]` variant BEFORE the named breakpoints,
+     so a `min-[1152px]:` rule silently loses to `sm:` at every width above
+     640. Learned the hard way. */
+  .cv-row {
+    --cv-pitch: 1.767;
     --cv-disc: 100px;
+    --cv-per-row: 1;
+    --cv-gutter: calc((var(--cv-pitch) - 1) * var(--cv-disc));
+
+    max-width: min(
+      100%,
+      calc(
+        var(--cv-per-row) * var(--cv-disc) + (var(--cv-per-row) - 1) *
+          var(--cv-gutter)
+      )
+    );
+    margin-top: calc(var(--cv-disc) * 0.5333);
+    column-gap: var(--cv-gutter);
+    row-gap: calc(var(--cv-disc) * 0.32);
   }
 
+  .cv-item {
+    flex: none;
+    width: var(--cv-disc);
+  }
+
+  /* The item IS one disc wide, so the disc fills it; `aspect-square` in the
+     component then supplies the height. */
+  .cv-disc {
+    width: 100%;
+  }
+
+  .cv-caption {
+    width: calc(var(--cv-disc) + var(--cv-gutter));
+    margin-top: calc(var(--cv-disc) * 0.2133);
+    font-size: calc(var(--cv-disc) * 0.16);
+  }
+
+  /* 2 / 2 / 1 */
+  @media (min-width: 26.625rem) {
+    .cv-row {
+      --cv-per-row: 2;
+      --cv-disc: clamp(100px, 27.5cqw, 106px);
+    }
+  }
+
+  /* 3 / 2 */
   @media (min-width: 40rem) {
-    .cv-scale {
-      --cv-disc: 112.5px;
+    .cv-row {
+      --cv-per-row: 3;
+      --cv-disc: clamp(106px, 18.49cqw, 150px);
     }
   }
 
-  @media (min-width: 64rem) {
-    .cv-scale {
-      --cv-disc: clamp(100px, 67.9cqw, 132.6px);
-    }
-  }
-
+  /* 5 across — Figma's own row. Disc pinned at Figma's size, gutter fluid up
+     to Figma's 115px; 188px rather than 187.5px leaves 2px of slack over the
+     four gaps so rounding can never wrap one disc onto a second row. */
   @media (min-width: 80rem) {
-    .cv-scale {
-      --cv-disc: clamp(100px, 67.9cqw, 150px);
+    .cv-row {
+      --cv-per-row: 5;
+      --cv-disc: 150px;
+      --cv-gutter: clamp(90px, calc(25cqw - 188px), 115px);
     }
   }
 
