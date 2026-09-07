@@ -223,7 +223,14 @@
     "ctaPrimary": "Request a Quote",
     "ctaSecondary": "Download Product Catalogue",
     "ctaPrimaryHome": "Start a Conversation",
-    "ctaSecondaryHome": "Download Catalogue"
+    "ctaSecondaryHome": "Download Catalogue",
+    "coreValuesH1": "Core",
+    "coreValuesH2": "Values",
+    "coreValue0": "Quality first",
+    "coreValue1": "Trust and integrity",
+    "coreValue2": "Driven by purpose",
+    "coreValue3": "Defining industry innovation",
+    "coreValue4": "Customer centricity"
   },
   "industries": {
     "residential_name": "Residential",

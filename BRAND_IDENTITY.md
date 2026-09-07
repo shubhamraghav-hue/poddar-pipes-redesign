@@ -2917,3 +2917,53 @@ Source was a transparent PNG (10.9% of pixels carry any alpha); as WebP,
 251KB.
 
 `manufacturing-floor.jpg` is now unreferenced but left in `public/home/`.
+
+## Core Values section (Figma node 1150:6484, Sep 2026)
+
+`components/home/CoreValues.tsx`, on the landing page directly below the six
+categories. Five navy discs with white line icons and a caption under each.
+
+**The heading needed no work at all.** Figma draws it at 48px `#4a4a4a`, light
+"CORE" over bold "VALUES" — which is precisely what `SectionHeading` already
+renders by default for a `title` + `titleAccent` pair, since the grey became
+the sitewide default. So it is a plain `SectionHeading` call, not a
+reimplementation.
+
+**The disc is CSS, not the exported asset.** Figma's `Ellipse 7` export is a
+bare `<circle r="75" fill="#171796">` — a shape rather than artwork — and that
+hex is the `ocean-600` token. Shipping it as an `<img>` would have been an
+image request for a `rounded-full` div. Only the five ICONS are real artwork,
+and they ship as SVGs under `public/home/core-values/`.
+
+Two things checked on those icons before trusting them, in the spirit of the
+blank-gold-PNG episode:
+
+- `trust.svg` and `innovation.svg` both contain `fill="black"`, which on a navy
+  disc would be invisible. Opened, it is `<mask>` boilerplate
+  (`maskUnits="userSpaceOnUse" … fill="black"`) and the visible paths are
+  white. Not a defect.
+- Each icon was composited onto the navy disc and its white coverage measured:
+  2.5%–4.9% ink across the five. All genuinely draw something.
+
+**Icon placement is per-icon, not a shared box.** The five glyphs differ in
+size and aspect, and Figma positions each one individually — including
+`trust`, whose handshake sits **7px below** the disc's centre. That reads as a
+deliberate optical nudge for a wide, shallow shape, so it is reproduced rather
+than "corrected" to dead centre. The numbers live in `VALUES` as percentages
+of the disc, so they scale with it.
+
+**Layout is responsive, not Figma's absolute coordinates.** 2 columns on the
+smallest screens, 3 at `sm`, 5 at `lg` — five 150px discs need ~1210px and
+would otherwise shrink to thumbnails with unreadable captions. The 150px cap
+plus `lg:gap-x-10` happens to land the desktop rhythm almost exactly: measured
+at 1512, **discs 150px, 112px between disc edges against Figma's 115, and a
+1200px span against its 1210**.
+
+Verified at 1512: 5-across in one row, heading 48px `#4a4a4a`, captions 24px
+semibold `#606060`, heading-to-disc gap **80px** and disc-to-caption gap
+**32px** — both Figma's own values exactly — and the first icon at 52.29%
+width / 24% left, matching its spec to two decimals.
+
+Captions are stored in natural case in the locale files and uppercased in CSS.
+Figma sets them in caps, but storing them that way would bake English casing
+into ten Indic locales where the transform is a no-op anyway.

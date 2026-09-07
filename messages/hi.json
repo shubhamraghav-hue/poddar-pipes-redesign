@@ -223,7 +223,14 @@
     "ctaPrimary": "कोटेशन के लिए अनुरोध करें",
     "ctaSecondary": "उत्पाद कैटलॉग डाउनलोड करें",
     "ctaPrimaryHome": "बातचीत शुरू करें",
-    "ctaSecondaryHome": "कैटलॉग डाउनलोड करें"
+    "ctaSecondaryHome": "कैटलॉग डाउनलोड करें",
+    "coreValuesH1": "मूल",
+    "coreValuesH2": "मूल्य",
+    "coreValue0": "गुणवत्ता सर्वोपरि",
+    "coreValue1": "भरोसा और सत्यनिष्ठा",
+    "coreValue2": "उद्देश्य से प्रेरित",
+    "coreValue3": "उद्योग में नवाचार की परिभाषा",
+    "coreValue4": "ग्राहक सर्वप्रथम"
   },
   "industries": {
     "residential_name": "आवासीय",

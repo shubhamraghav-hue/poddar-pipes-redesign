@@ -7,6 +7,17 @@ in with invented data — replace with verified information only.
 
 ## Resolved since the last pass
 
+- **Core Values section added to the landing page (Figma node 1150:6484), Sep 2026.**
+  Five values — Quality first, Trust and integrity, Driven by purpose, Defining
+  industry innovation, Customer centricity — taken from the Figma frame, so they are
+  brand-supplied rather than invented. Copy is real translated content in all eleven
+  locale files. Icons ship as SVGs at `public/home/core-values/`; the navy disc is
+  CSS, since Figma's export of it is a bare `<circle>`.
+  - Unrelated to the 7 core values that the old About page's `CoreValues` block
+    carried (deleted with that page) — those came from the brand story and are a
+    different, longer list. Worth reconciling with the brand team if both are meant
+    to exist.
+
 - **About Us page rebuilt from Figma (node 1001:5531), Sep 2026.** The old page and its
   five About-only components were deleted; the new one reuses `LegacyStory` and
   `CTASection` and adds two new sections. Copy for both new sections is real, translated

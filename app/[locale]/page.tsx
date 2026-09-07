@@ -4,6 +4,7 @@ import { Hero } from "@/components/home/Hero";
 import { CompanyOverview } from "@/components/home/CompanyOverview";
 import { SectionReveal } from "@/components/shared/SectionReveal";
 import { ProductCategories } from "@/components/home/ProductCategories";
+import { CoreValues } from "@/components/home/CoreValues";
 import { LegacyStory } from "@/components/home/LegacyStory";
 import { CTASection } from "@/components/home/CTASection";
 
@@ -38,6 +39,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <CompanyOverview />
       </SectionReveal>
       <ProductCategories />
+      {/* Figma node 1150:6484, placed below the six categories. */}
+      <CoreValues />
       {/* PREVIEW PLACEMENT — Figma node 51:488. Dropped in below the six
           categories so it can be reviewed in context; its final position in
           the page order has not been decided. */}
