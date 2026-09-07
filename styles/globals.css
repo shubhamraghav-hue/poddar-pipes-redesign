@@ -228,15 +228,17 @@ button[aria-label="Select language"] svg {
      overlap, and `align-items: center` on the item spreads that overhang
      evenly without any negative margins. The widest caption line ("DEFINING
      INDUSTRY") measures 8.644em, so it occupies `8.644 * 0.16 = 1.383` discs
-     against a 1.767-disc pitch — a constant 78% at EVERY size. That is what
-     retires the two-line problem the earlier grid kept hitting: the caption
-     cannot overflow at one breakpoint and fit at another, because the ratio
-     never changes.
+     against a 1.767-disc pitch — a constant 78% wherever the gutter keeps
+     Figma's proportion, and never worse than the 94% the five-across band's
+     gutter floor allows. That is what retires the two-line problem the
+     earlier grid kept hitting: the fit is bounded by construction rather than
+     checked per breakpoint, so the caption cannot overflow at one width and
+     fit at another.
 
      LAYOUT. One `flex-wrap` + `justify-content: center` row set at every
      width, with only the count per row changing:
 
-       >=1280        640-1279      426-639       <=425
+       >=1024        640-1023      426-639       <=425
        1 2 3 4 5     1 2 3         1 2           1
                       4 5          3 4           2
                                     5            3 ...
@@ -254,20 +256,29 @@ button[aria-label="Select language"] svg {
      full-width wrapper, NOT the capped row, which is why the `@container`
      sits outside it.
 
-     Each band is capped at the size the next band opens with, so the ladder
-     is monotonic — widening the window never shrinks the discs:
+     Sizes, all measured:
 
-       <=425      100px                    caption 16px
-       426-639    100px -> 106px           caption 16 -> 17px
-       640-1279   106px -> 150px @ ~906px  caption 17 -> 24px
-       >=1280     150px                    caption 24px
+       <=425      disc 100px                    gutter n/a
+       426-639    disc 100 -> 106px             gutter 0.767 disc
+       640-1023   disc 106 -> 150px @ ~906px    gutter 0.767 disc
+       >=1024     disc 134 -> 150px @ ~1140px   gutter 63 -> 115px @ ~1366px
 
-     Five-across waits for `xl` and then holds the disc at Figma's 150px,
-     compressing the GUTTER instead: 5 discs plus Figma's gutters need 1210px
-     and only 1137px is available at 1280. So the gutter is fluid from ~96px
-     up to Figma's 115px, which it reaches at about 1353px — from there the
-     geometry is Figma's to the pixel: disc 150px, gutter 115px, span 1210px.
-     Nothing changes size across 1280, only the arrangement.
+     FIVE-ACROSS AT `lg` COSTS ONE STEP DOWN, and it is the only one in the
+     ladder: the disc drops 150px to ~134px crossing 1024. Five discs plus
+     Figma's 115px gutters need 1210px and a 1024px screen offers about 929px,
+     so something has to give. Requested explicitly, twice; do not "fix" it.
+
+     Above 1024 the disc grows back to 150px by ~1140px, after which the
+     GUTTER takes over as the fluid dimension and opens to Figma's 115px by
+     ~1366px. From there the geometry is Figma's to the pixel: disc 150px,
+     gutter 115px, pitch 265px, span 1210px.
+
+     The gutter's cap below `xl` is the odd-looking bit. `container-edge`
+     widens its padding from 40px to 64px at `xl`, which costs 48px of content
+     exactly as the window gets wider — enough to snap the span from 1182px
+     back to 1135px at 1280. Capping the sub-`xl` gutter at the value 1280
+     opens with absorbs it, at the price of gutters ~19px tighter than Figma's
+     between 1024 and 1279. Same trick as the disc caps in the bands below.
 
      Written as plain media queries, not Tailwind variants, because Tailwind
      emits every arbitrary `min-[...]` variant BEFORE the named breakpoints,
@@ -316,7 +327,7 @@ button[aria-label="Select language"] svg {
     }
   }
 
-  /* 3 / 2 */
+  /* 3 / 2 — 640 to 1023 */
   @media (min-width: 40rem) {
     .cv-row {
       --cv-per-row: 3;
@@ -324,14 +335,37 @@ button[aria-label="Select language"] svg {
     }
   }
 
-  /* 5 across — Figma's own row. Disc pinned at Figma's size, gutter fluid up
-     to Figma's 115px; 188px rather than 187.5px leaves 2px of slack over the
-     four gaps so rounding can never wrap one disc onto a second row. */
-  @media (min-width: 80rem) {
+  /* 5 across — Figma's own row, from `lg` up.
+
+     The gutter is a three-way clamp: it may never fall below the caption
+     minimum (0.471 discs — the widest line is 1.383 discs and wants to sit
+     inside 94% of the pitch), never exceed Figma's proportional 0.767 discs,
+     and otherwise takes whatever fills the row. 25cqw is `content / 4`, since
+     the row is one disc plus four pitches; 188px rather than 187.5px leaves
+     2px of slack over the four gaps so rounding can never wrap one disc onto
+     a second row. 14.4cqw is the same sum solved for the disc.
+
+     Two blocks, not one, only so the sub-`xl` gutter can be capped at what
+     `xl` opens with — see the padding note above. */
+  @media (min-width: 64rem) {
     .cv-row {
       --cv-per-row: 5;
-      --cv-disc: 150px;
-      --cv-gutter: clamp(90px, calc(25cqw - 188px), 115px);
+      --cv-disc: clamp(106px, 14.4cqw, 150px);
+      --cv-gutter: clamp(
+        calc(0.471 * var(--cv-disc)),
+        calc(25cqw - 188px),
+        min(calc(0.767 * var(--cv-disc)), 96.25px)
+      );
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .cv-row {
+      --cv-gutter: clamp(
+        calc(0.471 * var(--cv-disc)),
+        calc(25cqw - 188px),
+        calc(0.767 * var(--cv-disc))
+      );
     }
   }
 

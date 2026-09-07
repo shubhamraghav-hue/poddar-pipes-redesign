@@ -2957,7 +2957,7 @@ of the disc, so they scale with it.
 only thing that changes is how many items fit per row:
 
 ```
-  >=1280          640-1279        426-639         <=425
+  >=1024          640-1023        426-639         <=425
   1  2  3  4  5   1  2  3         1  2            1
                     4  5          3  4            2
                                     5             3 ...
@@ -2997,29 +2997,34 @@ So `--cv-disc: 150px` reproduces Figma exactly and the cluster cannot drift out
 of proportion. Measured ladder, monotonic all the way up — widening the window
 never shrinks the discs:
 
-| viewport | rows | disc | caption | gutter |
-| --- | --- | --- | --- | --- |
-| ≤425 | 1-1-1-1-1 | 100px | 16px | — |
-| 430 | 2-2-1 | 105.2px | 16.8px | 80.6px |
-| 639 | 2-2-1 | 106px | 17px | 81.3px |
-| 640 | 3-2 | 109.5px | 17.5px | 84px |
-| ≥910 | 3-2 | **150px** | **24px** | **115px** |
-| 1280 | 5 | **150px** | **24px** | 96.2px |
-| ≥1366 | 5 | **150px** | **24px** | **115px** |
+| viewport | rows | disc | caption | gutter | span |
+| --- | --- | --- | --- | --- | --- |
+| ≤425 | 1-1-1-1-1 | 100px | 16px | — | — |
+| 430 | 2-2-1 | 105.2px | 16.8px | 80.6px | 291px |
+| 639 | 2-2-1 | 106px | 17px | 81.3px | 293px |
+| 640 | 3-2 | 109.5px | 17.5px | 84px | 496px |
+| 910–1023 | 3-2 | **150px** | **24px** | **115px** | 680px |
+| 1024 | 5 | 133.7px | 21.4px | 63px | 921px |
+| 1100 | 5 | 144.7px | 23.2px | 68.1px | 996px |
+| 1140–1279 | 5 | **150px** | **24px** | 73–96px | 1040–1135px |
+| 1280 | 5 | **150px** | **24px** | 96.2px | 1135px |
+| ≥1366 | 5 | **150px** | **24px** | **115px** | **1210px** |
 
-**Five-across waits for `xl`, then compresses the GUTTER rather than the
-disc.** Five discs plus Figma's gutters need 1210px and only 1137px is
-available at 1280, so the gutter goes fluid from ~96px up to Figma's 115px,
-which it reaches by 1366. Nothing changes size across the 1280 boundary — only
-the arrangement — which is the point: an earlier attempt that kept five-across
-and shrank the type instead was rejected on sight.
+**Five-across runs from `lg` up, and that costs the ladder's one step down.**
+The disc drops 150px to 133.7px crossing 1024. Five discs plus Figma's 115px
+gutters need 1210px and a 1024px screen offers about 929px, so something has
+to give — this is arithmetic, not a preference. Requested explicitly; do not
+"fix" it back.
 
-Below `xl` the 3-2 stagger carries **Figma's full 150px disc from about
-910px**, which is the real argument for it over five columns: five columns at
-1024 can only afford a 104px disc and 16.7px type. The trade is that the
-cluster sits in more air between 1024 and 1279 — 680px of content centred in
-1136px at the widest — which reads as a deliberately airy composition rather
-than a cramped row.
+Above 1024 the disc grows to Figma's 150px by about 1140px, after which the
+**gutter** takes over as the fluid dimension and opens to Figma's 115px by
+1366. So five-across compresses the gutter, not the disc, across almost its
+whole range.
+
+Worth recording how much the disc-plus-gutter model bought here: an earlier
+grid attempt at the same brief could only afford a **104px disc and 16.7px
+type** at 1024, because it reserved a half gutter outside the first and last
+column. Same width, same constraint, 28% bigger disc.
 
 Verified: heading 48px `#4a4a4a`, captions 24px semibold `#606060`,
 heading-to-disc gap **80px** and disc-to-caption gap **32px** — both Figma's
@@ -3044,6 +3049,12 @@ scrolls horizontally at any width from 360px to 1920px, in English or Hindi.
   width, and the fluid disc sizes measure the space available *to* the row, so
   putting the `@container` on the row itself would be circular. It sits on the
   `RevealOnScroll` wrapper instead.
+- **`container-edge` widens its padding from 40px to 64px at `xl`**, costing
+  48px of content exactly as the window gets wider. Left alone it snapped the
+  five-across span from 1182px back to 1135px at 1280. The sub-`xl` gutter is
+  capped at the value 1280 opens with to absorb it, which is why that band has
+  two rules rather than one. Any future band spanning 1280 needs the same
+  treatment.
 
 **Captions are set on exactly two lines, as Figma sets them.** Each is stored
 as a *pair* of keys (`coreValue0A`/`coreValue0B`, …) and emitted as two
