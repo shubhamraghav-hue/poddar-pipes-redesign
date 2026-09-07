@@ -102,11 +102,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "મુખ્ય",
     "coreValuesH2": "મૂલ્યો",
-    "coreValue0": "ગુણવત્તા સર્વોપરી",
-    "coreValue1": "વિશ્વાસ અને પ્રામાણિકતા",
-    "coreValue2": "હેતુથી પ્રેરિત",
-    "coreValue3": "ઉદ્યોગમાં નવીનતાની વ્યાખ્યા",
-    "coreValue4": "ગ્રાહક કેન્દ્રિતતા"
+    "coreValue0A": "ગુણવત્તા",
+    "coreValue0B": "સર્વોપરી",
+    "coreValue1A": "વિશ્વાસ અને",
+    "coreValue1B": "પ્રામાણિકતા",
+    "coreValue2A": "હેતુથી",
+    "coreValue2B": "પ્રેરિત",
+    "coreValue3A": "ઉદ્યોગમાં નવીનતાની",
+    "coreValue3B": "વ્યાખ્યા",
+    "coreValue4A": "ગ્રાહક",
+    "coreValue4B": "કેન્દ્રિતતા"
   },
   "articles": {
     "pageEyebrow": "પ્રેસ કવરેજ",

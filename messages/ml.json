@@ -102,11 +102,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "അടിസ്ഥാന",
     "coreValuesH2": "മൂല്യങ്ങൾ",
-    "coreValue0": "ഗുണനിലവാരം ആദ്യം",
-    "coreValue1": "വിശ്വാസവും സത്യസന്ധതയും",
-    "coreValue2": "ലക്ഷ്യബോധത്തോടെ",
-    "coreValue3": "വ്യവസായത്തിൽ നൂതനത്വത്തിന്റെ മാനദണ്ഡം",
-    "coreValue4": "ഉപഭോക്താവ് കേന്ദ്രീകൃതം"
+    "coreValue0A": "ഗുണനിലവാരം",
+    "coreValue0B": "ആദ്യം",
+    "coreValue1A": "വിശ്വാസവും",
+    "coreValue1B": "സത്യസന്ധതയും",
+    "coreValue2A": "ലക്ഷ്യബോധത്തോടെ",
+    "coreValue2B": "മുന്നോട്ട്",
+    "coreValue3A": "വ്യവസായത്തിൽ",
+    "coreValue3B": "നൂതനത്വം",
+    "coreValue4A": "ഉപഭോക്താവ്",
+    "coreValue4B": "കേന്ദ്രീകൃതം"
   },
   "articles": {
     "pageEyebrow": "പ്രസ്സ് കവറേജ്",

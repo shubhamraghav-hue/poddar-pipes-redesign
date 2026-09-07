@@ -13,6 +13,11 @@ in with invented data — replace with verified information only.
   brand-supplied rather than invented. Copy is real translated content in all eleven
   locale files. Icons ship as SVGs at `public/home/core-values/`; the navy disc is
   CSS, since Figma's export of it is a bare `<circle>`.
+  - Each caption is stored as a **pair** of keys (`coreValue0A`/`coreValue0B`, …)
+    rather than one string, because Figma sets every caption on exactly two lines
+    and each locale needs to choose its own break point — the Indic wording is long
+    enough that the English break would land mid-phrase. **A new locale must supply
+    both halves**, and each half should be short enough to sit on one line.
   - Unrelated to the 7 core values that the old About page's `CoreValues` block
     carried (deleted with that page) — those came from the brand story and are a
     different, longer list. Worth reconciling with the brand team if both are meant

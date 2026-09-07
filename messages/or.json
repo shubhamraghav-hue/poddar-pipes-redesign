@@ -102,11 +102,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "ମୂଳ",
     "coreValuesH2": "ମୂଲ୍ୟବୋଧ",
-    "coreValue0": "ଗୁଣବତ୍ତା ପ୍ରଥମେ",
-    "coreValue1": "ବିଶ୍ୱାସ ଓ ସଚ୍ଚୋଟତା",
-    "coreValue2": "ଉଦ୍ଦେଶ୍ୟ ଦ୍ୱାରା ପ୍ରେରିତ",
-    "coreValue3": "ଉଦ୍ୟୋଗରେ ନବସୃଜନର ମାନଦଣ୍ଡ",
-    "coreValue4": "ଗ୍ରାହକ କେନ୍ଦ୍ରିତ"
+    "coreValue0A": "ଗୁଣବତ୍ତା",
+    "coreValue0B": "ପ୍ରଥମେ",
+    "coreValue1A": "ବିଶ୍ୱାସ ଓ",
+    "coreValue1B": "ସଚ୍ଚୋଟତା",
+    "coreValue2A": "ଉଦ୍ଦେଶ୍ୟ ଦ୍ୱାରା",
+    "coreValue2B": "ପ୍ରେରିତ",
+    "coreValue3A": "ଉଦ୍ୟୋଗରେ ନବସୃଜନର",
+    "coreValue3B": "ମାନଦଣ୍ଡ",
+    "coreValue4A": "ଗ୍ରାହକ",
+    "coreValue4B": "କେନ୍ଦ୍ରିତ"
   },
   "articles": {
     "pageEyebrow": "ପ୍ରେସ୍ କଭରେଜ୍",

@@ -102,11 +102,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "మూల",
     "coreValuesH2": "విలువలు",
-    "coreValue0": "నాణ్యత ముందు",
-    "coreValue1": "నమ్మకం మరియు నిజాయితీ",
-    "coreValue2": "లక్ష్యంతో ముందుకు",
-    "coreValue3": "పరిశ్రమలో ఆవిష్కరణకు కొలమానం",
-    "coreValue4": "కస్టమర్ కేంద్రితం"
+    "coreValue0A": "నాణ్యత",
+    "coreValue0B": "ముందు",
+    "coreValue1A": "నమ్మకం మరియు",
+    "coreValue1B": "నిజాయితీ",
+    "coreValue2A": "లక్ష్యంతో",
+    "coreValue2B": "ముందుకు",
+    "coreValue3A": "పరిశ్రమలో",
+    "coreValue3B": "ఆవిష్కరణ",
+    "coreValue4A": "కస్టమర్",
+    "coreValue4B": "కేంద్రితం"
   },
   "articles": {
     "pageEyebrow": "ప్రెస్ కవరేజ్",

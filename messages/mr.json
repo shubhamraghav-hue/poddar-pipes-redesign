@@ -102,11 +102,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "मूळ",
     "coreValuesH2": "मूल्ये",
-    "coreValue0": "गुणवत्ता सर्वोपरि",
-    "coreValue1": "विश्वास आणि सत्यनिष्ठा",
-    "coreValue2": "उद्देशाने प्रेरित",
-    "coreValue3": "उद्योगातील नावीन्याची व्याख्या",
-    "coreValue4": "ग्राहक केंद्रित"
+    "coreValue0A": "गुणवत्ता",
+    "coreValue0B": "सर्वोपरि",
+    "coreValue1A": "विश्वास आणि",
+    "coreValue1B": "सत्यनिष्ठा",
+    "coreValue2A": "उद्देशाने",
+    "coreValue2B": "प्रेरित",
+    "coreValue3A": "उद्योगातील नावीन्याची",
+    "coreValue3B": "व्याख्या",
+    "coreValue4A": "ग्राहक",
+    "coreValue4B": "केंद्रित"
   },
   "articles": {
     "pageEyebrow": "प्रेस कव्हरेज",

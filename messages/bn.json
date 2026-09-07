@@ -103,11 +103,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "মূল",
     "coreValuesH2": "মূল্যবোধ",
-    "coreValue0": "গুণমান সর্বাগ্রে",
-    "coreValue1": "বিশ্বাস ও সততা",
-    "coreValue2": "উদ্দেশ্যে অনুপ্রাণিত",
-    "coreValue3": "শিল্পে নতুন মানদণ্ড",
-    "coreValue4": "গ্রাহক সর্বাগ্রে"
+    "coreValue0A": "গুণমান",
+    "coreValue0B": "সর্বাগ্রে",
+    "coreValue1A": "বিশ্বাস ও",
+    "coreValue1B": "সততা",
+    "coreValue2A": "উদ্দেশ্যে",
+    "coreValue2B": "অনুপ্রাণিত",
+    "coreValue3A": "শিল্পে নতুন",
+    "coreValue3B": "মানদণ্ড",
+    "coreValue4A": "গ্রাহক",
+    "coreValue4B": "সর্বাগ্রে"
   },
   "articles": {
     "pageEyebrow": "প্রেস কভারেজ",

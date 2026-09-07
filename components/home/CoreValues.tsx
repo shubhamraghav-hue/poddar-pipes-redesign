@@ -4,7 +4,7 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 /**
  * Figma "core values" (node 1150:6484) — five navy discs with white line
- * icons and a caption under each.
+ * icons and a two-line caption under each.
  *
  * The heading needs no special handling: Figma draws it at 48px `#4a4a4a`,
  * light "CORE" over bold "VALUES", which is exactly what `SectionHeading`
@@ -15,10 +15,18 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * is the `ocean-600` token. Only the five ICONS are real artwork and ship as
  * SVGs.
  *
- * Laid out as a responsive grid rather than Figma's absolute coordinates. At
- * the widest container `lg:gap-x-10` plus the 150px cap leaves ~112px between
- * discs, against Figma's 115 — so the desktop rhythm lands without pinning
- * anything to a 1512px frame.
+ * SIZING. Every dimension is a ratio of the disc diameter, which is the one
+ * number that changes per breakpoint: `--cv-disc`, set by the `.cv-scale`
+ * ladder in `styles/globals.css`. Figma draws a 150px disc with a 24px
+ * caption 32px below it, so those are the 0.16 and 0.2133 factors here, and
+ * a 150px disc reproduces Figma exactly.
+ *
+ * The five-across band is FLUID rather than stepped, because Figma's own
+ * proportions cannot survive a narrow window: the widest caption line
+ * ("DEFINING INDUSTRY") is 8.644em, so at Figma's 24px five of them plus
+ * gutters need ~1200px of content — more than a 1024px screen has. Rather
+ * than let that caption spill to a third line, the disc tracks the grid cell
+ * (via `cqw`) and tops out at Figma's 150px, reached at about 1392px.
  */
 
 // Each icon is a different shape at a different size, and Figma centres them
@@ -48,40 +56,59 @@ export async function CoreValues() {
         </RevealOnScroll>
 
         {/* Figma's gap from the heading's baseline to the top of the discs is
-            80px. Two columns on the smallest screens rather than five — five
-            150px discs need ~1210px and would otherwise shrink to thumbnails
-            with unreadable captions. */}
+            80px, scaled down with everything else. One column at and below
+            425px, then 2 / 3 / 5 — five 150px discs and their captions need
+            ~1200px of content and would otherwise shrink to thumbnails.
+            The single column is a `max-` variant rather than the base with
+            `min-[426px]:` above it, because an arbitrary `min-` variant would
+            sort ahead of `sm:` and never win. */}
         <RevealOnScroll
           delay={0.08}
-          className="mt-20 grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-10"
+          className="mt-14 grid grid-cols-2 gap-x-6 gap-y-8 max-[425px]:grid-cols-1 sm:mt-16 sm:grid-cols-3 sm:gap-y-10 md:gap-x-10 xl:mt-20 xl:grid-cols-5 xl:gap-y-12"
         >
           {VALUES.map((v, i) => (
-            <div key={v.id} className="flex flex-col items-center">
-              {/* `max-w` is Figma's literal 150px; below that the disc simply
-                  tracks the column width, and because the icon is sized in
-                  percentages it scales with it. */}
-              <div className="relative aspect-square w-full max-w-[150px] rounded-full bg-[#171796]">
-                <img
-                  src={`${ICON_DIR}/${v.icon}`}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute"
-                  style={{
-                    width: `${v.w}%`,
-                    height: `${v.h}%`,
-                    left: `${v.left}%`,
-                    top: `${v.top}%`,
-                  }}
-                />
-              </div>
+            // The container is the grid cell; `.cv-scale` sits on the child so
+            // its `cqw` resolves against the cell rather than against the
+            // cell's own parent.
+            <div key={v.id} className="@container">
+              <div className="cv-scale flex w-full flex-col items-center">
+                <div
+                  className="relative aspect-square rounded-full bg-[#171796]"
+                  style={{ width: "var(--cv-disc)" }}
+                >
+                  <img
+                    src={`${ICON_DIR}/${v.icon}`}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute"
+                    style={{
+                      width: `${v.w}%`,
+                      height: `${v.h}%`,
+                      left: `${v.left}%`,
+                      top: `${v.top}%`,
+                    }}
+                  />
+                </div>
 
-              {/* 24px semibold `#606060` at Figma's width; the captions are
-                  already set in caps there, so the copy is stored in natural
-                  case and uppercased here — which also keeps it correct for
-                  the Indic locales, where casing is a no-op. */}
-              <p className="mt-8 text-center text-base font-semibold uppercase leading-[1.2] text-[#606060] sm:text-lg lg:text-2xl">
-                {t(`coreValue${i}` as never)}
-              </p>
+                {/* Figma sets every caption on exactly two lines, so the two
+                    lines are stored as separate keys and emitted as separate
+                    blocks — that pins the break where Figma puts it and stops
+                    a narrow cell from choosing its own. Each locale splits its
+                    own copy; the Indic wording is long enough that an English
+                    break point would land mid-phrase. Stored in natural case
+                    and uppercased here, which is a no-op for Indic scripts.
+                    24px semibold `#606060`, 32px under the disc. */}
+                <p
+                  className="text-center font-semibold uppercase leading-[1.2] text-[#606060]"
+                  style={{
+                    marginTop: "calc(var(--cv-disc) * 0.2133)",
+                    fontSize: "calc(var(--cv-disc) * 0.16)",
+                  }}
+                >
+                  <span className="block">{t(`coreValue${i}A` as never)}</span>
+                  <span className="block">{t(`coreValue${i}B` as never)}</span>
+                </p>
+              </div>
             </div>
           ))}
         </RevealOnScroll>

@@ -102,11 +102,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "ಮೂಲ",
     "coreValuesH2": "ಮೌಲ್ಯಗಳು",
-    "coreValue0": "ಗುಣಮಟ್ಟ ಮೊದಲು",
-    "coreValue1": "ನಂಬಿಕೆ ಮತ್ತು ಸಚ್ಚಾರಿತ್ರ್ಯ",
-    "coreValue2": "ಉದ್ದೇಶದಿಂದ ಪ್ರೇರಿತ",
-    "coreValue3": "ಉದ್ಯಮದಲ್ಲಿ ನಾವೀನ್ಯತೆಯ ವ್ಯಾಖ್ಯಾನ",
-    "coreValue4": "ಗ್ರಾಹಕ ಕೇಂದ್ರಿತ"
+    "coreValue0A": "ಗುಣಮಟ್ಟ",
+    "coreValue0B": "ಮೊದಲು",
+    "coreValue1A": "ನಂಬಿಕೆ ಮತ್ತು",
+    "coreValue1B": "ಸಚ್ಚಾರಿತ್ರ್ಯ",
+    "coreValue2A": "ಉದ್ದೇಶದಿಂದ",
+    "coreValue2B": "ಪ್ರೇರಿತ",
+    "coreValue3A": "ಉದ್ಯಮದಲ್ಲಿ ನಾವೀನ್ಯತೆಯ",
+    "coreValue3B": "ವ್ಯಾಖ್ಯಾನ",
+    "coreValue4A": "ಗ್ರಾಹಕ",
+    "coreValue4B": "ಕೇಂದ್ರಿತ"
   },
   "articles": {
     "pageEyebrow": "ಪ್ರೆಸ್ ಕವರೇಜ್",

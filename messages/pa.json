@@ -102,11 +102,16 @@
     "blogEyebrow": "Latest insights",
     "coreValuesH1": "ਮੂਲ",
     "coreValuesH2": "ਮੁੱਲ",
-    "coreValue0": "ਗੁਣਵੱਤਾ ਸਭ ਤੋਂ ਪਹਿਲਾਂ",
-    "coreValue1": "ਭਰੋਸਾ ਅਤੇ ਇਮਾਨਦਾਰੀ",
-    "coreValue2": "ਉਦੇਸ਼ ਤੋਂ ਪ੍ਰੇਰਿਤ",
-    "coreValue3": "ਉਦਯੋਗ ਵਿੱਚ ਨਵੀਨਤਾ ਦੀ ਪਰਿਭਾਸ਼ਾ",
-    "coreValue4": "ਗਾਹਕ ਕੇਂਦਰਿਤ"
+    "coreValue0A": "ਗੁਣਵੱਤਾ",
+    "coreValue0B": "ਸਭ ਤੋਂ ਪਹਿਲਾਂ",
+    "coreValue1A": "ਭਰੋਸਾ ਅਤੇ",
+    "coreValue1B": "ਇਮਾਨਦਾਰੀ",
+    "coreValue2A": "ਉਦੇਸ਼ ਤੋਂ",
+    "coreValue2B": "ਪ੍ਰੇਰਿਤ",
+    "coreValue3A": "ਉਦਯੋਗ ਵਿੱਚ ਨਵੀਨਤਾ",
+    "coreValue3B": "ਦੀ ਪਰਿਭਾਸ਼ਾ",
+    "coreValue4A": "ਗਾਹਕ",
+    "coreValue4B": "ਕੇਂਦਰਿਤ"
   },
   "articles": {
     "pageEyebrow": "ਪ੍ਰੈਸ ਕਵਰੇਜ",

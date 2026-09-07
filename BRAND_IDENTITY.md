@@ -2952,18 +2952,69 @@ deliberate optical nudge for a wide, shallow shape, so it is reproduced rather
 than "corrected" to dead centre. The numbers live in `VALUES` as percentages
 of the disc, so they scale with it.
 
-**Layout is responsive, not Figma's absolute coordinates.** 2 columns on the
-smallest screens, 3 at `sm`, 5 at `lg` — five 150px discs need ~1210px and
-would otherwise shrink to thumbnails with unreadable captions. The 150px cap
-plus `lg:gap-x-10` happens to land the desktop rhythm almost exactly: measured
-at 1512, **discs 150px, 112px between disc edges against Figma's 115, and a
-1200px span against its 1210**.
+**Layout is responsive, not Figma's absolute coordinates.** 1 column at and
+below 425px, 2 below `sm`, 3 to `xl`, 5 from `xl` — five 150px discs and their
+captions need ~1200px of content and would otherwise shrink to thumbnails with
+unreadable captions.
 
-Verified at 1512: 5-across in one row, heading 48px `#4a4a4a`, captions 24px
+**The whole cluster scales as one ratio.** Only the disc diameter changes per
+breakpoint — `--cv-disc`, the `.cv-scale` ladder in `styles/globals.css` — and
+the caption (×0.16) and the gap beneath it (×0.2133) are derived from it, so a
+150px disc reproduces Figma exactly and nothing can drift out of proportion.
+It has to be a **length** rather than a unitless ratio, because the
+five-across step is fluid via `cqw` and `clamp()` cannot mix a number with a
+length.
+
+Measured ladder, monotonic all the way up — widening the window never shrinks
+the discs:
+
+| viewport | cols | disc | ratio | caption |
+| --- | --- | --- | --- | --- |
+| ≤425 | 1 | 100px | 0.667 | 16px |
+| 426–639 | 2 | 100px | 0.667 | 16px |
+| 640–1279 | 3 | 112.5px | 0.75 | 18px |
+| 1280 | 5 | 132.6px | 0.884 | 21.2px |
+| 1366 | 5 | 144.4px | 0.962 | 23.1px |
+| ≥1440 | 5 | **150px** | **1.000** | **24px** |
+
+**The five-across band is fluid rather than stepped, because Figma's own
+proportions cannot survive a narrow window.** The widest caption line
+("DEFINING INDUSTRY") measures **8.644em** — 207.5px at 24px in Anek
+Devanagari 600 — so five of them plus gutters need ~1200px of content, more
+than a 1024px screen has. Rather than let that caption spill to a third line,
+the disc tracks the grid cell via `cqw` and tops out at Figma's 150px, reached
+at about 1392px. The `67.9cqw` coefficient is that constraint solved for the
+disc: the caption occupies `8.644 × 0.16 × disc`, which must sit inside ~94%
+of the cell. Measured worst-case fit across every breakpoint is **93.9%** — no
+caption wraps to a third line at any width from 320px to 1920px, in English or
+Hindi.
+
+Verified at 1440+: 5-across in one row, heading 48px `#4a4a4a`, captions 24px
 semibold `#606060`, heading-to-disc gap **80px** and disc-to-caption gap
 **32px** — both Figma's own values exactly — and the first icon at 52.29%
 width / 24% left, matching its spec to two decimals.
 
-Captions are stored in natural case in the locale files and uppercased in CSS.
-Figma sets them in caps, but storing them that way would bake English casing
-into ten Indic locales where the transform is a no-op anyway.
+**Two hazards worth remembering, both hit while building this:**
+
+- **Tailwind emits every arbitrary `min-[…]` variant BEFORE the named
+  breakpoints.** A `min-[1152px]:grid-cols-5` silently lost to `sm:grid-cols-3`
+  at every width above 640, because `sm` came later in the stylesheet and won
+  on order. Confirmed by reading the generated CSS. The single column is
+  therefore a `max-[425px]:` variant over a `grid-cols-2` base — a `max-`
+  variant only has to beat the unvariant base rule, which always precedes it.
+- **`clamp()` cannot mix a unitless number with a length.**
+  `clamp(0.75, 0.453cqw, 1)` is invalid, so the custom property never
+  resolved and `calc(var(--cv) * 150px)` collapsed the disc to 0 width — which
+  renders as a silently *missing* disc, not an error. Hence a length-valued
+  variable with ratio multipliers hanging off it.
+
+**Captions are set on exactly two lines, as Figma sets them.** Each is stored
+as a *pair* of keys (`coreValue0A`/`coreValue0B`, …) and emitted as two
+separate blocks, which pins the break where Figma puts it and stops a narrow
+cell from choosing its own break point. Two keys rather than one string with a
+break marker so that each locale splits its own copy — the Indic wording is
+long enough that the English break point would land mid-phrase.
+
+Stored in natural case in the locale files and uppercased in CSS. Figma sets
+them in caps, but storing them that way would bake English casing into ten
+Indic locales where the transform is a no-op anyway.

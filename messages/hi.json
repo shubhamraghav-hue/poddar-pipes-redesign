@@ -226,11 +226,16 @@
     "ctaSecondaryHome": "कैटलॉग डाउनलोड करें",
     "coreValuesH1": "मूल",
     "coreValuesH2": "मूल्य",
-    "coreValue0": "गुणवत्ता सर्वोपरि",
-    "coreValue1": "भरोसा और सत्यनिष्ठा",
-    "coreValue2": "उद्देश्य से प्रेरित",
-    "coreValue3": "उद्योग में नवाचार की परिभाषा",
-    "coreValue4": "ग्राहक सर्वप्रथम"
+    "coreValue0A": "गुणवत्ता",
+    "coreValue0B": "सर्वोपरि",
+    "coreValue1A": "भरोसा और",
+    "coreValue1B": "सत्यनिष्ठा",
+    "coreValue2A": "उद्देश्य से",
+    "coreValue2B": "प्रेरित",
+    "coreValue3A": "उद्योग में नवाचार",
+    "coreValue3B": "की परिभाषा",
+    "coreValue4A": "ग्राहक",
+    "coreValue4B": "सर्वप्रथम"
   },
   "industries": {
     "residential_name": "आवासीय",

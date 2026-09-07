@@ -204,6 +204,41 @@ button[aria-label="Select language"] svg {
     text-wrap: balance;
   }
 
+  /* Core Values (components/home/CoreValues.tsx) size ladder. `--cv-disc` is
+     the disc diameter, and every other dimension in the cluster is a fixed
+     ratio of it (Figma: 150px disc, 24px caption, 32px between them), so the
+     whole group scales as one unit and 150px reproduces Figma exactly.
+
+     It has to be a LENGTH rather than a unitless ratio: the five-across step
+     is fluid via `cqw`, and `clamp()` cannot mix a number with a length.
+
+     Two columns can only carry a two-thirds cluster and three columns
+     three-quarters. From `xl` five fit and the size goes fluid against the
+     grid cell, reaching full size at about a 1392px viewport. The 67.9cqw
+     coefficient is the two-line constraint solved for the disc: the widest
+     caption line ("DEFINING INDUSTRY") measures 8.644em, so it occupies
+     `8.644 * 0.16 * --cv-disc` px, which has to sit inside ~94% of the cell.
+
+     The breakpoints here must stay in step with the grid-column classes in
+     the component. Written as plain media queries because Tailwind emits
+     every arbitrary `min-[…]` variant BEFORE the named breakpoints, so a
+     `min-[1152px]:` rule silently loses to `sm:` at every width above 640. */
+  .cv-scale {
+    --cv-disc: 100px;
+  }
+
+  @media (min-width: 40rem) {
+    .cv-scale {
+      --cv-disc: 112.5px;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .cv-scale {
+      --cv-disc: clamp(112.5px, 67.9cqw, 150px);
+    }
+  }
+
   .bg-grid {
     background-image:
       linear-gradient(to right, rgba(91, 100, 114, 0.08) 1px, transparent 1px),
