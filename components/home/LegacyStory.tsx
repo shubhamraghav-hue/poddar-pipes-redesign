@@ -35,11 +35,12 @@ const PIPES_MASK = "/legacy/legacy-pipes-mask.svg";
 // Figma's literal hexes, not the nearest token.
 const AMBER = "#f28000";
 const BODY_GREY = "#4a4a4a";
-// The heading is the ONE deliberate departure from this node's Figma spec,
-// which draws it in `#0b0b52` navy. `#4a4a4a` grey is the sitewide section
-// heading colour (see `SectionHeading`, where it is the default), and matching
-// it was an explicit request that outranks the per-node value. Revert to
-// `#0b0b52` here if this section is ever meant to stand apart again.
+// The heading is the ONE deliberate departure from Figma. The landing node
+// (51:488) draws it `#0b0b52` navy and the About node (1183:1411) draws it
+// `#606060`; `#4a4a4a` is the sitewide section heading colour (see
+// `SectionHeading`, where it is the default) and matching it was an explicit
+// request that outranks either per-node value. Both alternatives are recorded
+// here in case this section is ever meant to stand apart again.
 const HEADING = BODY_GREY;
 
 type Milestone = {
@@ -54,7 +55,21 @@ type Milestone = {
   left: number;
   yearTop: number;
   descTop: number;
-  /** % of frame width. Figma sets these individually; they drive the wrap. */
+  /**
+   * % of frame width. Figma sets these individually and they drive the wrap,
+   * so they are what holds the vertical rhythm: each block is centred on its
+   * `descTop`, so one extra wrapped line grows it both ways and closes the
+   * gap to the year above and the milestone below.
+   *
+   * 1975 and 2014 are therefore WIDER than node 1183:1411 draws them (236 and
+   * 155 against its 215 and 151). The supplied copy sheet is longer than the
+   * node's wording — "The" on 1975, a full stop on both — which pushed each
+   * to a fourth line at Figma's width and visibly tightened the spacing.
+   * Widening them back to a 3-line set restores Figma's rhythm exactly, and
+   * costs nothing visible: the box is only a wrap constraint, since the text
+   * aligns to the anchor rather than filling the box. Measured minimums were
+   * 230 and 150; these carry ~5px of margin for font hinting.
+   */
   descWidth: number;
   /** One entry per paragraph Figma draws, so hard breaks are preserved. */
   desc: string[];
@@ -70,7 +85,8 @@ const MILESTONES: Milestone[] = [
     left: 32.0106,
     yearTop: 76.2963,
     descTop: 80.4444,
-    descWidth: 14.2196,
+    // 236px — Figma draws 215, see `descWidth` above.
+    descWidth: 15.6085,
     desc: [
       "The Poddar Family was founded in Patna, beginning its journey in pipe manufacturing.",
     ],
@@ -90,7 +106,9 @@ const MILESTONES: Milestone[] = [
     left: 48.2143,
     yearTop: 58.5185,
     descTop: 61.9259,
-    descWidth: 9.9868,
+    // 155px — Figma draws 151, and the added full stop missed a 3-line set by
+    // a single pixel at that width.
+    descWidth: 10.2513,
     desc: ["Achieving global leadership in CPVC pipe manufacturing."],
   },
   {
@@ -258,7 +276,8 @@ export function LegacyStory({
         <h2
           className="absolute -translate-y-1/2 uppercase"
           style={{
-            left: "9.9206%",
+            // 147px / 172px / 549px on node 1183:1411's 1512x1350 frame.
+            left: "9.7222%",
             top: "12.7407%",
             width: "36.3095%",
             fontSize: YEAR_SIZE,

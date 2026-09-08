@@ -2632,6 +2632,38 @@ Still outstanding: the milestone copy is inlined rather than pulled from
 `next-intl` (eleven locale files). That was harmless while the component was
 unused; it is now untranslated copy on a live page and should be wired up.
 
+### Re-verified against node 1183:1411, and why two widths now exceed it (Sep 2026)
+
+`1183:1411` is a newer About frame for the same section. Re-checked every
+coordinate against it: **all twenty-four milestone values already matched
+exactly** — 1975 at 484/1030/1086/215, 1998 at 532/738/794/107, 2014 at
+729/790/836/151, 2018 at 779/497/553/169, 2020 at 973/569/625/156, 2026 at
+1030/232/278/334/176. Nothing had drifted. Two smaller differences did turn
+up: the heading sits at **147px**, not the 150px carried over from 51:488
+(now corrected), and this node draws the heading `#606060` rather than
+51:488's `#0b0b52` navy — both recorded in the colour comment, neither
+adopted, since `#4a4a4a` sitewide was an explicit instruction.
+
+**What had actually reduced the spacing was our own copy, not the geometry.**
+The supplied design sheet is longer than the node's wording — "The" added to
+1975, a full stop on every entry — and each block is vertically centred on
+its `descTop`, so an extra wrapped line grows it in BOTH directions and
+closes the gap to the year above and the milestone below. Measured: 1975 and
+2014 had gone to four lines where Figma sets three, and 2014 missed a 3-line
+set **by a single pixel** (150 needed against 151 drawn, minus the scrollbar).
+
+So `descWidth` for those two is deliberately wider than Figma: **236px and
+155px against its 215 and 151**, from measured 3-line minimums of 230 and 150
+plus ~5px for font hinting. This costs nothing visible — the box is only a
+wrap constraint, since each block aligns to its anchor rather than filling the
+box — and it restores Figma's rhythm exactly. Verified at 1512: every year and
+description centre lands on Figma's own y to the pixel (1030/1086, 738/794,
+790/836, 497/553, 569/625, 232/334), all six descriptions on three lines, the
+2026 label on two, heading left 147 and centre 172, nothing overflowing.
+
+**If the copy changes again, re-check the line counts before the coordinates.**
+The anchors are stable; it is the wrap that moves the spacing.
+
 ### Mobile fallback (Sep 2026)
 
 There is still no mobile Figma frame for this node. Because the composition is
