@@ -7,6 +7,35 @@ in with invented data — replace with verified information only.
 
 ## Resolved since the last pass
 
+- **About page copy brought in line with two supplied design sheets, Sep 2026.**
+  - **Assurances (#08).** Was "Multiple quality checks for every CPVC brass
+    fitting before dispatch" — a line oddly specific to one product family in a
+    list of ten general commitments. Now "Multiple quality checks for every
+    product that leaves our factory", updated in **all eleven locale files**.
+    Diffed all ten pointers against the sheet: #08 was the only wording change.
+  - **#04 and #07 casing left alone.** The sheet shows "100% inspection of
+    Incoming raw materials" and "…of Finished products" with mid-sentence
+    capitals. Those fall at line-start in that layout, so they read as
+    typesetting artifacts rather than copy; ours wrap at different points, where
+    a capital would look like a typo. Say so if they were intentional.
+  - **Legacy Story milestones.** Re-worded from the "LASTING HERITAGE / LEGACY
+    STORY" sheet, which supersedes node 51:488: most entries become present
+    participles ("Establishing", "Achieving", "Launching") where the node had
+    past tense, 2018 goes the other way ("exits" → "exited"), every entry gains
+    a full stop, 1975 and the 2026 label gain a leading "The", and "revitalised"
+    takes the US spelling "revitalized". Coordinates untouched — only the words.
+  - **Still English-only.** These six milestones are inlined in
+    `components/home/LegacyStory.tsx`, not translated, so every locale renders
+    them in English. Pre-existing and still open — see the TODO in that file.
+  - **The two sheets differ from the build in more than copy** and were NOT
+    acted on: Assurances is drawn navy with white text, orange numerals and a
+    per-item icon, against our light-grey band with dividers and no icons;
+    Legacy Story is drawn on solid orange with cream years, a blue "STORY" and
+    an eyebrow ("LASTING HERITAGE" / "OUR COMMITMENT TO YOU"), against our
+    white band, amber years, grey heading and no eyebrow (eyebrows were removed
+    sitewide). Its heading also reads "LEGACY STORY" where the About page passes
+    "Our". Worth confirming whether these sheets are a redesign or reference art.
+
 - **Core Values section added to the landing page (Figma node 1150:6484), Sep 2026.**
   Five values — Quality first, Trust and integrity, Driven by purpose, Defining
   industry innovation, Customer centricity — taken from the Figma frame, so they are

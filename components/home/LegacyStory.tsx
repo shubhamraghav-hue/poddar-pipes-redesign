@@ -13,9 +13,17 @@ import Image from "next/image";
  * against it (x/1512 → left %, y/1350 → top %, px/1512 → `cqw`). Same
  * technique as the Hero stat cards, different box.
  *
+ * MILESTONE COPY comes from the supplied "LASTING HERITAGE / LEGACY STORY"
+ * design sheet, which supersedes node 51:488's wording: most entries read as
+ * present participles ("Establishing", "Achieving", "Launching") where the
+ * node had past tense, every entry ends in a full stop, 1975 and the 2026
+ * label gained a leading "The", and "revitalised" took the US spelling. The
+ * COORDINATES below are still the node's — only the words changed.
+ *
  * TODO before shipping: no mobile frame exists for this node, so type scales
  * down with the container on phones; and the copy is inlined rather than
- * translated — wire it to `home.*` keys across all eleven locales.
+ * translated — wire it to `home.*` keys across all eleven locales, which
+ * means every locale currently renders these six milestones in English.
  */
 
 // Figma exports the artwork as three separate layers, kept as three files so
@@ -63,9 +71,9 @@ const MILESTONES: Milestone[] = [
     yearTop: 76.2963,
     descTop: 80.4444,
     descWidth: 14.2196,
-    // "Banglore" is Figma's own spelling (node 51:504). Reproduced verbatim
-    // per "to the letter" — flag to the designer rather than silently fixing.
-    desc: ["Poddar Family is founded in Patna, beginning its journey in pipe manufacturing"],
+    desc: [
+      "The Poddar Family was founded in Patna, beginning its journey in pipe manufacturing.",
+    ],
   },
   {
     year: "1998",
@@ -74,7 +82,7 @@ const MILESTONES: Milestone[] = [
     yearTop: 54.6667,
     descTop: 58.8148,
     descWidth: 7.0767,
-    desc: ["Established operations in Banglore"],
+    desc: ["Establishing operations in Bengaluru."],
   },
   {
     year: "2014",
@@ -83,7 +91,7 @@ const MILESTONES: Milestone[] = [
     yearTop: 58.5185,
     descTop: 61.9259,
     descWidth: 9.9868,
-    desc: ["Achieved global leadership in CPVC pipe manufacturing"],
+    desc: ["Achieving global leadership in CPVC pipe manufacturing."],
   },
   {
     year: "2018",
@@ -92,7 +100,7 @@ const MILESTONES: Milestone[] = [
     yearTop: 36.8148,
     descTop: 40.963,
     descWidth: 11.1772,
-    desc: ["The company exits the business, marking the end of an era"],
+    desc: ["The company exited the business, marking the end of an era."],
   },
   {
     year: "2020",
@@ -101,8 +109,9 @@ const MILESTONES: Milestone[] = [
     yearTop: 42.1481,
     descTop: 46.2963,
     descWidth: 10.3175,
-    // Two paragraphs in Figma (node 51:499), not one wrapped line.
-    desc: ["Launched VOX,", "a joint venture with a Polish partner."],
+    // Two paragraphs in the design, not one wrapped line — the break after
+    // the comma is deliberate.
+    desc: ["Launching VOX,", "a joint venture with a Polish partner."],
   },
   {
     year: "2026",
@@ -111,8 +120,8 @@ const MILESTONES: Milestone[] = [
     yearTop: 17.1852,
     descTop: 24.7407,
     descWidth: 11.6402,
-    desc: ["Reimagined, revitalised, and ready to build the future"],
-    label: "PODDAR FAMILY RETURNS",
+    desc: ["Reimagined, revitalized, and ready to build the future."],
+    label: "THE PODDAR FAMILY RETURNS",
     labelTop: 20.5926,
   },
 ];
