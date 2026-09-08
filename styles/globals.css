@@ -250,7 +250,7 @@ button[aria-label="Select language"] svg {
          the drawing further down than that, it is the section's `pb` that has
          to give, not this knob.
          ========================================================= */
-      --legacy-art: 60.32vw;
+      --legacy-art: 50vw;
 
       /* Stops the drawing growing without limit on a very large monitor.
          1170px is 780px of band, which is where the old three-step ladder
