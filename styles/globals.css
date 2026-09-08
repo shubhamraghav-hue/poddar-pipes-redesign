@@ -226,8 +226,48 @@ button[aria-label="Select language"] svg {
      whatever order Tailwind emits them in. */
   @media (min-width: 64rem) {
     section.legacy-band {
-      min-height: clamp(560px, 40.2vw, 780px);
+      /* ================= TUNE THE DRAWING HERE =================
+         --legacy-art is the drawing's WIDTH as a share of the viewport, and
+         it is the only number to change. Everything else follows: the band's
+         height is that width over the drawing's own 1.5:1, so shrinking the
+         drawing shortens the band with it and the copy keeps its position.
+
+         60.32vw = Figma's 911px on its 1512px frame (912px here, which is
+         608px tall — the band height node 1197:6064 draws).
+
+         Measured at 1512:
+           60.32vw -> 912 wide, band 608   (Figma)
+           55vw    -> 832 wide, band 554
+           52.7vw  -> 797 wide, band 531   <- band stops shrinking here
+           50vw    -> 756 wide, band 531
+           45vw    -> 680 wide, band 531
+           40vw    -> 605 wide, band 531
+
+         Below ~52.7vw at 1512 the band holds at 531px and only the drawing
+         keeps shrinking, sitting on the baseline with a widening gap above
+         it. 531 is the copy (403px, heading top to paragraph bottom) plus
+         `py-32`'s 128px of bottom padding — so if the band needs to follow
+         the drawing further down than that, it is the section's `pb` that has
+         to give, not this knob.
+         ========================================================= */
+      --legacy-art: 60.32vw;
+
+      /* Stops the drawing growing without limit on a very large monitor.
+         1170px is 780px of band, which is where the old three-step ladder
+         topped out. */
+      --legacy-art-max: 1170px;
+
+      --legacy-art-w: min(var(--legacy-art), var(--legacy-art-max));
+      min-height: calc(var(--legacy-art-w) / 1.5);
       padding-top: clamp(128px, 9.92vw, 190px);
+    }
+
+    /* The drawing's box. Width comes from the knob, `aspect-ratio` in the
+       component gives it the height, and `bottom-0` keeps it on the band's
+       baseline — so it always sits on the floor of the section however small
+       it gets, with any spare height above it (empty sky in the drawing). */
+    section.legacy-band .legacy-art {
+      width: var(--legacy-art-w);
     }
   }
 

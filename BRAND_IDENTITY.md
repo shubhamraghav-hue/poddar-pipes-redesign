@@ -2855,19 +2855,34 @@ drawing sat flush to the right viewport edge. Checked against Figma node
 and the drawing 990px against its 911px, and put the artwork hard on the edge
 where Figma fades it out short of it.
 
-Both numbers now live in `section.legacy-band` in `styles/globals.css` as
-proportions of the viewport, so the band holds Figma's ratio rather than
-matching at one width and drifting either side: `min-height: clamp(560px,
-40.2vw, 780px)` and `padding-top: clamp(128px, 9.92vw, 190px)`, from 40.2%
-and 9.92% of Figma's 1512. `vw` INCLUDING the scrollbar is correct here —
-Figma's 1512 is the whole window, not the content box. Floors keep `lg`/`xl`
-at the values they had; the cap stops growth on a very large monitor.
+Both numbers now live in `section.legacy-band` in `styles/globals.css`.
 
-**Only the band height needed setting.** The box takes its height from the
-section and derives its width from the drawing's own 1.5:1, so a 608px band
-makes it 912px wide — Figma's 911px, within a pixel — and padding-top then
-leaves exactly Figma's 205px under the copy without that gap being written
-anywhere.
+**Sizing runs WIDTH-FIRST, and the direction is the point.** `--legacy-art`
+is the drawing's width as a share of the viewport — `60.32vw`, Figma's 911px
+on its 1512 frame — and the band's `min-height` is that width over the
+drawing's own 1.5:1. So the drawing is the input and the band is the
+consequence: change one number and they shrink together, with the copy
+holding its position. The first pass had it backwards, setting the band height
+and letting the width fall out of it, which meant you could not ask for a
+smaller drawing without first solving for the band height that produced it.
+
+`padding-top: clamp(128px, 9.92vw, 190px)` is 9.92% of Figma's 1512. `vw`
+INCLUDING the scrollbar is correct for both — Figma's 1512 is the whole
+window, not the content box. `--legacy-art-max: 1170px` stops the drawing
+growing past 780px of band on a very large monitor.
+
+Padding-top then leaves exactly Figma's 205px under the copy without that gap
+being written anywhere.
+
+**Tuning it.** `--legacy-art` is a custom property on the section, so it can
+be driven live in the browser with no rebuild:
+`document.querySelector('section.legacy-band').style.setProperty('--legacy-art','52vw')`.
+Measured sweep at 1512: 60.32vw → 912x608 band 608; 55vw → 832x554 band 554;
+52.5vw → 794x529 band 531; 48vw → 726x484 band 531; 40vw → 605x403 band 531.
+**The band stops following at ~52.7vw**, where it hits 531px = the copy's
+403px plus `py-32`'s 128px bottom padding; below that only the drawing
+shrinks, sitting on the baseline with a widening gap above it. To take the
+band lower, the section's `pb` has to give — not this knob.
 
 The selector is `section.legacy-band`, not `.legacy-band`: it has to beat
 `md:py-32`'s padding-top, and element+class outranks a lone class whatever
@@ -2875,10 +2890,18 @@ order Tailwind emits them in.
 
 Measured at 1512 against Figma, all exact: band **608**, heading top **150**,
 heading-to-body **41**, body **108** (5 lines at `leading-[1.2]`), copy block
-bottom **403**, space below **205**, box **912x608**, right inset **68** (69
-in Figma; the 1px is the scrollbar). Ladder either side: 560/128 at
-1024–1280, 772/190 at 1920. Mobile and `md` deliberately untouched — 96px and
-128px padding, `leading-relaxed`, 32px heading gap.
+bottom **403**, space below **205**, drawing **912x608**, right inset **68**
+(69 in Figma; the 1px is the scrollbar).
+
+Ladder either side, now uniformly Figma-proportional rather than
+breakpoint-stepped: 618x412 in a 509 band at 1024, 772x515 at 1280, 1158x772
+at 1920, capped 1170x780 from ~1942 up. No horizontal overflow at any of
+them. Note 1024 came down from 666x560 — the old `max-w-[66%]` cap used to
+bind there and hold it wider than Figma's proportion; the width-first model
+drops that cap, so the whole range is now one rule.
+
+Mobile and `md` deliberately untouched — 96px and 128px padding,
+`leading-relaxed`, 32px heading gap, no drawing at all.
 
 **`leading-[1.2]` is Figma's and it is tight for a paragraph.** It is applied
 from `lg` up only, where the mock actually specifies it; the comfortable

@@ -49,16 +49,15 @@ export async function CompanyOverview() {
 
   return (
     // Band height and top padding are the `section.legacy-band` rule in
-    // globals.css — both proportional to the viewport so they hold Figma's
-    // 608px / 150px at its 1512 frame and keep that ratio either side. They
-    // replaced a three-step `lg/xl/2xl:min-h` ladder that was 660px at 1512,
-    // which made the drawing 990px against Figma's 911px. Below `lg` the
-    // section is content-height, which suits a tablet better than a tall band
-    // with nothing in it.
+    // globals.css. The height is not set directly — it is derived from
+    // `--legacy-art`, the drawing's width, so the two can only ever move
+    // together. Tune the drawing there; this section needs no edits for it.
+    // Below `lg` the section is content-height, which suits a tablet better
+    // than a tall band with nothing in it.
     <section className="legacy-band relative overflow-hidden py-24 md:py-32">
-      {/* As tall as the section allows and inset from the right — deliberately
-          outside `container-edge`, which only wraps the copy. Removed outright
-          below `lg`, rather than stacked under the copy.
+      {/* Inset from the right and sitting on the band's baseline —
+          deliberately outside `container-edge`, which only wraps the copy.
+          Removed outright below `lg`, rather than stacked under the copy.
 
           `lg` and not `md`: at 768 the box is only ~437 wide against a ~788
           tall section, which leaves the drawing far too small to read. It needs
@@ -68,13 +67,20 @@ export async function CompanyOverview() {
           does NOT bleed off the viewport edge there — it stops short and fades
           out, which is why the gradient above gained a right-hand stop.
 
-          Sizing: height comes from the section, `aspectRatio` derives the
-          width from it, and `max-w` caps how far left it may reach. Where the
-          cap does not bind the box matches the drawing's ratio exactly, so
-          there is no crop and no dead space. */}
+          SIZING RUNS WIDTH-FIRST, and that direction matters. `.legacy-art`
+          takes its width from `--legacy-art` in globals.css — the one knob for
+          this drawing — and `aspectRatio` derives the height from it; the
+          band's `min-height` is then that same height. Set the band height
+          instead and the drawing's width becomes a consequence of it, which is
+          the wrong way round to tune: you cannot ask for a smaller drawing
+          without first working out what band height produces it.
+
+          Because the box is now always exactly the drawing's own ratio, there
+          is no crop and no dead space at any size. `object-contain` is kept as
+          a guard rather than a fit. */}
       <div
-        className="pointer-events-none absolute bottom-0 right-[4.56%] hidden max-w-[66%] lg:block xl:max-w-[72%]"
-        style={{ height: "100%", aspectRatio: "1536 / 1024" }}
+        className="legacy-art pointer-events-none absolute bottom-0 right-[4.56%] hidden lg:block"
+        style={{ aspectRatio: "1536 / 1024" }}
       >
         {/* `object-contain`, NOT cover. Cover only crops vertically once the
             box grows wider than the drawing's 1.5:1 — which happens above
