@@ -3023,7 +3023,7 @@ re-measured to prove it.
 | h1 size | 36px | 24px | **36px** |
 | h1 leading | 1.02 | 1.15 | **1.02** |
 | h1 tracking | +0.209px | −0.6px (`tracking-tight`) | **+0.209px** |
-| h1 last line | Regular 400, white | Bold 700, white | **Bold 700, `#F28000`** |
+| h1 last line | Regular 400, white | Bold 700, white | **Bold 700, white** |
 | eyebrow | 13px / 1.3px / `#c0c0c0`@75% | 12px / 1.6px / white@75% | **matched** |
 | body | 13px / 1.2 / 307px | 14px / 1.3 / 354px | **matched** |
 | text block top | 200 | 33 | **200** |
@@ -3032,18 +3032,16 @@ re-measured to prove it.
 The CTAs land 3–5px low because our text block measures 196px against Figma's
 192.5 — a font-metric difference in the block, not a spec error.
 
-**The third line has its own supplied spec, which overrides the node.** Node
-1300:6513 draws that span `Anek_Devanagari:Regular` in white, and it was
-briefly built that way. The spec supplied afterwards is **weight 700 in
-`#F28000`** at 36px / 102% / 0.209px uppercase — the size, leading, tracking,
-case and family all already come from the `h1` on mobile, so only the weight
-and colour sit on the span. Verified computed: `rgb(242,128,0)`, 700, 36px,
-36.72px line-height, 0.209px, uppercase, Anek Devanagari.
+**The third line's weight came from a supplied spec, not the node.** Node
+1300:6513 draws that span `Anek_Devanagari:Regular`, and it was briefly built
+at 400 on mobile; a spec supplied afterwards set **weight 700**, which is what
+stands — and 700 is also what every width above `sm` already had, so the span
+now needs no responsive weight at all.
 
-The orange is MOBILE ONLY, since the supplied 36px is the mobile size — `sm`
-and up keep the white they had (verified 30px and 60px still white at 640 and
-1512). Worth confirming whether the accent is meant to carry up to the wider
-frames too.
+That spec also specified `#F28000`. It was applied to mobile and then
+**reverted on request** — the line keeps the h1's inherited white at every
+width. The rest of the spec (36px / 102% / 0.209px / uppercase / Anek) already
+comes from the `h1`, so the span carries nothing but `font-bold`.
 
 **The tracking needed its own base value, which is easy to miss.**
 `tracking-tight` had no responsive override, so it applied from base through
