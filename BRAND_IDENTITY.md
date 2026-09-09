@@ -2827,6 +2827,66 @@ still upscales 2x and will look soft. Not fixable from Figma. The fix is the
 ORIGINAL image file from the design team, which is a far smaller ask than the
 "supply the footage" this was originally written up as. See CONTENT_TODOS.md.
 
+#### Sized to the artwork's ratio, not the section's height (Sep 2026)
+
+The backdrop box was `height: 71.8876%` — Figma's 895 of the band's 1245px.
+That reads as correct and is not, because the percentage resolves against the
+SECTION, whose height is content-driven and barely moves across breakpoints,
+while the width collapses with the viewport. Measured before the fix:
+
+| viewport | box | box ratio | artwork visible | cropped off |
+| --- | --- | --- | --- | --- |
+| 1512 | 1497x917 | 1.63 | 97% | 51px |
+| 1024 | 1009x842 | 1.20 | 71% | 440px |
+| 768 | 753x786 | 0.96 | 57% | 655px |
+| 390 | 390x771 | **0.51** | **30%** | 1059px |
+| 360 | 360x774 | **0.47** | **28%** | 1096px |
+
+The box turned from landscape into a tall PORTRAIT, and `object-cover` fills
+that from a 1.689 landscape source by matching the height and discarding the
+width — so a phone showed a 28% slice of the ripple magnified into it, and
+because of `object-left` it was the left edge rather than the droplet.
+
+It is now an `aspect-ratio: 1512/895` box, the artwork's own shape, so the crop
+is **zero by construction at every width** and the ripple scales down with the
+viewport instead of being blown up. Measured after: ratio 1.6894 and 100%
+visible at 320 / 390 / 768 / 1024 / 1512 / 1920 / 2560. At Figma's frame it
+also lands on Figma's own number — 1497 / 1.6894 = 886, which is 895 scaled by
+1497/1512.
+
+**It takes TWO elements, and that is not incidental.** The outer one is the
+visible band: full width from `inset-x-0`, height inherited from its child, and
+it owns both fades plus `maxHeight: 100%`. The cap matters because the section
+is only ~1276px tall on desktop, so past about 2160px wide the ratio wants a
+backdrop TALLER than the section and the section's `overflow-hidden` severs the
+fades mid-gradient — a hard ripple-to-white edge against whatever follows.
+Above that width the inner box overflows and is clipped by the outer instead,
+which costs the bottom of the ripple; that is already inside the fade, so it is
+invisible.
+
+Putting the ratio and the cap on the same element **over-constrains it** and
+was tried first: `inset-x-0` fixes the width, `aspect-ratio` the shape,
+`maxHeight` the height, and the browser resolves that by keeping the ratio and
+shrinking the WIDTH — measured 2156px inside a 2545px section at 2560, i.e.
+**389px of bare navy down the right-hand side**. Splitting the two jobs keeps
+the width authoritative.
+
+`aspect-ratio` rather than a `vw`-derived height is also deliberate: `vw`
+counts the scrollbar and the section does not, which puts a ~15px crop back at
+every width.
+
+Both fades are percentages of the OUTER box (`44.25%` tall, `67.4603%` wide),
+so they scale with it untouched, and when the cap engages they fill the bottom
+and left of what is actually visible. Verified the fade terminates exactly at
+the visible bottom at 390 / 1512 / 2200 / 2560, with no horizontal overflow at
+any width.
+
+One thing this did NOT change: `w=1920` in the `srcset` decodes to 1512x895,
+because Next's optimiser caps at the source width and does not upscale. The
+softness above 1512 is the asset ceiling documented below, not a sizing bug,
+and it is unchanged — the old code upscaled by the same 1.26x at 1920 and 1.68x
+at 2560.
+
 `AboutHero.tsx` renders it as `next/image` with `priority`, being the LCP
 element. It was briefly a `<video>` with an empty `RIPPLE_SOURCES` array, on
 the assumption that the node was a video fill awaiting footage. That was the

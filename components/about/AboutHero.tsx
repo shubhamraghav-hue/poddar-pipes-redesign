@@ -45,8 +45,29 @@ const RIPPLE_STILL = "/about/water-ripple-poster-1512.webp";
 const NAVY = "#0b0b52";
 const NAVY_0 = "rgba(11,11,82,0)";
 
-// The backdrop covers the band's top 895 of 1245px.
-const BACKDROP_HEIGHT = "71.8876%";
+// The backdrop's own proportions, 1512x895 — the asset's natural size and the
+// box Figma draws it in, which are the same thing.
+//
+// This used to be `height: 71.8876%` (Figma's 895 of the band's 1245px). That
+// read as correct and was not: the percentage resolves against the SECTION,
+// whose height is content-driven and barely moves across breakpoints, while
+// the width collapses with the viewport. Measured, the box went from 1497x917
+// (ratio 1.63, near the artwork's own 1.69) to 360x774 — ratio 0.47, a tall
+// PORTRAIT box. `object-cover` then fills it by matching the height and
+// discarding the width, so a 360px phone showed a 28% slice of the ripple
+// blown up, anchored to the left edge rather than anywhere interesting:
+//
+//   1512 -> 97% of the artwork visible      51px cropped
+//   1024 -> 71%                            440px cropped
+//    768 -> 57%                            655px cropped
+//    390 -> 30%                           1059px cropped
+//    360 -> 28%                           1096px cropped
+//
+// Locking the box to the artwork's ratio makes the crop zero by construction
+// at every width — the ripple simply scales down with the viewport instead of
+// being magnified into it. At Figma's frame it also lands on Figma's own
+// number: 1497 / 1.6894 = 886, which is 895 scaled by 1497/1512.
+const BACKDROP_RATIO = "1512 / 895";
 
 const CARD_SHAPE = "/about/vision-mission-card.svg";
 
@@ -127,21 +148,53 @@ export async function AboutHero() {
     // `mt-[80px]` clears the fixed h-20 navbar, matching Hero.tsx — Figma
     // starts this band at y=80, immediately below the header.
     <section className="relative mt-[80px] overflow-hidden bg-[#0b0b52]">
+      {/* TWO elements, and they have to be two.
+
+          The outer one is the visible band: full width from `inset-x-0`, height
+          taken from its child, and it owns the fades. `maxHeight: 100%` is the
+          backstop — the section's height is content-driven and roughly fixed on
+          desktop (~1276px), so past about 2160px wide the artwork's ratio wants
+          a backdrop TALLER than the section, and without the cap the fades
+          would be severed by the section's `overflow-hidden`, leaving a hard
+          ripple-to-white edge against whatever follows. Above that width the
+          ratio box overflows and is clipped here instead, which costs the
+          bottom of the ripple — already inside the fade, so invisible.
+
+          The inner one exists only to turn the width into a height via
+          `aspect-ratio`. Putting the ratio and the cap on the SAME element
+          over-constrains it: `inset-x-0` fixes the width, `aspect-ratio` fixes
+          the shape and `maxHeight` fixes the height, and the browser resolves
+          that by keeping the ratio and shrinking the WIDTH — measured 2156px
+          inside a 2545px section at 2560, i.e. 389px of bare navy down the
+          right-hand side. Separating them lets the width stay authoritative.
+
+          `aspect-ratio` rather than a `vw`-derived height on purpose: `vw`
+          counts the scrollbar and the section does not, which reintroduces a
+          ~15px crop at every width. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0"
-        style={{ height: BACKDROP_HEIGHT }}
+        className="pointer-events-none absolute inset-x-0 top-0 overflow-hidden"
+        style={{ maxHeight: "100%" }}
       >
-        {/* `priority` because this is the LCP element — it sits at the very top
-            of the page, so Next must not lazy-load it. */}
-        <Image
-          src={RIPPLE_STILL}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-left"
-        />
+        <div className="relative w-full" style={{ aspectRatio: BACKDROP_RATIO }}>
+          {/* `priority` because this is the LCP element — it sits at the very
+              top of the page, so Next must not lazy-load it.
+
+              `object-cover object-left` is kept, but below ~2160px it has
+              nothing to crop: the box matches the source ratio, so cover and
+              contain resolve to the same thing. It stays as the guard for the
+              clamped case above that width and for sub-pixel rounding, and it
+              keeps Figma's left-flush intent recorded — Figma places the
+              artwork at 1688x946 and crops the overflow off the RIGHT. */}
+          <Image
+            src={RIPPLE_STILL}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-left"
+          />
+        </div>
 
         {/* Bottom fade (node 1027:8206) — y 499 to 895 of the backdrop. */}
         <div
