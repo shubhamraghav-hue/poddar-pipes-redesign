@@ -176,7 +176,10 @@ export function LegacyStory({
           exists. */}
       <div className="container-edge py-20 md:hidden">
         <h2
-          className="font-display text-3xl uppercase leading-[1.08] tracking-[0.32px]"
+          // 28px, matching the mobile heading size the rest of the site now
+          // uses. This fallback has no Figma frame of its own, so it follows
+          // the scale rather than setting one.
+          className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px]"
           style={{ color: HEADING }}
         >
           <span className="block font-light">{titleLead}</span>

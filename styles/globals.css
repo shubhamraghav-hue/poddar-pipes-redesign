@@ -363,11 +363,27 @@ button[aria-label="Select language"] svg {
   .cv-row {
     --cv-pitch: 1.767;
     --cv-per-row: 2;
-    --cv-disc: clamp(72px, 33.3cqw, 106px);
-    --cv-gutter: clamp(
-      calc(0.471 * var(--cv-disc)),
-      calc(50cqw - var(--cv-disc) - 4px),
-      calc(0.767 * var(--cv-disc))
+
+    /* The three ratios that hang off the disc. They are variables rather than
+       literals because the MOBILE frame (home node 1311:11088) is NOT a scaled
+       copy of the desktop one — it draws a 99px disc with a 13px caption 10.4px
+       below it and an 84px gutter, i.e. 0.131 / 0.105 / 0.849, against
+       desktop's 0.16 / 0.213 / 0.767. Its caption is proportionally far smaller
+       and its gutter proportionally wider. The `sm` band resets all three. */
+    --cv-cap-ratio: 0.1313;
+    --cv-gap-ratio: 0.105;
+    --cv-head-ratio: 0.451;
+
+    --cv-disc: clamp(72px, 33.3cqw, 99px);
+
+    /* Mobile does NOT use the caption-tiling constraint the wider bands do.
+       There the caption fills its pitch, so the row has to fit two full
+       pitches; here the caption is 13px against a 183px pitch — 45% of it — so
+       the binding constraint is the DISCS, `2d + gutter <= content`. Hence a
+       plain `min` against that rather than the three-way clamp. */
+    --cv-gutter: min(
+      calc(0.8485 * var(--cv-disc)),
+      calc(100cqw - 2 * var(--cv-disc) - 8px)
     );
 
     max-width: min(
@@ -377,7 +393,7 @@ button[aria-label="Select language"] svg {
           var(--cv-gutter)
       )
     );
-    margin-top: calc(var(--cv-disc) * 0.5333);
+    margin-top: calc(var(--cv-disc) * var(--cv-head-ratio));
     column-gap: var(--cv-gutter);
     row-gap: calc(var(--cv-disc) * 0.32);
   }
@@ -395,8 +411,8 @@ button[aria-label="Select language"] svg {
 
   .cv-caption {
     width: calc(var(--cv-disc) + var(--cv-gutter));
-    margin-top: calc(var(--cv-disc) * 0.2133);
-    font-size: calc(var(--cv-disc) * 0.16);
+    margin-top: calc(var(--cv-disc) * var(--cv-gap-ratio));
+    font-size: calc(var(--cv-disc) * var(--cv-cap-ratio));
   }
 
   /* 3 / 2 — 640 to 1023. Wide enough to carry Figma's proportional gutter
@@ -404,6 +420,13 @@ button[aria-label="Select language"] svg {
   @media (min-width: 40rem) {
     .cv-row {
       --cv-per-row: 3;
+
+      /* Back to the desktop ratios — 24/150, 32/150, 80/150 — which every
+         band from here up shares. Only the base band differs. */
+      --cv-cap-ratio: 0.16;
+      --cv-gap-ratio: 0.2133;
+      --cv-head-ratio: 0.5333;
+
       --cv-disc: clamp(106px, 18.49cqw, 150px);
       --cv-gutter: calc((var(--cv-pitch) - 1) * var(--cv-disc));
     }

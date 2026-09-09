@@ -83,7 +83,11 @@ export async function CTASection({
         {/* Each sentence should be exactly one line. `max-w-2xl` was too
             narrow at `text-5xl` and wrapped the second into three; `max-w-5xl`
             fits both. `block` guarantees the split regardless. */}
-        <h2 className="text-balance font-display text-3xl uppercase leading-[1.2] sm:text-4xl md:text-5xl">
+        {/* 28px at base to match the mobile frame (home node 1311:11088 draws
+            this heading at 28px, same as every other section heading there)
+            and so it does not sit 2px off its neighbours, which now come
+            through `SectionHeading` at 28px. Steps above it unchanged. */}
+        <h2 className="text-balance font-display text-[28px] uppercase leading-[1.2] sm:text-4xl md:text-5xl">
           <span className="block font-light text-white">{ctaLead}</span>
           {ctaAccent && <span className="block font-semibold text-amber-600">{ctaAccent}</span>}
         </h2>

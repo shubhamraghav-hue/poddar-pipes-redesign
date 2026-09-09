@@ -176,10 +176,12 @@ export async function ProductCategories() {
         />
 
         <div className="flex flex-col items-center gap-10">
-          {/* Figma's card is 400×375 (not square) at a ~26px gap. Expressed
-              as a ratio + `gap-6` so it holds at any container width, not
-              just Figma's 1512px reference. */}
-          <RevealOnScroll className="grid w-full grid-cols-1 gap-6 sm:grid-cols-3">
+          {/* Two cards, two ratios. Desktop (node 13:309) draws 400x375 at a
+              ~26px gap; the MOBILE frame (node 1311:11088) draws a much wider
+              342x200 at an 18px gap — a landscape card, not a near-square one.
+              Both are ratios rather than fixed sizes so they hold at any
+              container width instead of only at Figma's reference frames. */}
+          <RevealOnScroll className="grid w-full grid-cols-1 gap-[18px] sm:grid-cols-3 sm:gap-6">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.id}
@@ -189,7 +191,7 @@ export async function ProductCategories() {
                 // already resolve against the card. `min(25px,6.25cqw)`
                 // because Figma's radius is a fixed 25px — a flat `6.25cqw`
                 // would overshoot on any card wider than 400px.
-                className="group @container relative block aspect-[400/375] w-full overflow-hidden rounded-[min(25px,6.25cqw)] bg-white"
+                className="group @container relative block aspect-[342/200] w-full overflow-hidden rounded-[min(25px,6.25cqw)] bg-white sm:aspect-[400/375]"
               >
 
                 {/* Photo stops at 68%, short of the wordmark's 74.67% top,
@@ -245,6 +247,24 @@ export async function ProductCategories() {
                   height={cat.logoH}
                   className="absolute left-[10.53%] top-[74.67%] h-[18.87%] w-auto max-w-[58.11%] object-contain object-left transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]"
                 />
+
+                {/* Mobile gets a visible arrow instead of the hover block
+                    below, which a phone can never reach — Figma draws a 32px
+                    `#171796` disc inset 20px from the right and 13px from the
+                    bottom of its 342x200 card, holding a 20px arrow. Those are
+                    5.85% / 6.5% / 9.36cqw / 5.85cqw of that card. `cqw` for the
+                    two sizes because the `@container` is the card, so they
+                    track its width; percentages for the insets, which already
+                    resolve against it.
+
+                    `aria-hidden` and a `<span>`: the whole card is one `Link`,
+                    so this is decoration, not a second control. */}
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-[6.5%] right-[5.85%] flex size-[9.36cqw] items-center justify-center rounded-full bg-[#171796] sm:hidden"
+                >
+                  <ArrowRight className="size-[5.85cqw] text-white" />
+                </span>
 
                 {/* Description + CTA sit below the card at rest and slide up
                     on hover. Modelled inverted from the group above: the

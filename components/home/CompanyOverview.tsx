@@ -112,7 +112,11 @@ export async function CompanyOverview() {
               — it is kept to the mock at desktop only, with the comfortable
               1.625 left in place on the narrow widths Figma does not cover. */}
           <RevealOnScroll delay={0.08} className="mt-8 lg:mt-[41px]">
-            <p className="text-balance text-base leading-relaxed text-[#606060] md:text-lg lg:leading-[1.2]">
+            {/* 13px at base is the mobile frame's body size (node
+                1311:11088); 16px from `sm` and Figma's 18px from `md` are
+                unchanged. This paragraph does not go through
+                `SectionHeading`, so it needs the step of its own. */}
+            <p className="text-balance text-[13px] leading-relaxed text-[#606060] sm:text-base md:text-lg lg:leading-[1.2]">
               {t("overviewDesc")}
             </p>
           </RevealOnScroll>

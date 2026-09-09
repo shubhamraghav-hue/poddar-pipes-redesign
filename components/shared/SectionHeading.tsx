@@ -66,7 +66,14 @@ export function SectionHeading({
           white. */}
       <Heading
         className={cn(
-          "max-w-2xl font-display text-3xl uppercase leading-[1.08] tracking-[0.32px] sm:text-4xl md:text-5xl",
+          // 28px at base is the MOBILE frame's heading size (home node
+          // 1311:11088, which uses it for every section heading); the
+          // 36/48px steps above it are the desktop scale and are unchanged.
+          // It was `text-3xl` (30px), so mobile headings across the site come
+          // down 2px — this component is the single place the global heading
+          // spec lives, so the alternative was per-section overrides that
+          // would leave the home page 2px off every other page on a phone.
+          "max-w-2xl font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] sm:text-4xl md:text-5xl",
           animate ? "text-pretty" : "text-balance",
           dark ? "text-white" : titleColorClassName ?? "text-[#4a4a4a]"
         )}
@@ -87,7 +94,11 @@ export function SectionHeading({
       {description && (
         <p
           className={cn(
-            "max-w-xl text-balance text-base leading-relaxed",
+            // 13px at base, 16px from `sm`. The mobile frame sets all body
+            // copy at 13px — it is the dominant size in that node, 18 of its
+            // uses — against our 16px. Same reasoning as the title above for
+            // changing it here rather than per section.
+            "max-w-xl text-balance text-[13px] leading-relaxed sm:text-base",
             dark ? "text-slate-300" : "text-[#5C585A]"
           )}
         >

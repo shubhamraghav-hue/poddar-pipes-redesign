@@ -2903,6 +2903,94 @@ rather than the `transparent` keyword: Safari resolves bare `transparent` to
 transparent **black**, which turns a navy fade into a grey smudge (the same
 trap already documented for LegacyStory's white fade).
 
+## Mobile type scale and card sizes, from home node 1311:11088 (Sep 2026)
+
+The first mobile frame we have been given for the home page. Its structure
+already matched the build — section order, backgrounds, the 2-2-1 Core Values
+with the fifth centred, one-column product cards, and the CTA folded into the
+footer node (which is what `CTASection variant="flush"` produces). What did NOT
+match were the proportions: the page ran **6414px against Figma's 5194px**.
+
+The frame is 402 wide with 30px gutters, and its type system is four sizes:
+**28px** section headings, **13px** all body copy (18 of its uses), **18px**
+CTA labels, **36px** hero headline.
+
+| | Figma | Before | After |
+| --- | --- | --- | --- |
+| section heading | 28px | 30px | **28px** |
+| body copy | 13px | 16px | **13px** |
+| Core Values caption | 13px | 17px | **13.0px** |
+| CTA label | 18px | 18px | 18px |
+
+| section | Figma | Before | After |
+| --- | --- | --- | --- |
+| hero | 1114 | 783 | 783 (locked) |
+| legacy | 436 | 529 | 411 |
+| products | 1632 | **2590** | **1791** |
+| core values | 705 | 889 | 782 |
+| CTA + footer | 1169 | 1544 | 1535 |
+| **document** | **5194** | **6414** | **5382** |
+
+**The product card carries two ratios, and that was the big win.** Desktop
+draws 400x375 (near-square); mobile draws **342x200** — a landscape card — at
+an 18px gap rather than 26px. Six cards at 132px too tall was 792px, most of
+the whole overshoot. Now `aspect-[342/200] sm:aspect-[400/375]`.
+
+The card needed no restructuring to shrink, which was the surprise: its
+description block is already `translate-y-[27.5cqw]`, parked out of view and
+revealed on hover, so it never contributed to the card's height. And its photo
+frame is already `h-[68%]`, which is exactly Figma's 136 of 200. What mobile
+DID need was a visible affordance, since a phone cannot hover: Figma draws a
+32px `#171796` disc inset 20px/13px holding a 20px arrow, added as an
+`aria-hidden` `<span>` (the whole card is one `Link`, so it is decoration, not
+a second control) at `9.36cqw` / `5.85cqw` / `5.85%` / `6.5%` of the card.
+
+**Core Values is NOT a scaled copy of the desktop design**, which is why
+`.cv-*` grew ratio variables. Mobile draws a 99px disc with a 13px caption
+10.4px below and an 84px gutter — **0.131 / 0.105 / 0.849** against desktop's
+**0.16 / 0.213 / 0.767**. Its caption is proportionally much smaller and its
+gutter proportionally wider. So `--cv-cap-ratio`, `--cv-gap-ratio` and
+`--cv-head-ratio` are set in the base band and reset at `sm`. Measured after:
+disc **99**, pitch **183**, gutter **84**, disc-to-caption **10**, caption
+**13.0px** — Figma exactly.
+
+Mobile also drops the caption-tiling constraint the wider bands use. There the
+caption fills its pitch, so a row must fit two full pitches; here the caption
+is 13px against a 183px pitch, 45% of it, so the binding constraint is the
+DISCS (`2d + gutter <= content`) and the gutter is a plain `min` rather than
+the three-way clamp.
+
+**Where the 28px heading lives.** `SectionHeading` (29 call sites, and NOT used
+by `Hero.tsx`, which has its own `h1`), so mobile headings came down 2px
+site-wide. That is deliberate: the alternative was per-section overrides that
+would leave the home page 2px off every other page on a phone. Two headings
+bypass that component and were aligned by hand — `CTASection`'s flush variant
+and `LegacyStory`'s mobile fallback. Its other variant (line 115) is used by
+neither page this frame covers and was left at 30px.
+
+### Knowingly NOT matched
+
+- **Hero.** 783 vs 1114 tall, headline 24px vs 36px, and `#14134f` (the `ink`
+  token) vs Figma's `#0b0b52`. `components/home/Hero.tsx` is LOCKED — untouched
+  pending explicit permission. Its copy and both CTA labels already match.
+- **Page gutter.** Figma uses 30px, `container-edge` uses 24px (`px-6`). That is
+  why our card measures 354x207 rather than 342x200 — the same ratio, 3.4%
+  wider. `Hero.tsx` uses `container-edge` in three places, so changing it would
+  be an indirect edit to a locked component.
+- **Footer and CTA body type.** 14px here (fixed, desktop-verified) against
+  Figma mobile's 13px. A 1px difference, not worth re-deriving the desktop
+  footer for.
+- **CTA + footer still 366px tall.** That residual is padding, not type
+  (`py-20 md:py-28` on the flush CTA plus the footer's own), so it sits outside
+  a type-and-card-size pass.
+- **Card order.** Figma reads UPVC, CPVC, UGD, AGRI, SWR, TANKS; we ship CPVC,
+  UPVC, SWR, AGRI, UGD, TANKS per an explicit brand-team request recorded in
+  CONTENT_TODOS. The frame likely predates it — left alone.
+- **Card shadow.** Figma draws `0 0 4px rgba(0,0,0,0.1)`; ours has none.
+- **Hero eyebrow says "MANUFACTURING SINCE 1991"** while the legacy section
+  says "Founded in 1975". Possibly both true of different entities, but they
+  read as inconsistent — a question for the brand team, not a bug.
+
 ## CompanyOverview image: blueprint drawing replaces the photo (Sep 2026)
 
 The homepage "A 50-YEAR LEGACY OF / EXCELLENCE IN PLUMBING." section
