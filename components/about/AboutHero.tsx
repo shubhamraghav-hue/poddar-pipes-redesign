@@ -64,10 +64,39 @@ const NAVY_0 = "rgba(11,11,82,0)";
 //    360 -> 28%                           1096px cropped
 //
 // Locking the box to the artwork's ratio makes the crop zero by construction
-// at every width — the ripple simply scales down with the viewport instead of
-// being magnified into it. At Figma's frame it also lands on Figma's own
-// number: 1497 / 1.6894 = 886, which is 895 scaled by 1497/1512.
-const BACKDROP_RATIO = "1512 / 895";
+// — the ripple simply scales down with the viewport instead of being magnified
+// into it. At Figma's frame it also lands on Figma's own number:
+// 1497 / 1.6894 = 886, which is 895 scaled by 1497/1512.
+//
+// Zero crop is right on any real screen, but on a phone the ratio alone makes
+// the band very short — 238px on a 402px screen — which reads as a thin strip
+// rather than a backdrop. Hence `min-h-[322px]`, which buys presence back by
+// letting the box grow TALLER than the artwork and cropping the sides:
+//
+//   width   band     artwork visible
+//   320px   322px        59%
+//   402px   322px        74%
+//   500px   322px        91%
+//   544px   322px       100%   <- the ratio takes over here
+//   640px   379px       100%
+//
+// A min-height rather than a second `aspect-ratio` on purpose. A mobile ratio
+// (`aspect-[5/4]`) was tried first and measured 511px at 639 against 379px at
+// 640 — the band got SHORTER as the window got WIDER, because below the
+// breakpoint a 1.25 box out-grows a 1.689 one. A floor has no such seam: it
+// simply stops binding once the natural ratio passes it, at 322 * 1.689 =
+// 544px, so the band is continuous and never shrinks as the screen widens.
+// `322px` is the one number to change if the balance wants moving.
+//
+// The crop anchor had to move with it. `object-left` is Figma's intent and was
+// INERT while nothing cropped, but it is the worst possible anchor once
+// something does: measured on the artwork, the contrast centroid sits at
+// x=57% and the left 20% carries only 8% of the detail, so anchoring left
+// would frame empty water and cut the droplet off. `object-[57%_50%]` frames
+// the droplet column and its rings instead. It is applied at every width —
+// above 544px there is no horizontal crop for it to affect, and in the
+// >2160px clamped case the crop is vertical, where its 50% matches what
+// `object-left` resolved to anyway.
 
 const CARD_SHAPE = "/about/vision-mission-card.svg";
 
@@ -176,23 +205,23 @@ export async function AboutHero() {
         className="pointer-events-none absolute inset-x-0 top-0 overflow-hidden"
         style={{ maxHeight: "100%" }}
       >
-        <div className="relative w-full" style={{ aspectRatio: BACKDROP_RATIO }}>
+        <div className="relative min-h-[322px] w-full aspect-[1512/895]">
           {/* `priority` because this is the LCP element — it sits at the very
               top of the page, so Next must not lazy-load it.
 
-              `object-cover object-left` is kept, but below ~2160px it has
-              nothing to crop: the box matches the source ratio, so cover and
-              contain resolve to the same thing. It stays as the guard for the
-              clamped case above that width and for sub-pixel rounding, and it
-              keeps Figma's left-flush intent recorded — Figma places the
-              artwork at 1688x946 and crops the overflow off the RIGHT. */}
+              Between 544px and ~2160px `object-cover` has nothing to crop —
+              the box matches the source ratio, so cover and contain resolve to
+              the same thing. It does real work at the two ends: below 544px,
+              where the `min-h` floor makes the box taller than the artwork and
+              the sides crop, and above ~2160px, where the height cap crops
+              vertically. */}
           <Image
             src={RIPPLE_STILL}
             alt=""
             fill
             priority
             sizes="100vw"
-            className="object-cover object-left"
+            className="object-cover object-[57%_50%]"
           />
         </div>
 

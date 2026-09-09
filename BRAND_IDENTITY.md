@@ -2854,6 +2854,30 @@ visible at 320 / 390 / 768 / 1024 / 1512 / 1920 / 2560. At Figma's frame it
 also lands on Figma's own number — 1497 / 1.6894 = 886, which is 895 scaled by
 1497/1512.
 
+**A 322px floor on small screens, added on request (Sep 2026).** The ratio
+alone left the band 238px tall on a 402px phone, which read as a thin strip
+rather than a backdrop, so the ratio box carries `min-h-[322px]`. Below 544px
+that floor makes the box taller than the artwork and the sides crop; above it
+the floor stops binding and the ratio takes over. Measured: 322px band with
+59% of the artwork at 320, 74% at 402, 100% from 544, then 378/379 either side
+of `sm` and 886 at 1512. `322px` is the one number to change.
+
+A min-height rather than a second `aspect-ratio`, and that distinction was
+measured, not assumed. A mobile `aspect-[5/4]` was tried first and gave a
+511px band at 639 against 379px at 640 — the band got SHORTER as the window
+got WIDER, because below the breakpoint a 1.25 box out-grows a 1.689 one. A
+floor has no such seam: it simply stops applying once the natural ratio passes
+it, so the band is continuous and never shrinks as the screen widens.
+
+**The crop anchor moved to `object-[57%_50%]`.** `object-left` is Figma's
+intent and was inert while nothing cropped, but it is the worst anchor once
+something does. Measured on the artwork by block contrast: the detail centroid
+is at **x=57%**, the peak-contrast column at 57.5%, and the left 20% carries
+only **8%** of the detail. Anchoring left would have framed empty water and
+cut the droplet off. Applied at every width — above 544px there is no
+horizontal crop to affect, and in the clamped >2160px case the crop is
+vertical, where the 50% matches what `object-left` resolved to anyway.
+
 **It takes TWO elements, and that is not incidental.** The outer one is the
 visible band: full width from `inset-x-0`, height inherited from its child, and
 it owns both fades plus `maxHeight: 100%`. The cap matters because the section
