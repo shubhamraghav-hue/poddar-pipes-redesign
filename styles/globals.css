@@ -204,6 +204,32 @@ button[aria-label="Select language"] svg {
     text-wrap: balance;
   }
 
+  /* Category-card photo pan (components/home/ProductCategories.tsx). The
+     component emits BOTH placements as custom properties because an inline
+     style cannot carry a media query; this picks the mobile set below `sm` and
+     the desktop set from `sm` up.
+
+     Only the tank card uses it. Figma places that photo by its own rule on
+     mobile (node 1311:11192) — a 342x218 layer, the photo's own ratio, centred
+     in the 342x136 frame — where the five pipe cards use a tall layer showing
+     its bottom slice. A single `zoom` driving both axes cannot express 100%
+     wide by 160% tall, hence two explicit sets rather than one number. */
+  .photo-pan {
+    width: var(--pan-w-m);
+    height: var(--pan-h-m);
+    left: var(--pan-x-m);
+    top: var(--pan-y-m);
+  }
+
+  @media (min-width: 40rem) {
+    .photo-pan {
+      width: var(--pan-w);
+      height: var(--pan-h);
+      left: var(--pan-x);
+      top: var(--pan-y);
+    }
+  }
+
   /* Homepage legacy band (components/home/CompanyOverview.tsx), Figma node
      1197:6064. That frame is 1512 wide and measures a 608px band with its
      heading 150px down — 40.2% and 9.92% of the frame width. Both are held as

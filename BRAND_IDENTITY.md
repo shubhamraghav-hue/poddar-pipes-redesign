@@ -3036,6 +3036,27 @@ CTA labels, **36px** hero headline.
 | CTA + footer | 1169 | 1544 | 1535 |
 | **document** | **5194** | **6414** | **5382** |
 
+**The tank card's photo needed its own mobile placement.** Figma treats it
+differently from the other five, which is not obvious until the node ids are
+compared: the five pipe cards (1311:11157 and siblings) each use a TALL
+342x508 layer at `top: -353`, showing only its bottom slice, while the tank
+(1311:11192) uses a SHORT **342x218** layer — 1.5688, which is the photo's own
+1.5679 ratio, so it shows uncropped — centred in the 342x136 frame with a 2px
+downward nudge.
+
+`panStyle` could not express that: one `zoom` drove both axes, and this wants
+100% wide by 160% tall. So `PHOTO_PAN` gained an optional `mobile` override
+with explicit `w/h/left/top`, and both placements are emitted as custom
+properties which `.photo-pan` in globals.css switches at `sm` — an inline style
+cannot carry a media query. Percentages, not pixels, because our frame is 354
+wide against the mock's 342 (`container-edge`'s 24px gutter versus its 30px).
+
+Measured: at 402 the layer resolves to **342x218 at top -39** scaled back to
+Figma's frame, which is that node exactly, and the rendered image is the layer
+size so nothing is cropped. The hand-tuned desktop values (`zoom 125, x 60,
+y 85`) are untouched and verified unchanged at 640 and 1512 — 125% x 125%,
+left -15%, top -21.25%.
+
 **The product card carries two ratios, and that was the big win.** Desktop
 draws 400x375 (near-square); mobile draws **342x200** — a landscape card — at
 an 18px gap rather than 26px. Six cards at 132px too tall was 792px, most of

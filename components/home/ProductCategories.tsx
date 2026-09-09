@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -140,21 +141,66 @@ const CATEGORIES = [
  * the bottom). Raising y lifts the tanks and costs lid on hover: roughly
  * 6.5 + 0.64y px clipped, so 34px at y=43, 38px at y=50, 70px at y=100.
  */
-const PHOTO_PAN: Partial<
-  Record<(typeof CATEGORIES)[number]["id"], { zoom: number; x: number; y: number }>
-> = {
-  tanks: { zoom: 125, x: 60, y: 85 },
+type Pan = {
+  /** Layer size as a % of the frame, both axes. >100 is what creates the slack. */
+  zoom: number;
+  /** 0-100, where in the slack the layer sits. 50 is centred. */
+  x: number;
+  y: number;
+  /**
+   * Mobile override, below `sm`. Separate because the MOBILE frame is a
+   * different shape — the card is 342x200 there against 400x375 on desktop, so
+   * the 68% photo frame goes from 1.57:1 to 2.51:1 — and because Figma places
+   * the tank photo by its own rule on mobile that `zoom` cannot express: one
+   * percentage drives both axes here, and Figma wants 100% wide by 160% tall.
+   */
+  mobile?: { w: number; h: number; left: number; top: number };
+};
+
+// Figma treats the tank card differently from the other five on mobile. The
+// five pipe cards (nodes 1311:11157 etc.) each use a TALL 342x508 layer at
+// `top: -353`, showing only its bottom slice. The tank (node 1311:11192) uses a
+// SHORT 342x218 layer — 1.5688, which is the photo's own 1.5679 ratio, so it
+// shows uncropped — centred in the 342x136 frame with a 2px downward nudge.
+//
+// So the mobile numbers below are that node read off directly: 342/342 = 100%
+// wide, 218/136 = 160.29% tall, left 0, and top -39px = -28.68% of the frame.
+// Percentages rather than pixels because our frame is 354 wide, not Figma's 342
+// (our page gutter is `container-edge`'s 24px against the mock's 30px), so the
+// placement has to scale rather than be pinned.
+//
+// The desktop values are the ones tuned by hand against the studio shot and are
+// deliberately untouched.
+const PHOTO_PAN: Partial<Record<(typeof CATEGORIES)[number]["id"], Pan>> = {
+  tanks: {
+    zoom: 125,
+    x: 60,
+    y: 85,
+    mobile: { w: 100, h: 160.29, left: 0, top: -28.68 },
+  },
 };
 
 /** Turns a pan into the layer's size and offset. */
-function panStyle({ zoom, x, y }: { zoom: number; x: number; y: number }) {
+// Emits both placements as custom properties rather than as `width`/`left`
+// directly, because an inline style cannot carry a media query. The `.photo-pan`
+// rule in globals.css picks the `-m` set below `sm` and the plain set above it.
+function panStyle({ zoom, x, y, mobile }: Pan) {
   const slack = 100 - zoom; // negative: how far the layer may travel
+  const w = `${zoom}%`;
+  const h = `${zoom}%`;
+  const left = `${(slack * x) / 100}%`;
+  const top = `${(slack * y) / 100}%`;
   return {
-    width: `${zoom}%`,
-    height: `${zoom}%`,
-    left: `${(slack * x) / 100}%`,
-    top: `${(slack * y) / 100}%`,
-  };
+    "--pan-w": w,
+    "--pan-h": h,
+    "--pan-x": left,
+    "--pan-y": top,
+    // Falls back to the desktop placement when a card has no mobile override.
+    "--pan-w-m": mobile ? `${mobile.w}%` : w,
+    "--pan-h-m": mobile ? `${mobile.h}%` : h,
+    "--pan-x-m": mobile ? `${mobile.left}%` : left,
+    "--pan-y-m": mobile ? `${mobile.top}%` : top,
+  } as CSSProperties;
 }
 
 const GOLD_BADGE = "/products/category-cards/gold-badge.svg";
@@ -203,7 +249,7 @@ export async function ProductCategories() {
                     // within it. This is the only way to get two-axis freedom
                     // — see the note on PHOTO_PAN. The frame itself is
                     // untouched, so the card's geometry is unaffected.
-                    <div className="absolute" style={panStyle(PHOTO_PAN[cat.id]!)}>
+                    <div className="photo-pan absolute" style={panStyle(PHOTO_PAN[cat.id]!)}>
                       <Image
                         src={cat.photo}
                         alt=""
