@@ -3008,6 +3008,56 @@ two desktop lines on their own.
   because our link rows use the site's `gap-2` rhythm rather than the mock's
   24px pitch. Left as-is; it only shows while a group is open.
 
+## Mobile hero, from home node 1300:6513 (Sep 2026)
+
+`components/home/Hero.tsx` is LOCKED — this pass was made under explicit,
+per-change permission and the lock still stands for the next one.
+
+Node `1300:6513` supersedes `1311:11088` as the mobile home frame: hero 1064
+tall against 1114, text block at y200 against y190, stats at 655.7 against
+695.7. Everything below is MOBILE ONLY; `sm` and up are byte-unchanged and were
+re-measured to prove it.
+
+| | Figma | Before | After |
+| --- | --- | --- | --- |
+| h1 size | 36px | 24px | **36px** |
+| h1 leading | 1.02 | 1.15 | **1.02** |
+| h1 tracking | +0.209px | −0.6px (`tracking-tight`) | **+0.209px** |
+| h1 last line weight | Regular 400 | Bold 700 | **400** |
+| eyebrow | 13px / 1.3px / `#c0c0c0`@75% | 12px / 1.6px / white@75% | **matched** |
+| body | 13px / 1.2 / 307px | 14px / 1.3 / 354px | **matched** |
+| text block top | 200 | 33 | **200** |
+| CTA tops | 453 / 509 | 258 / 316 | **456 / 514** |
+
+The CTAs land 3–5px low because our text block measures 196px against Figma's
+192.5 — a font-metric difference in the block, not a spec error.
+
+**The tracking needed its own base value, which is easy to miss.**
+`tracking-tight` had no responsive override, so it applied from base through
+`lg`. Figma's mobile tracking is POSITIVE (+0.2088px) where `tracking-tight` is
+about −0.6px, so the base got `tracking-[0.209px]` and `sm:tracking-tight` was
+added to hand every wider step back its original value. Same for the eyebrow's
+colour and tracking, and the last line's weight — all three were unqualified
+base classes that would have leaked upward.
+
+**The top pad is `49.76vw`, not a flat 200px.** Every height in this file is a
+`vw` formula so it stays synced to the video, which is `110.945vw` and
+absolutely positioned. A fixed 200px pad put the copy at 45% of the video's
+height at 402 but only 28% at 639. `49.76vw` is Figma's 200px at 402 — 200/446
+of the video, i.e. 0.4485 × 110.945 — and measured 44% / 45% / 45% at 327 / 402
+/ 639.
+
+**Content now exceeds the box's `min-h` on mobile, deliberately.** Figma puts
+its CTAs at 453/509 against a 446px video, i.e. below it on the navy. Because
+the video is absolutely positioned with its own `vw` height, it does not
+stretch to follow — the copy simply continues past it, which is what the mock
+draws. The "never forces an overflow" note in that comment describes the
+centred desktop composition, not this one.
+
+Not touched: the eyebrow copy still reads "MANUFACTURING SINCE 1991" while the
+legacy section says "Founded in 1975". Still an open question for the brand
+team, not a bug to fix here.
+
 ## Mobile type scale and card sizes, from home node 1311:11088 (Sep 2026)
 
 The first mobile frame we have been given for the home page. Its structure

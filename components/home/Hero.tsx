@@ -230,7 +230,25 @@ export function Hero() {
 
       {/* `min-h` mirrors the video's own height formulas so the two stay in
           sync at every width without ever forcing an overflow. */}
-      <div className="relative flex min-h-[110.945vw] flex-col justify-center md:min-h-[55.95vw]">
+      {/* MOBILE PLACEMENT, node 1300:6513. Figma puts the text block at y200
+          and the CTAs at 453/509 in a 1064-tall hero — i.e. deliberately BELOW
+          the 446px video, on the navy. `justify-center` centred the whole
+          group instead, which measured the block at y33. So below `sm` the box
+          top-aligns with a `49.76vw` pad; `sm` and up keep the centring
+          untouched.
+
+          `vw`, not a flat 200px, for the same reason every other height here
+          is: the video is `110.945vw`, so a fixed pad would put the copy at
+          45% of its height at 402 but only 28% at 639. 49.76vw is that 200px
+          at 402 (200/446 of the video, i.e. 0.4485 x 110.945) and holds the
+          proportion right across the mobile band.
+
+          The content now exceeds this `min-h` on mobile, which is fine and is
+          what Figma draws: the video is absolutely positioned with its own
+          `vw` height, so it does not stretch — the copy simply continues onto
+          the navy below it. The "never forces an overflow" note above applies
+          to the centred desktop composition, not this one. */}
+      <div className="relative flex min-h-[110.945vw] flex-col justify-start pt-[49.76vw] sm:justify-center sm:pt-0 md:min-h-[55.95vw]">
         {/* `z-[3]` on this and the two layers below: above the video's
             `z-[2]` but below the text's `z-10`. Heights stop short of the
             stats-tile overlap band rather than using `inset-0`.
@@ -294,20 +312,37 @@ export function Hero() {
           aria-hidden="true"
         />
 
-        <div className="container-edge relative z-10 flex flex-col gap-8 pb-12 sm:gap-10 sm:pb-16 md:gap-12 lg:gap-[60px]">
-          <div className="flex max-w-2xl flex-col gap-5">
-            <span className="text-xs font-light uppercase tracking-[1.6px] text-white/75 sm:text-sm md:text-base">
+        {/* Base gap is 60px, not 32px: Figma's CTA sits 60.5px under the text
+            block on mobile (453 less the block's 392.5 bottom). */}
+        <div className="container-edge relative z-10 flex flex-col gap-[60px] pb-12 sm:gap-10 sm:pb-16 md:gap-12 lg:gap-[60px]">
+          {/* 13px between eyebrow / headline / body on mobile is Figma's
+              13.05px, and it is what brings the block to its 192.5px height
+              and so puts the CTAs on their marks. */}
+          <div className="flex max-w-2xl flex-col gap-[13px] sm:gap-5">
+            {/* Figma mobile: 13px Light, `leading-none`, 1.3px tracking, and
+                `rgba(192,192,192,0.75)` — the `#c0c0c0` grey, not white at 75%
+                as the wider widths use. */}
+            <span className="text-[13px] font-light uppercase leading-none tracking-[1.3px] text-[#c0c0c0]/75 sm:text-sm sm:leading-normal sm:tracking-[1.6px] sm:text-white/75 md:text-base">
               {t("heroEyebrow")}
             </span>
-            <h1 className="text-balance font-display text-2xl font-light uppercase leading-[1.15] tracking-tight text-white sm:text-3xl sm:leading-[1.1] md:text-4xl md:leading-[1.08] lg:text-5xl lg:leading-[1.05] xl:text-6xl xl:leading-[1.02] xl:tracking-[0.32px]">
+            {/* 36px at base is Figma's mobile size, against the 24px this
+                previously inherited from the desktop ramp. Its tracking is
+                POSITIVE there (+0.2088px) where `tracking-tight` is about
+                -0.6px, so the base needed its own value and `sm` restores
+                `tracking-tight` for every wider step. */}
+            <h1 className="text-balance font-display text-[36px] font-light uppercase leading-[1.02] tracking-[0.209px] text-white sm:text-3xl sm:leading-[1.1] sm:tracking-tight md:text-4xl md:leading-[1.08] lg:text-5xl lg:leading-[1.05] xl:text-6xl xl:leading-[1.02] xl:tracking-[0.32px]">
               <span className="block">{t("heroSlide_growth_line1")}</span>
               <span className="block">{t("heroSlide_growth_line2")}</span>
-              <span className="block font-bold">{t("heroSlide_growth_bold")}</span>
+              {/* Figma sets this line Regular on mobile and only the wider
+                  frames carry the bold. */}
+              <span className="block font-normal sm:font-bold">{t("heroSlide_growth_bold")}</span>
             </h1>
-            {/* `max-w-md`, narrower than the rest of the box, to force a
-                3-line wrap. 360–520px all give 3 lines, so 448 is safely
-                mid-range rather than borderline. */}
-            <p className="max-w-md text-balance text-sm leading-[1.3] text-white sm:text-base sm:leading-[1.2]">
+            {/* `max-w-md` from `sm`, narrower than the rest of the box, to
+                force a 3-line wrap. 360–520px all give 3 lines, so 448 is
+                safely mid-range rather than borderline.
+
+                On mobile it is Figma's own 307px at 13px/1.2 instead. */}
+            <p className="max-w-[307px] text-balance text-[13px] leading-[1.2] text-white sm:max-w-md sm:text-base sm:leading-[1.2]">
               {t("heroSlide_growth_desc")}
             </p>
           </div>
