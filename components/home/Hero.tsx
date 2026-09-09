@@ -302,7 +302,7 @@ export function Hero() {
             <h1 className="text-balance font-display text-2xl font-light uppercase leading-[1.15] tracking-tight text-white sm:text-3xl sm:leading-[1.1] md:text-4xl md:leading-[1.08] lg:text-5xl lg:leading-[1.05] xl:text-6xl xl:leading-[1.02] xl:tracking-[0.32px]">
               <span className="block">{t("heroSlide_growth_line1")}</span>
               <span className="block">{t("heroSlide_growth_line2")}</span>
-              <span className="block font-normal">{t("heroSlide_growth_bold")}</span>
+              <span className="block font-bold">{t("heroSlide_growth_bold")}</span>
             </h1>
             {/* `max-w-md`, narrower than the rest of the box, to force a
                 3-line wrap. 360–520px all give 3 lines, so 448 is safely
