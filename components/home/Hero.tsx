@@ -333,9 +333,17 @@ export function Hero() {
             <h1 className="text-balance font-display text-[36px] font-light uppercase leading-[1.02] tracking-[0.209px] text-white sm:text-3xl sm:leading-[1.1] sm:tracking-tight md:text-4xl md:leading-[1.08] lg:text-5xl lg:leading-[1.05] xl:text-6xl xl:leading-[1.02] xl:tracking-[0.32px]">
               <span className="block">{t("heroSlide_growth_line1")}</span>
               <span className="block">{t("heroSlide_growth_line2")}</span>
-              {/* Figma sets this line Regular on mobile and only the wider
-                  frames carry the bold. */}
-              <span className="block font-normal sm:font-bold">{t("heroSlide_growth_bold")}</span>
+              {/* Third line carries its own spec, supplied directly and
+                  overriding node 1300:6513 — that node draws this span
+                  `Anek_Devanagari:Regular` in white, and it was briefly built
+                  that way. The spec is weight 700 in `#F28000` at 36px /
+                  102% / 0.209px uppercase; the size, leading, tracking, case
+                  and family all already come from the `h1` on mobile, so only
+                  the weight and colour live here.
+
+                  The orange is MOBILE ONLY, because the supplied 36px is the
+                  mobile size — `sm` and up keep the white they had. */}
+              <span className="block font-bold text-[#F28000] sm:text-white">{t("heroSlide_growth_bold")}</span>
             </h1>
             {/* `max-w-md` from `sm`, narrower than the rest of the box, to
                 force a 3-line wrap. 360–520px all give 3 lines, so 448 is
