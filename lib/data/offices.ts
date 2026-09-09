@@ -9,7 +9,7 @@ export const offices: Office[] = [
     city: "Bengaluru",
     country: "India",
     type: "Registered & Corporate Office",
-    address: "4th Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008",
+    address: "3rd Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008",
     phone: "+91 [XXXXX XXXXX]",
     email: "poddarpipes@gmail.com",
   },

@@ -74,7 +74,7 @@ export function LegalContactBlock() {
     <address className="mt-4 not-italic text-[15px] leading-[1.7] text-slate-900/80 sm:text-base">
       Poddar Plumbing System Pvt. Ltd.
       <br />
-      4th Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008
+      3rd Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008
       <br />
       Email:{" "}
       <a

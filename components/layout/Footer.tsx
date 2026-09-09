@@ -122,17 +122,21 @@ export function Footer() {
                   existing 64px stays from `lg`. */}
               <img src="/logo.svg" alt="Poddar Pipes" className="h-[33px] w-auto lg:h-16" />
             </Link>
-            {/* "4th Floor", not 3rd. This file was the only place in the
-                codebase saying 3rd — `lib/data/offices.ts`,
-                `components/shared/LegalPage.tsx` and both Figma footer nodes
-                all say 4th. Corrected here rather than propagated.
+            {/* "3rd Floor" — CONFIRMED BY THE CLIENT, and it outranks Figma.
+                Both Figma footer nodes (1311:10827, 1311:10981) draw "4th",
+                and this file was briefly changed to match them along with
+                `lib/data/offices.ts` and `components/shared/LegalPage.tsx`.
+                That was wrong: the launch site's privacy policy and this
+                footer both originally said 3rd, and the client has since
+                confirmed it. All four places now say 3rd. Do NOT "correct"
+                this back from the Figma nodes.
 
                 One paragraph that wraps, rather than two `whitespace-nowrap`
                 lines: the mock sets three lines in 232px on mobile and two in
                 ~330px on desktop, which the two max-widths produce on their
                 own. `#c0c0c0` below `lg` per the mobile node; white from `lg`. */}
             <p className="max-w-[232px] text-[13px] font-light leading-[1.25] tracking-[0.26px] text-[#c0c0c0] lg:max-w-[340px] lg:text-[14px] lg:font-normal lg:leading-[1.3] lg:tracking-[0.28px] lg:text-white">
-              4th Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar,
+              3rd Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar,
               Bengaluru, Karnataka – 560008
             </p>
             {/* Stacked on mobile, one line with a `|` from `lg` — the mobile

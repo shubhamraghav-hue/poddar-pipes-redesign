@@ -7,10 +7,16 @@ in with invented data — replace with verified information only.
 
 ## Resolved since the last pass
 
-- **Footer address floor number, Sep 2026.** `components/layout/Footer.tsx` said
-  "3rd Floor"; it was the only place in the codebase that did. `lib/data/offices.ts`,
-  `components/shared/LegalPage.tsx` and both Figma footer nodes (1311:10827 mobile,
-  1311:10981 desktop) all say **4th Floor**. Corrected in the footer.
+- **Registered address — floor number settled as "3rd", Sep 2026.** The full
+  string, now identical in all four places that carry it:
+  `3rd Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008`
+  (`components/layout/Footer.tsx`, `components/shared/LegalPage.tsx`,
+  `lib/data/offices.ts`, and the note in `lib/data/legal.ts`).
+  - **Client-confirmed as 3rd, which outranks Figma.** Both Figma footer nodes
+    (1311:10827, 1311:10981) draw "4th Floor", and the site was briefly changed
+    to match them. Two Poddar-authored sources said 3rd — the original footer and
+    the launch site's privacy policy — and the client has confirmed it. Do not
+    re-derive this from the design file.
 
 
 - **About page copy brought in line with two supplied design sheets, Sep 2026.**

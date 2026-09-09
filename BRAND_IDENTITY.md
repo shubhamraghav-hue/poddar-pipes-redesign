@@ -2972,14 +2972,27 @@ and the `clamp()` one in Core Values — **in v4, check whether a utility writes
 recommended minimum, so each anchor carries `before:-inset-2.5` to extend the
 hit area to ~44px while the ring stays 24px.
 
-### Address floor number corrected
+### Address floor number
 
-`Footer.tsx` said "3rd Floor". It was the only place in the codebase that did —
-`lib/data/offices.ts`, `components/shared/LegalPage.tsx` and both Figma footer
-nodes all say **4th Floor**. Corrected rather than propagated. It is also now
-one wrapping paragraph rather than two `whitespace-nowrap` lines, which lets the
-two max-widths produce the mock's three mobile lines and two desktop lines on
-their own.
+**The floor number is "3rd", client-confirmed, and it outranks Figma.**
+
+This went the wrong way once and is worth recording so it does not again.
+`Footer.tsx` originally said "3rd Floor" and was the only place in the codebase
+that did — `lib/data/offices.ts`, `components/shared/LegalPage.tsx` and both
+Figma footer nodes (1311:10827, 1311:10981) all said **4th**, so the footer was
+"corrected" up to 4th to match the majority. The client has since confirmed
+**3rd**, so all four places now say 3rd and the Figma nodes are simply wrong on
+this detail.
+
+The corroborating evidence was already in the tree and got overlooked: the
+launch site's privacy policy, ported verbatim into `lib/data/legal.ts`, also
+said "3rd Floor" — a header comment there recorded overriding it to 4th, which
+has been reverted too. Two independent Poddar-authored sources said 3rd; only
+the design file said 4th.
+
+The address is also one wrapping paragraph rather than two `whitespace-nowrap`
+lines, which lets the two max-widths produce the mock's three mobile lines and
+two desktop lines on their own.
 
 ### Knowingly NOT matched
 
