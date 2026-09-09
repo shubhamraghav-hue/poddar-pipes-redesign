@@ -37,8 +37,11 @@ const LINKS: { name: string; href: string; icon: IconName; size: number }[] = [
 ];
 
 export function SocialIcons() {
+  // 24px rings on a 34px pitch below `lg` (10px gap), per Figma node
+  // 1311:10880-10895; bare icons at the existing 20px gap from `lg`, which is
+  // what the desktop footer node draws.
   return (
-    <div className="flex items-center gap-5">
+    <div className="flex items-center gap-[10px] lg:gap-5">
       {LINKS.map((link) => {
         const icon = ICONS[link.icon];
         return (
@@ -48,14 +51,16 @@ export function SocialIcons() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={link.name}
-            className="group relative flex items-center justify-center rounded-full p-2 text-[#c0c0c0] opacity-70 transition hover:opacity-100"
+            className="group relative flex size-6 items-center justify-center rounded-full border border-[#c0c0c0]/60 text-[#c0c0c0] opacity-70 transition before:absolute before:-inset-2.5 before:content-[''] hover:opacity-100 lg:size-auto lg:border-0 lg:p-2"
           >
             <svg
               viewBox={icon.viewBox}
               fill="currentColor"
               aria-hidden="true"
-              style={{ height: link.size, width: link.size }}
-              className="transition-transform duration-200 group-hover:scale-110"
+              // Flat 18px on mobile, as the mock sets all five the same
+              // inside their rings; the per-icon desktop sizes stay from `lg`.
+              style={{ "--s": `${link.size}px` } as React.CSSProperties}
+              className="size-[18px] transition-transform duration-200 group-hover:scale-110 lg:size-[var(--s)]"
             >
               <path d={icon.path} />
             </svg>

@@ -2903,6 +2903,74 @@ rather than the `transparent` keyword: Safari resolves bare `transparent` to
 transparent **black**, which turns a navy fade into a grey smudge (the same
 trap already documented for LegacyStory's white fade).
 
+## Mobile footer, from Figma node 1311:10827 (Sep 2026)
+
+The Footer section carries four frames: two mobile states (402x1169 collapsed,
+402x1292 with COMPANY expanded), a desktop CTA band and a desktop footer. The
+two mobile states are what gave away the key point — **the mobile footer is a
+different layout, not a narrower one.**
+
+| | Figma mobile | Before | After |
+| --- | --- | --- | --- |
+| link groups | 3 accordions | 3 expanded columns | **3 accordions** |
+| group order | before the logo | after it | **before it** |
+| alignment | left throughout | centred | **left** |
+| headings / links | 13px | 14px | **13px** |
+| address | 13px `#c0c0c0`, 3 lines | 14px white, 2 lines | **13px `#c0c0c0`, 3** |
+| email + phone | stacked | one line with a `|` | **stacked** |
+| newsletter field | 284x44 | 384x54 | **44 tall** |
+| socials | 18px in 24px rings, 34px pitch | bare 20-22px, ~56px pitch | **exact** |
+| legal | 10px, links stacked right | 12px, row | **10px, stacked** |
+| footer height | — | 1015 | **804** |
+
+**The accordions are `<details>`/`<summary>`.** No client JS, no `useState`,
+and `Footer.tsx` stays a server component. Verified: opening COMPANY reveals
+exactly the five links the expanded frame draws (About Us, Manufacturing,
+Quality, Sustainability, Careers) and collapses again.
+
+Desktop renders **its own** expanded columns behind `hidden lg:flex` rather
+than trying to force a closed `<details>` open with CSS, which is not reliable
+across browsers. That duplicates the three link lists in markup; the data is
+mapped from one `navGroups` array so the copy itself is not duplicated, and the
+file already used the same trade for its social icons. Verified unchanged at
+1512: 3 columns, 14px headings, white 2-line address, 54px field, bare 38px
+social icons, no rings.
+
+**`[transform:rotate(180deg)]`, not `rotate-180`, for the chevron.** Tailwind
+v4's `rotate-*` sets the standalone `rotate` property, which broke two things
+at once: `transition-transform` does not animate it, and measured it resolved
+to `0deg` rather than 180 anyway. Setting `transform` directly both rotates and
+transitions. Same family of trap as the `translate` one in the footer send icon
+and the `clamp()` one in Core Values — **in v4, check whether a utility writes
+`transform` or its own longhand before pairing it with a transition.**
+
+**Social ring tap targets.** The mock draws 24px rings, well under the
+recommended minimum, so each anchor carries `before:-inset-2.5` to extend the
+hit area to ~44px while the ring stays 24px.
+
+### Address floor number corrected
+
+`Footer.tsx` said "3rd Floor". It was the only place in the codebase that did —
+`lib/data/offices.ts`, `components/shared/LegalPage.tsx` and both Figma footer
+nodes all say **4th Floor**. Corrected rather than propagated. It is also now
+one wrapping paragraph rather than two `whitespace-nowrap` lines, which lets the
+two max-widths produce the mock's three mobile lines and two desktop lines on
+their own.
+
+### Knowingly NOT matched
+
+- **Facebook.** Figma draws five social icons; we ship four. `SocialIcons.tsx`
+  already records why — no real Poddar Pipes Facebook link exists — and
+  inventing a URL would break the never-invent-facts rule. Tracked in
+  CONTENT_TODOS.
+- **"subcribe for product updates".** The mock's own typo. We keep the correct
+  spelling from the `footer.newsletterTitle` key.
+- **30px page gutter.** Ours is `container-edge`'s 24px, and `Hero.tsx` uses
+  that utility, so changing it would be an indirect edit to a locked component.
+- **Accordion growth.** Opening a group adds 168px against the mock's 123px,
+  because our link rows use the site's `gap-2` rhythm rather than the mock's
+  24px pitch. Left as-is; it only shows while a group is open.
+
 ## Mobile type scale and card sizes, from home node 1311:11088 (Sep 2026)
 
 The first mobile frame we have been given for the home page. Its structure

@@ -27,7 +27,7 @@ export function NewsletterSignup() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm items-center gap-2.5">
+    <form onSubmit={handleSubmit} className="flex w-full max-w-sm items-center gap-3 lg:gap-2.5">
       {/* Radius is a PILL, per Figma node 1187:1484. The spec value is
           `100px`, which on a 54px-tall field clamps to half the height — so
           `rounded-full` is the faithful expression of it, not an
@@ -42,7 +42,7 @@ export function NewsletterSignup() {
         name="email"
         aria-label={t("newsletterPlaceholder")}
         placeholder={t("newsletterPlaceholder")}
-        className="h-[54px] flex-1 rounded-full border-[#c0c0c0] bg-transparent px-5 text-white placeholder:font-light placeholder:text-[#c0c0c0] focus-visible:border-amber-500"
+        className="h-[44px] flex-1 rounded-full border-[#c0c0c0] bg-transparent px-5 text-[13px] text-white placeholder:font-light placeholder:text-[#c0c0c0] focus-visible:border-amber-500 lg:h-[54px] lg:text-base"
       />
       {/* `rounded-full` is also `Button`'s own base value — stated explicitly
           here only because the override it replaces was squaring it off. */}
@@ -51,7 +51,7 @@ export function NewsletterSignup() {
         size="icon"
         aria-label={t("newsletterSubmit")}
         variant="accent"
-        className="h-[54px] w-[54px] shrink-0 rounded-full bg-amber-600 hover:bg-amber-700"
+        className="h-[44px] w-[44px] shrink-0 rounded-full bg-amber-600 hover:bg-amber-700 lg:h-[54px] lg:w-[54px]"
       >
         {/* 23.33px is the mock's own icon size (node 1187:1488).
 
@@ -68,7 +68,7 @@ export function NewsletterSignup() {
             So it is shifted back by that offset — expressed as a share of the
             icon's own box (1.81/24 and 1.90/24) rather than in px, so it holds
             if the icon size ever changes. */}
-        <Send className="size-[23.33px] translate-x-[-7.5%] translate-y-[7.9%]" />
+        <Send className="size-[19px] translate-x-[-7.5%] translate-y-[7.9%] lg:size-[23.33px]" />
       </Button>
     </form>
   );

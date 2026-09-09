@@ -7,6 +7,12 @@ in with invented data — replace with verified information only.
 
 ## Resolved since the last pass
 
+- **Footer address floor number, Sep 2026.** `components/layout/Footer.tsx` said
+  "3rd Floor"; it was the only place in the codebase that did. `lib/data/offices.ts`,
+  `components/shared/LegalPage.tsx` and both Figma footer nodes (1311:10827 mobile,
+  1311:10981 desktop) all say **4th Floor**. Corrected in the footer.
+
+
 - **About page copy brought in line with two supplied design sheets, Sep 2026.**
   - **Assurances (#08).** Was "Multiple quality checks for every CPVC brass
     fitting before dispatch" — a line oddly specific to one product family in a
@@ -156,6 +162,14 @@ in the user's Downloads folder that just hadn't been pointed to yet:
   - It was first tried as the `LegacyStory` backdrop on `/about` and **reverted** —
     that section is back to Figma's gold line-work. Don't re-add it there.
   - `public/home/manufacturing-floor.jpg` is now unreferenced but left in place.
+
+- **Facebook page URL — still needed.** Figma's footer (node 1311:10827) draws
+  **five** social icons; we ship four. `components/shared/SocialIcons.tsx` has
+  carried the reason since it was ported from the launch site: no real Poddar
+  Pipes Facebook link exists, and the other four handles are verified real
+  (`x.com/Poddarpipe`, `linkedin.com/company/poddar-pipes`,
+  `youtube.com/@poddarpipes`, `instagram.com/poddarpipes`). Supply the real page
+  URL and add it to the `LINKS` array — do NOT guess one to fill the fifth slot.
 
 ## Still open — brand assets
 
