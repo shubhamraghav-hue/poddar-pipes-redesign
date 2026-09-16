@@ -29,17 +29,34 @@ const ICONS: Record<IconName, { viewBox: string; path: string }> = {
   },
 };
 
-const LINKS: { name: string; href: string; icon: IconName; size: number }[] = [
-  { name: "X", href: "https://x.com/Poddarpipe", icon: "x", size: 22 },
-  { name: "LinkedIn", href: "https://www.linkedin.com/company/poddar-pipes/", icon: "linkedin", size: 22 },
-  { name: "YouTube", href: "https://youtube.com/@poddarpipes", icon: "youtube", size: 22 },
-  { name: "Instagram", href: "https://www.instagram.com/poddarpipes", icon: "instagram", size: 20 },
+// `size` is the DESKTOP box; `ring` is the mobile box inside the circle.
+//
+// They are not one number because the four glyphs do not fill their viewBoxes
+// anywhere near equally — measured with `getBBox()`:
+//
+//   icon        viewBox   ink as % of viewBox
+//   x           30x30     66% x 60%
+//   linkedin    30x30     52% x 52%
+//   youtube     30x30     73% x 51%
+//   instagram   21x22     99% x 96%   <- fills it
+//
+// So at a common box size Instagram's ink came out 19.3px tall against the
+// others' 11-13, which is why it read as much bigger than the rest. Its box is
+// therefore ~54% of theirs, which lands its INK on the same ~12.5px as the
+// others rather than its BOX. The desktop `size` already nudged at this (20 vs
+// 22) but 9% nowhere near covers a 96%-vs-52% difference.
+const LINKS: { name: string; href: string; icon: IconName; size: number; ring: number }[] = [
+  { name: "X", href: "https://x.com/Poddarpipe", icon: "x", size: 22, ring: 24 },
+  { name: "LinkedIn", href: "https://www.linkedin.com/company/poddar-pipes/", icon: "linkedin", size: 22, ring: 24 },
+  { name: "YouTube", href: "https://youtube.com/@poddarpipes", icon: "youtube", size: 22, ring: 24 },
+  { name: "Instagram", href: "https://www.instagram.com/poddarpipes", icon: "instagram", size: 20, ring: 13 },
 ];
 
 export function SocialIcons() {
-  // 24px rings on a 34px pitch below `lg` (10px gap), per Figma node
-  // 1311:10880-10895; bare icons at the existing 20px gap from `lg`, which is
-  // what the desktop footer node draws.
+  // Figma node 1311:10880-10895 draws 24px rings on a 34px pitch. Those read
+  // as too small in the build, so the ring is 32px here on a 42px pitch — a
+  // deliberate step up from the mock, at the client's call. Bare icons at the
+  // existing 20px gap from `lg`, which is what the desktop footer node draws.
   return (
     <div className="flex items-center gap-[10px] lg:gap-5">
       {LINKS.map((link) => {
@@ -51,16 +68,18 @@ export function SocialIcons() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={link.name}
-            className="group relative flex size-6 items-center justify-center rounded-full border border-[#c0c0c0]/60 text-[#c0c0c0] opacity-70 transition before:absolute before:-inset-2.5 before:content-[''] hover:opacity-100 lg:size-auto lg:border-0 lg:p-2"
+            className="group relative flex size-8 items-center justify-center rounded-full border border-[#c0c0c0]/60 text-[#c0c0c0] opacity-70 transition before:absolute before:-inset-1.5 before:content-[''] hover:opacity-100 lg:size-auto lg:border-0 lg:p-2"
           >
             <svg
               viewBox={icon.viewBox}
               fill="currentColor"
               aria-hidden="true"
-              // Flat 18px on mobile, as the mock sets all five the same
-              // inside their rings; the per-icon desktop sizes stay from `lg`.
-              style={{ "--s": `${link.size}px` } as React.CSSProperties}
-              className="size-[18px] transition-transform duration-200 group-hover:scale-110 lg:size-[var(--s)]"
+              // Per-icon on BOTH breakpoints. It was a flat 18px on mobile,
+              // on the assumption the mock sizing all five the same meant the
+              // glyphs were drawn to a common grid; they are not — see the
+              // `getBBox()` table above.
+              style={{ "--s": `${link.size}px`, "--r": `${link.ring}px` } as React.CSSProperties}
+              className="size-[var(--r)] transition-transform duration-200 group-hover:scale-110 lg:size-[var(--s)]"
             >
               <path d={icon.path} />
             </svg>
