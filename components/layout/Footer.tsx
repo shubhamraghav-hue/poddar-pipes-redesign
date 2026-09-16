@@ -118,9 +118,14 @@ export function Footer() {
               and the logo block under them. */}
           <div className="order-2 flex max-w-xs flex-col gap-6 lg:order-1">
             <Link href="/" className="flex items-center gap-2.5">
-              {/* 33px on mobile per the mobile node's 32.8px lockup; the
+              {/* 44px on mobile. The mobile node (1311:10858) draws the
+                  lockup at 32.8px and that was built literally, but it reads
+                  too small against the rest of the footer — so this is a
+                  deliberate step up from the mock, the same call as the 24 ->
+                  32px social rings. It keeps the brand mark comfortably more
+                  prominent than those rings rather than level with them. The
                   existing 64px stays from `lg`. */}
-              <img src="/logo.svg" alt="Poddar Pipes" className="h-[33px] w-auto lg:h-16" />
+              <img src="/logo.svg" alt="Poddar Pipes" className="h-[44px] w-auto lg:h-16" />
             </Link>
             {/* "3rd Floor" — CONFIRMED BY THE CLIENT, and it outranks Figma.
                 Both Figma footer nodes (1311:10827, 1311:10981) draw "4th",
