@@ -358,19 +358,46 @@ export function Hero() {
           {/* Figma wants height driven by padding, not `size="lg"`'s fixed
               `h-14`; tailwind-merge lets these overrides win. */}
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 uppercase md:gap-[15px]">
+            {/* `max-w-[307px]` below `sm`: node 1300:6513 keeps both CTAs at
+                307px — the same width as its text block — so they sit in one
+                column with the copy rather than stretching to the full 354px
+                content width. Its 307 at x31 leaves 64px to the right, so this
+                is deliberately a left-aligned column, not a centred or
+                full-bleed button. */}
             <Button
               asChild
               size="lg"
               variant="accent-ink"
-              className="h-auto w-full px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] sm:w-auto"
+              className="h-auto w-full max-w-[307px] px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] sm:max-w-none sm:w-auto"
             >
               <Link href="/products">{t("heroPrimaryCta")}</Link>
             </Button>
+            {/* The outlined one was 49.2px tall against the solid one's 46 —
+                `h-auto` means height is content + padding + BORDER, and
+                `outline-white`'s `border-2` added 3.2px the solid variant
+                never pays.
+
+                Fixed by taking the stroke OUT OF LAYOUT on mobile: `border-0`
+                plus an inset `box-shadow`, which paints the same 1.174px ring
+                (and follows the pill radius) without occupying space. Both
+                buttons are then padding-for-padding identical, so they are the
+                same height by construction.
+
+                Compensating the padding instead was tried and does not hold:
+                the border does not rasterise at the width it is given —
+                `border-2` computed 1.6px and `1.174px` computed 0.8px — so the
+                arithmetic drifts with DPR. This approach has no such
+                dependency, and none on the label either, which matters because
+                Devanagari sets a taller line box than Latin.
+
+                Mobile only, and local rather than in the `outline-white`
+                variant, which `AboutHero`, `CTASection` and `not-found` also
+                use. The same 3.2px mismatch exists at `sm`+ and is untouched. */}
             <Button
               asChild
               size="lg"
               variant="outline-white"
-              className="h-auto w-full px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] sm:w-auto"
+              className="h-auto w-full max-w-[307px] border-0 px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] shadow-[inset_0_0_0_1.174px_rgba(255,255,255,0.7)] sm:max-w-none sm:w-auto sm:border-2 sm:shadow-none"
             >
               <Link href="/contact">{t("heroSecondaryCta")}</Link>
             </Button>
