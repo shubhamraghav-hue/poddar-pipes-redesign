@@ -97,7 +97,7 @@ export const industries: Industry[] = [
     id: "government",
     name: "Government Projects",
     description:
-      "Compliant, certified piping systems for public water and sanitation schemes.",
+      "Piping systems made to Indian Standard specifications for public water and sanitation schemes.",
     icon: ShieldCheck,
     image:
       "https://images.unsplash.com/photo-1590496793929-36417d3117de?q=80&w=1600&auto=format&fit=crop",

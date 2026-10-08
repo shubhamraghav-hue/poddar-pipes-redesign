@@ -25,15 +25,21 @@ export function getBreadcrumbSchema(items: BreadcrumbItem[]) {
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm">
-      <Link href="/" className="flex items-center text-slate-500 transition-colors hover:text-ocean-600">
-        <Home className="h-3.5 w-3.5" />
+    // Links get `py-2.5` (with the row pulled back by `-my-2.5`) so each is a
+    // ~40px tap target without changing how the trail looks.
+    <nav aria-label="Breadcrumb" className="-my-2.5 flex flex-wrap items-center gap-1.5 text-sm">
+      <Link
+        href="/"
+        aria-label="Home"
+        className="flex items-center px-1 py-2.5 text-slate-500 transition-colors hover:text-ocean-600"
+      >
+        <Home className="h-3.5 w-3.5" aria-hidden="true" />
       </Link>
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1.5">
           <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
           {item.href ? (
-            <Link href={item.href} className="text-slate-500 transition-colors hover:text-ocean-600">
+            <Link href={item.href} className="py-2.5 text-slate-500 transition-colors hover:text-ocean-600">
               {item.label}
             </Link>
           ) : (

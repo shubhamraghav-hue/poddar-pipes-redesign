@@ -5,13 +5,25 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { InstallationStepper } from "@/components/resources/InstallationStepper";
 import { CTASection } from "@/components/home/CTASection";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Solvent-Weld Installation Guide",
-  description:
-    "Step-by-step solvent-weld installation guide for Poddar uPVC/CPVC pipe and fittings — cutting, deburring, solvent cement application, assembly, handling, storage, and site warnings.",
-  alternates: { canonical: "/resources/installation" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/resources/installation",
+    title: locale === "en" ? "Solvent-Weld Installation Guide" : t("nav.navInstallationGuide"),
+    description: "Step-by-step solvent-weld installation guide for Poddar uPVC/CPVC pipe and fittings — cutting, deburring, solvent cement application, assembly, handling, storage, and site warnings.",
+  });
+}
 
 const HANDLING_COUNT = 9;
 const HOT_WEATHER_COUNT = 7;

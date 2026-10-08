@@ -42,14 +42,22 @@ const ICONS: Record<IconName, { viewBox: string; path: string }> = {
 //
 // So at a common box size Instagram's ink came out 19.3px tall against the
 // others' 11-13, which is why it read as much bigger than the rest. Its box is
-// therefore ~54% of theirs, which lands its INK on the same ~12.5px as the
-// others rather than its BOX. The desktop `size` already nudged at this (20 vs
-// 22) but 9% nowhere near covers a 96%-vs-52% difference.
+// therefore ~46% of theirs, which lands its INK below the ~12.5px the others
+// sit at. The desktop `size` already nudged at this (20 vs 22) but 9% nowhere
+// near covers a 96%-vs-52% difference.
+//
+// It is deliberately UNDER-matched on ink rather than level with it. Matching
+// ink heights exactly (ring 13 / size 20) was the previous setting and still
+// read as the largest glyph of the four, because Instagram is a closed
+// rounded-square outline: it encloses area where "in", the bird and the play
+// triangle are open letterforms, so equal ink height is not equal visual
+// weight. 11/17 is ~15% under the others' ink and is where it stops standing
+// out. Both were lowered together so the two breakpoints stay in proportion.
 const LINKS: { name: string; href: string; icon: IconName; size: number; ring: number }[] = [
   { name: "X", href: "https://x.com/Poddarpipe", icon: "x", size: 22, ring: 24 },
   { name: "LinkedIn", href: "https://www.linkedin.com/company/poddar-pipes/", icon: "linkedin", size: 22, ring: 24 },
   { name: "YouTube", href: "https://youtube.com/@poddarpipes", icon: "youtube", size: 22, ring: 24 },
-  { name: "Instagram", href: "https://www.instagram.com/poddarpipes", icon: "instagram", size: 20, ring: 13 },
+  { name: "Instagram", href: "https://www.instagram.com/poddarpipes", icon: "instagram", size: 17, ring: 11 },
 ];
 
 export function SocialIcons() {

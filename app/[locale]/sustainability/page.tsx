@@ -5,13 +5,25 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Counter } from "@/components/shared/Counter";
 import { CTASection } from "@/components/home/CTASection";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Sustainability & CSR",
-  description:
-    "Poddar Pipes' approach to water conservation, green manufacturing, recycling, carbon reduction, energy efficiency, and community programs.",
-  alternates: { canonical: "/sustainability" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/sustainability",
+    title: locale === "en" ? "Sustainability & CSR" : t("nav.navSustainabilityCSR"),
+    description: "Poddar Pipes' approach to water conservation, green manufacturing, recycling, carbon reduction, energy efficiency, and community programs.",
+  });
+}
 
 const PILLAR_ICONS = [Droplet, Recycle, Leaf, Zap];
 const CSR_ICONS = [HeartHandshake, GraduationCap];

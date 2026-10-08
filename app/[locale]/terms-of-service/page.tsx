@@ -1,16 +1,27 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
-import { AlertTriangle } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { LegalIntro, LegalSections } from "@/components/shared/LegalPage";
 import { termsOfServiceIntro, termsOfServiceSections } from "@/lib/data/legal";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Terms of Service",
-  description:
-    "Terms of Service for the poddarpipes.com website, operated by Poddar Plumbing System Pvt. Ltd.",
-  alternates: { canonical: "/terms-of-service" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/terms-of-service",
+    title: locale === "en" ? "Terms of Service" : t("footer.termsOfService"),
+    description: "Terms of Service for the poddarpipes.com website, operated by Poddar Plumbing System Pvt. Ltd.",
+  });
+}
 
 export default async function TermsOfServicePage({
   params,
@@ -36,7 +47,8 @@ export default async function TermsOfServicePage({
               launch site), no Terms & Conditions page existed anywhere to
               copy from — this is a fresh, standard-form draft and has not
               been reviewed by legal/business yet. Flagged here rather than
-              presented as finalized. */}
+              presented as finalized. (Restoring the banner below also means
+              re-adding `import { AlertTriangle } from "lucide-react"`.) */}
           {/* <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-100/60 p-4 text-sm text-amber-700">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>

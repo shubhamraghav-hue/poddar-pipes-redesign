@@ -7,13 +7,25 @@ import { Link } from "@/i18n/navigation";
 import { industries } from "@/lib/data/industries";
 import { products } from "@/lib/data/products";
 import { CTASection } from "@/components/home/CTASection";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Industries We Serve",
-  description:
-    "Poddar Pipes serves residential, commercial, industrial, agricultural, infrastructure, irrigation, water supply, construction, and government projects.",
-  alternates: { canonical: "/industries" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/industries",
+    title: locale === "en" ? "Industries We Serve" : t("nav.industries"),
+    description: "Poddar Pipes serves residential, commercial, industrial, agricultural, infrastructure, irrigation, water supply, construction, and government projects.",
+  });
+}
 
 function toTranslationKey(id: string): string {
   return id.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
@@ -62,7 +74,7 @@ export default async function IndustriesPage({
                   </p>
                   <Link
                     href="/products"
-                    className="mt-6 flex items-center gap-1.5 text-sm font-medium text-ocean-700 hover:text-ocean-800"
+                    className="mt-3 flex items-center gap-1.5 py-3 text-sm font-medium text-ocean-700 hover:text-ocean-800"
                   >
                     <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                       {t("relevantProducts")}

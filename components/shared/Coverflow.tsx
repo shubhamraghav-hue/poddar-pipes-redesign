@@ -189,6 +189,8 @@ export function Coverflow({ slides, slideClassName, ariaLabel, className }: Cove
         role="group"
         aria-roledescription="carousel"
         aria-label={ariaLabel}
+        // Arrow keys step the carousel once it has focus (it's tabbable).
+        onKeyDown={onKeyDown}
         className={cn(
           "overflow-hidden py-12 outline-none focus-visible:ring-2 focus-visible:ring-flow-400/60",
           "[mask-image:linear-gradient(to_right,transparent,black_14%,black_86%,transparent)]",

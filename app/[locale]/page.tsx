@@ -5,8 +5,8 @@ import { CompanyOverview } from "@/components/home/CompanyOverview";
 import { SectionReveal } from "@/components/shared/SectionReveal";
 import { ProductCategories } from "@/components/home/ProductCategories";
 import { CoreValues } from "@/components/home/CoreValues";
-import { LegacyStory } from "@/components/home/LegacyStory";
 import { CTASection } from "@/components/home/CTASection";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -15,11 +15,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
-  return {
+  // `absoluteTitle`: defaultTitle already carries the brand, so it must skip
+  // the layout's "%s | Poddar Pipes" template (it would read twice otherwise).
+  return buildPageMetadata({
+    locale,
+    path: "/",
     title: t("defaultTitle"),
     description: t("defaultDescription"),
-    alternates: { canonical: "/" },
-  };
+    absoluteTitle: true,
+  });
 }
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {

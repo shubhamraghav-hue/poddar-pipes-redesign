@@ -3,17 +3,27 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ShieldCheck, TestTube2, BookMarked, Lightbulb } from "lucide-react";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
-import { GoldStamp } from "@/components/shared/GoldStamp";
 import { certifications } from "@/lib/data/certifications";
 import { CTASection } from "@/components/home/CTASection";
-import { CertDownloadButton } from "@/components/shared/CertDownloadButton";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Quality Assurance & Certifications",
-  description:
-    "Poddar Pipes' quality policy, testing procedures, Indian Standards compliance, R&D approach, and product certifications.",
-  alternates: { canonical: "/quality" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/quality",
+    title: locale === "en" ? "Quality Assurance & Standards" : t("nav.navQualityAssurance"),
+    description: "Poddar Pipes' quality policy, testing procedures, the Indian Standards our products are designed to, and our R&D approach.",
+  });
+}
 
 const PILLAR_ICONS = [ShieldCheck, TestTube2, BookMarked, Lightbulb];
 
@@ -32,10 +42,15 @@ export default async function QualityPage({
     description: t(`pillar${i}Desc` as never),
   }));
 
-  const certNames = certifications.map((_, i) => ({
-    name: t(`cert${i}Name` as never),
-    desc: t(`cert${i}Desc` as never),
-  }));
+  // Keyed by id, not array position: entries c4/c5 (ISO 9001/14001) were
+  // removed from the data, so id "cN" maps to message keys cert{N-1}*.
+  const certNames = certifications.map((c) => {
+    const n = Number(c.id.slice(1)) - 1;
+    return {
+      name: t(`cert${n}Name` as never),
+      desc: t(`cert${n}Desc` as never),
+    };
+  });
 
   return (
     <>
@@ -77,13 +92,10 @@ export default async function QualityPage({
             description={t("certDesc")}
           />
 
-          <RevealOnScroll className="mt-14 flex flex-wrap gap-8">
-            <GoldStamp label="ISI Marked" sublabel="IS 15778 / 13592 / 16098" />
-            <GoldStamp label="ISO 9001" sublabel="Quality Management" />
-            <GoldStamp label="ISO 14001" sublabel="Environmental Mgmt." />
-          </RevealOnScroll>
-
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* The ISI / ISO 9001 / ISO 14001 GoldStamp seals were removed: the
+              company holds no certifications (client, Oct 2026), and a seal
+              reads as a certification claim. */}
+          <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {certifications.map((c, i) => (
               <RevealOnScroll key={c.id} delay={i * 0.06}>
                 <div className="flex items-center justify-between gap-4 rounded-[25px] border border-slate-200/70 bg-white p-6">
@@ -92,7 +104,9 @@ export default async function QualityPage({
                     <h4 className="mt-1 font-display text-base font-medium text-slate-900">{certNames[i].name}</h4>
                     <p className="mt-2 text-sm leading-relaxed text-slate-600">{certNames[i].desc}</p>
                   </div>
-                  <CertDownloadButton code={c.code} name={certNames[i].name} />
+                  {/* No certificate download: the company holds no
+                      certifications, so <CertDownloadButton> must not be
+                      used here unless that changes. */}
                 </div>
               </RevealOnScroll>
             ))}

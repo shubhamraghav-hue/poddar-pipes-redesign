@@ -15,7 +15,6 @@ interface NotFoundViewProps {
   actions: ReactNode;
   showBrand?: boolean;
   contacts?: { label: string; email: string; kind?: ContactKind }[];
-  videoSrc?: string;
 }
 
 const CONTACT_ICON: Record<ContactKind, typeof Mail> = {
@@ -53,10 +52,8 @@ export function NotFoundView({
   actions,
   showBrand = false,
   contacts,
-  videoSrc = "/hero/slide-1.webm",
 }: NotFoundViewProps) {
   const reduce = useReducedMotion();
-  const showVideo = !reduce && !!videoSrc;
 
   const rise = (delay: number) =>
     reduce
@@ -69,19 +66,9 @@ export function NotFoundView({
 
   return (
     <section className="bg-ink relative flex min-h-[100svh] flex-col overflow-hidden text-white">
-      {showVideo && (
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          src={videoSrc}
-          poster="/hero/poster-placeholder.svg"
-          autoPlay
-          muted
-          loop
-          playsInline
-          aria-hidden="true"
-          tabIndex={-1}
-        />
-      )}
+      {/* The background video was removed: it was the reused launch film,
+          whose frames carry a big "COMING SOON" graphic — wrong on a 404.
+          The navy gradient + blueprint grid below are the whole backdrop. */}
 
       <div
         className="absolute inset-0"
@@ -97,22 +84,35 @@ export function NotFoundView({
         aria-hidden="true"
       />
 
-      <h1 className="sr-only">{title}</h1>
-      <p className="sr-only">{desc}</p>
-
       {showBrand && (
         <header className="container-edge relative z-10 pt-6">
+          {/* Plain anchor: only shown by the global 404, which sits outside
+              the app's layouts — a full page load is intended. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/" aria-label="Poddar Pipes — home" className="inline-block">
-            <img src="/logo.svg" alt="Poddar Pipes" className="h-16 w-auto" />
+            {/* 36px matches the navbar — see there for why this is not a
+                shrink: the old `h-16` was 55.2% logo and 44.8% baked-in
+                margin. */}
+            <img src="/logo.svg" alt="Poddar Pipes" className="h-9 w-auto" />
           </a>
         </header>
       )}
 
-      <div className="container-edge relative z-10 flex flex-1 items-center justify-center py-8">
+      {/* Top padding: inside the locale layout the navbar is `fixed` and
+          80px tall (h-20), so the content needs pt-32 to clear it when it is
+          taller than the viewport (phones) — otherwise it centres. The global
+          404 has no navbar, only the in-flow brand header, so py-10 is enough. */}
+      <div
+        className={cn(
+          "container-edge relative z-10 flex flex-1 items-center justify-center",
+          showBrand ? "py-10" : "pt-32 pb-16"
+        )}
+      >
         <div className="relative flex w-full max-w-2xl flex-col items-center gap-[min(2.6vh,1.15rem)] text-center">
 
           {/* `inline-flex`, not block: the height must collapse to the text,
-              or the bottom-right bracket lands far below "SOON". */}
+              or the bottom-right bracket lands far below the code. The code
+              is decorative — the eyebrow and h1 below carry the message. */}
           <div
             className="relative inline-flex flex-col items-center px-3 py-2 sm:px-4 sm:py-3"
             aria-hidden="true"
@@ -125,18 +125,24 @@ export function NotFoundView({
               reduce={!!reduce}
             />
 
-            <motion.div {...rise(0.06)} className="flex flex-col items-center leading-none">
-              <span className="font-display text-[clamp(2.7rem,9vw,6.2rem)] font-bold tracking-[-0.08em] text-white select-none">
-                COMING
-              </span>
-              <span className="font-display -mt-[0.05em] text-[clamp(2.7rem,9vw,6.2rem)] font-bold tracking-[-0.08em] text-amber-500 select-none">
-                SOON
-              </span>
-            </motion.div>
+            <motion.span
+              {...rise(0.06)}
+              className="font-display text-[clamp(2.7rem,9vw,6.2rem)] leading-none font-bold tracking-[-0.08em] text-amber-500 select-none"
+            >
+              {code}
+            </motion.span>
           </div>
 
+          <motion.div {...rise(0.1)} className="flex flex-col items-center gap-3">
+            <p className="font-mono text-xs font-medium uppercase leading-[1.4] tracking-[0.2em] text-amber-400">{eyebrow}</p>
+            <h1 className="font-display text-3xl leading-tight font-bold text-balance text-white uppercase sm:text-4xl">
+              {title}
+            </h1>
+            <p className="max-w-xl text-base text-balance text-slate-300 sm:text-lg">{desc}</p>
+          </motion.div>
+
           {contacts && contacts.length > 0 && (
-            <motion.div {...rise(0.14)} className="grid w-full gap-3 sm:grid-cols-2">
+            <motion.div {...rise(0.16)} className="grid w-full gap-3 sm:grid-cols-2">
               {contacts.map((c) => {
                 const Icon = c.kind ? CONTACT_ICON[c.kind] : Mail;
                 return (
@@ -149,7 +155,7 @@ export function NotFoundView({
                       <Icon className="h-5 w-5" strokeWidth={1.7} />
                     </span>
                     <span className="min-w-0">
-                      <span className="tech-label block text-[0.62rem] text-slate-400">
+                      <span className="block font-mono text-xs font-medium uppercase leading-[1.4] tracking-[0.2em] text-slate-400">
                         {c.label}
                       </span>
                       <span className="mt-1 block truncate text-sm font-medium text-slate-100 transition-colors group-hover:text-white">

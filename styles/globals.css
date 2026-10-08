@@ -178,9 +178,16 @@ a svg, button svg {
   flex-shrink: 0;
 }
 
-/* Force true vertical centering regardless of font metrics */
-a.inline-flex, button.inline-flex,
-a.flex, button.flex {
+/* Force true vertical centering regardless of font metrics.
+   `:not(.flex-col)` because on a COLUMN this rule does the opposite of what it
+   says: `align-items` is the cross axis, so on `flex-col` it centres content
+   HORIZONTALLY. It is also a type+class selector, so it outspecifies any
+   `items-*` utility and cannot be overridden at the call site without
+   `!important`. The contact hero's Call/Email cards (ContactHero.tsx) are the
+   first `a.flex.flex-col` on the site and were being centred by this; nothing
+   else pairs the two. */
+a.inline-flex:not(.flex-col), button.inline-flex:not(.flex-col),
+a.flex:not(.flex-col), button.flex:not(.flex-col) {
   align-items: center;
 }
 a[href="/contact"],
@@ -198,6 +205,26 @@ button[aria-label="Select language"] svg {
 @layer utilities {
   .container-edge {
     @apply mx-auto w-full max-w-[1400px] px-6 md:px-10 xl:px-16;
+  }
+
+  /* Figma's BODY column, exactly: 150px gutters on a 1512 frame, so a 1212px
+     content width. `container-edge` above gives 1272 at x120 — 60px wider and
+     30px left of every body coordinate in the mocks.
+   *
+   * SCOPED ON PURPOSE, to /tools/calculator and /contact only. Those two were
+   * built pixel-perfect against their Figma frames and every interior
+   * measurement (estimator panel, tab strip, contact form) is derived from the
+   * 1212 column. Switching `container-edge` itself would have fixed the About
+   * cards and the CoreValues row too, but it also feeds Hero.tsx, which is
+   * locked — so the narrower change is the one that was taken.
+   *
+   * KNOWN COST: on these two pages the content sits 30px right of the navbar
+   * and footer, which stay on `container-edge`. That step is accepted; it is
+   * the trade for not moving 43 other files. If `container-edge` is ever
+   * brought in line with the mocks, delete this and swap the four call sites
+   * back. */
+  .container-figma {
+    @apply mx-auto w-full max-w-[1512px] px-6 md:px-10 xl:px-[150px];
   }
 
   .text-balance {
@@ -558,4 +585,60 @@ button[aria-label="Select language"] svg {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   UNLAYERED ON PURPOSE — must sit outside `@layer utilities`.
+   --------------------------------------------------------------------------- */
+
+/* iOS Safari zooms the page when focus lands on a control whose font-size is
+   under 16px, and it does NOT zoom back out on blur — the user is left on a
+   cropped, drifted layout. Our `Input`, `Textarea` and `SelectTrigger`
+   primitives are all `text-sm` (14px), so every form on the site triggers it.
+
+   This lives outside `@layer utilities` because inside it Tailwind's own
+   `.text-sm` (0,1,0) outranks a bare `input` selector (0,0,1) and wins. An
+   unlayered rule beats every layered one regardless of specificity, which is
+   what makes this hold without `!important`.
+
+   Gated on `pointer: coarse` so the 14px stays on mouse-driven screens where it
+   is a deliberate type choice; the bump applies only where the zoom bug exists.
+   This is the correct fix — `maximum-scale=1` "solves" it by disabling
+   pinch-zoom, which is an accessibility failure.
+
+   Hero.tsx contains no form controls, so this cannot reach it. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select,
+  [role="combobox"] {
+    font-size: 16px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   KEYBOARD FOCUS — unlayered on purpose, so it beats every `outline-none`
+   utility a component set (Button used to remove its outline with nothing in
+   its place, so no CTA on the site showed focus).
+
+   One colour that works on BOTH surfaces the site uses: #d96d00 is ~3.5:1 on
+   white/#f5f5f5 and ~4.9:1 on the navy bands (#0b0b52), so it clears the 3:1
+   non-text minimum everywhere. The previous ocean-500 outline was ~1.6:1 on
+   navy — invisible in the hero, CTA bands and footer.
+
+   Text fields are left out: they draw their own focus state (border/ring),
+   and an outline inside a pill-shaped search box looked broken.
+   --------------------------------------------------------------------------- */
+:is(a, button, summary, [role="button"], [role="tab"], [role="option"], [tabindex]:not([tabindex="-1"])):not(section.bg-ink.mt-\[80px\] *):focus-visible {
+  outline: 3px solid #d96d00;
+  outline-offset: 2px;
+}
+
+/* The home hero (components/home/Hero.tsx, `section.bg-ink.mt-[80px]` — the
+   only element with that pair) is LOCKED: its output must not change without
+   the owner's approval. So it is excluded above, and its pill buttons keep
+   the "no outline" they had while Button carried `focus-visible:outline-none`.
+   Delete both exclusions once the owner approves the ring in the hero. */
+section.bg-ink.mt-\[80px\] :is(a, button).rounded-full:focus-visible {
+  outline: none;
 }

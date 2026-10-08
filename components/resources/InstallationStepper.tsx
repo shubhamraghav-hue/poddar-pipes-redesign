@@ -33,7 +33,7 @@ export function InstallationStepper() {
             aria-controls={`install-step-panel`}
             onClick={() => setActive(i)}
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-mono text-xs font-medium transition-colors",
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-mono text-xs font-medium transition-colors",
               i === active
                 ? "bg-ocean-600 text-white"
                 : i < active

@@ -1,25 +1,44 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
-import { SectionHeading } from "@/components/shared/SectionHeading";
-import { ContactInfo } from "@/components/contact/ContactInfo";
-import { InquiryForm } from "@/components/contact/InquiryForm";
-import { OfficeLocations } from "@/components/contact/OfficeLocations";
-import { MapPlaceholder } from "@/components/contact/MapPlaceholder";
-import { FAQ } from "@/components/contact/FAQ";
-import { CTASection } from "@/components/home/CTASection";
-import { Link } from "@/i18n/navigation";
-import { Briefcase, ArrowRight } from "lucide-react";
-import { offices } from "@/lib/data/offices";
-import { hasPlaceholder } from "@/lib/seo";
+import { ContactHero } from "@/components/contact/ContactHero";
+import { SendMessage } from "@/components/contact/SendMessage";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Contact Us — Sales, Business & Career Inquiries",
-  description:
-    "Get in touch with Poddar Pipes for product inquiries, business partnerships, technical support, or career opportunities across our regional offices.",
-  alternates: { canonical: "/contact" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/contact",
+    title: locale === "en" ? "Contact Us — We'd Love to Hear From You" : t("nav.contact"),
+    description: "Questions about our upcoming range, partnerships or projects? Reach the Poddar Pipes team by phone, email or the enquiry form and we'll get back to you within one business day.",
+  });
+}
 
+/**
+ * Figma "Contact Page" (node 1606:11700). Section order is the mock's own:
+ *
+ *   company overview (1606:11617) -> ContactHero, which also carries the
+ *                                    Call / Email cards, because the mock
+ *                                    draws them ON the hero's navy band.
+ *   legacy section   (1606:11568) -> SendMessage (copy + offices + form)
+ *
+ * Header and footer are the global layout's and are not rendered here.
+ *
+ * WHAT THIS REPLACES: the previous page composed ContactInfo, OfficeLocations,
+ * MapPlaceholder, InquiryForm and FAQ. The new mock carries none of those —
+ * the office data moved into SendMessage's left rail and the contact channels
+ * became the two hero cards. Those four components are left in the tree
+ * untouched rather than deleted: `InquiryForm` is still embedded elsewhere,
+ * and the FAQ block has its own route at /faq.
+ */
 export default async function ContactPage({
   params,
 }: {
@@ -27,82 +46,11 @@ export default async function ContactPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("contact");
-
-  const structuredOffices = offices.filter(
-    (office) => !hasPlaceholder(office.city, office.address, office.phone)
-  );
 
   return (
     <>
-      {structuredOffices.map((office) => {
-        const localBusinessSchema = {
-          "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          name: `Poddar Pipes — ${office.type}`,
-          address: { "@type": "PostalAddress", streetAddress: office.address, addressLocality: office.city, addressCountry: office.country },
-          telephone: office.phone,
-          email: office.email,
-        };
-        return (
-          <script
-            key={office.id}
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
-          />
-        );
-      })}
-      {/* A slim brand-colour strip exactly matching the fixed navbar's height
-          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
-          for the pattern this follows sitewide. */}
-      <div className="h-20 bg-ink" aria-hidden="true" />
-      <section className="container-edge pt-10 pb-8 md:pt-12">
-        <SectionHeading
-          as="h1"
-          eyebrow={t("heroEyebrow")}
-          title={`${t("heroLine1")} ${t("heroLine2")}`}
-          titleAccent={t("heroBold")}
-          description={t("heroDesc")}
-        />
-        <div className="mt-10">
-          <ContactInfo />
-        </div>
-      </section>
-
-      <section className="container-edge py-24 md:py-28">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-          <RevealOnScroll>
-            <div className="flex flex-col gap-5">
-              <h2 className="font-display text-3xl font-medium text-slate-900">{t("formHeading")}</h2>
-              <p className="max-w-md leading-relaxed text-slate-600">
-                {t("formDesc")}
-              </p>
-              <Link
-                href="/careers"
-                className="mt-2 flex w-fit items-center gap-2 rounded-full border-[1.5px] border-amber-600 px-4 py-2 text-sm font-medium text-ocean-700 transition-colors hover:bg-amber-600 hover:text-white"
-              >
-                <Briefcase className="h-4 w-4" />
-                <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-                  {t("careersLink")}
-                </span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.1}>
-            <InquiryForm />
-          </RevealOnScroll>
-        </div>
-      </section>
-
-      <OfficeLocations />
-      <MapPlaceholder />
-      <FAQ />
-      <CTASection
-        eyebrow={t("ctaEyebrow")}
-        title={t("ctaTitle")}
-        description={t("ctaDesc")}
-      />
+      <ContactHero />
+      <SendMessage />
     </>
   );
 }

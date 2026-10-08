@@ -17,7 +17,7 @@ const CATEGORIES = [
   {
     id: "cpvc",
     title: "CPVC",
-    href: "/products/category/cpvc-pipes",
+    href: "/products?category=cpvc-pipes",
     descKey: "categoriesCpvcDesc" as const,
     logo: "/products/category-cards/cpvc-wordmark.png",
     logoW: 645,
@@ -27,19 +27,27 @@ const CATEGORIES = [
   },
   {
     id: "upvc",
-    title: "UPVC",
-    href: "/products/category/upvc-pipes",
+    // Lowercase "u" — the brand's own spelling, and what the Figma component
+    // now draws (node 1447:12971). The wordmark PNG below was re-exported
+    // from that updated component, so the alt text and the artwork agree;
+    // this is the only card whose title is not simply all-caps.
+    title: "uPVC",
+    href: "/products?category=upvc-pipes",
     descKey: "categoriesUpvcDesc" as const,
     logo: "/products/category-cards/upvc-wordmark.png",
-    logoW: 663,
-    logoH: 213,
+    // 530x170 rather than the other five's 663x213: this one is a fresh 4x
+    // export of the corrected component, and 4 is the export API's ceiling.
+    // Only the RATIO matters at the call site (`h-[18.87%] w-auto`), and 530
+    // still clears the widest render (~225px at the 1400px container) at 2x.
+    logoW: 530,
+    logoH: 170,
     photo: "/products/category-cards/upvc-card.png",
     photoPos: "50% 100%",
   },
   {
     id: "swr",
     title: "SWR",
-    href: "/products/category/swr-pipes",
+    href: "/products?category=swr-pipes",
     descKey: "categoriesSwrDesc" as const,
     logo: "/products/category-cards/swr-wordmark.png",
     logoW: 618,
@@ -50,7 +58,7 @@ const CATEGORIES = [
   {
     id: "agri",
     title: "AGRI",
-    href: "/products/category/agricultural-pipes",
+    href: "/products?category=agricultural-pipes",
     descKey: "categoriesAgriDesc" as const,
     logo: "/products/category-cards/agri-wordmark.png",
     logoW: 627,
@@ -61,7 +69,7 @@ const CATEGORIES = [
   {
     id: "ugd",
     title: "UGD",
-    href: "/products/category/ugd-pipes",
+    href: "/products?category=ugd-pipes",
     descKey: "categoriesUgdDesc" as const,
     logo: "/products/category-cards/ugd-wordmark.png",
     logoW: 576,
@@ -72,7 +80,7 @@ const CATEGORIES = [
   {
     id: "tanks",
     title: "TANKS",
-    href: "/products/category/tanks",
+    href: "/products?category=tanks",
     descKey: "categoriesTanksDesc" as const,
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
@@ -203,8 +211,6 @@ function panStyle({ zoom, x, y, mobile }: Pan) {
   } as CSSProperties;
 }
 
-const GOLD_BADGE = "/products/category-cards/gold-badge.svg";
-
 export async function ProductCategories() {
   const t = await getTranslations("home");
 
@@ -243,7 +249,7 @@ export async function ProductCategories() {
                 {/* Photo stops at 68%, short of the wordmark's 74.67% top,
                     to leave Figma's gap. Shares the wordmark's hover
                     translate so the two move in lockstep. */}
-                <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]">
+                <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw] group-focus-visible:-translate-y-[22.5cqw]">
                   {PHOTO_PAN[cat.id] ? (
                     // Pan layer: bigger than the frame in BOTH axes, then slid
                     // within it. This is the only way to get two-axis freedom
@@ -291,7 +297,7 @@ export async function ProductCategories() {
                   alt={cat.title}
                   width={cat.logoW}
                   height={cat.logoH}
-                  className="absolute left-[10.53%] top-[74.67%] h-[18.87%] w-auto max-w-[58.11%] object-contain object-left transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw]"
+                  className="absolute left-[10.53%] top-[74.67%] h-[18.87%] w-auto max-w-[58.11%] object-contain object-left transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw] group-focus-visible:-translate-y-[22.5cqw]"
                 />
 
                 {/* Mobile gets a visible arrow instead of the hover block
@@ -320,7 +326,7 @@ export async function ProductCategories() {
                     `cqw`, not `%`: translate percentages resolve against the
                     translated element's own box, so `27.5%` of this small
                     block would not clear the card. */}
-                <div className="absolute inset-x-0 bottom-0 translate-y-[27.5cqw] px-[10%] pb-[5.3%] transition-transform duration-500 ease-out group-hover:translate-y-0">
+                <div className="absolute inset-x-0 bottom-0 translate-y-[27.5cqw] px-[10%] pb-[5.3%] transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0">
                   <p className="line-clamp-2 text-[4cqw] leading-[1.1] text-[#606060]">
                     {t(cat.descKey)}
                   </p>

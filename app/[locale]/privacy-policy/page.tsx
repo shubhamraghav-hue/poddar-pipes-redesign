@@ -1,15 +1,27 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { LegalIntro, LegalSections } from "@/components/shared/LegalPage";
 import { privacyPolicyIntro, privacyPolicySections } from "@/lib/data/legal";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description:
-    "Privacy policy for the poddarpipes.com website, operated by Poddar Plumbing System Pvt. Ltd.",
-  alternates: { canonical: "/privacy-policy" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/privacy-policy",
+    title: locale === "en" ? "Privacy Policy" : t("footer.privacyPolicy"),
+    description: "Privacy policy for the poddarpipes.com website, operated by Poddar Plumbing System Pvt. Ltd.",
+  });
+}
 
 export default async function PrivacyPolicyPage({
   params,

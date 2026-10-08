@@ -174,23 +174,27 @@ export function LegacyStory({
           a conventional stacked timeline built from the SAME data and colours
           rather than an invented redesign — replace it when a mobile frame
           exists. */}
-      <div className="container-edge py-20 md:hidden">
+      {/* Stacked layout up to `lg` (was `md`): the composition below scales
+          its type with the container, and at 768–1023 the milestone copy came
+          out at 9–12px. From 1024 it is ≥12px. */}
+      <div className="container-edge py-20 lg:hidden">
         <h2
           // 28px, matching the mobile heading size the rest of the site now
           // uses. This fallback has no Figma frame of its own, so it follows
           // the scale rather than setting one.
-          className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px]"
+          className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] sm:text-4xl"
           style={{ color: HEADING }}
         >
           <span className="block font-light">{titleLead}</span>
           <span className="block font-bold">Story</span>
         </h2>
 
-        <ol className="mt-10 flex flex-col">
+        {/* Two columns on tablets, where one column left half the width empty. */}
+        <ol className="mt-10 flex flex-col md:grid md:grid-cols-2 md:gap-x-10 md:gap-y-10">
           {MILESTONES.map((m) => (
             <li
               key={m.year}
-              className="border-l-2 border-black/10 pb-8 pl-5 last:pb-0"
+              className="border-l-2 border-black/10 pb-8 pl-5 last:pb-0 md:pb-0"
             >
               <p
                 className="text-3xl font-semibold leading-[1.08] tracking-[0.32px]"
@@ -214,7 +218,7 @@ export function LegacyStory({
         </ol>
       </div>
 
-      <div className="@container relative hidden aspect-[1512/1350] w-full md:block">
+      <div className="@container relative hidden aspect-[1512/1350] w-full lg:block">
         {/* Gold line-work backdrop (node 51:489). Figma's PNG export of this
             layer is BLANK — all four channels 0 on every pixel, verified
             twice. This asset is a Figma-side RENDER of the node instead,

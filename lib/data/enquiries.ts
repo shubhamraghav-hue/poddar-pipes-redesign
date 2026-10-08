@@ -1,6 +1,7 @@
-// Role-based enquiry inboxes surfaced on the 404 page. These are PLACEHOLDERS
-// pending verified addresses — consistent with lib/data/offices.ts, which
-// likewise carries placeholder phone numbers until real data is confirmed.
-// Swap these two values for the real inboxes when available.
-export const HR_EMAIL = "hr@poddarpipes.com";
-export const DISTRIBUTOR_EMAIL = "distributors@poddarpipes.com";
+import { COMPANY } from "@/lib/data/offices";
+
+// Role-based inboxes surfaced on the 404 page. HR is the client-approved
+// careers contact; distributor enquiries go to the official inbox (no separate
+// distributor address exists).
+export const HR_EMAIL = COMPANY.hrEmail;
+export const DISTRIBUTOR_EMAIL = COMPANY.email;

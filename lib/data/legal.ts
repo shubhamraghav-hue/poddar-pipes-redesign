@@ -1,18 +1,10 @@
 import type { LegalSection } from "@/types";
 
-// Ported verbatim from the poddarpipes.com "coming soon" site's Privacy
-// Policy (D:\Projects\poddar-pipes-launching-soon\app\privacy-policy\page.tsx,
-// "Last updated: August 7, 2026") — same company, same content, just
-// re-platformed here. Three corrections applied for consistency with this
-// site's already-verified details (see lib/data/offices.ts and Footer.tsx):
-// "Poddar Plumbing Systems" -> "Poddar Plumbing System" (singular — verified
-// against the company's own press coverage) and "hello@poddarpipes.com" ->
-// "poddarpipes@gmail.com" (the one verified inbox used everywhere else on this
-// site).
-//
-// A third correction, "3rd Floor" -> "4th Floor", was applied here and then
-// REVERTED: the client confirmed 3rd. The launch site's "3rd Floor" was right
-// all along and is what the whole site now uses, Figma's "4th" notwithstanding.
+// Ported from the poddarpipes.com "coming soon" site's Privacy Policy
+// ("Last updated: August 7, 2026") — same company, re-platformed here, with
+// "Poddar Plumbing Systems" -> "Poddar Plumbing System" (singular, verified).
+// Contact details are NOT written in this file: the pages render them from
+// `COMPANY` in lib/data/offices.ts (client-approved 2026-10-08).
 export const privacyPolicyIntro: string[] = [
   `We respect your privacy and are committed to protecting it through our compliance with this privacy policy ("Policy"). This Policy describes the types of information we may collect from you or that you may provide ("Personal Information") on the poddarpipes.com website ("Website" or "Service") and any of its related products and services (collectively, "Services"), and our practices for collecting, using, maintaining, protecting, and disclosing that Personal Information. It also describes the choices available to you regarding our use of your Personal Information and how you can access and update it.`,
   `This Policy is a legally binding agreement between you ("User", "you" or "your") and Poddar Plumbing System Pvt. Ltd. (doing business as "Poddar Pipes", "we", "us" or "our"). If you are entering into this Policy on behalf of a business or other legal entity, you represent that you have the authority to bind such entity to this Policy, in which case the terms "User", "you" or "your" shall refer to such entity.`,

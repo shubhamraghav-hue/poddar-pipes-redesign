@@ -35,13 +35,17 @@ export function ScrollWaterRail() {
       >
         {/* Waterline glow at the surface */}
         <span className="absolute inset-x-0 top-0 h-[2px] -translate-y-1/2 bg-flow-200 shadow-[0_0_10px_2px_var(--color-flow-400)]" />
-        {!prefersReduced && (
-          <motion.span
-            className="absolute inset-x-0 top-0 h-3 -translate-y-1/2 bg-flow-200/40 blur-[3px]"
-            animate={{ opacity: [0.25, 0.75, 0.25] }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-          />
-        )}
+        {/* Always rendered; only its animation is gated. Rendering it
+            conditionally caused a hydration mismatch for reduced-motion
+            users: `useReducedMotion()` is null on the server (span rendered)
+            and true on the client's first render (span dropped). */}
+        <motion.span
+          className="absolute inset-x-0 top-0 h-3 -translate-y-1/2 bg-flow-200/40 blur-[3px]"
+          animate={prefersReduced ? { opacity: 0.5 } : { opacity: [0.25, 0.75, 0.25] }}
+          transition={
+            prefersReduced ? { duration: 0 } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }
+          }
+        />
       </motion.div>
     </div>
   );

@@ -10,13 +10,14 @@ const buttonVariants = cva(
   // alphabetic` trims that asymmetric leading so the glyph block itself is what
   // flex centres — aligning text with icons. Progressive enhancement: browsers
   // without text-box support fall back to today's (slightly-high) rendering.
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] transition-all duration-300 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] transition-all duration-300 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary: "bg-ocean-600 text-white shadow-sm hover:bg-ocean-700 hover:shadow-md",
         "primary-on-dark": "bg-white text-ocean-700 shadow-sm hover:bg-paper-2 hover:shadow-md",
-        accent: "bg-amber-500 text-white shadow-sm hover:bg-amber-600 hover:shadow-md",
+        // Navy text, not white: white on amber-500 is ~2.3:1 and failed AA.
+        accent: "bg-amber-500 text-ink shadow-sm hover:bg-amber-600 hover:shadow-md",
         // Figma "Poddar Pipes" landing-page spec: primary CTA is orange-fill
         // with navy text (not white) — dark-on-orange still clears AA, so
         // this is a distinct, deliberate variant rather than a copy of
@@ -25,14 +26,14 @@ const buttonVariants = cva(
         // Brand Playbook CTA spec: secondary = orange outline + BLUE text (never
         // orange text on a light surface — orange-on-white fails AA, ~2.7:1).
         secondary:
-          "border-2 border-amber-500 bg-transparent text-ocean-700 hover:bg-amber-500 hover:text-white",
+          "border-2 border-amber-500 bg-transparent text-ocean-700 hover:bg-amber-500 hover:text-ink",
         outline:
           "border border-slate-200 bg-transparent text-slate-900 hover:border-ocean-500 hover:text-ocean-700",
         ghost: "bg-transparent text-slate-900 hover:bg-slate-50",
         // Used on dark (bg-ink) sections — orange outline still reads as an accent
         // there since it sits on white text at rest, not as unsupported body copy.
         "outline-light":
-          "border-2 border-amber-500 bg-transparent text-amber-300 hover:bg-amber-500 hover:text-white",
+          "border-2 border-amber-500 bg-transparent text-amber-300 hover:bg-amber-500 hover:text-ink",
         "outline-white":
           "border-2 border-white/70 bg-transparent text-white hover:border-white hover:bg-white/10",
         link: "text-ocean-600 underline-offset-4 hover:underline p-0 h-auto rounded-none",

@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 import { SocialIcons } from "@/components/shared/SocialIcons";
+import { COMPANY } from "@/lib/data/offices";
 
 /**
  * Footer (Figma node 8:7). Colours, tracking and sizes are the mock's literal
@@ -41,6 +42,59 @@ import { SocialIcons } from "@/components/shared/SocialIcons";
  * the company's press coverage. The mock's plural spelling is wrong — this
  * is not a deviation to "fix".
  */
+/**
+ * The brand slogan that sits with the footer logo (Figma nodes 1447:13561
+ * mobile / 1447:13308 desktop): an orange corner bracket above the text, and
+ * "GOLD" in `#d9b365` inside an otherwise white line.
+ *
+ * The string lives in `footer.brandTagline` and is IDENTICAL in all eleven
+ * locale files, deliberately. It is Hinglish by design and functions as part
+ * of the lockup rather than as body copy, so it is not translated — the key
+ * exists per-locale only because next-intl resolves every key per-locale.
+ * `t.rich` rather than three keys, so the coloured word stays inside one
+ * translatable sentence instead of being assembled from fragments.
+ *
+ * `max-w-[9.2em]` is the one value that forces the two-line break, and it is
+ * in `em` on purpose: Figma sets the box to 152.125px at 17.008px on mobile
+ * and 197.414px at 22.071px on desktop, which are the SAME 8.945em — so one
+ * measure holds the break at both sizes with no breakpoint of its own. 9.2
+ * rather than 8.945 is deliberate slack: our Anek sets "STANDARD. PHIR SE."
+ * at 146.8px against the 152.1px box, and 5px is close enough that a
+ * different font-loading path could spill it onto a third line. 9.2em buys
+ * ~10px and cannot pull the break the other way — hoisting "STANDARD." up to
+ * line one needs ~199px, far past either value.
+ *
+ * The indent is a MARGIN, not padding, and that is load-bearing. Figma's
+ * 152.125px is the text box measured from x37.39 — i.e. AFTER the 7.4px
+ * offset. As padding under `border-box` the same number is the box INCLUDING
+ * the offset, which left 144.8px of measure, and at 146.8px the last line
+ * broke to "STANDARD. PHIR" / "SE.".
+ */
+function BrandTagline() {
+  const t = useTranslations("footer");
+
+  return (
+    <div className="flex flex-col items-start gap-px">
+      {/* Figma draws this bracket 8.3x8.52 on mobile and 10.77x11.06 on
+          desktop — the same 0.9735 ratio, so one asset scaled by height. It
+          is decoration beside text that already reads, hence aria-hidden. */}
+      <img
+        src="/brand/tagline-mark.svg"
+        alt=""
+        aria-hidden="true"
+        className="h-[8.5px] w-auto lg:h-[11px]"
+      />
+      {/* Indented to clear the bracket: Figma offsets the text 7.39px from
+          the mark's left edge at 17px, and 9.59px at 22px — both 0.435em. */}
+      <p className="ml-[0.435em] max-w-[9.2em] text-[17px] font-semibold uppercase leading-none text-white lg:text-[22px]">
+        {t.rich("brandTagline", {
+          gold: (chunks) => <span className="text-[#d9b365]">{chunks}</span>,
+        })}
+      </p>
+    </div>
+  );
+}
+
 export function Footer() {
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
@@ -54,16 +108,19 @@ export function Footer() {
   ];
 
   const productLinks = [
-    { label: "uPVC", href: "/products/category/upvc-pipes" },
-    { label: "CPVC", href: "/products/category/cpvc-pipes" },
-    { label: "SWR", href: "/products/category/swr-pipes" },
-    { label: "TANKS", href: "/products/category/tanks" },
-    { label: "AGRI", href: "/products/category/agricultural-pipes" },
-    { label: "UGD", href: "/products/category/ugd-pipes" },
+    { label: "uPVC", href: "/products?category=upvc-pipes" },
+    { label: "CPVC", href: "/products?category=cpvc-pipes" },
+    { label: "SWR", href: "/products?category=swr-pipes" },
+    { label: "TANKS", href: "/products?category=tanks" },
+    { label: "AGRI", href: "/products?category=agricultural-pipes" },
+    { label: "UGD", href: "/products?category=ugd-pipes" },
   ];
 
+  // /resources is gone (client decision 2026-10-08): the column lists what
+  // the header's Resources dropdown holds, plus Contact.
   const resourceLinks = [
-    { key: "resources", href: "/resources" },
+    { key: "navBlogsArticles", href: "/articles" },
+    { key: "navPipeCementCalculator", href: "/tools/calculator" },
     { key: "contact", href: "/contact" },
   ];
 
@@ -116,43 +173,67 @@ export function Footer() {
           {/* Logo + registered address (social icons join here from lg up).
               `order-2` below `lg`: the mobile node puts the link groups first
               and the logo block under them. */}
-          <div className="order-2 flex max-w-xs flex-col gap-6 lg:order-1">
-            <Link href="/" className="flex items-center gap-2.5">
-              {/* 44px on mobile. The mobile node (1311:10858) draws the
-                  lockup at 32.8px and that was built literally, but it reads
-                  too small against the rest of the footer — so this is a
-                  deliberate step up from the mock, the same call as the 24 ->
-                  32px social rings. It keeps the brand mark comfortably more
-                  prominent than those rings rather than level with them. The
-                  existing 64px stays from `lg`. */}
-              <img src="/logo.svg" alt="Poddar Pipes" className="h-[44px] w-auto lg:h-16" />
-            </Link>
-            {/* "3rd Floor" — CONFIRMED BY THE CLIENT, and it outranks Figma.
-                Both Figma footer nodes (1311:10827, 1311:10981) draw "4th",
-                and this file was briefly changed to match them along with
-                `lib/data/offices.ts` and `components/shared/LegalPage.tsx`.
-                That was wrong: the launch site's privacy policy and this
-                footer both originally said 3rd, and the client has since
-                confirmed it. All four places now say 3rd. Do NOT "correct"
-                this back from the Figma nodes.
+          {/* `lg:max-w-none` releases a cap that was not doing the job it
+              looks like it is doing. `max-w-xs` is 320px, so from `lg` it was
+              silently overriding the address paragraph's own
+              `lg:max-w-[340px]`; Figma's desktop address box is 330px (node
+              1447:13303), so lifting the cap moves that wrap TOWARD the mock
+              rather than away from it. It also gives the logo + tagline row
+              below the width it needs to sit side by side. Below `lg` the cap
+              is untouched, so mobile is unaffected. */}
+          <div className="order-2 flex max-w-xs flex-col gap-6 lg:order-1 lg:max-w-none">
+            {/* Logo and tagline are ONE lockup, and Figma arranges it
+                differently per breakpoint rather than merely reflowing it:
+                STACKED 18px apart on mobile (nodes 1447:13517 / 1447:13561),
+                SIDE BY SIDE 59px apart on desktop (1447:13320 / 1447:13308).
+                Hence a row/column switch here rather than a wrap. */}
+            <div className="flex flex-col items-start gap-[18px] lg:flex-row lg:items-center lg:gap-[59px]">
+              <Link href="/" aria-label="Poddar Pipes — home" className="flex shrink-0 items-center gap-2.5 py-1">
+                {/* 36px, and the number dropped from 65 WITHOUT the logo
+                    getting smaller. `logo.svg` used to carry a uniform 72-unit
+                    margin inside its own 757x323.89 viewBox — measured 72.00
+                    left and right, 72.50 top and bottom — so only 55.2% of any
+                    height given to it was actually artwork. At the old
+                    `h-[65px]` that spent 14.45px on empty space down the left,
+                    which is why the lockup never sat flush with the address and
+                    tagline below it, and 14.55px top and bottom, which is why
+                    it kept reading small and kept getting nudged up (44 -> 50
+                    -> 65). The asset is now cropped to its ink, so 36px of box
+                    is 36px of logo and the left edge is the left edge.
 
-                One paragraph that wraps, rather than two `whitespace-nowrap`
-                lines: the mock sets three lines in 232px on mobile and two in
-                ~330px on desktop, which the two max-widths produce on their
-                own. `#c0c0c0` below `lg` per the mobile node; white from `lg`. */}
+                    One value for both breakpoints now: the old pair rendered
+                    35.90px of artwork on mobile and 35.35px from `lg`, which
+                    was never a deliberate 0.55px step, just two paddings
+                    resolving slightly differently.
+
+                    Still the ONE number to retune: `w-auto` means the SVG's own
+                    ratio sets the width, and the gap under the lockup is the
+                    parent's `gap-6`, so nothing else moves when it does. */}
+                <img src="/logo.svg" alt="Poddar Pipes" className="h-9 w-auto" />
+              </Link>
+              <BrandTagline />
+            </div>
+            {/* Registered office — client-approved wording from `COMPANY`
+                (lib/data/offices.ts). It supersedes the earlier "3rd Floor,
+                1202 …" text and Figma's "4th Floor".
+
+                One paragraph that wraps: three lines in 232px on mobile, two
+                in ~340px on desktop. `#c0c0c0` below `lg` per the mobile node;
+                white from `lg`. */}
             <p className="max-w-[232px] text-[13px] font-light leading-[1.25] tracking-[0.26px] text-[#c0c0c0] lg:max-w-[340px] lg:text-[14px] lg:font-normal lg:leading-[1.3] lg:tracking-[0.28px] lg:text-white">
-              3rd Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar,
-              Bengaluru, Karnataka – 560008
+              {COMPANY.address.oneLine}
             </p>
             {/* Stacked on mobile, one line with a `|` from `lg` — the mobile
                 node has no separator and puts them on their own rows. */}
-            <div className="flex flex-col gap-1 text-[13px] font-normal tracking-[0.26px] text-white lg:flex-row lg:items-center lg:gap-2 lg:text-[14px] lg:tracking-[0.28px]">
-              <a href="mailto:hello@poddarpipes.com" className={hoverLink}>
-                hello@poddarpipes.com
+            {/* `py-2` below `lg`: a bigger tap target for the two contact
+                links (they were 13px-tall strips on phones). */}
+            <div className="flex flex-col text-[13px] font-normal tracking-[0.26px] text-white lg:flex-row lg:items-center lg:gap-2 lg:text-[14px] lg:tracking-[0.28px]">
+              <a href={`mailto:${COMPANY.email}`} className={`relative self-start py-2 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-0 ${hoverLink}`}>
+                {COMPANY.email}
               </a>
               <span className="hidden lg:inline">|</span>
-              <a href="tel:+919888822333" className={hoverLink}>
-                +91 98888 22333
+              <a href={COMPANY.phone.href} className={`relative self-start py-2 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-0 ${hoverLink}`}>
+                {COMPANY.phone.display}
               </a>
             </div>
             <div className="hidden lg:block">
@@ -183,12 +264,14 @@ export function Footer() {
                     className="size-5 shrink-0 text-white transition-transform duration-200 group-open:[transform:rotate(180deg)]"
                   />
                 </summary>
-                <ul className="flex flex-col gap-2 pb-4">
+                {/* Rows carry their own `py-2` (32px tap targets) instead
+                    of an 8px gap between 16px-tall links. */}
+                <ul className="flex flex-col pb-3">
                   {group.links.map((link) => (
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className={`text-[13px] font-normal tracking-[0.52px] text-[#c0c0c0] ${hoverLink} ${group.uppercase ? "uppercase" : ""}`}
+                        className={`block py-2 text-[13px] font-normal tracking-[0.52px] text-[#c0c0c0] ${hoverLink} ${group.uppercase ? "uppercase" : ""}`}
                       >
                         {link.label}
                       </Link>
@@ -262,16 +345,19 @@ export function Footer() {
           {/* Legal row */}
           {/* A row at every width now: the mobile node puts the copyright
               left and stacks the two legal links right-aligned beside it,
-              both at 10px. From `sm` it is the existing 12px row. */}
-          <div className="flex items-start justify-between gap-4 text-[10px] font-light sm:items-center sm:text-[12px]">
-            <p className="max-w-[182px] leading-[1.35] sm:max-w-none">
-              © {new Date().getFullYear()} Poddar Plumbing System Pvt. Ltd. {t("rightsReserved")}
+              both at 10px — raised to 12px (10px was below a readable size
+              on a phone). From `sm` it is the existing 12px row. */}
+          {/* Stacked below `sm`: beside the copyright the two links had
+              ~70px and broke into "Privacy / Policy", "Terms of / Service". */}
+          <div className="flex flex-col gap-3 text-[12px] font-light sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <p className="leading-[1.35]">
+              © {new Date().getFullYear()} {COMPANY.legalName} {t("rightsReserved")}
             </p>
-            <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-[53px]">
-              <Link href="/privacy-policy" className={hoverLink}>
+            <div className="-my-1.5 flex flex-row items-center gap-6 sm:my-0 sm:gap-[53px]">
+              <Link href="/privacy-policy" className={`relative py-1.5 before:absolute before:-inset-y-2.5 before:inset-x-0 before:content-[''] sm:py-0 ${hoverLink}`}>
                 {t("privacyPolicy")}
               </Link>
-              <Link href="/terms-of-service" className={hoverLink}>
+              <Link href="/terms-of-service" className={`relative py-1.5 before:absolute before:-inset-y-2.5 before:inset-x-0 before:content-[''] sm:py-0 ${hoverLink}`}>
                 {t("termsOfService")}
               </Link>
             </div>

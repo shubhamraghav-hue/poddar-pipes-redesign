@@ -4,15 +4,27 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { FAQ } from "@/components/contact/FAQ";
 import { CTASection } from "@/components/home/CTASection";
+import { buildPageMetadata } from "@/lib/seo";
 
 const FAQ_COUNT = 11;
 
-export const metadata: Metadata = {
-  title: "Frequently Asked Questions",
-  description:
-    "Answers to common questions about Poddar Pipes products, certifications, bulk orders, warranty, and technical support.",
-  alternates: { canonical: "/faq" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/faq",
+    title: locale === "en" ? "Frequently Asked Questions" : t("nav.navFaqs"),
+    description: "Answers to common questions about Poddar Pipes products, Indian Standards, bulk orders, warranty, and technical support.",
+  });
+}
 
 export default async function FaqPage({
   params,

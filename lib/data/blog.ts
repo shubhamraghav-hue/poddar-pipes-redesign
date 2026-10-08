@@ -1,4 +1,4 @@
-import type { BlogPost, JobOpening, DownloadItem } from "@/types";
+import type { BlogPost, DownloadItem } from "@/types";
 
 export const blogPosts: BlogPost[] = [
   {
@@ -47,12 +47,8 @@ export const blogPosts: BlogPost[] = [
   },
 ];
 
-export const jobOpenings: JobOpening[] = [
-  { id: "j1", title: "Production Engineer — Extrusion", department: "Manufacturing", location: "Plant Location", type: "Full-time" },
-  { id: "j2", title: "Quality Assurance Executive", department: "Quality", location: "Plant Location", type: "Full-time" },
-  { id: "j3", title: "Regional Sales Manager", department: "Sales & Marketing", location: "Multiple Locations", type: "Full-time" },
-  { id: "j4", title: "R&D Engineer — Polymer Compounds", department: "Research & Development", location: "Plant Location", type: "Full-time" },
-];
+// Job openings were removed (client decision 2026-10-08): /careers points
+// people to HR instead of listing roles.
 
 // Real catalogue PDFs (from Poddar Pipes) served from /public/downloads.
 // CPVC's source file is a 132MB Illustrator export — too large to ship as a

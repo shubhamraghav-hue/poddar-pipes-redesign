@@ -34,13 +34,18 @@ export default function GlobalNotFound() {
             { label: "Distributor enquiries", email: DISTRIBUTOR_EMAIL, kind: "distributor" },
           ]}
           actions={
+            // Plain anchors on purpose (full page load): this 404 has its own
+            // document shell outside the locale layout, so a hard navigation
+            // back into the app is the reliable path.
             <>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
                 href="/"
-                className="inline-flex h-14 w-full items-center justify-center rounded-full bg-amber-500 px-6 text-base font-medium text-white shadow-[0_10px_40px_-8px_rgba(242,128,0,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-600"
+                className="inline-flex h-14 w-full items-center justify-center rounded-full bg-amber-500 px-6 text-base font-medium text-ink shadow-[0_10px_40px_-8px_rgba(242,128,0,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-600"
               >
                 Back to Home
               </a>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
                 href="/products"
                 className="inline-flex h-14 w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 text-base font-medium text-white backdrop-blur transition-all duration-300 hover:border-white/40 hover:bg-white/10"

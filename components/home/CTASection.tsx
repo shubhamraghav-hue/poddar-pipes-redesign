@@ -2,7 +2,27 @@ import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CatalogueLink, EnquiryLink } from "@/components/enquiry/EnquiryProvider";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
+import { CAP_TRIM } from "@/components/shared/capTrim";
+
+/**
+ * A `/contact` destination is an enquiry: it opens the global pop-up
+ * (`EnquiryLink`, still a real link to /contact underneath). Any other href —
+ * the catalogue, the calculator, products — stays a plain link.
+ *
+ * MUST pass every prop through. It sits under `Button asChild`, and Radix's
+ * Slot hands the button's `className` (and ref/handlers) to this element; the
+ * first version only forwarded `href`/`children`, so every CTASection button
+ * on the site rendered as bare unstyled text.
+ */
+function CtaLink({ href, ...props }: React.ComponentProps<typeof Link> & { href: string }) {
+  if (href === "/contact") return <EnquiryLink {...props} />;
+  // /resources was removed; "Download Catalogue" opens the catalogue picker.
+  if (href === "#catalogues") return <CatalogueLink {...props} />;
+  return <Link href={href} {...props} />;
+}
 
 // Flush variant only: Figma styles the two sentences differently (white lead,
 // amber second). Split at the sentence boundary rather than adding separate
@@ -37,7 +57,8 @@ export async function CTASection({
   primaryLabel,
   primaryHref = "/contact",
   secondaryLabel,
-  secondaryHref = "/resources",
+  // "#catalogues" opens the catalogue picker (see CtaLink).
+  secondaryHref = "#catalogues",
   variant = "card",
 }: CTASectionProps) {
   const t = await getTranslations("home");
@@ -53,32 +74,53 @@ export async function CTASection({
   const [ctaLead, ctaAccent] = isFlush ? splitLeadAccent(resolvedTitle) : [resolvedTitle, ""];
 
   // The site's standard CTA pair. Deliberately IDENTICAL across both
-  // variants, unlike everything else here. Height is content-driven rather
-  // than `size="lg"`'s fixed `h-14`. Hero renders the same pair without
+  // variants, unlike everything else here. Hero renders the same pair without
   // `uppercase` — the one known exception.
+  //
+  // Figma 1530:7321: both buttons 46 tall, 15 apart, px24. The outlined one's
+  // ring is an inset shadow, not a border — a border sits outside the padding
+  // and made it 48 against the solid one's 46. Labels are cap-trimmed
+  // (`CAP_TRIM`) and flex-centred: `Button`'s own trim never reaches an
+  // `asChild` label, and Anek's line box otherwise sits the caps ~3px high.
+  // Same treatment as QuoteCTA and the /contact hero.
+  //
+  // Below `sm` a label may WRAP (the button grows from 46px): "Download
+  // Product Catalogue" is ~290px at 18px and was clipped by the card at 320.
   const ctaButtons = (
-    <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
+    <div
+      className={cn(
+        "mx-auto flex max-w-[307px] flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-[15px]",
+        isFlush ? "mt-10 md:mt-20" : "mt-9"
+      )}
+    >
       <Button
         asChild
         size="lg"
         variant="accent-ink"
-        className="h-auto w-full px-6 pb-3 pt-4 text-lg font-semibold uppercase tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto"
+        className="h-[46px] px-6 py-0 text-lg max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase leading-none tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52]"
       >
-        <Link href={primaryHref}>{resolvedPrimary}</Link>
+        <CtaLink href={primaryHref}>
+          <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedPrimary}</span>
+        </CtaLink>
       </Button>
       <Button
         asChild
         size="lg"
         variant="outline-white"
-        className="h-auto w-full border-[length:1.2px] border-white px-6 pb-3 pt-4 text-lg font-semibold uppercase tracking-[0.36px] sm:w-auto"
+        className="h-[46px] border-0 px-6 py-0 text-lg max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
       >
-        <Link href={secondaryHref}>{resolvedSecondary}</Link>
+        <CtaLink href={secondaryHref}>
+          <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedSecondary}</span>
+        </CtaLink>
       </Button>
     </div>
   );
 
   const content = isFlush ? (
-    <div className="relative overflow-hidden bg-[#0b0b52] px-6 py-20 text-center sm:px-8 md:py-28">
+    // Figma 1530:7318 is 600 tall: title at 120, buttons end at 424 — so
+    // 120 above and 176 below from `lg`; tablets and phones keep the lighter
+    // pads.
+    <div className="relative overflow-hidden bg-[#0b0b52] px-6 py-20 text-center sm:px-8 md:py-28 lg:pb-[176px] lg:pt-[120px]">
       <div className="relative mx-auto max-w-5xl">
         {/* Each sentence should be exactly one line. `max-w-2xl` was too
             narrow at `text-5xl` and wrapped the second into three; `max-w-5xl`
@@ -98,7 +140,7 @@ export async function CTASection({
       </div>
     </div>
   ) : (
-    <div className="relative overflow-hidden rounded-3xl bg-ink px-8 py-16 text-center sm:px-16 md:py-20">
+    <div className="relative overflow-hidden rounded-3xl bg-ink px-5 py-16 text-center sm:px-16 md:py-20">
       <Image
         src="https://images.pexels.com/photos/2760241/pexels-photo-2760241.jpeg?auto=compress&cs=tinysrgb&w=2000"
         alt=""

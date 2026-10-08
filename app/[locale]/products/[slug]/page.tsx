@@ -7,6 +7,7 @@ import { RelatedProducts } from "@/components/products/RelatedProducts";
 import { Breadcrumbs, getBreadcrumbSchema } from "@/components/shared/Breadcrumbs";
 import { CTASection } from "@/components/home/CTASection";
 import { routing } from "@/i18n/routing";
+import { buildPageMetadata } from "@/lib/seo";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
@@ -17,23 +18,20 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const product = products.find((p) => p.slug === slug);
   if (!product) return {};
 
-  return {
+  // Product names/descriptions live in lib/data/products.ts (English only),
+  // so every locale uses them; canonical/hreflang are per-locale.
+  return buildPageMetadata({
+    locale,
+    path: `/products/${product.slug}`,
     title: product.name,
     description: product.shortDescription,
-    openGraph: {
-      title: `${product.name} | Poddar Pipes`,
-      description: product.shortDescription,
-    },
-    alternates: {
-      canonical: `/products/${product.slug}`,
-    },
-  };
+  });
 }
 
 export default async function ProductDetailPage({

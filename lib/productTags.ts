@@ -14,7 +14,6 @@ const TAG_RULES: { pattern: RegExp; label: string }[] = [
   { pattern: /fire-retardant|self-extinguishing|limiting oxygen index/i, label: "Fire-Resistant" },
   { pattern: /low maintenance|maintenance-free|minimal maintenance/i, label: "Low-Maintenance" },
   { pattern: /food-safe|food-grade/i, label: "Food-Safe" },
-  { pattern: /isi certified/i, label: "ISI Certified" },
   { pattern: /anti-bacterial|nano-silver/i, label: "Anti-Bacterial" },
   { pattern: /rodent-proof/i, label: "Rodent-Proof" },
 ];

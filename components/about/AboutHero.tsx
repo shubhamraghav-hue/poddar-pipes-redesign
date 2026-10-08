@@ -1,8 +1,11 @@
+import type { CSSProperties } from "react";
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
+import { CAP_TRIM } from "@/components/shared/capTrim";
 
 /**
  * Figma "company overview" (node 1001:5975) — the About page's opening navy
@@ -70,23 +73,35 @@ const NAVY_0 = "rgba(11,11,82,0)";
 //
 // Zero crop is right on any real screen, but on a phone the ratio alone makes
 // the band very short — 238px on a 402px screen — which reads as a thin strip
-// rather than a backdrop. Hence `min-h-[322px]`, which buys presence back by
-// letting the box grow TALLER than the artwork and cropping the sides:
+// rather than a backdrop. Hence the `min-h` floor, which buys presence back by
+// letting the box grow TALLER than the artwork and cropping the sides.
+//
+// The floor is 481px, which is Figma's own mobile number: node 1447:13396
+// draws the ripple 481.06px tall on its 402px frame. It was 322px, tuned by
+// eye before that frame existed, and the band read as too short against the
+// taller hero the same node specifies.
 //
 //   width   band     artwork visible
-//   320px   322px        59%
-//   402px   322px        74%
-//   500px   322px        91%
-//   544px   322px       100%   <- the ratio takes over here
-//   640px   379px       100%
+//   320px   481px        39%
+//   402px   481px        50%   <- Figma's frame
+//   640px   481px        79%
+//   812px   481px       100%   <- the ratio takes over here
+//  1024px   606px       100%
+//
+// ONE floor at every width rather than a mobile-only value, for the same
+// reason the aspect-ratio experiment below was abandoned: a breakpointed
+// floor puts a visible step in the band's height at the breakpoint (481px at
+// 639 dropping to 379px at 640). A single floor simply stops binding once the
+// natural ratio passes it, so the band only ever grows as the screen widens.
+// Desktop is untouched either way — at 1512 the ratio has long since won.
 //
 // A min-height rather than a second `aspect-ratio` on purpose. A mobile ratio
 // (`aspect-[5/4]`) was tried first and measured 511px at 639 against 379px at
 // 640 — the band got SHORTER as the window got WIDER, because below the
 // breakpoint a 1.25 box out-grows a 1.689 one. A floor has no such seam: it
-// simply stops binding once the natural ratio passes it, at 322 * 1.689 =
-// 544px, so the band is continuous and never shrinks as the screen widens.
-// `322px` is the one number to change if the balance wants moving.
+// simply stops binding once the natural ratio passes it, at 481 * 1.689 =
+// 812px, so the band is continuous and never shrinks as the screen widens.
+// `481px` is the one number to change if the balance wants moving.
 //
 // The crop anchor had to move with it. `object-left` is Figma's intent and was
 // INERT while nothing cropped, but it is the worst possible anchor once
@@ -98,29 +113,47 @@ const NAVY_0 = "rgba(11,11,82,0)";
 // >2160px clamped case the crop is vertical, where its 50% matches what
 // `object-left` resolved to anyway.
 
+// Two shapes, not one scaled. The quote punch is NOT proportional between the
+// breakpoints — Figma draws it 66x128 inside 582x518 on desktop (node
+// 1447:13217) and 31x60 inside 342x162 on mobile (1447:13411), so a single
+// asset stretched to the mobile box would squash the quotation mark along with
+// the panel. Both files carry the same `white @ 5%` fill; the mobile one has
+// square corners in the path because its card gets its radius from the
+// container's `overflow-hidden` instead.
 const CARD_SHAPE = "/about/vision-mission-card.svg";
+const CARD_SHAPE_MOBILE = "/about/vision-mission-card-mobile.svg";
 
 /**
- * One of the two translucent panels (nodes 1029:8303 / 1029:8304). The panel
- * artwork is a single vector whose top-right quotation mark is SUBTRACTED
- * from the fill — a hole, not an overlay — so it has to be the exported
- * asset; a plain `bg-white/5` div cannot punch it.
+ * One of the two translucent panels (nodes 1447:13214 / 1447:13226 desktop,
+ * 1447:13408 / 1447:13415 mobile). The panel artwork is a single vector whose
+ * top-right quotation mark is SUBTRACTED from the fill — a hole, not an
+ * overlay — so it has to be the exported asset; a plain `bg-white/5` div
+ * cannot punch it.
  *
- * `@container` plus the frame's own 592x360 ratio, so the 48px title and 18px
- * body stay in Figma's proportion at every width (the same technique as the
- * product category cards).
+ * TWO GEOMETRIES, not one reflowed. Figma does not narrow this card for a
+ * phone, it redraws it: 592x450 on desktop against 342x162 on mobile, i.e.
+ * 1.316 against 2.111 — a landscape strip rather than a near-square panel.
+ * The type is re-cut with it (64 -> 28px title, 28 -> 13px body, and the body
+ * goes white -> `#c0c0c0`). The switch is at `md` rather than `lg` so it lands
+ * on the same breakpoint as the one-to-two column change on the grid below; at
+ * the 330px card that produces, the desktop ramp reads at 36/16px.
  *
- * Re-fetched Sep 2026 from node 1187:5893, which reworked these boxes: the
- * card lost 90px of height (450 -> 360) and the type came down with it —
- * title 64 -> 48px at -0.64 -> -0.48px tracking, body 28 -> 18px and now
- * carrying 0.18px tracking of its own. Because every value here is expressed
- * in `cqw` against the card, the ratio had to change too; leaving it at
- * 592/450 would have scaled the new sizes against the wrong box.
+ * `@container` plus each frame's own ratio, so the type stays in Figma's
+ * proportion at every width (the same technique as the product category
+ * cards) — which is why every value below is a `cqw` percentage of the card
+ * rather than a pixel size.
+ *
+ * DESKTOP WAS 592x360 with a 48px title and 18px body, taken from node
+ * 1187:5893 in Sep 2026. Node 1447:13214 puts it back to the 450px box and the
+ * 64/28px type, and that node is the current reference. The ratio had to move
+ * with the sizes — leaving it at 592/360 would scale them against the wrong
+ * box.
  */
 function VisionMissionCard({
   title,
   body,
-  /** % of card width — Figma sets the two copy blocks to 370px and 388px. */
+  /** % of card width — Figma sets the two DESKTOP copy blocks to 370 and 388
+      of 592. Mobile sets both to 233 of 342, so it ignores this. */
   bodyWidth,
 }: {
   title: string;
@@ -128,41 +161,38 @@ function VisionMissionCard({
   bodyWidth: string;
 }) {
   return (
-    <div className="@container relative aspect-[592/360] w-full overflow-hidden rounded-[25px]">
-      {/* 582x518 pinned top-left inside a 592x360 box, exactly as Figma has
-          it. The shape now overhangs the bottom by considerably more than it
-          used to — 518 into 360 — and is clipped; the 10px strip down the
-          right stays empty navy. */}
+    <div className="@container relative aspect-[342/162] w-full overflow-hidden rounded-[14.666px] md:aspect-[592/450] md:rounded-[25px]">
+      {/* Mobile: the shape fills its box exactly (342x162 in 342x162).
+          Desktop: 582x518 pinned top-left inside 592x450, exactly as Figma has
+          it — so it overhangs the bottom by 68px and is clipped, and the 10px
+          strip down the right stays empty navy. */}
+      <img
+        src={CARD_SHAPE_MOBILE}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-0 size-full max-w-none md:hidden"
+      />
       <img
         src={CARD_SHAPE}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 h-[143.8889%] w-[98.3108%] max-w-none"
+        className="pointer-events-none absolute left-0 top-0 hidden h-[115.1111%] w-[98.3108%] max-w-none md:block"
       />
 
       {/* Both blocks are vertically centred on their Figma y, hence the
-          -translate-y-1/2 against a `top` of that coordinate. */}
-      <h3
-        className="absolute -translate-y-1/2 font-semibold uppercase leading-none text-white"
-        style={{
-          left: "8.4459%",
-          top: "52.7778%",
-          fontSize: "8.1081cqw",
-          letterSpacing: "-0.0811cqw",
-        }}
-      >
+          -translate-y-1/2 against a `top` of that coordinate. Two independently
+          positioned frames rather than a stack: Figma anchors each from the TOP
+          and leaves real empty space at the card's bottom. */}
+      <h3 className="absolute left-[5.848%] top-[44.4444%] -translate-y-1/2 text-[8.1871cqw] font-semibold uppercase leading-none tracking-[-0.0819cqw] text-white md:left-[8.4459%] md:top-[47.1111%] md:text-[10.8108cqw] md:tracking-[-0.1081cqw]">
         {title}
       </h3>
+      {/* Width is the one value that still needs `style`: it is per-card on
+          desktop (`bodyWidth`) and a flat 233/342 on mobile, and Tailwind
+          cannot generate a class from a prop. `--body-w` is read back by the
+          `md:` width below via arbitrary-property syntax. */}
       <p
-        className="absolute -translate-y-1/2 text-white"
-        style={{
-          left: "8.4459%",
-          top: "73.6111%",
-          width: bodyWidth,
-          fontSize: "3.0405cqw",
-          letterSpacing: "0.0304cqw",
-          lineHeight: 1.2,
-        }}
+        className="absolute left-[5.848%] top-[69.7531%] w-[68.1287%] -translate-y-1/2 text-[max(12px,3.8012cqw)] leading-[1.1] text-[#c0c0c0] md:left-[8.4459%] md:top-[71.5556%] md:w-[var(--body-w)] md:text-[4.7297cqw] md:leading-[1.2] md:text-white"
+        style={{ "--body-w": bodyWidth } as CSSProperties}
       >
         {body}
       </p>
@@ -205,7 +235,7 @@ export async function AboutHero() {
         className="pointer-events-none absolute inset-x-0 top-0 overflow-hidden"
         style={{ maxHeight: "100%" }}
       >
-        <div className="relative min-h-[322px] w-full aspect-[1512/895]">
+        <div className="relative min-h-[481px] w-full aspect-[1512/895]">
           {/* `priority` because this is the LCP element — it sits at the very
               top of the page, so Next must not lazy-load it.
 
@@ -246,16 +276,28 @@ export async function AboutHero() {
         />
       </div>
 
-      <div className="container-edge relative pb-24 pt-24 md:pb-[150px] md:pt-[150px]">
+      {/* Figma's mobile band is a genuinely TALLER composition, not the
+          desktop one squeezed: node 1447:13394 is 1114px at 402 wide and puts
+          the title 190px down it, with 82px of air under the second card. The
+          190 is what makes the ripple read as a backdrop the copy sits inside
+          rather than a strip above it. `md` keeps the existing 150/150. */}
+      <div className="container-edge relative pb-[82px] pt-[190px] md:pb-[150px] md:pt-[150px]">
         <RevealOnScroll>
-          <h1 className="max-w-[511px] font-display text-[40px] uppercase leading-[1.02] tracking-[0.32px] text-white sm:text-5xl md:text-[60px]">
+          {/* 36px and 307px wide at base are node 1447:13401's own values —
+              it was 40px in a 511px measure, inherited from the desktop ramp.
+              Its tracking is +0.2088px there against the desktop node's
+              +0.32px, so the base needs its own value and `sm` restores it. */}
+          <h1 className="max-w-[307px] font-display text-[36px] uppercase leading-[1.02] tracking-[0.2088px] text-white sm:max-w-[511px] sm:text-5xl sm:tracking-[0.32px] md:text-[60px]">
             <span className="font-light">{t("heroTitle")} </span>
             <span className="font-bold">{t("heroTitleBold")}</span>
           </h1>
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.08}>
-          <p className="mt-7 max-w-[486px] text-base leading-[1.2] text-white">
+          {/* 13.05px under the title and 13px/307px wide on mobile (node
+              1447:13402), against the 28px gap and 16px/486px the wider
+              widths keep. */}
+          <p className="mt-[13px] max-w-[307px] text-[13px] leading-[1.2] text-white sm:mt-7 sm:max-w-[486px] sm:text-base">
             {t("heroDesc")}
           </p>
         </RevealOnScroll>
@@ -264,30 +306,47 @@ export async function AboutHero() {
             two render identically. Figma's label colour is `#0B0B52`, a
             different navy from the `ink` token the variant ships. */}
         <RevealOnScroll delay={0.14}>
-          <div className="mt-12 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 md:mt-[68px]">
+          {/* 142px under the copy on mobile, and it is measured from the last
+              LINE, not from the text frame. Node 1447:13399 is a 192.48px box
+              at y190 — a height inherited from the home hero's three-child
+              version of the same frame — but its two children end at y341.05,
+              so it carries 41.4px of trailing empty space. The CTA sits at
+              y483, which is 141.95px below the paragraph and 100.5px below the
+              frame; the first of those is the gap anyone actually sees. It was
+              48px (`mt-12`), the figure the OLD mobile frame drew. */}
+          <div className="mt-[142px] flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 md:mt-[68px]">
             <Button
               asChild
               size="lg"
               variant="accent-ink"
-              className="h-auto w-full px-6 pb-3 pt-4 text-lg font-semibold uppercase tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto"
+              className="h-[46px] w-full max-w-[307px] px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52] sm:max-w-none sm:w-auto"
             >
-              <Link href="/products">{t("heroPrimary")}</Link>
+              <Link href="/products">
+                <span className={CAP_TRIM}>{t("heroPrimary")}</span>
+              </Link>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline-white"
-              className="h-auto w-full border-[length:1.2px] border-white px-6 pb-3 pt-4 text-lg font-semibold uppercase tracking-[0.36px] sm:w-auto"
+              className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:max-w-none sm:w-auto"
             >
-              <Link href="/contact">{t("heroSecondary")}</Link>
+              {/* Inset ring, not a border, and a cap-trimmed label — the
+                  48-vs-46 / high-label fix shared with CTASection. */}
+              <EnquiryLink>
+                <span className={CAP_TRIM}>{t("heroSecondary")}</span>
+              </EnquiryLink>
             </Button>
           </div>
         </RevealOnScroll>
 
-        {/* Figma's 28px gutter between the two 592px cards. */}
+        {/* Figma's 28px gutter between the two 592px cards on desktop. Mobile
+            stacks them 12px apart (nodes 1447:13408 at y696 and 1447:13415 at
+            y870, each 162 tall) and starts the pair 111.6px under the
+            secondary CTA, which ends at y584.40 — both were 96/28px. */}
         <RevealOnScroll
           delay={0.1}
-          className="mt-24 grid grid-cols-1 gap-7 md:mt-[274px] md:grid-cols-2"
+          className="mt-[112px] grid grid-cols-1 gap-3 md:mt-[274px] md:grid-cols-2 md:gap-7"
         >
           <VisionMissionCard
             title={t("visionTitle")}

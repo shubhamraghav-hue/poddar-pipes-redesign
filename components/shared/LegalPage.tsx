@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { LegalSection } from "@/types";
+import { COMPANY } from "@/lib/data/offices";
 
 export function LegalIntro({ paragraphs }: { paragraphs: string[] }) {
   return (
@@ -72,24 +73,24 @@ function LegalUL({ items }: { items: string[] }) {
 export function LegalContactBlock() {
   return (
     <address className="mt-4 not-italic text-[15px] leading-[1.7] text-slate-900/80 sm:text-base">
-      Poddar Plumbing System Pvt. Ltd.
+      {COMPANY.legalName}
       <br />
-      3rd Floor, 1202, HAL 2nd Stage, Domlur, 100 Feet Road, Indiranagar, Bengaluru, Karnataka – 560008
+      {COMPANY.address.oneLine}
       <br />
       Email:{" "}
       <a
-        href="mailto:poddarpipes@gmail.com"
+        href={`mailto:${COMPANY.email}`}
         className="font-medium text-ocean-600 underline decoration-ocean-600/30 underline-offset-2 transition-colors hover:text-amber-600"
       >
-        poddarpipes@gmail.com
+        {COMPANY.email}
       </a>
       <br />
       Phone:{" "}
       <a
-        href="tel:+919888822333"
+        href={COMPANY.phone.href}
         className="font-medium text-ocean-600 underline decoration-ocean-600/30 underline-offset-2 transition-colors hover:text-amber-600"
       >
-        +91 98888 22333
+        {COMPANY.phone.display}
       </a>
     </address>
   );

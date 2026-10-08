@@ -7,9 +7,9 @@ export const faqs: FAQItem[] = [
       "We manufacture uPVC, CPVC, SWR, UGD, and Agriculture piping systems, along with rotomoulded water storage TANKS, plus a full range of fittings, valves, and accessories.",
   },
   {
-    question: "Are Poddar Pipes products BIS/ISI certified?",
+    question: "Which Indian Standards are Poddar Pipes products made to?",
     answer:
-      "Our pipe ranges are manufactured to relevant Indian Standards (IS 13592, IS 14735, IS 15778, IS 16098) with ISI marking as applicable to each product category.",
+      "Our pipe ranges are designed and manufactured to the requirements of the relevant Indian Standards for each product category (IS 13592, IS 14735, IS 15778, IS 16098). For project-specific documentation, please contact our sales team.",
   },
   {
     question: "How do I set up a business partnership or distribution agreement with Poddar Pipes?",
@@ -54,6 +54,6 @@ export const faqs: FAQItem[] = [
   {
     question: "What does the product warranty cover?",
     answer:
-      "Poddar Pipes warrants that products will remain free from manufacturing defects and conform to applicable BIS standards under normal operating conditions. The remedy is limited to replacement of, or credit for, the defective product — it doesn't cover removal/reinstallation labour, and doesn't apply if mixed with another brand's pipes/fittings/solvent cement, if joints weren't pressure-tested before plastering, or if damage results from drilling, chiselling, or other mechanical interference after installation.",
+      "Poddar Pipes warrants that products will remain free from manufacturing defects under normal operating conditions. The remedy is limited to replacement of, or credit for, the defective product — it doesn't cover removal/reinstallation labour, and doesn't apply if mixed with another brand's pipes/fittings/solvent cement, if joints weren't pressure-tested before plastering, or if damage results from drilling, chiselling, or other mechanical interference after installation.",
   },
 ];

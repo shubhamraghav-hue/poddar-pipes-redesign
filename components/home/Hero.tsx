@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
 import { Counter } from "@/components/shared/Counter";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { AlphaVideo } from "@/components/home/AlphaVideo";
@@ -399,14 +400,28 @@ export function Hero() {
               variant="outline-white"
               className="h-auto w-full max-w-[307px] border-0 px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] shadow-[inset_0_0_0_1.174px_rgba(255,255,255,0.7)] sm:max-w-none sm:w-auto sm:border-2 sm:shadow-none"
             >
-              <Link href="/contact">{t("heroSecondaryCta")}</Link>
+              <EnquiryLink>{t("heroSecondaryCta")}</EnquiryLink>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Stats bar (Figma node 13:314). `-mt-16`/`-mt-20` gives Figma's
-          63.68px overlap with the video.
+      {/* Stats bar (Figma node 13:314). `sm:-mt-20` gives Figma's 63.68px
+          overlap with the video.
+
+          MOBILE DOES NOT OVERLAP, and the base value is no longer negative
+          because of it. Node 1447:12919 puts the first card at y695.72 with
+          the secondary CTA ending at y584.40 — a 111.3px GAP, on navy, well
+          clear of the 446px video. The three fixed values either side of this
+          margin are `pb-12` (48) above and `py-10` (40) below, so the margin
+          itself is 111.3 - 88 = 23px. It was `-mt-16`, which produced a 24px
+          gap; the mock has roughly five times that.
+
+          Fixed px rather than `vw` on purpose, unlike the video height and
+          the copy block's top pad: everything this gap is measured BETWEEN
+          (button heights, the two paddings) is itself fixed, so a `vw` margin
+          would be the only thing moving and the gap would drift with width
+          rather than hold.
 
           Deliberately TWO layers sandwiching the video rather than one
           translucent panel: Figma has the pipe rendering in FRONT of the
@@ -418,7 +433,7 @@ export function Hero() {
 
           Only the ghost digit needs to sit below the video; the counter and
           label are already clear of its bottom edge geometrically. */}
-      <div className="relative -mt-16 sm:-mt-20">
+      <div className="relative mt-[23px] sm:-mt-20">
         {/* Layer 1 — card shells + ghost digit, below the video. In normal
             flow, so it defines the layout height; Layer 2 is absolute. */}
         <div className="container-edge grid grid-cols-2 gap-4 py-10 sm:grid-cols-4 sm:gap-5 sm:py-14">

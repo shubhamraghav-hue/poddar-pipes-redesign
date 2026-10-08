@@ -10,8 +10,9 @@ import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { WhatsAppButton } from "@/components/shared/WhatsAppButton";
 import { ScrollWaterRail } from "@/components/shared/ScrollWaterRail";
-import { isProductionSite } from "@/lib/seo";
-import { offices } from "@/lib/data/offices";
+import { EnquiryProvider } from "@/components/enquiry/EnquiryProvider";
+import { OG_LOCALES, SITE_URL, buildAlternates, isProductionSite } from "@/lib/seo";
+import { COMPANY } from "@/lib/data/offices";
 
 // Single-typeface system: Anek Devanagari carries every role (display, body,
 // and technical labels), with hierarchy built from weight and size rather than
@@ -38,7 +39,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "meta" });
 
   return {
-    metadataBase: new URL("https://www.poddarpipes.com"),
+    metadataBase: new URL(SITE_URL),
     title: {
       default: t("defaultTitle"),
       template: `%s | ${t("siteName")}`,
@@ -53,21 +54,17 @@ export async function generateMetadata({
       "UGD underground drainage pipes",
       "agricultural pipes",
     ],
-    alternates: {
-      canonical: locale === routing.defaultLocale ? "/" : `/${locale}`,
-      languages: {
-        ...Object.fromEntries(
-          routing.locales.map((l) => [l, l === routing.defaultLocale ? "/" : `/${l}`])
-        ),
-        "x-default": "/",
-      },
-    },
+    // Fallback for routes without their own generateMetadata (e.g. the 404):
+    // every page builds its own canonical/hreflang/OG via buildPageMetadata
+    // (lib/seo.ts), because page-level keys replace these wholesale.
+    alternates: buildAlternates(locale, "/"),
     openGraph: {
       title: t("defaultTitle"),
       description: t("defaultDescription"),
       siteName: t("siteName"),
       type: "website",
-      locale,
+      // Open Graph expects language_TERRITORY ("en_IN"), not a bare "en".
+      locale: OG_LOCALES[locale] ?? locale,
     },
     twitter: {
       card: "summary_large_image",
@@ -93,27 +90,38 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
 
-  // Real, verified HQ details (see lib/data/offices.ts) — CIN and address are
-  // sourced directly from Poddar's own product catalogues.
-  const hq = offices[0];
+  // Contact details from `COMPANY` (lib/data/offices.ts, client-approved).
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Poddar Pipes",
+    legalName: COMPANY.legalName,
     url: "https://www.poddarpipes.com",
     logo: "https://www.poddarpipes.com/icon.svg",
     description:
       "Poddar Pipes manufactures uPVC, CPVC, SWR, TANKS, UGD, and Agriculture piping systems for water, irrigation, and infrastructure applications across India.",
-    identifier: "CIN: 29AAECO2313F1ZQ",
+    // GSTIN-shaped (29 = Karnataka + PAN + entity/check digits), so published
+    // as `taxID`, not a CIN. UNVERIFIED: confirm with the client before launch.
+    taxID: "29AAECO2313F1ZQ",
     foundingDate: "1975",
-    email: hq.email,
+    email: COMPANY.email,
+    telephone: COMPANY.phone.display,
     address: {
       "@type": "PostalAddress",
-      streetAddress: hq.address,
-      addressLocality: hq.city,
-      addressCountry: hq.country,
+      streetAddress: COMPANY.address.street,
+      addressLocality: COMPANY.address.city,
+      postalCode: COMPANY.address.postalCode,
+      addressRegion: COMPANY.address.region,
+      addressCountry: "IN",
     },
-    sameAs: [],
+    // Same profiles as the footer's social icons — keep in sync with the
+    // LINKS list in components/shared/SocialIcons.tsx.
+    sameAs: [
+      "https://x.com/Poddarpipe",
+      "https://www.linkedin.com/company/poddar-pipes/",
+      "https://youtube.com/@poddarpipes",
+      "https://www.instagram.com/poddarpipes",
+    ],
   };
 
   const websiteSchema = {
@@ -142,13 +150,28 @@ export default async function LocaleLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+        {/* Skip link — first thing a keyboard user reaches, so they can jump
+            past the header (8 links, language switcher, CTA). Hidden until
+            focused. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-[#0b0b52] focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Skip to content
+        </a>
         <NextIntlClientProvider>
           <SmoothScroll>
+            {/* One enquiry pop-up for the whole site — every enquiry CTA opens
+                it via `EnquiryLink` (components/enquiry). */}
+            <EnquiryProvider>
             <Navbar />
-            <main>{children}</main>
+            <main id="main" tabIndex={-1} className="outline-none">
+              {children}
+            </main>
             <Footer />
             <ScrollWaterRail />
             <WhatsAppButton />
+            </EnquiryProvider>
           </SmoothScroll>
         </NextIntlClientProvider>
       </body>

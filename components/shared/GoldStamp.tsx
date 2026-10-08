@@ -27,13 +27,15 @@ export function GoldStamp({
         style={{ borderColor: "var(--color-gold-300)" }}
       >
         <span
-          className="font-display text-[11px] font-semibold uppercase leading-tight tracking-wide"
-          style={{ color: "var(--color-gold-600)" }}
+          className="font-display text-[12px] font-semibold uppercase leading-tight tracking-wide"
+          // #8a6420, not gold-600 (#b0812e): that was ~3.1:1 on the paper
+          // background, under the 4.5:1 this 12px label needs.
+          style={{ color: "#8a6420" }}
         >
           {label}
         </span>
         {sublabel && (
-          <span className="mt-0.5 max-w-[70px] text-[9px] leading-tight text-slate-600">
+          <span className="mt-0.5 max-w-[80px] text-[12px] leading-tight text-slate-600">
             {sublabel}
           </span>
         )}

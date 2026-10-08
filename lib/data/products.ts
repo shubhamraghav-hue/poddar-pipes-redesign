@@ -109,7 +109,7 @@ export const products: Product[] = [
       "Fire retardant with a Limiting Oxygen Index (LOI) of 60 — self-extinguishing",
       "Self-alignment mould-mark system keeps concealed fittings perpendicular to the wall",
       "Low thermal conductivity (0.14 W/mK) minimises heat loss from hot water lines",
-      "NSF/ANSI 61 certified solvent cement, safe for drinking water systems",
+      "Solvent-cement jointing system designed for drinking water lines",
     ],
     benefits: [
       "Lowest bacterial growth of any common plumbing material",
@@ -236,11 +236,11 @@ export const products: Product[] = [
     categoryLabel: "TANKS",
     shortDescription: "Insulated 4-layer rotomoulded tanks with a foam core that keeps stored water cooler in peak summer heat.",
     description:
-      "Poddar 4-Layer tanks add a foam insulation layer between the UV-stabilized outer shell and food-safe inner layer, keeping stored water between 13°C and 15°C cooler than a 45°C ambient. An anti-bacterial Nano-Silver layer, along with anti-algae and anti-fungal compliance, keeps stored water hygienic throughout the tank's service life.",
+      "Poddar 4-Layer tanks add a foam insulation layer between the UV-stabilized outer shell and food-safe inner layer, keeping stored water between 13°C and 15°C cooler than a 45°C ambient. An anti-bacterial Nano-Silver layer, designed for anti-algae and anti-fungal performance, helps keep stored water hygienic throughout the tank's service life.",
     features: [
       "Foam insulation layer moderates water temperature against ambient heat",
       "Anti-Bacterial layer with Nano-Silver technology",
-      "Anti-Viral (ISO 21702:2019), Anti-Algae (ASTM G-29) and Anti-Fungal (ASTM G21-2015) compliance",
+      "Designed for anti-viral, anti-algae and anti-fungal performance",
       "Threaded lid with dual-layer construction and insect-proof seal",
     ],
     benefits: [
@@ -282,12 +282,12 @@ export const products: Product[] = [
     categoryLabel: "TANKS",
     shortDescription: "UV-stabilized triple-layer rotomoulded tanks engineered with extra ribs for durability across 500L–10,000L.",
     description:
-      "Poddar 3-Layer tanks pair a UV-stabilized outer shell with a food-safe inner layer, reinforced with extra ribs validated through Finite Element Analysis for structural durability. A Nano-Silver antibacterial layer plus anti-algae and anti-fungal compliance keep stored water safe, from 500L residential sizes up to 10,000L bulk storage.",
+      "Poddar 3-Layer tanks pair a UV-stabilized outer shell with a food-safe inner layer, reinforced with extra ribs validated through Finite Element Analysis for structural durability. A Nano-Silver antibacterial layer, designed for anti-algae and anti-fungal performance, helps keep stored water safe, from 500L residential sizes up to 10,000L bulk storage.",
     features: [
       "UV-stabilized outer layer for long outdoor service life",
       "Extra structural ribs engineered using Finite Element Analysis",
       "Anti-Bacterial layer with Nano-Silver technology",
-      "Anti-Viral, Anti-Algae and Anti-Fungal compliance to ISO/ASTM standards",
+      "Designed for anti-viral, anti-algae and anti-fungal performance",
     ],
     benefits: [
       "Made from 100% virgin plastic with no heavy metals",
@@ -321,28 +321,30 @@ export const products: Product[] = [
     icon: "cylinder",
   },
   {
-    id: "p-tanks-isi-2layer",
-    slug: "poddar-isi-2-layer-water-storage-tanks",
-    name: "Poddar ISI 2-Layer Water Storage Tanks",
+    // Was "ISI 2-Layer" (slug poddar-isi-2-layer-…): renamed because the
+    // company holds no certifications (client, Oct 2026).
+    id: "p-tanks-2layer",
+    slug: "poddar-2-layer-water-storage-tanks",
+    name: "Poddar 2-Layer Water Storage Tanks",
     category: "tanks",
     categoryLabel: "TANKS",
-    shortDescription: "ISI-certified 2-layer rotomoulded tanks in food-grade virgin plastic, available in black from 500L to 5000L.",
+    shortDescription: "2-layer rotomoulded tanks in food-grade virgin plastic, available in black from 500L to 5000L.",
     description:
-      "Poddar's ISI 2-Layer tank is certified to Indian government standards, rotomoulded from virgin, food-grade polyethylene for safe, untainted water storage. UV-stabilized construction and a Nano-Silver antibacterial layer give the tank reliable, compliant performance for residential and institutional use.",
+      "Poddar's 2-Layer tank is rotomoulded from virgin, food-grade polyethylene for safe, untainted water storage. UV-stabilized construction and a Nano-Silver antibacterial layer give the tank reliable performance for residential and institutional use.",
     features: [
-      "ISI certified, compliant with government and industry standards",
+      "Two-layer construction with a food-grade inner layer",
       "Rotational moulded polyethylene construction",
       "UV-stabilized for outdoor durability",
       "Anti-Bacterial layer with Nano-Silver technology",
     ],
     benefits: [
       "Made from 100% virgin, food-grade plastic",
-      "Anti-Viral, Anti-Algae and Anti-Fungal compliance",
-      "Consistent quality backed by ISI certification",
+      "Designed for anti-viral, anti-algae and anti-fungal performance",
+      "Consistent quality from in-house batch checks",
       "Robust, dependable solution for everyday water storage",
     ],
     specs: [
-      { label: "Certification", value: "ISI Certified" },
+      { label: "Layer construction", value: "2-layer (UV-stabilized outer, food-grade inner)" },
       { label: "Capacity range", value: "500L – 5,000L" },
       { label: "Colour", value: "Black only" },
       { label: "Manhole diameter", value: "400mm (up to 1500L), 470mm (2000L and above)" },
@@ -350,7 +352,7 @@ export const products: Product[] = [
     sizes: ["500L", "700L", "1000L", "1500L", "2000L", "3000L", "5000L"],
     applications: [
       "Residential rooftop water storage",
-      "Government & institutional projects requiring ISI compliance",
+      "Government & institutional water storage",
       "Commercial building water storage",
     ],
     materials: ["Virgin, food-grade polyethylene", "Nano-Silver antibacterial additive"],
@@ -361,8 +363,8 @@ export const products: Product[] = [
       "Clean the tank interior every 6 months to maintain water quality.",
     ],
     faqs: [
-      { question: "Why choose the ISI-certified tank?", answer: "It's manufactured in full compliance with government and industry regulations, useful where ISI certification is a project or tender requirement." },
-      { question: "What colour options are available?", answer: "The ISI 2-layer tank is available only in black." },
+      { question: "Why choose the 2-layer tank?", answer: "It's a robust, economical option for everyday storage, rotomoulded from virgin food-grade polyethylene with a Nano-Silver antibacterial layer and sizes from 500L to 5000L." },
+      { question: "What colour options are available?", answer: "The 2-layer tank is available only in black." },
     ],
     icon: "cylinder",
   },

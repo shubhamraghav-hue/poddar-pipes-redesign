@@ -6,13 +6,25 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Counter } from "@/components/shared/Counter";
 import { Facilities } from "@/components/about/Facilities";
 import { CTASection } from "@/components/home/CTASection";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Manufacturing Excellence",
-  description:
-    "Explore Poddar Pipes' manufacturing facilities, automation, testing labs, warehousing, and logistics network across India.",
-  alternates: { canonical: "/manufacturing" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/manufacturing",
+    title: locale === "en" ? "Manufacturing Excellence" : t("nav.navManufacturingExcellence"),
+    description: "Explore Poddar Pipes' manufacturing facilities, automation, testing labs, warehousing, and logistics network across India.",
+  });
+}
 
 const CAPABILITY_ICONS = [Cog, ScanLine, FlaskConical, Warehouse, Truck, Factory];
 

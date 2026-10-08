@@ -67,13 +67,23 @@ export function SectionHeading({
       <Heading
         className={cn(
           // 28px at base is the MOBILE frame's heading size (home node
-          // 1311:11088, which uses it for every section heading); the
-          // 36/48px steps above it are the desktop scale and are unchanged.
-          // It was `text-3xl` (30px), so mobile headings across the site come
-          // down 2px — this component is the single place the global heading
-          // spec lives, so the alternative was per-section overrides that
-          // would leave the home page 2px off every other page on a phone.
-          "max-w-2xl font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] sm:text-4xl md:text-5xl",
+          // 1447:12968 / 1447:12965 / 1447:13015, which use it for every
+          // section heading); the 36/48px steps above it are the desktop scale
+          // and are unchanged. It was `text-3xl` (30px), so mobile headings
+          // across the site come down 2px — this component is the single place
+          // the global heading spec lives, so the alternative was per-section
+          // overrides that would leave the home page 2px off every other page
+          // on a phone.
+          //
+          // LEADING AND TRACKING ARE ALSO PER-BREAKPOINT, and that is the part
+          // that was wrong rather than the size. The mobile nodes set 102% and
+          // +0.2088px against the desktop spec's 108% and +0.32px; both were
+          // running at the desktop pair, which opened every mobile heading up
+          // by 1.7px a line and spread its letters. Measured against Figma the
+          // SIZE was already exact at 28px — the headings read as slightly
+          // small because the looser leading made the block airier, not
+          // because the type was smaller.
+          "max-w-2xl font-display text-[28px] uppercase leading-[1.02] tracking-[0.2088px] sm:text-4xl sm:leading-[1.08] sm:tracking-[0.32px] md:text-5xl",
           animate ? "text-pretty" : "text-balance",
           dark ? "text-white" : titleColorClassName ?? "text-[#4a4a4a]"
         )}

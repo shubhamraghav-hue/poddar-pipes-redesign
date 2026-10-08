@@ -25,7 +25,9 @@ export default async function NotFound() {
             asChild
             size="lg"
             variant="accent"
-            className="w-full shadow-[0_10px_40px_-8px_rgba(242,128,0,0.6)] hover:-translate-y-0.5"
+            // Navy (text-ink) on orange, pinned here as well as in the
+            // variant: white on #f5951f fails WCAG contrast.
+            className="w-full text-ink shadow-[0_10px_40px_-8px_rgba(242,128,0,0.6)] hover:-translate-y-0.5"
           >
             <Link href="/">{t("backButton")}</Link>
           </Button>

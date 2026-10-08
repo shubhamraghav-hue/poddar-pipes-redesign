@@ -2,57 +2,31 @@
 
 import { CheckCircle2, Download, Ruler, HelpCircle, Pipette, Flame, Network, Waves, Cylinder, Sprout, LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { InquiryForm } from "@/components/contact/InquiryForm";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { FeaturePill } from "@/components/shared/FeaturePill";
-import { GoldStamp } from "@/components/shared/GoldStamp";
 import { getFeatureTags } from "@/lib/productTags";
 import type { Product } from "@/types";
 
-function downloadDatasheet(product: Product) {
-  const content = `PODDAR PIPES
-Technical Datasheet (Sample)
-
-Product: ${product.name}
-Category: ${product.categoryLabel}
-
-Overview
-${product.description}
-
-Features
-${product.features.map((f) => `- ${f}`).join("\n")}
-
-Benefits
-${product.benefits.map((b) => `- ${b}`).join("\n")}
-
-Specifications
-${product.specs.map((s) => `- ${s.label}: ${s.value}`).join("\n")}
-
-Available Sizes
-${product.sizes.join(", ")}
-
-Applications
-${product.applications.map((a) => `- ${a}`).join("\n")}
-
-Installation Guide
-${product.installationGuide.map((step, i) => `${i + 1}. ${step}`).join("\n")}
-
-This is a sample datasheet generated for demonstration purposes.
-`;
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${product.slug}-datasheet.txt`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
+/**
+ * The product's real catalogue PDF (public/downloads), by category. This
+ * replaced a "Download Datasheet" button that generated a .txt file marked
+ * "sample … for demonstration purposes". CPVC has no web-ready catalogue yet
+ * (see lib/data/blog.ts), so its pages show no download until one exists.
+ */
+const CATALOGUE_BY_CATEGORY: Partial<Record<Product["category"], string>> = {
+  "upvc-pipes": "/downloads/poddar-upvc-gold-catalogue.pdf",
+  "swr-pipes": "/downloads/poddar-swr-gold-catalogue.pdf",
+  "ugd-pipes": "/downloads/poddar-ugd-gold-catalogue.pdf",
+  "agricultural-pipes": "/downloads/poddar-agri-gold-catalogue.pdf",
+  tanks: "/downloads/poddar-water-tanks-catalogue.pdf",
+};
 const iconMap: Record<Product["icon"], LucideIcon> = {
   pipette: Pipette,
   flame: Flame,
@@ -63,9 +37,10 @@ const iconMap: Record<Product["icon"], LucideIcon> = {
 };
 export function ProductDetail({ product }: { product: Product }) {
   const t = useTranslations("products");
+  const tHome = useTranslations("home");
   const Icon = iconMap[product.icon];
   const featureTags = getFeatureTags(product);
-  const standardSpec = product.specs.find((s) => s.label === "Standard" || s.label === "Certification");
+  const standardSpec = product.specs.find((s) => s.label === "Standard");
 
   return (
     <>
@@ -78,7 +53,10 @@ export function ProductDetail({ product }: { product: Product }) {
               </div>
               <Badge variant="dark">{product.categoryLabel}</Badge>
             </div>
-            <h1 className="mt-6 max-w-2xl text-balance font-display text-3xl font-medium leading-tight sm:text-4xl md:text-5xl">
+            {/* `text-white` is explicit: the global h1–h4 rule (globals.css) sets
+                slate-900, and without it the product name rendered dark navy
+                on this navy hero — invisible on every product page. */}
+            <h1 className="mt-6 max-w-2xl text-balance font-display text-3xl font-medium leading-tight text-white sm:text-4xl md:text-5xl">
               {product.name}
             </h1>
             <p className="mt-5 max-w-xl text-balance text-lg text-slate-300">
@@ -94,11 +72,27 @@ export function ProductDetail({ product }: { product: Product }) {
               </div>
             )}
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button onClick={() => downloadDatasheet(product)}>
-                <Download className="h-4 w-4" /> {t("downloadDatasheet")}
-              </Button>
+              {/* White on the navy hero — the default navy fill barely
+                  separated from the background. */}
+              {CATALOGUE_BY_CATEGORY[product.category] && (
+                <Button asChild variant="primary-on-dark">
+                  <a href={CATALOGUE_BY_CATEGORY[product.category]} download>
+                    <Download className="h-4 w-4" /> {tHome("ctaSecondaryHome")}
+                  </a>
+                </Button>
+              )}
               <Button variant="outline-light" asChild>
-                <a href="#inquiry">{t("requestQuote")}</a>
+                {/* Opens the enquiry pop-up with the product named. The
+                    inline form further down stays for people who scroll. */}
+                <EnquiryLink
+                  href="/contact"
+                  preset={{
+                    enquiryType: "Sales & Pricing",
+                    message: `I'd like a quote for ${product.name}.`,
+                  }}
+                >
+                  {t("requestQuote")}
+                </EnquiryLink>
               </Button>
             </div>
           </RevealOnScroll>
@@ -109,11 +103,13 @@ export function ProductDetail({ product }: { product: Product }) {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
           <div>
             <Tabs defaultValue="overview">
-              <TabsList>
-                <TabsTrigger value="overview">{t("tabOverview")}</TabsTrigger>
-                <TabsTrigger value="specs">{t("tabSpecs")}</TabsTrigger>
-                <TabsTrigger value="installation">{t("tabInstallation")}</TabsTrigger>
-                <TabsTrigger value="faqs">{t("tabFaqs")}</TabsTrigger>
+              {/* An even 2×2 on phones — free-wrapping left "FAQs" alone on a
+                  second row. 40px-tall triggers for touch. */}
+              <TabsList className="grid w-full grid-cols-2 rounded-[24px] sm:inline-flex sm:w-auto sm:rounded-full">
+                <TabsTrigger value="overview" className="min-h-10">{t("tabOverview")}</TabsTrigger>
+                <TabsTrigger value="specs" className="min-h-10">{t("tabSpecs")}</TabsTrigger>
+                <TabsTrigger value="installation" className="min-h-10">{t("tabInstallation")}</TabsTrigger>
+                <TabsTrigger value="faqs" className="min-h-10">{t("tabFaqs")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview">
@@ -158,10 +154,15 @@ export function ProductDetail({ product }: { product: Product }) {
 
               <TabsContent value="specs">
                 {standardSpec && (
-                  <div className="mb-8 flex items-center gap-4">
-                    <GoldStamp label="ISI / Standard" sublabel={standardSpec.value} />
-                    <p className="text-sm leading-relaxed text-slate-600">
-                      Manufactured and tested to {standardSpec.value}.
+                  // A plain note, not a GoldStamp seal: the company holds no
+                  // certifications (client, Oct 2026), and a seal reads as one.
+                  // Phrase as design intent only — never "certified/compliant".
+                  <div className="mb-8 rounded-[25px] border border-slate-200/70 bg-white p-5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-[#171796]">
+                      Design standard
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                      Designed and manufactured to {standardSpec.value} specifications.
                     </p>
                   </div>
                 )}
@@ -215,6 +216,17 @@ export function ProductDetail({ product }: { product: Product }) {
                     </li>
                   ))}
                 </ol>
+                {/* The guide used to be reachable only from /resources, which
+                    was removed — this is now its way in. */}
+                <Link
+                  href="/resources/installation"
+                  className="mt-6 inline-flex items-center gap-1.5 py-3 text-sm font-medium text-ocean-700 hover:text-ocean-800"
+                >
+                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    Full solvent-weld installation guide
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </Link>
               </TabsContent>
 
               <TabsContent value="faqs">

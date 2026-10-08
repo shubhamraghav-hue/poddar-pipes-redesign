@@ -4,13 +4,25 @@ import { AboutHero } from "@/components/about/AboutHero";
 import { Assurances } from "@/components/about/Assurances";
 import { LegacyStory } from "@/components/home/LegacyStory";
 import { CTASection } from "@/components/home/CTASection";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "About Us — Our Story, Vision & Quality Assurances",
-  description:
-    "Five decades of Poddar Pipes: the vision and mission behind the company, the ten assurances behind every product, and the milestones from 1975 to today.",
-  alternates: { canonical: "/about" },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // English title/description are the page's own copy. There are no
+  // per-page meta keys in messages/*.json yet, so other locales reuse the
+  // page's translated nav label as the title; the description stays English.
+  const t = await getTranslations({ locale });
+  return buildPageMetadata({
+    locale,
+    path: "/about",
+    title: locale === "en" ? "About Us — Our Story, Vision & Quality Assurances" : t("nav.about"),
+    description: "Five decades of Poddar Pipes: the vision and mission behind the company, the ten assurances behind every product, and the milestones from 1975 to today.",
+  });
+}
 
 /**
  * Figma "About Us 1" (node 1001:5531). Section order is the mock's own,

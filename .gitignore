@@ -22,3 +22,5 @@ public/_alpha-packed-test.html
 # Screenshots emitted by scripts/webkit-hero-check.mjs when run without an outDir.
 hero-webkit.png
 hero-chromium.png
+# The template of env var names (no secrets) is meant to be committed.
+!.env.example

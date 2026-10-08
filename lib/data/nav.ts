@@ -10,7 +10,12 @@ export interface MegaMenuColumn {
 
 export interface NavItem {
   key: string;
-  href: string;
+  /**
+   * Omitted for a pure menu label: "Resources" opens its dropdown but is not
+   * a page (client decision 2026-10-08 — /resources was removed and now
+   * redirects to /articles).
+   */
+  href?: string;
   megaMenu?: MegaMenuColumn[];
 }
 
@@ -72,7 +77,6 @@ export const navItems: NavItem[] = [
   // { key: "industries", href: "/industries" },
   {
     key: "resources",
-    href: "/resources",
     megaMenu: [
       {
         heading: "navResources",
