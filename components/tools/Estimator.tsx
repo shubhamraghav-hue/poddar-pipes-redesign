@@ -407,7 +407,6 @@ function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
                   aria-label="Contact us about this estimate"
                   className={ACTION_BUTTON}
                   preset={{
-                    enquiryType: "Sales & Pricing",
                     message: estimateSummary(tab, steppers, counts, pipeType, result.grandTotal),
                   }}
                 >
@@ -845,7 +844,7 @@ function MaterialList({
           quantities and a quote.
         </p>
         <EnquiryLink
-          preset={{ enquiryType: "Sales & Pricing", message: enquiryMessage }}
+          preset={{ message: enquiryMessage }}
           className="flex h-[46px] shrink-0 touch-manipulation select-none items-center justify-center rounded-full bg-[#f28000] px-6 text-[16px] font-semibold uppercase tracking-[0.3px] text-[#0b0b52] transition-[filter] hover:brightness-95"
         >
           <span className={CAP_TRIM}>Get a quote</span>

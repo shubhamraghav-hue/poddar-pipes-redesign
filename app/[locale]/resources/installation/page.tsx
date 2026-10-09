@@ -54,8 +54,8 @@ export default async function InstallationGuidePage({
   return (
     <>
       {/* A slim brand-colour strip exactly matching the fixed navbar's height
-          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
-          for the pattern this follows sitewide. */}
+          (h-20) — not a hero; the same strip opens every inner page that has no
+          hero of its own. */}
       <div className="h-20 bg-ink" aria-hidden="true" />
       <section className="container-edge pt-10 pb-8 md:pt-12">
         <SectionHeading

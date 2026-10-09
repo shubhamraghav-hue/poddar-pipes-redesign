@@ -150,13 +150,6 @@ export interface BentoFeature {
   size: "sm" | "md" | "lg";
 }
 
-export interface Plumber {
-  id: string;
-  name: string;
-  phone: string;
-  pincode: string;
-}
-
 /** One paragraph, or a bulleted list, within a legal-page section. */
 export type LegalBlock = string | { list: string[] };
 

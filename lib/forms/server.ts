@@ -9,17 +9,21 @@ import {
 /**
  * Server half of the form contract, shared by every route under app/api/:
  * body parsing, spam checks, validation helpers, a per-IP rate limit, and
- * delivery through Resend's HTTP API (plain `fetch` — no SDK dependency).
+ * DELIVERY to one or both channels (plain `fetch`, no SDKs):
  *
- * Environment (see .env.example):
- *   RESEND_API_KEY      Resend API key
- *   ENQUIRY_TO_EMAIL    inbox(es) that receive submissions, comma-separated
- *   ENQUIRY_FROM_EMAIL  sender on a domain verified in Resend,
- *                       e.g. "Poddar Pipes Website <website@poddarpipes.com>"
+ *   Google Sheet  every submission becomes a row (one tab per form) and the
+ *                 sheet's Apps Script emails it on — see
+ *                 integrations/google-sheets/ (Code.gs + README.md).
+ *                   SHEETS_WEBHOOK_URL     the Apps Script web-app /exec URL
+ *                   SHEETS_WEBHOOK_SECRET  shared secret (Script Property SECRET)
+ *   Resend email  optional second channel.
+ *                   RESEND_API_KEY, ENQUIRY_TO_EMAIL, ENQUIRY_FROM_EMAIL
  *
- * Without them, development logs the submission and answers
- * `{ ok: true, simulated: true }`; production answers 503 `not_configured`.
- * Production NEVER reports a success that did not reach an inbox.
+ * A submission succeeds when AT LEAST ONE configured channel accepts it (the
+ * other's failure is logged). With no channel configured, development logs
+ * the submission and answers `{ ok: true, simulated: true }`; production
+ * answers 503 `not_configured`. Production NEVER reports a success that was
+ * not stored or sent anywhere.
  */
 
 /** Hard cap on a request body. The longest legitimate form is well under 8 KB. */
@@ -177,6 +181,31 @@ export class Validator {
     return digits;
   }
 
+  /** Optional website / social page: "example.com", "https://…", "instagram.com/x". */
+  url(name: string, label: string) {
+    const v = this.text(name, { max: 200, label });
+    if (v && !/^(https?:\/\/)?[^\s.\/]+\.[^\s]{2,}$/i.test(v)) {
+      this.fields[name] = "Please enter a website or social page address, e.g. example.com.";
+      return "";
+    }
+    return v;
+  }
+
+  /**
+   * Phone / WhatsApp for any country: 7–15 digits, optional leading +.
+   * (Indian numbers go through `mobile` for the stricter 10-digit rule.)
+   */
+  phoneIntl(name: string, label: string) {
+    const v = this.text(name, { required: true, max: 24, label });
+    if (!v) return v;
+    const digits = v.replace(/[\s\-().]/g, "");
+    if (!/^\+?\d{7,15}$/.test(digits)) {
+      this.fields[name] = "Please enter a valid phone / WhatsApp number with country code.";
+      return "";
+    }
+    return digits;
+  }
+
   pincode(name: string) {
     const v = this.text(name, { max: 6, label: "Pincode" });
     if (v && !/^\d{6}$/.test(v)) this.fields[name] = "Pincode must be 6 digits.";
@@ -199,7 +228,12 @@ export class Validator {
 
 /* ---------------------------------------------------------------- delivery */
 
+/** The sheet tab a submission lands in (the Apps Script accepts only these). */
+export type FormTab = "Enquiries" | "Partners" | "Newsletter";
+
 export type Mail = {
+  /** Which form — the Google Sheet tab, and context in the email. */
+  form: FormTab;
   subject: string;
   /** Rows of the email body, in order. Empty values are shown as "—". */
   rows: [label: string, value: string][];
@@ -232,27 +266,46 @@ ${mail.rows
   return { text, html };
 }
 
-/**
- * Send through Resend, or simulate in development. Returns the response the
- * route should give.
- */
-export async function deliver(mail: Mail): Promise<NextResponse> {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const to = (process.env.ENQUIRY_TO_EMAIL ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const from = process.env.ENQUIRY_FROM_EMAIL?.trim();
+type ChannelResult = { channel: "sheet" | "email"; ok: boolean };
 
-  if (!apiKey || to.length === 0 || !from) {
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[forms] Email not configured — simulated delivery:\n", JSON.stringify(mail, null, 2));
-      return json({ ok: true, simulated: true });
+/** POST the submission to the Google Sheet's Apps Script web app. */
+async function toSheet(mail: Mail, url: string, secret: string): Promise<ChannelResult> {
+  try {
+    // Apps Script answers the POST with a 302 to a googleusercontent.com URL
+    // that serves the JSON reply; `fetch` follows it (as a GET, which is what
+    // Google expects). The row is written during the POST itself.
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secret,
+        form: mail.form,
+        subject: mail.subject.replace(/[\r\n]+/g, " ").slice(0, 200),
+        replyTo: mail.replyTo ?? "",
+        rows: mail.rows,
+      }),
+      redirect: "follow",
+      signal: AbortSignal.timeout(15_000),
+    });
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      error?: string;
+      mailError?: string | null;
+    } | null;
+    if (!res.ok || !body?.ok) {
+      console.error("[forms] Google Sheet rejected the submission:", res.status, body?.error ?? "(no JSON reply)");
+      return { channel: "sheet", ok: false };
     }
-    console.error("[forms] RESEND_API_KEY / ENQUIRY_TO_EMAIL / ENQUIRY_FROM_EMAIL missing — submission NOT delivered.");
-    return fail("not_configured", 503);
+    if (body.mailError) console.error("[forms] Row saved, but the sheet's notification email failed:", body.mailError);
+    return { channel: "sheet", ok: true };
+  } catch (err) {
+    console.error("[forms] Google Sheet request failed:", err);
+    return { channel: "sheet", ok: false };
   }
+}
 
+/** Send the submission as an email through Resend. */
+async function toEmail(mail: Mail, apiKey: string, to: string[], from: string): Promise<ChannelResult> {
   const { text, html } = render(mail);
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -271,11 +324,45 @@ export async function deliver(mail: Mail): Promise<NextResponse> {
     });
     if (!res.ok) {
       console.error("[forms] Resend rejected the email:", res.status, await res.text().catch(() => ""));
-      return fail("delivery_failed", 502);
+      return { channel: "email", ok: false };
     }
-    return json({ ok: true });
+    return { channel: "email", ok: true };
   } catch (err) {
     console.error("[forms] Resend request failed:", err);
-    return fail("delivery_failed", 502);
+    return { channel: "email", ok: false };
   }
+}
+
+/**
+ * Deliver to every configured channel in parallel, or simulate in
+ * development. Returns the response the route should give.
+ */
+export async function deliver(mail: Mail): Promise<NextResponse> {
+  const sheetUrl = process.env.SHEETS_WEBHOOK_URL?.trim();
+  const sheetSecret = process.env.SHEETS_WEBHOOK_SECRET?.trim();
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const to = (process.env.ENQUIRY_TO_EMAIL ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const from = process.env.ENQUIRY_FROM_EMAIL?.trim();
+
+  const jobs: Promise<ChannelResult>[] = [];
+  if (sheetUrl && sheetSecret) jobs.push(toSheet(mail, sheetUrl, sheetSecret));
+  if (apiKey && to.length > 0 && from) jobs.push(toEmail(mail, apiKey, to, from));
+
+  if (jobs.length === 0) {
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[forms] No delivery channel configured — simulated delivery:\n", JSON.stringify(mail, null, 2));
+      return json({ ok: true, simulated: true });
+    }
+    console.error(
+      "[forms] No delivery channel configured (SHEETS_WEBHOOK_URL + SHEETS_WEBHOOK_SECRET, or RESEND_API_KEY + ENQUIRY_TO_EMAIL + ENQUIRY_FROM_EMAIL) — submission NOT delivered."
+    );
+    return fail("not_configured", 503);
+  }
+
+  const results = await Promise.all(jobs);
+  if (results.some((r) => r.ok)) return json({ ok: true });
+  return fail("delivery_failed", 502);
 }

@@ -81,8 +81,8 @@ export default async function ProductDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(getBreadcrumbSchema(breadcrumbItems)) }}
       />
       {/* A slim brand-colour strip exactly matching the fixed navbar's height
-          (h-20) — not a hero. See /tools/find-a-plumber (PlumberFinder.tsx)
-          for the pattern this follows sitewide. */}
+          (h-20) — not a hero; the same strip opens every inner page that has no
+          hero of its own. */}
       <div className="h-20 bg-ink" aria-hidden="true" />
       <div className="container-edge pb-4 pt-6">
         <Breadcrumbs items={breadcrumbItems} />

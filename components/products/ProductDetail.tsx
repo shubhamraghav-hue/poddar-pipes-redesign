@@ -5,10 +5,9 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
+import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { InquiryForm } from "@/components/contact/InquiryForm";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { FeaturePill } from "@/components/shared/FeaturePill";
 import { getFeatureTags } from "@/lib/productTags";
@@ -82,17 +81,11 @@ export function ProductDetail({ product }: { product: Product }) {
                 </Button>
               )}
               <Button variant="outline-light" asChild>
-                {/* Opens the enquiry pop-up with the product named. The
-                    inline form further down stays for people who scroll. */}
-                <EnquiryLink
-                  href="/contact"
-                  preset={{
-                    enquiryType: "Sales & Pricing",
-                    message: `I'd like a quote for ${product.name}.`,
-                  }}
-                >
-                  {t("requestQuote")}
-                </EnquiryLink>
+                {/* Opens the partner (dealers & distributors) form with the
+                    product named in the message. */}
+                <PartnerLink preset={{ message: `Interested in stocking ${product.name}.` }}>
+                  {t("becomePartner")}
+                </PartnerLink>
               </Button>
             </div>
           </RevealOnScroll>
@@ -247,15 +240,23 @@ export function ProductDetail({ product }: { product: Product }) {
             </Tabs>
           </div>
 
+          {/* Was an inline enquiry form (a fourth form on the site). The
+              client keeps three — Partner, Contact, Newsletter — so this is a
+              partner prompt that opens the same pop-up as the hero button. */}
           <div id="inquiry" className="scroll-mt-24">
-            <h3 className="font-display text-lg font-medium text-slate-900">
-              {t("quoteHeading", { name: product.name } as never)}
-            </h3>
-            <p className="mt-2 text-sm text-slate-600">
-              {t("quoteDesc")}
-            </p>
-            <div className="mt-6 rounded-3xl border border-slate-200/70 bg-white p-6">
-              <InquiryForm presetProduct={product.name} presetEnquiryType="Sales" compact />
+            <div className="rounded-3xl bg-[#0b0b52] p-6 text-white sm:p-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#f28000]">
+                {t("partnerEyebrow")}
+              </p>
+              <h3 className="mt-3 font-display text-2xl font-medium leading-tight text-white">
+                {t("partnerHeading", { name: product.name } as never)}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-[#c0c0c0]">{t("partnerDesc")}</p>
+              <Button asChild variant="accent-ink" className="mt-6 gap-2 text-[#0b0b52] hover:text-[#0b0b52]">
+                <PartnerLink preset={{ message: `Interested in stocking ${product.name}.` }}>
+                  {t("becomePartner")}
+                </PartnerLink>
+              </Button>
             </div>
           </div>
         </div>

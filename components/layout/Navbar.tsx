@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X, ArrowUpRight, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Handshake } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { setScrollLocked } from "@/hooks/useLenis";
-import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
+import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { navItems } from "@/lib/data/nav";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
@@ -203,13 +203,22 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <LanguageSwitcher dark={false} />
-          <Button asChild variant="primary" size="sm">
-            <EnquiryLink>
-              <span className="uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-                {t("requestQuote")}
+          {/* "Become a Partner" (was "Request a Quote", client 2026-10-09):
+              brand orange with navy text so it is the one warm accent in the
+              white bar, and a handshake that nudges on hover. Opens the
+              dealers & distributors form. */}
+          <Button
+            asChild
+            variant="accent-ink"
+            size="sm"
+            className="group gap-2 px-5 text-[#0b0b52] shadow-[0_6px_18px_-8px_rgba(242,128,0,0.8)] hover:text-[#0b0b52]"
+          >
+            <PartnerLink>
+              <Handshake aria-hidden="true" className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-rotate-12" />
+              <span className="font-semibold uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                {t("becomePartner")}
               </span>
-              {/* <ArrowUpRight className="h-4 w-4" /> */}
-            </EnquiryLink>
+            </PartnerLink>
           </Button>
         </div>
 
@@ -284,15 +293,15 @@ export function Navbar() {
                   )}
                 </div>
               ))}
-              <Button asChild className="mt-3" size="sm">
+              <Button asChild variant="accent-ink" className="mt-3 gap-2 text-[#0b0b52] hover:text-[#0b0b52]" size="sm">
                 {/* Closes the menu itself: the pop-up does not change the
                     route, which is what normally shuts it. */}
-                <EnquiryLink onClick={() => setOpen(false)}>
-                  <span className="uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-                    {t("requestQuote")}
+                <PartnerLink onClick={() => setOpen(false)}>
+                  <Handshake aria-hidden="true" className="h-4 w-4" />
+                  <span className="font-semibold uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                    {t("becomePartner")}
                   </span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </EnquiryLink>
+                </PartnerLink>
               </Button>
             </div>
           </motion.div>

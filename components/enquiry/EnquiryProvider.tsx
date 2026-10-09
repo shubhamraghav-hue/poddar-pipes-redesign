@@ -17,7 +17,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@/i18n/navigation";
 import { setScrollLocked } from "@/hooks/useLenis";
-import { EnquiryForm, type EnquiryPreset } from "@/components/enquiry/EnquiryForm";
+import { EnquiryForm, PartnerForm, type EnquiryPreset } from "@/components/enquiry/EnquiryForm";
 import { downloads } from "@/lib/data/blog";
 
 /**
@@ -31,6 +31,8 @@ import { downloads } from "@/lib/data/blog";
 
 type EnquiryContextValue = {
   open: (preset?: EnquiryPreset) => void;
+  /** The "Become a Partner" form — see `PartnerLink`. */
+  openPartner: (preset?: EnquiryPreset) => void;
   /** The catalogue picker — see `CatalogueLink`. */
   openCatalogues: () => void;
 };
@@ -46,6 +48,8 @@ const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
 export function EnquiryProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  // Which form the pop-up shows: the contact form, or "Become a Partner".
+  const [mode, setMode] = useState<"enquiry" | "partner">("enquiry");
   const [preset, setPreset] = useState<EnquiryPreset | undefined>();
   // Bumped per open so the form remounts: a fresh preset, cleared fields, and
   // no success screen left over from the last enquiry.
@@ -64,6 +68,15 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
 
   const open = useCallback((p?: EnquiryPreset) => {
     returnFocus.current = document.activeElement as HTMLElement | null;
+    setMode("enquiry");
+    setPreset(p);
+    setSession((n) => n + 1);
+    setIsOpen(true);
+  }, []);
+
+  const openPartner = useCallback((p?: EnquiryPreset) => {
+    returnFocus.current = document.activeElement as HTMLElement | null;
+    setMode("partner");
     setPreset(p);
     setSession((n) => n + 1);
     setIsOpen(true);
@@ -76,7 +89,7 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
     return () => setScrollLocked(false);
   }, [isOpen, cataloguesOpen]);
 
-  const value = useMemo(() => ({ open, openCatalogues }), [open, openCatalogues]);
+  const value = useMemo(() => ({ open, openPartner, openCatalogues }), [open, openPartner, openCatalogues]);
 
   const restoreFocus = (e: Event) => {
     e.preventDefault();
@@ -108,7 +121,7 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                 <DialogPrimitive.Content
                   asChild
                   forceMount
-                  aria-describedby={undefined}
+                  {...(mode === "enquiry" ? { "aria-describedby": undefined } : {})}
                   // The opener can be gone by now — a link in the mobile menu,
                   // which closes as the pop-up opens; `restoreFocus` falls back
                   // to the menu button rather than dropping focus on <body>.
@@ -131,7 +144,14 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                   >
                     {/* The mock has no visible heading; the dialog still needs
                         an accessible name. */}
-                    <DialogPrimitive.Title className="sr-only">Send us an enquiry</DialogPrimitive.Title>
+                    {mode === "enquiry" ? (
+                      <DialogPrimitive.Title className="sr-only">Send us an enquiry</DialogPrimitive.Title>
+                    ) : (
+                      // Accessible name for the partner pop-up; the visible
+                      // title + intro are rendered by PartnerForm (`intro`) so
+                      // they give way to the success screen after submit.
+                      <DialogPrimitive.Title className="sr-only">Become a Poddar Partner</DialogPrimitive.Title>
+                    )}
 
                     {/* Node 1606:11709: the 32px "add" glyph turned 45° in a
                         45px hit area, 9px in from the top-right corner. */}
@@ -150,12 +170,40 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                       </svg>
                     </DialogPrimitive.Close>
 
-                    <EnquiryForm
-                      key={session}
-                      variant="dialog"
-                      preset={preset}
-                      onDone={() => setIsOpen(false)}
-                    />
+                    {mode === "enquiry" ? (
+                      <EnquiryForm
+                        key={session}
+                        variant="dialog"
+                        preset={preset}
+                        onDone={() => setIsOpen(false)}
+                      />
+                    ) : (
+                      <PartnerForm
+                        key={session}
+                        preset={preset}
+                        onDone={() => setIsOpen(false)}
+                        intro={
+                          <div className="mb-10">
+                            <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#f28000]">
+                              Dealers &amp; Distributors
+                            </p>
+                            <p
+                              aria-hidden="true"
+                              className="mt-3 font-display text-[28px] uppercase leading-[1.08] text-[#4a4a4a] md:text-[36px]"
+                            >
+                              <span className="block font-light">Become a</span>
+                              <span className="block font-bold">Poddar Partner</span>
+                            </p>
+                            <DialogPrimitive.Description className="mt-4 text-[14px] leading-[1.5] text-[#606060] md:text-[15px]">
+                              Interested in partnering with us? We are always looking to expand our
+                              distribution network with reliable business partners. Please complete
+                              the form below, and our business development team will get back to you
+                              shortly.
+                            </DialogPrimitive.Description>
+                          </div>
+                        }
+                      />
+                    )}
                   </motion.div>
                 </DialogPrimitive.Content>
               </div>
@@ -305,6 +353,32 @@ export const EnquiryLink = forwardRef<
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
         enquiry.open(preset);
+      }}
+      {...props}
+    />
+  );
+});
+
+/**
+ * A "Become a Partner" CTA: opens the partner (dealers & distributors) form in
+ * the pop-up. A real link to /contact underneath, like `EnquiryLink`, so it
+ * still goes somewhere useful without JS or on a modified click.
+ */
+export const PartnerLink = forwardRef<
+  HTMLAnchorElement,
+  Omit<ComponentProps<typeof Link>, "href"> & { preset?: EnquiryPreset }
+>(function PartnerLink({ preset, onClick, ...props }, ref) {
+  const ctx = useEnquiry();
+  return (
+    <Link
+      ref={ref}
+      href="/contact"
+      onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+        onClick?.(e);
+        if (e.defaultPrevented || !ctx) return;
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        ctx.openPartner(preset);
       }}
       {...props}
     />

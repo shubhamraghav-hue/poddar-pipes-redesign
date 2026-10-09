@@ -15,10 +15,10 @@ import {
  *
  * Body: { email } plus the anti-spam fields (see lib/forms/shared.ts).
  *
- * There is no mailing-list provider yet, so a signup is delivered as a
- * "Newsletter signup" notification to the same inbox as enquiries
- * (ENQUIRY_TO_EMAIL); someone adds the address to the list by hand. Swap
- * `deliver` for the provider's API here when one is chosen.
+ * There is no mailing-list provider yet: a signup becomes a row on the
+ * "Newsletter" tab of the submissions sheet (plus a notification email), and
+ * that tab IS the list until a provider is chosen — then swap `deliver` for
+ * its API.
  *
  * Responses match /api/enquiry: 200 { ok: true } (or `simulated` in dev),
  * 400 / 413 / 429 / 502 / 503 with `{ ok: false, error, fields? }`.
@@ -48,6 +48,7 @@ export async function POST(req: Request) {
   if (waitNow) return rateLimited(waitNow);
 
   return deliver({
+    form: "Newsletter",
     subject: "Newsletter signup",
     replyTo: email,
     rows: [

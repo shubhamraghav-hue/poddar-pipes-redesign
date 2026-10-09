@@ -3,9 +3,8 @@ import { routing } from "@/i18n/routing";
 import { products } from "@/lib/data/products";
 import { SITE_URL, localizedPath } from "@/lib/seo";
 
-// Every real, public route. /tools/find-a-plumber is deliberately absent —
-// it's switched off (see that page) — and so is /products/category/* (those
-// redirect to /products, see next.config.ts).
+// Every real, public route. /products/category/* is deliberately absent (it
+// redirects to /products, see next.config.ts).
 const staticRoutes = [
   "/",
   "/about",

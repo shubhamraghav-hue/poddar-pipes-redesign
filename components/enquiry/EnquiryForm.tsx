@@ -11,7 +11,13 @@ import { Button } from "@/components/ui/button";
 import { CAP_TRIM } from "@/components/shared/capTrim";
 import { Honeypot } from "@/components/shared/Honeypot";
 import { cn } from "@/lib/utils";
-import { ENQUIRY_TYPES } from "@/lib/forms/shared";
+import {
+  ENQUIRY_TYPES,
+  INDIAN_STATES,
+  PARTNER_BUSINESS_TYPES,
+  PARTNER_COUNTRIES,
+  PARTNER_YEARS,
+} from "@/lib/forms/shared";
 import {
   OFFICE_CONTACT,
   honeypotValue,
@@ -28,8 +34,8 @@ import {
 } from "@/components/ui/select";
 
 /**
- * The site's enquiry form — Name / Email / Mobile / Company / City / Pincode /
- * Enquiry type / Message. ONE field set, two places:
+ * The site's contact form — Name / Email / Mobile / Company / City / Pincode /
+ * Message. ONE field set, two places:
  *
  *   variant="page"    the form on /contact (node 1606:11568), styled exactly as
  *                     it was when it lived inside `SendMessage`
@@ -38,22 +44,22 @@ import {
  *                     10 with a `#c0c0c0` stroke, and the pop-up's own vertical
  *                     rhythm — 40 between groups, 32 above Submit
  *
- * `preset` pre-fills the enquiry type and message (a product page asks about
- * that product; the estimator sends its estimate). The caller remounts the form
- * with a new `key` per open, so a preset never leaks into the next enquiry.
+ * NO enquiry-type field (client, 2026-10-09): every submission is recorded as
+ * "General" in the sheet. `preset` pre-fills the message (the estimator sends
+ * its material list). The caller remounts the form with a new `key` per open,
+ * so a preset never leaks into the next enquiry.
  *
  * Submission posts to /api/enquiry (`kind: "enquiry"`), for BOTH surfaces.
  * The success panel shows ONLY on the server's `ok: true`; anything else —
  * network down, a field the server rejected, rate limit, email not
  * configured — keeps the form (and everything typed into it) on screen with
- * an inline error. The enquiry types live in lib/forms/shared.ts so the server
- * validates against the same list.
+ * an inline error.
  */
 
 export { ENQUIRY_TYPES };
 
 export type EnquiryType = (typeof ENQUIRY_TYPES)[number];
-export type EnquiryPreset = { enquiryType?: EnquiryType; message?: string };
+export type EnquiryPreset = { message?: string };
 
 type Status = "idle" | "submitting" | "success";
 type SubmitError = Extract<SubmitResult, { ok: false }>;
@@ -120,8 +126,6 @@ export function EnquiryForm({
   onDone?: () => void;
 }) {
   const [status, setStatus] = useState<Status>("idle");
-  const [enquiryType, setEnquiryType] = useState<string>(preset?.enquiryType ?? "");
-  const [typeMissing, setTypeMissing] = useState(false);
   const [sent, setSent] = useState<SentSummary | null>(null);
   // Server-side field messages, keyed by field name, and the form-level error
   // shown above Submit. Both clear as the visitor edits / resubmits.
@@ -140,14 +144,6 @@ export function EnquiryForm({
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Checked by hand: Radix's hidden native <select> reports itself VALID
-    // while empty, so `required` alone never stopped a submit — the form went
-    // through with no enquiry type.
-    if (!enquiryType) {
-      setTypeMissing(true);
-      document.getElementById(fid("enquiryType"))?.focus();
-      return;
-    }
     const form = e.currentTarget;
     const data = new FormData(form);
     const str = (k: string) => String(data.get(k) ?? "");
@@ -164,7 +160,6 @@ export function EnquiryForm({
         company: str("company"),
         city: str("city"),
         pincode: str("pincode"),
-        enquiryType,
         message: str("message"),
       },
       { honeypot: honeypotValue(form), renderedAt: renderedAt.current }
@@ -190,7 +185,7 @@ export function EnquiryForm({
     setSent({
       firstName: String(data.get("name") ?? "").trim().split(/\s+/)[0] ?? "",
       email: String(data.get("email") ?? "").trim(),
-      enquiryType,
+      enquiryType: "General",
     });
     setStatus("success");
   }
@@ -204,7 +199,6 @@ export function EnquiryForm({
         onDone={onDone}
         onAgain={() => {
           setSent(null);
-          setEnquiryType("");
           setStatus("idle");
         }}
       />
@@ -323,52 +317,6 @@ export function EnquiryForm({
         </Field>
       </div>
 
-      <Field id={fid("enquiryType")} label="Select Type Of Enquiry" required labelClass={s.label}>
-        <Select
-          value={enquiryType}
-          onValueChange={(v) => {
-            setEnquiryType(v);
-            setTypeMissing(false);
-            setFieldErrors(({ enquiryType: _cleared, ...rest }) => rest);
-          }}
-          name="enquiryType"
-          required
-        >
-          <SelectTrigger
-            id={fid("enquiryType")}
-            aria-invalid={typeMissing || !!fieldErrors.enquiryType || undefined}
-            aria-describedby={typeMissing || fieldErrors.enquiryType ? fid("enquiryType-error") : undefined}
-            className={cn(s.select, (typeMissing || fieldErrors.enquiryType) && "border-[#d92d20]")}
-          >
-            {/* Cap-trimmed: the label sat 2.7px high in the 46px trigger.
-                Through `placeholder`, not `className` — Radix's Value
-                destructures `className` and drops it. A chosen value shows the
-                SelectItem's own trimmed span below, so both states are
-                covered. */}
-            <SelectValue placeholder={<span className={`block ${CAP_TRIM}`}>Choose</span>} />
-          </SelectTrigger>
-          {/* `z-[70]`: the options portal to <body> at the primitive's z-50,
-              UNDER the enquiry dialog's z-60 overlay — in the pop-up the
-              overlay swallowed every click and no type could be chosen. */}
-          <SelectContent className="z-[70]">
-            {ENQUIRY_TYPES.map((type) => (
-              <SelectItem key={type} value={type} className="min-h-9">
-                {/* `block`: Radix wraps this in its own ItemText span, and the
-                    trim needs a block box to act on. Was 1.5–2.5px high in
-                    each 36px row. `min-h-9` holds the row at 36: trimming the
-                    label took its line box with it and the rows collapsed to 25. */}
-                <span className={`block ${CAP_TRIM}`}>{type}</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {(typeMissing || fieldErrors.enquiryType) && (
-          <p id={fid("enquiryType-error")} role="alert" className="text-[13px] leading-4 text-[#d92d20]">
-            {typeMissing ? "Please choose a type of enquiry." : fieldErrors.enquiryType}
-          </p>
-        )}
-      </Field>
-
       <Field id={fid("message")} label="Message" labelClass={s.label} {...fieldError("message")}>
         <Textarea
           id={fid("message")}
@@ -435,6 +383,325 @@ export function EnquiryForm({
         )}
       </Button>
     </form>
+  );
+}
+
+/**
+ * "Become a Partner" — the Dealers & Distributors enquiry (client brief "PP
+ * Forms", 2026-10-09). Opened by every `PartnerLink` (navbar CTA, product
+ * pages, the /products strip, CTA bands); lives in the global pop-up.
+ *
+ * Three groups, as the brief orders them: contact & company, location &
+ * business profile, the enquiry itself. Country defaults to India, which turns
+ * State into a dropdown of states/UTs (the brief asks for one); any other
+ * country gets a free-text State / Region, and "Other" reveals a country
+ * field. Same controls, styles, error handling and success screen as the
+ * contact form, posted to /api/enquiry as `kind: "partner"` → the sheet's
+ * "Partners" tab.
+ *
+ * The website field is `companyWebsite`, NOT `website` — that name is the
+ * honeypot, and a real partner who filled it would be dropped as a bot.
+ */
+export function PartnerForm({
+  preset,
+  onDone,
+  intro,
+}: {
+  preset?: EnquiryPreset;
+  onDone?: () => void;
+  /** Title + intro shown above the form; hidden once it has been sent. */
+  intro?: ReactNode;
+}) {
+  const [status, setStatus] = useState<Status>("idle");
+  const [sent, setSent] = useState<SentSummary | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<SubmitError | null>(null);
+  const [country, setCountry] = useState<string>("India");
+  const [state, setState] = useState<string>("");
+  const [businessType, setBusinessType] = useState<string>("");
+  const [years, setYears] = useState<string>("");
+  const renderedAt = useRenderedAt();
+  const s = STYLES.dialog;
+  const uid = useId();
+  const fid = (name: string) => `${uid}-${name}`;
+  const india = country === "India";
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    // Radix's hidden <select> reports VALID while empty, so the required
+    // dropdowns are checked by hand (as the contact form's type field was).
+    const missing: Record<string, string> = {};
+    if (india && !state) missing.state = "Please choose your state.";
+    if (!businessType) missing.businessType = "Please choose your business type.";
+    if (Object.keys(missing).length) {
+      setFieldErrors((f) => ({ ...f, ...missing }));
+      document.getElementById(fid(Object.keys(missing)[0]))?.focus();
+      return;
+    }
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const str = (k: string) => String(data.get(k) ?? "");
+    setStatus("submitting");
+    setFormError(null);
+    setFieldErrors({});
+    const result = await submitForm(
+      "/api/enquiry",
+      {
+        kind: "partner",
+        name: str("name"),
+        company: str("company"),
+        email: str("email"),
+        phone: str("phone"),
+        companyWebsite: str("companyWebsite"),
+        country,
+        countryOther: str("countryOther"),
+        state: india ? state : str("state"),
+        city: str("city"),
+        businessType,
+        yearsInBusiness: years,
+        coverage: str("coverage"),
+        message: str("message"),
+      },
+      { honeypot: honeypotValue(form), renderedAt: renderedAt.current }
+    );
+    if (!result.ok) {
+      setStatus("idle");
+      setFormError(result);
+      const fields = result.fields ?? {};
+      setFieldErrors(fields);
+      const first = Object.keys(fields)[0];
+      if (first) document.getElementById(fid(first))?.focus();
+      return;
+    }
+    setSent({
+      firstName: str("name").trim().split(/\s+/)[0] ?? "",
+      email: str("email").trim(),
+      enquiryType: "Partnership",
+    });
+    setStatus("success");
+  }
+
+  if (status === "success" && sent) {
+    return (
+      <EnquirySuccess
+        variant="dialog"
+        sent={sent}
+        onDone={onDone}
+        onAgain={() => {
+          setSent(null);
+          setStatus("idle");
+        }}
+      />
+    );
+  }
+
+  const invalid = (name: string) =>
+    fieldErrors[name] ? { "aria-invalid": true as const, "aria-describedby": fid(`${name}-error`) } : {};
+  const fieldError = (name: string) =>
+    fieldErrors[name] ? { error: fieldErrors[name], errorId: fid(`${name}-error`) } : {};
+  const clear = (name: string) => setFieldErrors(({ [name]: _cleared, ...rest }) => rest);
+  const groupTitle = "text-[13px] font-semibold uppercase tracking-[0.14em] text-[#171796]";
+
+  const pick = (
+    name: string,
+    label: string,
+    value: string,
+    onChange: (v: string) => void,
+    options: readonly string[],
+    required = true
+  ) => (
+    <Field id={fid(name)} label={label} required={required} labelClass={s.label} {...fieldError(name)}>
+      <Select
+        value={value}
+        onValueChange={(v) => {
+          onChange(v);
+          clear(name);
+        }}
+        name={name}
+      >
+        <SelectTrigger
+          id={fid(name)}
+          aria-invalid={!!fieldErrors[name] || undefined}
+          aria-describedby={fieldErrors[name] ? fid(`${name}-error`) : undefined}
+          className={cn(s.select, fieldErrors[name] && "border-[#d92d20]")}
+        >
+          <SelectValue placeholder={<span className={`block ${CAP_TRIM}`}>Choose</span>} />
+        </SelectTrigger>
+        {/* `z-[70]`: above the dialog's z-60 overlay (see the contact form). */}
+        <SelectContent className="z-[70] max-h-[min(320px,var(--radix-select-content-available-height))]">
+          {options.map((o) => (
+            <SelectItem key={o} value={o} className="min-h-9">
+              <span className={`block ${CAP_TRIM}`}>{o}</span>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
+  );
+
+  return (
+    <>
+    {intro}
+    <form
+      onSubmit={handleSubmit}
+      onChange={(e) => {
+        const name = (e.target as HTMLInputElement).name;
+        if (name && fieldErrors[name]) clear(name);
+      }}
+      className={cn("relative", s.form)}
+    >
+      <Honeypot />
+
+      {/* ------------------------------------------- contact & company */}
+      <fieldset className="flex flex-col gap-6">
+        <legend className={cn(groupTitle, "mb-6")}>Contact &amp; company details</legend>
+        <div className={cn("grid grid-cols-1 gap-x-[18px] gap-y-6 sm:grid-cols-2")}>
+          <Field id={fid("name")} label="Contact Name" required labelClass={s.label} {...fieldError("name")}>
+            <Input id={fid("name")} name="name" required maxLength={100} autoComplete="name" className={s.control} {...invalid("name")} />
+          </Field>
+          <Field id={fid("company")} label="Business / Company Name" required labelClass={s.label} {...fieldError("company")}>
+            <Input id={fid("company")} name="company" required maxLength={120} autoComplete="organization" className={s.control} {...invalid("company")} />
+          </Field>
+          <Field id={fid("email")} label="Business Email" required labelClass={s.label} {...fieldError("email")}>
+            <Input
+              id={fid("email")}
+              name="email"
+              type="email"
+              required
+              maxLength={254}
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              className={s.control}
+              {...invalid("email")}
+            />
+          </Field>
+          <Field id={fid("phone")} label="Phone / WhatsApp" required labelClass={s.label} {...fieldError("phone")}>
+            <Input
+              id={fid("phone")}
+              name="phone"
+              type="tel"
+              required
+              // India: the 10-digit rule. Elsewhere: 7–15 digits with country code.
+              pattern={india ? "(\\+91|0)?[ \\-]*[0-9](?:[ \\-]*[0-9]){9}" : "\\+?[0-9 \\-()]{7,20}"}
+              title={india ? "A 10-digit mobile number, optionally starting with +91 or 0" : "Phone number with country code, e.g. +971 50 123 4567"}
+              maxLength={24}
+              autoComplete="tel"
+              inputMode="tel"
+              className={s.control}
+              {...invalid("phone")}
+            />
+          </Field>
+        </div>
+        <Field id={fid("companyWebsite")} label="Company Website / Social Page" labelClass={s.label} {...fieldError("companyWebsite")}>
+          <Input
+            id={fid("companyWebsite")}
+            name="companyWebsite"
+            inputMode="url"
+            maxLength={200}
+            autoComplete="url"
+            autoCapitalize="none"
+            spellCheck={false}
+            placeholder="e.g. yourbusiness.com or instagram.com/yourstore"
+            className={s.control}
+            {...invalid("companyWebsite")}
+          />
+        </Field>
+      </fieldset>
+
+      {/* ------------------------------------- location & business profile */}
+      <fieldset className="flex flex-col gap-6">
+        <legend className={cn(groupTitle, "mb-6")}>Location &amp; business profile</legend>
+        <div className="grid grid-cols-1 gap-x-[18px] gap-y-6 sm:grid-cols-2">
+          {pick("country", "Country / Region", country, (v) => {
+            setCountry(v);
+            setState("");
+          }, PARTNER_COUNTRIES)}
+          {country === "Other" ? (
+            <Field id={fid("countryOther")} label="Your Country" required labelClass={s.label} {...fieldError("countryOther")}>
+              <Input id={fid("countryOther")} name="countryOther" required maxLength={60} autoComplete="country-name" className={s.control} {...invalid("countryOther")} />
+            </Field>
+          ) : india ? (
+            pick("state", "State", state, setState, INDIAN_STATES)
+          ) : (
+            <Field id={fid("state")} label="State / Region" required labelClass={s.label} {...fieldError("state")}>
+              <Input id={fid("state")} name="state" required maxLength={80} autoComplete="address-level1" className={s.control} {...invalid("state")} />
+            </Field>
+          )}
+          {country === "Other" && (
+            <Field id={fid("state")} label="State / Region" required labelClass={s.label} {...fieldError("state")}>
+              <Input id={fid("state")} name="state" required maxLength={80} autoComplete="address-level1" className={s.control} {...invalid("state")} />
+            </Field>
+          )}
+          <Field id={fid("city")} label="City" required labelClass={s.label} {...fieldError("city")}>
+            <Input id={fid("city")} name="city" required maxLength={80} autoComplete="address-level2" className={s.control} {...invalid("city")} />
+          </Field>
+          {pick("businessType", "Primary Business Type", businessType, setBusinessType, PARTNER_BUSINESS_TYPES)}
+          {pick("yearsInBusiness", "Years in Business", years, setYears, PARTNER_YEARS, false)}
+        </div>
+        <Field id={fid("coverage")} label="Distribution Network / Coverage Area" labelClass={s.label} {...fieldError("coverage")}>
+          <Input id={fid("coverage")} name="coverage" maxLength={120} placeholder="e.g. Local, Regional, National" className={s.control} {...invalid("coverage")} />
+        </Field>
+      </fieldset>
+
+      {/* ------------------------------------------------- inquiry details */}
+      <fieldset className="flex flex-col gap-6">
+        <legend className={cn(groupTitle, "mb-6")}>Inquiry details</legend>
+        <Field id={fid("message")} label="Additional Information / Message" labelClass={s.label} {...fieldError("message")}>
+          <Textarea
+            id={fid("message")}
+            name="message"
+            rows={4}
+            maxLength={5000}
+            defaultValue={preset?.message}
+            placeholder="Tell us a bit about your business, current product lines, or estimated initial order volume."
+            className={cn("min-h-[110px]", s.control, s.textarea)}
+            {...invalid("message")}
+          />
+        </Field>
+      </fieldset>
+
+      {formError && (
+        <div
+          role="alert"
+          className="-mt-3 rounded-[10px] border border-[#b42318]/30 bg-[#fef3f2] px-4 py-3 text-[14px] leading-[1.45] text-[#b42318]"
+        >
+          <p>{formError.message}</p>
+          {formError.offerDirect && (
+            <p className="mt-1">
+              <a href={OFFICE_CONTACT.phone.href} className="font-semibold underline underline-offset-2">
+                {OFFICE_CONTACT.phone.display}
+              </a>
+              {" · "}
+              <a href={`mailto:${OFFICE_CONTACT.email}`} className="font-semibold underline underline-offset-2 [overflow-wrap:anywhere]">
+                {OFFICE_CONTACT.email}
+              </a>
+            </p>
+          )}
+        </div>
+      )}
+
+      <Button
+        type="submit"
+        size="lg"
+        disabled={status === "submitting"}
+        className={cn(
+          "h-[46px] w-full touch-manipulation select-none self-start rounded-full bg-[#f28000] px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] text-[#0b0b52] transition-[filter,transform,translate,scale] duration-100 ease-out hover:brightness-95 active:scale-[0.98] active:brightness-90 sm:w-auto",
+          s.submit
+        )}
+      >
+        {status === "submitting" ? (
+          <>
+            <Loader2 className="mr-2 size-4 animate-spin" />
+            <span className={CAP_TRIM}>Sending</span>
+          </>
+        ) : (
+          "Send Partnership Inquiry"
+        )}
+      </Button>
+    </form>
+    </>
   );
 }
 

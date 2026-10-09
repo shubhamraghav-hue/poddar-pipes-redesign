@@ -16,8 +16,70 @@ export const ENQUIRY_TYPES = [
   "Careers",
 ] as const;
 
-/** Enquiry types offered by the older `InquiryForm` (/careers, product pages). */
-export const INQUIRY_TYPES = ["General", "Sales", "Technical", "Business", "Career"] as const;
+/* ------------------------------------------------------------- partner form */
+// "Become a Partner" — the Dealers & Distributors enquiry form, field set from
+// the client's "PP Forms" brief (2026-10-09).
+
+export const PARTNER_BUSINESS_TYPES = [
+  "Wholesaler / Distributor",
+  "Retail Store Owner",
+  "E-commerce Reseller",
+  "Importer / Exporter",
+  "Other",
+] as const;
+
+export const PARTNER_YEARS = ["Under 1 year", "1–3 years", "3–5 years", "5+ years"] as const;
+
+/** India first (and the default); "Other" reveals a free-text country field. */
+export const PARTNER_COUNTRIES = [
+  "India",
+  "Nepal",
+  "Bhutan",
+  "Bangladesh",
+  "Sri Lanka",
+  "United Arab Emirates",
+  "Other",
+] as const;
+
+/** States and union territories — the State dropdown when the country is India. */
+export const INDIAN_STATES = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+] as const;
 
 /**
  * The honeypot field. A plausible name ("website") so form-filling bots fill

@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { products } from "@/lib/data/products";
 import { showcaseCategories, type ShowcaseCategory } from "@/lib/data/productShowcase";
-import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
+import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { CAP_TRIM } from "@/components/shared/capTrim";
 import { cn } from "@/lib/utils";
 
@@ -315,7 +315,8 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
  * Catalogue was dropped: the CTA band right under it already offers the
  * catalogue). It opens the global enquiry pop-up pre-filled with the range, so
  * it is the specific ask next to that band's general "Start a Conversation".
- * Copy reuses the product pages' translated `quoteHeading`/`quoteDesc`.
+ * Partner copy (client 2026-10-09: "Request a Quote" → "Become a Partner"),
+ * opening the dealers & distributors form with the range named.
  *
  * The strip layout holds from `lg`; below it the button drops under the copy
  * (full width on phones, its own width from `sm`) — at 768 the side-by-side
@@ -334,23 +335,20 @@ function QuoteBanner({ cat }: { cat: ShowcaseCategory }) {
         </span>
         <div>
           <h2 className="text-[17px] font-medium leading-tight text-[#606060] sm:text-[19px] md:text-[24px] md:leading-none">
-            {t("quoteHeading", { name: cat.label })}
+            {t("partnerHeading", { name: `Poddar ${cat.label}` })}
           </h2>
           <p className="mt-1.5 text-[14px] leading-[1.3] text-[#606060] md:mt-2 md:text-[16px] md:leading-[1.2]">
-            {t("quoteDesc")}
+            {t("partnerDesc")}
           </p>
         </div>
       </div>
-      <EnquiryLink
-        preset={{
-          enquiryType: "Sales & Pricing",
-          message: `I'd like a quote for Poddar ${cat.label} — sizes and quantities below.`,
-        }}
+      <PartnerLink
+        preset={{ message: `Interested in stocking Poddar ${cat.label}.` }}
         className="group flex h-12 shrink-0 touch-manipulation select-none items-center justify-center gap-[10px] whitespace-nowrap rounded-full bg-[#171796] px-4 text-[16px] font-semibold uppercase tracking-[0.36px] text-white transition-[background-color,scale] duration-200 ease-out hover:bg-[#0b0b52] active:scale-[0.98] sm:self-start sm:px-6 sm:text-[18px] lg:self-auto"
       >
-        <span className={CAP_TRIM}>{t("requestQuote")}</span>
+        <span className={CAP_TRIM}>{t("becomePartner")}</span>
         <ArrowIcon className="shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
-      </EnquiryLink>
+      </PartnerLink>
     </div>
   );
 }

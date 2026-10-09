@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CatalogueLink, EnquiryLink } from "@/components/enquiry/EnquiryProvider";
+import { CatalogueLink, EnquiryLink, PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { CAP_TRIM } from "@/components/shared/capTrim";
 
@@ -19,6 +19,8 @@ import { CAP_TRIM } from "@/components/shared/capTrim";
  */
 function CtaLink({ href, ...props }: React.ComponentProps<typeof Link> & { href: string }) {
   if (href === "/contact") return <EnquiryLink {...props} />;
+  // "Become a Partner" opens the dealers & distributors form.
+  if (href === "#partner") return <PartnerLink {...props} />;
   // /resources was removed; "Download Catalogue" opens the catalogue picker.
   if (href === "#catalogues") return <CatalogueLink {...props} />;
   return <Link href={href} {...props} />;
@@ -55,7 +57,7 @@ export async function CTASection({
   title,
   description,
   primaryLabel,
-  primaryHref = "/contact",
+  primaryHref,
   secondaryLabel,
   // "#catalogues" opens the catalogue picker (see CtaLink).
   secondaryHref = "#catalogues",
@@ -67,6 +69,10 @@ export async function CTASection({
   const resolvedTitle = title ?? t("ctaTitle");
   const resolvedDesc = description ?? t("ctaDesc");
   const resolvedPrimary = primaryLabel ?? t("ctaPrimary");
+  // The default primary is "Become a Partner" (home.ctaPrimary) → partner
+  // form; a caller that passes its own label (e.g. "Start a Conversation")
+  // gets the contact pop-up unless it says otherwise.
+  const resolvedPrimaryHref = primaryHref ?? (primaryLabel ? "/contact" : "#partner");
   const resolvedSecondary = secondaryLabel ?? t("ctaSecondary");
 
   const isFlush = variant === "flush";
@@ -99,7 +105,7 @@ export async function CTASection({
         variant="accent-ink"
         className="h-[46px] px-6 py-0 text-lg max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase leading-none tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52]"
       >
-        <CtaLink href={primaryHref}>
+        <CtaLink href={resolvedPrimaryHref}>
           <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedPrimary}</span>
         </CtaLink>
       </Button>

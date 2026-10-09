@@ -5,6 +5,7 @@
     "defaultDescription": "Poddar Pipes manufactures uPVC, CPVC, SWR, TANKS, UGD, and Agriculture piping systems engineered for India's water, irrigation, and infrastructure needs."
   },
   "nav": {
+    "becomePartner": "Become a Partner",
     "home": "Home",
     "about": "About Us",
     "products": "Products",
@@ -221,7 +222,7 @@
     "ctaEyebrow": "Get in touch",
     "ctaTitle": "Tell us what you're building. We'll recommend the right piping system.",
     "ctaDesc": "Share your project scope and quantity requirements — our sales team will follow up within one business day with recommendations and a formal quote.",
-    "ctaPrimary": "Request a Quote",
+    "ctaPrimary": "Become a Partner",
     "ctaSecondary": "Download Product Catalogue",
     "ctaPrimaryHome": "Start a Conversation",
     "ctaSecondaryHome": "Download Catalogue",
@@ -556,6 +557,10 @@
     "pageH2": "News & Media"
   },
   "products": {
+    "partnerDesc": "Grow with a brand built on quality. Tell us about your business and our business development team will get back to you shortly.",
+    "partnerHeading": "Stock {name} in your market",
+    "partnerEyebrow": "Dealers & Distributors",
+    "becomePartner": "Become a Partner",
     "heroEyebrow": "Product Catalogue",
     "heroLine1": "Solutions that",
     "heroLine2": "for every stage",

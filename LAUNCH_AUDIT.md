@@ -270,7 +270,7 @@ that aren't installed) — check on a real iPhone before launch.
 |---|---|---|---|
 | A1 | **Home hero (locked) — OK to edit?** | Says "Manufacturing since **1991**" but About says founded **1975**; stat labels are 7–9px on phones; 24 MB video, no pause button; no keyboard focus ring | Approve hero fixes (recommended) / leave as is |
 | A2 | **Hero stats** "500+ dealers", "50k+ tonnes/yr" | Unverified; About page doesn't state them | Confirm figures / remove those two stats |
-| A3 | **Email delivery** — who receives enquiries? | Forms send through Resend; needs `RESEND_API_KEY`, `ENQUIRY_TO_EMAIL` (e.g. hello@poddarpipes.com), `ENQUIRY_FROM_EMAIL` on a verified poddarpipes.com domain | Create Resend account + verify domain (DNS) |
+| A3 | **Form delivery setup** (built; client's sheet connected locally + all forms verified live 2026-10-09 — only Vercel env left) | Forms → Google Sheet + email via Apps Script; nothing is stored until the sheet is connected | Follow integrations/google-sheets/README.md (≈10 min), then set `SHEETS_WEBHOOK_URL` + `SHEETS_WEBHOOK_SECRET` in Vercel |
 | A4 | **One CTA label** | 7 labels open the same pop-up | "Request a Quote" (recommended) / other |
 | A5 | **Brand orange text on white** (About timeline years, /contact "Reg./Mfd. Office", success-screen name) | ~2.7:1 contrast, below accessibility minimum | Keep brand orange / use darker orange for text only |
 | A6 | **Privacy Policy & Terms** | Generic template; no India DPDP Act 2023, no Grievance Officer; Terms unreviewed | Provide Grievance Officer name + email; legal review |

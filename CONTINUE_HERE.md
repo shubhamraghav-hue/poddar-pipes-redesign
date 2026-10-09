@@ -56,23 +56,19 @@ No other prompt is needed — everything required is below.
 
 ## Last prompt
 
-> Go with option B: keep Resources as a dropdown label only and remove /resources
+> i have redeployed the script, test the partner form again and check all the
+> forms available on site i don't want any extra forms and keep only 3
 
-**Status: done, verified in Playwright (desktop, iPad touch, phone).**
-- `lib/data/nav.ts`: `href` optional; "Resources" has none. Navbar renders it
-  as a `<button>` that OPENS (never toggles — touch fires mouseenter then
-  click) the dropdown; tap outside the header / Escape / mouseleave closes.
-  Active (navy) when on /articles or /tools/calculator. Mobile menu shows it as
-  a non-link label above its two links.
-- `app/[locale]/resources/page.tsx` deleted (in git). `/resources` and
-  `/hi/resources` 308 → `/articles`; `/resources/installation` kept and now
-  linked from every product page's Installation tab.
-- "Download Catalogue" everywhere (CTASection default `#catalogues`, QuoteCTA
-  on the calculator) opens a catalogue picker pop-up (5 PDFs) — `CatalogueLink`
-  in components/enquiry/EnquiryProvider.tsx, same shell as the enquiry pop-up.
-- Footer "Resources" column: News & Media, Pipe Material Estimator, Contact.
-  Sitemap no longer lists /resources. The /resources FAQ copy is dropped (/faq
-  remains).
+**Status: done.** Crawled all 53 sitemap pages (+ /resources, /careers, 404):
+rendered forms = Newsletter (footer, every page), Contact (/contact, /hi/contact
++ its pop-up), Partner (pop-up). Non-form inputs only: /products search box and
+the calculator's pipe-type radios (tools, nothing submitted). Deleted dead form
+code: app/[locale]/tools/find-a-plumber/page.tsx, components/tools/PlumberFinder.tsx,
+lib/data/plumbers.ts, components/products/ProductFilterGrid.tsx, `Plumber` type
+(all recoverable from git). Live run after the client's redeploy: Partner,
+Contact (sends no type → "General"), Newsletter all `200 {"ok":true}`. Ask the
+user to confirm the partner row landed in the **Partners** tab (the API reply
+doesn't say which tab).
 
 ---
 
