@@ -109,16 +109,21 @@ export async function CTASection({
           <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedPrimary}</span>
         </CtaLink>
       </Button>
-      <Button
-        asChild
-        size="lg"
-        variant="outline-white"
-        className="h-[46px] border-0 px-6 py-0 text-lg max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
-      >
-        <CtaLink href={secondaryHref}>
-          <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedSecondary}</span>
-        </CtaLink>
-      </Button>
+      {/* No "Download Catalogue" here any more (client, 2026-10-12): the
+          default secondary (#catalogues) is not rendered. A page that passes
+          its own secondary (e.g. installation's "Talk to Our Team") keeps it. */}
+      {secondaryHref !== "#catalogues" && (
+        <Button
+          asChild
+          size="lg"
+          variant="outline-white"
+          className="h-[46px] border-0 px-6 py-0 text-lg max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
+        >
+          <CtaLink href={secondaryHref}>
+            <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedSecondary}</span>
+          </CtaLink>
+        </Button>
+      )}
     </div>
   );
 

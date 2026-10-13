@@ -53,22 +53,22 @@ export const navItems: NavItem[] = [
       {
         heading: "navPipingSystems",
         links: [
-          { label: "navUpvc", href: "/products?category=upvc-pipes" },
-          { label: "navCpvc", href: "/products?category=cpvc-pipes" },
-          { label: "navSwr", href: "/products?category=swr-pipes" },
+          { label: "navUpvc", href: "/products?category=upvc-pipes#range" },
+          { label: "navCpvc", href: "/products?category=cpvc-pipes#range" },
+          { label: "navSwr", href: "/products?category=swr-pipes#range" },
         ],
       },
       {
         heading: "navStorageDrainage",
         links: [
-          { label: "navTanks", href: "/products?category=tanks" },
-          { label: "navUgd", href: "/products?category=ugd-pipes" },
+          { label: "navTanks", href: "/products?category=tanks#range" },
+          { label: "navUgd", href: "/products?category=ugd-pipes#range" },
         ],
       },
       {
         heading: "navApplicationSystems",
         links: [
-          { label: "navAgriculture", href: "/products?category=agricultural-pipes" },
+          { label: "navAgriculture", href: "/products?category=agricultural-pipes#range" },
           // { label: "navViewFullCatalog", href: "/products" },
         ],
       },

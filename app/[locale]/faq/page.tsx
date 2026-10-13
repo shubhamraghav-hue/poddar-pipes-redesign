@@ -34,6 +34,7 @@ export default async function FaqPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("faq");
+  const tHome = await getTranslations("home");
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -72,7 +73,9 @@ export default async function FaqPage({
         <FAQ hideHeading />
       </section>
 
-      <CTASection />
+      {/* Figma 1530:7148 "start a conversation": the full-bleed navy band
+          (as on Home / Products / About), not the photo card. */}
+      <CTASection variant="flush" primaryLabel={tHome("ctaPrimaryHome")} />
     </>
   );
 }

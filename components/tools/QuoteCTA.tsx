@@ -44,8 +44,9 @@ export function QuoteCTA({
   description: string;
   primaryLabel: string;
   primaryHref: string;
-  secondaryLabel: string;
-  secondaryHref: string;
+  /** Optional — the calculator's band no longer offers the catalogue. */
+  secondaryLabel?: string;
+  secondaryHref?: string;
 }) {
   return (
     <RevealOnScroll>
@@ -74,22 +75,24 @@ export function QuoteCTA({
               </Link>
             )}
           </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline-white"
-            className="h-[46px] border-0 px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
-          >
-            {secondaryHref === "#catalogues" ? (
-              <CatalogueLink>
-                <span className={CAP_TRIM}>{secondaryLabel}</span>
-              </CatalogueLink>
-            ) : (
-              <Link href={secondaryHref}>
-                <span className={CAP_TRIM}>{secondaryLabel}</span>
-              </Link>
-            )}
-          </Button>
+          {secondaryLabel && secondaryHref && (
+            <Button
+              asChild
+              size="lg"
+              variant="outline-white"
+              className="h-[46px] border-0 px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
+            >
+              {secondaryHref === "#catalogues" ? (
+                <CatalogueLink>
+                  <span className={CAP_TRIM}>{secondaryLabel}</span>
+                </CatalogueLink>
+              ) : (
+                <Link href={secondaryHref}>
+                  <span className={CAP_TRIM}>{secondaryLabel}</span>
+                </Link>
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </RevealOnScroll>

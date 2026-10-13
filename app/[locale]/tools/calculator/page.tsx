@@ -157,8 +157,6 @@ export default async function CalculatorPage({
               description="Share your project scope and quantity requirements — our sales team will follow up within one business day with recommendations and a formal quote."
               primaryLabel="Start a Conversation"
               primaryHref="/contact"
-              secondaryLabel="Download Catalogue"
-              secondaryHref="#catalogues"
             />
           </div>
         </div>

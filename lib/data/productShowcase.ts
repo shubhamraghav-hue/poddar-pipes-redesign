@@ -6,8 +6,9 @@ import type { Product } from "@/types";
  * per category are taken from those six frames.
  *
  * Assets were exported straight from Figma:
- *   photo     the "<cat>-card 1" layer, exported at 2x already clipped to the
- *             card's visible 1212x650 band, re-encoded as webp
+ *   photo     the client's portrait product shots (2026-10-12, 1341x2000,
+ *             spotlight top-left, product bottom-right), webp — one image
+ *             per range, cropped per breakpoint by `photoY`
  *   wordmark  the "<cat>" component instance as SVG, reduced to the instance's
  *             own group (Figma's export carries every ancestor's background).
  *             SVG rather than PNG because the type is Torque, which the site
@@ -27,67 +28,80 @@ export type ShowcaseCategory = {
   wordmarkWidth: number;
   /** Figma insets AGRI and TANK 4px further in (x64, not x60). */
   wordmarkInset: number;
+  /**
+   * Vertical focus of the portrait photo (1341x2000, product bottom-right)
+   * when the card crops it: `sm` is the 4:3 tablet card, `lg` the 1212:650
+   * desktop card. 100 = bottom edge. Pipes sit at y≈1290–1950 (keep the
+   * bottom); the tanks are taller and start at y≈1000, so they sit higher.
+   */
+  photoY: { sm: number; lg: number };
 };
 
 export const showcaseCategories: ShowcaseCategory[] = [
   {
     id: "cpvc-pipes",
     label: "CPVC",
-    tagline: "Reliable performance for hot and cold water.",
-    photo: "/products/showcase/cpvc-card.webp",
+    tagline: "Corrosion-free piping for hot and cold water.",
+    photo: "/products/showcase/cpvc-hero.webp",
     photoAlt: "Three Poddar CPVC pipes on a dark studio backdrop",
     wordmark: "/products/showcase/cpvc-wordmark.svg",
     wordmarkWidth: 275,
     wordmarkInset: 60,
+    photoY: { sm: 100, lg: 98 },
   },
   {
     id: "upvc-pipes",
     label: "uPVC",
     tagline: "Durable pipes for everyday water supply.",
-    photo: "/products/showcase/upvc-card.webp",
+    photo: "/products/showcase/upvc-hero.webp",
     photoAlt: "Three Poddar uPVC pipes on a dark studio backdrop",
     wordmark: "/products/showcase/upvc-wordmark.svg",
     wordmarkWidth: 283,
     wordmarkInset: 60,
+    photoY: { sm: 100, lg: 98 },
   },
   {
     id: "agricultural-pipes",
     label: "AGRI",
     tagline: "Efficient water delivery for agriculture.",
-    photo: "/products/showcase/agri-card.webp",
+    photo: "/products/showcase/agri-hero.webp",
     photoAlt: "Poddar agricultural pipes on a dark studio backdrop",
     wordmark: "/products/showcase/agri-wordmark.svg",
     wordmarkWidth: 268,
     wordmarkInset: 64,
+    photoY: { sm: 100, lg: 98 },
   },
   {
     id: "swr-pipes",
     label: "SWR",
     tagline: "Smooth drainage for soil, waste and rainwater.",
-    photo: "/products/showcase/swr-card.webp",
+    photo: "/products/showcase/swr-hero.webp",
     photoAlt: "Poddar SWR drainage pipes on a dark studio backdrop",
     wordmark: "/products/showcase/swr-wordmark.svg",
     wordmarkWidth: 264,
     wordmarkInset: 60,
+    photoY: { sm: 100, lg: 98 },
   },
   {
     id: "ugd-pipes",
     label: "UGD",
     tagline: "Built for efficient underground drainage.",
-    photo: "/products/showcase/ugd-card.webp",
+    photo: "/products/showcase/ugd-hero.webp",
     photoAlt: "Poddar underground drainage pipes on a dark studio backdrop",
     wordmark: "/products/showcase/ugd-wordmark.svg",
     wordmarkWidth: 246,
     wordmarkInset: 60,
+    photoY: { sm: 100, lg: 98 },
   },
   {
     id: "tanks",
     label: "TANK",
     tagline: "Safe, durable storage for every drop.",
-    photo: "/products/showcase/tank-card.webp",
+    photo: "/products/showcase/tank-hero.webp",
     photoAlt: "Two white Poddar water storage tanks on a dark studio backdrop",
     wordmark: "/products/showcase/tank-wordmark.svg",
     wordmarkWidth: 288,
     wordmarkInset: 64,
+    photoY: { sm: 86, lg: 78 },
   },
 ];

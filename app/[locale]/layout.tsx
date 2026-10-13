@@ -117,6 +117,7 @@ export default async function LocaleLayout({
     // Same profiles as the footer's social icons — keep in sync with the
     // LINKS list in components/shared/SocialIcons.tsx.
     sameAs: [
+      "https://www.facebook.com/PoddarPipes/",
       "https://x.com/Poddarpipe",
       "https://www.linkedin.com/company/poddar-pipes/",
       "https://youtube.com/@poddarpipes",

@@ -6,11 +6,18 @@
 // rather than the sitewide flow-cyan color-shift hover, since the footer's
 // Figma mock (Ideation 2, node 8:7) is a static frame with no hover variant
 // to match colors against, and this is the pre-existing footer convention.
-// Facebook isn't in the icon set — no real Poddar Pipes Facebook link exists
-// to link to. Only used by the footer.
-type IconName = "x" | "linkedin" | "youtube" | "instagram";
+// Facebook added 2026-10-12 with the client's page URL (it leads the row, as
+// in the Figma footer node 1530:7351). Only used by the footer.
+type IconName = "facebook" | "x" | "linkedin" | "youtube" | "instagram";
 
 const ICONS: Record<IconName, { viewBox: string; path: string }> = {
+  // The "f" alone, in the same 30x30 box as X / LinkedIn / YouTube; its ink is
+  // ~31% x 56% of the box — in line with LinkedIn's 52% — so the shared size
+  // and ring values below fit it without a special case.
+  facebook: {
+    viewBox: "0 0 30 30",
+    path: "M16.6 23.5V15.8H19.2L19.6 12.8H16.6V10.9C16.6 10.03 16.84 9.44 18.09 9.44H19.68V6.75C19.4 6.71 18.46 6.63 17.36 6.63C15.06 6.63 13.49 8.03 13.49 10.61V12.8H10.89V15.8H13.49V23.5H16.6Z",
+  },
   x: {
     viewBox: "0 0 30 30",
     path: "M12.1386 15.8278C9.81322 12.5689 7.5045 9.37259 5.19995 6.13039C5.91674 5.99704 10.4633 5.95537 12.3345 6.05538C13.6805 7.93069 15.0432 9.83517 16.4018 11.7271C16.7185 11.7438 16.8185 11.4854 16.9685 11.3271C18.3813 9.83099 19.7815 8.32658 21.1859 6.82216C21.4359 6.55545 21.6902 6.28874 21.9319 6.03453C22.7528 6.03453 23.5405 6.03453 24.3281 6.03453C24.4656 6.2804 24.2406 6.37209 24.1281 6.48878C22.2069 8.55162 20.2774 10.6103 18.3479 12.669C18.1146 12.9148 17.8937 13.1732 17.6353 13.4566C18.8939 15.2152 20.1357 16.9447 21.3693 18.6783C22.6028 20.4077 23.8489 22.1289 25.0574 23.8375C25.0032 23.9333 24.9907 23.9625 24.974 23.975C24.9574 23.9917 24.9282 24 24.9074 24C22.6153 24 20.3233 24 17.9896 24C16.5351 21.9705 15.0766 19.941 13.5972 17.8823C13.3221 17.9657 13.1846 18.1991 13.0179 18.3782C11.4468 20.0494 9.88406 21.7288 8.31713 23.3999C8.13794 23.5916 7.93791 23.7624 7.7087 23.9833C6.95025 23.9833 6.14178 23.9833 5.34165 23.9833C5.23747 23.7624 5.41665 23.6833 5.5125 23.5791C7.59618 21.3412 9.6882 19.1117 11.776 16.878C11.9719 16.6655 12.1678 16.4529 12.372 16.2237C12.3095 16.0945 12.2428 15.9862 12.1386 15.8278ZM16.4101 18.5199C17.2769 19.7076 18.1063 20.9203 18.9897 22.0913C19.7732 22.0913 20.5066 22.0913 21.2443 22.0913C21.2651 22.0913 21.2901 22.0747 21.3026 22.058C21.3193 22.0372 21.3276 22.0122 21.3693 21.9413C18.0437 17.2989 14.7057 12.6356 11.3426 7.93901C10.6592 7.93901 9.97574 7.93485 9.29229 7.94318C9.17561 7.94318 9.02142 7.88901 8.97141 8.07237C8.99225 8.12238 9.00475 8.1724 9.03392 8.21407C11.4718 11.6146 13.9056 15.0193 16.4101 18.5199Z",
@@ -54,13 +61,60 @@ const ICONS: Record<IconName, { viewBox: string; path: string }> = {
 // weight. 11/17 is ~15% under the others' ink and is where it stops standing
 // out. Both were lowered together so the two breakpoints stay in proportion.
 const LINKS: { name: string; href: string; icon: IconName; size: number; ring: number }[] = [
+  { name: "Facebook", href: "https://www.facebook.com/PoddarPipes/", icon: "facebook", size: 22, ring: 24 },
   { name: "X", href: "https://x.com/Poddarpipe", icon: "x", size: 22, ring: 24 },
   { name: "LinkedIn", href: "https://www.linkedin.com/company/poddar-pipes/", icon: "linkedin", size: 22, ring: 24 },
   { name: "YouTube", href: "https://youtube.com/@poddarpipes", icon: "youtube", size: 22, ring: 24 },
   { name: "Instagram", href: "https://www.instagram.com/poddarpipes", icon: "instagram", size: 17, ring: 11 },
 ];
 
-export function SocialIcons() {
+/**
+ * Desktop footer row, EXACTLY Figma node 1530:7177: the five icons are the
+ * mock's own white SVGs (public/brand/social, exported from the node), 30px
+ * boxes on a 46px pitch (16px gaps), no rings, starting 10px LEFT of the
+ * address column (Facebook at x110 vs the text at x120 — the icon's own
+ * padding brings its ink into line). Instagram sits in Figma's 28.78x29.2
+ * frame with 4px padding around its 19x20 glyph.
+ */
+function SocialIconsFigma() {
+  const order: { name: string; file: string; href: string }[] = [
+    { name: "Facebook", file: "facebook", href: LINKS.find((l) => l.icon === "facebook")!.href },
+    { name: "X", file: "x", href: LINKS.find((l) => l.icon === "x")!.href },
+    { name: "LinkedIn", file: "linkedin", href: LINKS.find((l) => l.icon === "linkedin")!.href },
+    { name: "YouTube", file: "youtube", href: LINKS.find((l) => l.icon === "youtube")!.href },
+    { name: "Instagram", file: "instagram", href: LINKS.find((l) => l.icon === "instagram")!.href },
+  ];
+  return (
+    <div className="-ml-[10px] flex items-center gap-4">
+      {order.map((l) => (
+        <a
+          key={l.name}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={l.name}
+          className={
+            l.file === "instagram"
+              ? "flex h-[29.2px] w-[28.784px] items-center p-1 transition-opacity hover:opacity-80"
+              : "block size-[30px] transition-opacity hover:opacity-80"
+          }
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- Figma SVG asset at its own size */}
+          <img
+            src={`/brand/social/${l.file}.svg`}
+            alt=""
+            width={l.file === "instagram" ? 19 : 30}
+            height={l.file === "instagram" ? 20 : 30}
+            className="block"
+          />
+        </a>
+      ))}
+    </div>
+  );
+}
+
+export function SocialIcons({ variant = "default" }: { variant?: "default" | "figma" } = {}) {
+  if (variant === "figma") return <SocialIconsFigma />;
   // Figma node 1311:10880-10895 draws 24px rings on a 34px pitch. Those read
   // as too small in the build, so the ring is 32px here on a 42px pitch — a
   // deliberate step up from the mock, at the client's call. Bare icons at the

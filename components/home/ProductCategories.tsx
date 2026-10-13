@@ -6,6 +6,7 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { RangeLink } from "@/components/shared/RangeLink";
 
 // Display order is the brand team's, NOT Figma's layout order — deliberate.
 //
@@ -17,7 +18,7 @@ const CATEGORIES = [
   {
     id: "cpvc",
     title: "CPVC",
-    href: "/products?category=cpvc-pipes",
+    href: "/products?category=cpvc-pipes#range",
     descKey: "categoriesCpvcDesc" as const,
     logo: "/products/category-cards/cpvc-wordmark.png",
     logoW: 645,
@@ -32,7 +33,7 @@ const CATEGORIES = [
     // from that updated component, so the alt text and the artwork agree;
     // this is the only card whose title is not simply all-caps.
     title: "uPVC",
-    href: "/products?category=upvc-pipes",
+    href: "/products?category=upvc-pipes#range",
     descKey: "categoriesUpvcDesc" as const,
     logo: "/products/category-cards/upvc-wordmark.png",
     // 530x170 rather than the other five's 663x213: this one is a fresh 4x
@@ -47,7 +48,7 @@ const CATEGORIES = [
   {
     id: "swr",
     title: "SWR",
-    href: "/products?category=swr-pipes",
+    href: "/products?category=swr-pipes#range",
     descKey: "categoriesSwrDesc" as const,
     logo: "/products/category-cards/swr-wordmark.png",
     logoW: 618,
@@ -58,7 +59,7 @@ const CATEGORIES = [
   {
     id: "agri",
     title: "AGRI",
-    href: "/products?category=agricultural-pipes",
+    href: "/products?category=agricultural-pipes#range",
     descKey: "categoriesAgriDesc" as const,
     logo: "/products/category-cards/agri-wordmark.png",
     logoW: 627,
@@ -69,7 +70,7 @@ const CATEGORIES = [
   {
     id: "ugd",
     title: "UGD",
-    href: "/products?category=ugd-pipes",
+    href: "/products?category=ugd-pipes#range",
     descKey: "categoriesUgdDesc" as const,
     logo: "/products/category-cards/ugd-wordmark.png",
     logoW: 576,
@@ -80,7 +81,7 @@ const CATEGORIES = [
   {
     id: "tanks",
     title: "TANKS",
-    href: "/products?category=tanks",
+    href: "/products?category=tanks#range",
     descKey: "categoriesTanksDesc" as const,
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
@@ -235,7 +236,7 @@ export async function ProductCategories() {
               container width instead of only at Figma's reference frames. */}
           <RevealOnScroll className="grid w-full grid-cols-1 gap-[18px] sm:grid-cols-3 sm:gap-6">
             {CATEGORIES.map((cat) => (
-              <Link
+              <RangeLink
                 key={cat.id}
                 href={cat.href}
                 // `cqw` is only for what does not natively scale with the
@@ -341,7 +342,7 @@ export async function ProductCategories() {
                     <ArrowRight className="h-[3.5cqw] w-[3.5cqw] shrink-0 text-[#171796] transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </div>
-              </Link>
+              </RangeLink>
             ))}
           </RevealOnScroll>
 

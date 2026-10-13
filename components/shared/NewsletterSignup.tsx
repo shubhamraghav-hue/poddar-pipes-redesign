@@ -2,7 +2,7 @@
 
 import { useId, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Send, CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Honeypot } from "@/components/shared/Honeypot";
@@ -57,7 +57,7 @@ export function NewsletterSignup() {
   return (
     // The column holds the row and, under it, the error; the row keeps the
     // classes (and so the layout) it had before there was an error state.
-    <div className="flex w-full max-w-sm flex-col gap-2">
+    <div className="flex w-full max-w-sm flex-col gap-2 lg:max-w-[347px]">
       <form onSubmit={handleSubmit} className="relative flex w-full max-w-sm items-center gap-3 lg:gap-2.5">
         <Honeypot />
         {/* Radius is a PILL, per Figma node 1187:1484. The spec value is
@@ -79,7 +79,9 @@ export function NewsletterSignup() {
           aria-invalid={error?.fields?.email ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           onChange={() => error && setError(null)}
-          className="h-[44px] flex-1 rounded-full border-[#c0c0c0] bg-transparent px-5 text-[13px] text-white placeholder:font-light placeholder:text-[#c0c0c0] focus-visible:border-amber-500 lg:h-[54px] lg:text-base"
+          // Desktop = Figma 1530:7196: 290x47 pill, 1px #c0c0c0, 20px left pad,
+          // 14px Light placeholder.
+          className="h-[44px] flex-1 rounded-full border-[#c0c0c0] bg-transparent px-5 text-[13px] text-white placeholder:font-light placeholder:text-[#c0c0c0] focus-visible:border-amber-500 lg:h-[47px] lg:w-[290px] lg:flex-none lg:text-[14px]"
         />
         {/* `rounded-full` is also `Button`'s own base value — stated explicitly
             here only because the override it replaces was squaring it off. */}
@@ -90,27 +92,24 @@ export function NewsletterSignup() {
           variant="accent"
           disabled={submitting}
           aria-busy={submitting || undefined}
-          className="h-[44px] w-[44px] shrink-0 rounded-full bg-amber-600 hover:bg-amber-700 lg:h-[54px] lg:w-[54px]"
+          className="h-[44px] w-[44px] shrink-0 rounded-full bg-[#f28000] hover:bg-[#f28000] hover:brightness-95 lg:h-[47px] lg:w-[47px]"
         >
-          {/* 23.33px is the mock's own icon size (node 1187:1488).
-  
-              The nudge is OPTICAL centring, not a fudge. The glyph is already
-              centred geometrically — its bounding box is a symmetric 2-22 in
-              both axes and the flex centring puts it within 0.01px of the
-              button's middle. But a paper plane is a triangle: rasterising it
-              and taking the centroid of the ink puts its visual mass at
-              (13.81, 10.10) in a viewBox centred on (12, 12), because the body
-              fills the lower-left while only a thin tip reaches the upper-right.
-              That reads as up-and-right of centre inside a circle, which has no
-              edges to reference against.
-  
-              So it is shifted back by that offset — expressed as a share of the
-              icon's own box (1.81/24 and 1.90/24) rather than in px, so it holds
-              if the icon size ever changes. */}
+          {/* Figma's own send glyph (node 1530:7200, public/brand/send.svg), 26px
+              in the 47px button at Figma's offset — 8 from the left, 13 from
+              the top, i.e. 2.5px left of and below centre (≈9.6% of the
+              glyph), the optical nudge a paper plane needs in a circle. */}
           {submitting ? (
             <Loader2 className="size-[19px] animate-spin lg:size-[23.33px]" />
           ) : (
-            <Send className="size-[19px] translate-x-[-7.5%] translate-y-[7.9%] lg:size-[23.33px]" />
+            // eslint-disable-next-line @next/next/no-img-element -- a 26px SVG glyph
+            <img
+              src="/brand/send.svg"
+              alt=""
+              aria-hidden="true"
+              width={26}
+              height={26}
+              className="size-[22px] translate-x-[-9.6%] translate-y-[9.6%] lg:size-[26px]"
+            />
           )}
         </Button>
       </form>

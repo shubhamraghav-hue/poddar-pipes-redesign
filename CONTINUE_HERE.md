@@ -47,6 +47,12 @@ No other prompt is needed — everything required is below.
 - [x] ~~Outlined CTA 48-vs-46px + high labels~~ — done in `CTASection` (all
       ~14 pages) and `AboutHero` (session 3). Only `Hero.tsx` still has it —
       *locked, ask the user before touching it*.
+- [ ] /products: add "What is" / "Why" content for uPVC, AGRI, SWR, UGD, TANK
+      in `lib/data/productDetails.ts` once the client finalises it.
+- [ ] /products banner: Figma 1731:7511 says "Request a quote" but the client
+      asked for "Become a Partner" (2026-10-09) — which wins?
+      *(needs user decision)*
+- [ ] Navbar: "ABOUT US" wraps to two lines at 1024 (pre-existing).
 - [ ] Contact page bottom spacing: Figma 240px under the form, built 120
       (site standard). *(needs user decision)*
 - [ ] Product page bulk-order CTA could pre-fill the product name in the
@@ -56,19 +62,37 @@ No other prompt is needed — everything required is below.
 
 ## Last prompt
 
-> i have redeployed the script, test the partner form again and check all the
-> forms available on site i don't want any extra forms and keep only 3
+> [image: navy backdrop with gold light streaks, 1512x760] use exactly this
+> image as hero bg without any additional effects
 
-**Status: done.** Crawled all 53 sitemap pages (+ /resources, /careers, 404):
-rendered forms = Newsletter (footer, every page), Contact (/contact, /hi/contact
-+ its pop-up), Partner (pop-up). Non-form inputs only: /products search box and
-the calculator's pipe-type radios (tools, nothing submitted). Deleted dead form
-code: app/[locale]/tools/find-a-plumber/page.tsx, components/tools/PlumberFinder.tsx,
-lib/data/plumbers.ts, components/products/ProductFilterGrid.tsx, `Plumber` type
-(all recoverable from git). Live run after the client's redeploy: Partner,
-Contact (sends no type → "General"), Newsletter all `200 {"ok":true}`. Ask the
-user to confirm the partner row landed in the **Partners** tab (the API reply
-doesn't say which tab).
+**Status: done.** `public/products/hero/hero-bg.webp` is now the client's
+file byte-for-byte (1512x760 = the hero's size at 1512), rendered
+`unoptimized` (no re-encode), no overlay. Also removed the cluster's Figma
+navy drop-shadow — it painted a dark band over the backdrop.
+
+### Previous prompt (same session)
+
+> https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1731-7511&m=dev
+> can we recreate the product page for now, and update the contents for CPVC as right now all the other products details are not finalised
+
+**Status: done, verified at 375 / 1024 / 1280 / 1512.** /products rebuilt to
+Figma 1731:7511 ("CPVC Products Page - 2nd draft"):
+- New dark hero `components/products/ProductsHero.tsx` (was dead code): Figma
+  wave backdrop + product cluster in an orange U (`public/products/hero/`).
+  The heading/copy moved here from the showcase. Art width is capped so the
+  heading stays clear down to 1024; the U hangs from the top at every width.
+- `ProductShowcase`: pills 46px, navy 1.2px ring + navy SemiBold (active
+  filled), 12 apart; section 180 top/bottom; card 60 under pills; banner icon
+  and arrow are now Figma's SVGs (`public/products/icons/`). CPVC tagline →
+  "Corrosion-free piping for hot and cold water."
+- New `components/products/ProductDetailSections.tsx` + data
+  `lib/data/productDetails.ts`: "What is CPVC?" (navy, molecule render in 3
+  layers) and "Why CPVC?" (5 photo cards, sideways scroll, snap, mouse drag).
+  **Only CPVC has an entry** — other ranges show no detail sections until
+  their content is added there.
+- Kept the client's "Become a Partner" banner; the Figma draft shows
+  "Request a quote for CPVC" / "Request a quote" instead.
+  *(needs user decision)*
 
 ---
 
@@ -171,4 +195,4 @@ doesn't say which tab).
 
 ---
 
-_Last updated: 2026-10-08 — end of session 6._
+_Last updated: 2026-10-12 — /products rebuilt to Figma 1731:7511 (CPVC)._

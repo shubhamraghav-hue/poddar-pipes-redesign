@@ -102,3 +102,34 @@ problems, and the site keeps its own designed forms.
   and in Script Properties differ.
 - Opening the `/exec` URL in a browser shows `{"ok":true,"service":"poddar-forms"…}`
   when the deployment is live.
+
+## Notification emails not arriving (e.g. a Zoho inbox)
+
+Rows saving but no email means the email step was skipped, failed, or the
+receiving inbox filtered it. In the Apps Script editor run **`diagnose`** and
+open the **Execution log**:
+
+| Log says | Meaning | Fix |
+|---|---|---|
+| `NOTIFY_EMAIL: NOT SET` | No email is ever attempted | Project Settings → Script Properties → add `NOTIFY_EMAIL` = `hello@poddarpipes.com` (no spaces/quotes) |
+| `Emails left today: 0` | Google's daily limit (100 on a personal Gmail) | Wait until tomorrow, or run the script from a Google Workspace account (1,500/day) |
+| An error about authorisation | Mail permission never granted | Run `testSetup` or `diagnose` once and click **Allow** |
+| `Test email sent …` but nothing in the inbox | Google sent it; the inbox filtered it | See Zoho below |
+
+**Zoho Mail (poddarpipes.com):** messages come *from the Google account
+that owns the script* (shown as "Script runs as" in the log) with the name
+"Poddar Pipes Website". Zoho can file these as spam or hold them for the
+admin:
+1. Check **Spam** in hello@poddarpipes.com.
+2. Ask the Zoho admin to check **Admin Console → Mail Administration →
+   Quarantine** (held mail isn't visible to the mailbox user) and release it.
+3. Allow-list the sender: Zoho Mail **Settings → Anti-spam → Allowlist →
+   Email addresses** → add the script owner's Gmail address (admin: also
+   *Admin Console → Spam Control → Allowlist* for the whole domain).
+4. Run `diagnose` again — the test email should now land in the inbox.
+
+The Sent folder of the script-owner's Gmail shows every notification Google
+actually sent — if they're there, the problem is on the Zoho side.
+
+After pasting a new `Code.gs`, remember **Deploy → Manage deployments → ✏️
+→ New version → Deploy**.

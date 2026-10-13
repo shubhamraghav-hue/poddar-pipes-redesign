@@ -11,6 +11,7 @@ import { navItems } from "@/lib/data/nav";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { cn } from "@/lib/utils";
+import { rangeLinkProps } from "@/lib/productFocus";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -179,7 +180,7 @@ export function Navbar() {
                                 <li key={link.label}>
                                   <Link
                                     href={link.href}
-                                    onClick={() => setActiveMenu(null)}
+                                    {...rangeLinkProps(link.href, () => setActiveMenu(null))}
                                     className={cn(
                                       "text-sm uppercase text-slate-700 transition-colors hover:text-ocean-700",
                                       keepCase(link.label) && "normal-case"
@@ -279,7 +280,7 @@ export function Navbar() {
                         <Link
                           key={link.label}
                           href={link.href}
-                          onClick={closeMenu}
+                          {...rangeLinkProps(link.href, closeMenu)}
                           aria-current={pathname === link.href ? "page" : undefined}
                           className={cn(
                             "rounded-lg px-3 py-3 text-sm uppercase text-slate-600 hover:bg-slate-100 aria-[current=page]:text-ocean-700",

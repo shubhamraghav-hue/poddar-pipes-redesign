@@ -290,6 +290,8 @@ async function toSheet(mail: Mail, url: string, secret: string): Promise<Channel
     const body = (await res.json().catch(() => null)) as {
       ok?: boolean;
       error?: string;
+      /** "sent" | "skipped: …" | "failed" (scripts deployed after 2026-10-09). */
+      mail?: string;
       mailError?: string | null;
     } | null;
     if (!res.ok || !body?.ok) {
@@ -297,6 +299,7 @@ async function toSheet(mail: Mail, url: string, secret: string): Promise<Channel
       return { channel: "sheet", ok: false };
     }
     if (body.mailError) console.error("[forms] Row saved, but the sheet's notification email failed:", body.mailError);
+    else if (body.mail && body.mail !== "sent") console.warn("[forms] Row saved; notification email", body.mail);
     return { channel: "sheet", ok: true };
   } catch (err) {
     console.error("[forms] Google Sheet request failed:", err);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -10,19 +10,25 @@ import { showcaseCategories, type ShowcaseCategory } from "@/lib/data/productSho
 import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { CAP_TRIM } from "@/components/shared/capTrim";
 import { cn } from "@/lib/utils";
+import { scrollToElement } from "@/hooks/useLenis";
+import { PRODUCT_FOCUS_EVENT, PRODUCT_FOCUS_HASH } from "@/lib/productFocus";
+import { productDetails } from "@/lib/data/productDetails";
+import { ProductDetailSections } from "@/components/products/ProductDetailSections";
 
 /**
- * /products — Figma "product pages" (node 1530:7102), frame "Frame 132" of
- * each of the six category variants. Measurements below are the mock's, at
- * 1512, from the section top (which sits under the 80px navbar):
+ * /products — Figma "CPVC Products Page - 2nd draft" (node 1731:7511),
+ * section "product" (1731:7512). The heading moved up into the dark hero
+ * (ProductsHero). Measurements are the mock's, at 1512, from the section top:
  *
- *   heading   y120, 60px Light `#606060` / Bold `#171796`, leading 1.02
- *   copy      y270, 16px `#606060`, 398 wide
- *   pills     y429, h44, 8px apart; active navy fill, rest `#b0b0b0` ring
- *   search    right-aligned, 360x44, `#b0b0b0` ring
- *   card      y500, 1212x650, radius 25
- *   banner    y1190, 1212x120, radius 25, `#b0b0b0` ring
- *   bottom    120 under the banner
+ *   pills     y180, h46, 12px apart; active navy fill, rest a 1.2px navy
+ *             ring with navy SemiBold type
+ *   search    right-aligned, 360x46, `#b0b0b0` ring
+ *   card      y286 (60 under the pills), 1212x650, radius 25
+ *   banner    y976 (40 under the card), 1212x120, radius 25, `#b0b0b0` ring
+ *   bottom    180 under the banner
+ *
+ * Then, for a range that has them (lib/data/productDetails.ts — only CPVC so
+ * far), the "What is" / "Why" sections follow the selected range.
  *
  * One card per category, not a product grid. The card does not link anywhere
  * for now: the category detail pages are switched off (see the redirects in
@@ -97,6 +103,37 @@ export function ProductShowcase({
     }
   }
 
+  // Arriving from a menu / footer / home-card link (`…?category=x#range`, see
+  // lib/productFocus.ts): bring the category pills up under the navbar with
+  // the range already selected. Runs on mount (from another page), whenever
+  // the category changes in the URL (already on /products), and on the focus
+  // event (a link to the range that is already showing).
+  const rangeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let timer: number | undefined;
+    const focusRange = () => {
+      window.clearTimeout(timer);
+      // A beat for the mobile menu to close and release its scroll lock —
+      // Lenis ignores scrollTo while stopped.
+      timer = window.setTimeout(() => {
+        if (rangeRef.current) scrollToElement(rangeRef.current);
+        // Drop the hash (so a reload or a shared link doesn't jump again) only
+        // AFTER scrolling: stripping it on mount lost it to StrictMode's
+        // mount → unmount → mount in development, and a same-URL click can
+        // leave "#range#range" behind.
+        if (window.location.hash.startsWith(PRODUCT_FOCUS_HASH)) {
+          window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+        }
+      }, 120);
+    };
+    if (window.location.hash.startsWith(PRODUCT_FOCUS_HASH)) focusRange();
+    window.addEventListener(PRODUCT_FOCUS_EVENT, focusRange);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(PRODUCT_FOCUS_EVENT, focusRange);
+    };
+  }, [initialCategory]);
+
   // `?q=` arriving from the WebSite SearchAction (see the locale layout)
   // should land on the matching category, as typing would.
   useEffect(() => {
@@ -135,29 +172,27 @@ export function ProductShowcase({
 
   const cat = showcaseCategories.find((c) => c.id === active)!;
 
-  return (
-    <section className="mt-20 bg-[#f5f5f5] pb-20 pt-16 md:pb-24 md:pt-24 lg:pb-[120px] lg:pt-[120px]">
-      {/* No small-screen frames exist for this page, so the mock's 1512
-          spacing (120 top/bottom, 121 above the pills) is held only from
-          `lg`; tablets get a stepped-down scale, not desktop-sized gaps. */}
-      <div className="container-figma">
-        <h1 className="font-display text-[min(36px,9.4vw)] uppercase leading-[1.02] tracking-[0.2088px] sm:text-5xl md:text-[60px] md:tracking-[0.32px]">
-          <span className="block font-light text-[#606060]">{t("heroLine1")}</span>
-          <span className="block font-bold text-[#171796]">{t("heroBold")}</span>
-        </h1>
-        <p className="mt-5 max-w-[398px] text-[15px] leading-[1.3] text-[#606060] md:mt-7 md:text-[16px] md:leading-[1.2]">
-          {t("heroDesc")}
-        </p>
+  const detail = productDetails[active];
 
+  return (
+    <>
+    <section className="bg-[#f5f5f5] py-16 md:py-[120px] lg:py-[180px]">
+      {/* No small-screen frames exist for this page, so the mock's 1512
+          spacing (180 top/bottom) is held only from `lg`; tablets get a
+          stepped-down scale, not desktop-sized gaps. */}
+      <div className="container-figma">
         {/* Pills left, search right from `lg`; stacked below it. */}
-        <div className="mt-10 flex flex-col gap-5 md:mt-16 lg:mt-[121px] lg:flex-row lg:items-center lg:justify-between">
-          {/* `px-5`: Figma's pills are 19px padding + a 1px border; the ring
-              here is an inset shadow that takes no space, so the padding
-              carries the 20 (otherwise each pill was 2px narrow and the row
-              drifted 10px short by TANK). */}
+        {/* `rangeRef` + `scroll-mt-24`: where menu links land (pills just
+            under the 80px navbar). */}
+        <div
+          ref={rangeRef}
+          className="flex scroll-mt-24 flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"
+        >
+          {/* `px-6`: Figma's pills are 24px padding inside a 1.2px border;
+              the ring here is an inset shadow that takes no space. */}
           {/* Phones: an even 3x2 grid — free-wrapping gave rows of uneven
               pill widths with a ragged right edge. One row from `sm`. */}
-          <div role="group" aria-label="Product category" className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+          <div role="group" aria-label="Product category" className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
             {showcaseCategories.map((c) => {
               const on = c.id === active;
               return (
@@ -167,10 +202,10 @@ export function ProductShowcase({
                   aria-pressed={on}
                   onClick={() => selectCategory(c.id)}
                   className={cn(
-                    "flex h-11 touch-manipulation select-none items-center justify-center rounded-full px-3 text-[18px] sm:px-5 transition-[background-color,color,box-shadow,scale] duration-200 ease-out active:scale-[0.97]",
+                    "flex h-[46px] touch-manipulation select-none items-center justify-center rounded-full px-3 text-[18px] font-semibold tracking-[0.36px] sm:px-6 transition-[background-color,color,box-shadow,scale] duration-200 ease-out active:scale-[0.97]",
                     on
-                      ? "bg-[#171796] font-semibold text-white"
-                      : "font-normal text-[#606060] shadow-[inset_0_0_0_1px_#b0b0b0] hover:text-[#171796] hover:shadow-[inset_0_0_0_1px_#171796]"
+                      ? "bg-[#171796] text-white shadow-[inset_0_0_0_1.2px_#171796]"
+                      : "text-[#171796] shadow-[inset_0_0_0_1.2px_#171796] hover:bg-[#171796]/[0.06]"
                   )}
                 >
                   <span className={CAP_TRIM}>{c.label}</span>
@@ -180,7 +215,7 @@ export function ProductShowcase({
           </div>
 
           <div className="w-full lg:w-[360px]">
-            <label className="flex h-11 w-full items-center gap-3 rounded-full px-[14px] shadow-[inset_0_0_0_1px_#b0b0b0] transition-shadow duration-200 focus-within:shadow-[inset_0_0_0_1.5px_#171796]">
+            <label className="flex h-[46px] w-full items-center gap-3 rounded-full px-[14px] shadow-[inset_0_0_0_1px_#b0b0b0] transition-shadow duration-200 focus-within:shadow-[inset_0_0_0_1.5px_#171796]">
               <SearchIcon className="shrink-0 text-[#606060]" />
               <input
                 type="search"
@@ -208,34 +243,39 @@ export function ProductShowcase({
         <QuoteBanner cat={cat} />
       </div>
     </section>
+    {detail && <ProductDetailSections key={active} detail={detail} />}
+    </>
   );
 }
 
 /**
- * The category card (Figma "Frame 140").
+ * The category card (Figma "Frame 140"), with the client's portrait product
+ * photography (2026-10-12): navy studio, spotlight from the top-left, the
+ * product at the bottom-right. One image per range, three crops:
  *
- * FROM `lg` it is the mock: the photo carries the whole card at 1212/650, a
- * navy wash over its left 600px (35% at the edge, clear at 600) holds the
- * wordmark and tagline over the dark backdrop.
+ *   < 640    the WHOLE portrait (2:3), capped at 620px tall on large phones
+ *            with the bottom (the product) kept — the shot is made for this.
+ *   640–1023 4:3, focused on the product (`photoY.sm`).
+ *   ≥ 1024   Figma's 1212:650, focused on the product (`photoY.lg`); pipes
+ *            sit right of centre, so the left of the card stays open for the
+ *            wordmark and tagline, as in the mock.
  *
- * BELOW `lg` the copy gets its own band. The mock has no small-screen frame,
- * and at 375 the card shows a portrait slice of a landscape photo — the
- * tagline ran straight across the bright pipes ("Reliable performance for hot
- * and cold water" over cream CPVC, unreadable). At 768 the same thing happens
- * at full type size. So the copy sits in a band of `#141b28` — the photos'
- * own backdrop colour, sampled from all six (#121926–#1c2335) — and the photo
- * fills the rest, fading up into the band so the seam disappears.
+ * The copy sits top-left, over the spotlight — the brightest part of the shot
+ * — so a navy wash runs down from the top (phones/tablets) or in from the
+ * left (desktop, Figma "Rectangle 26") to keep the white type readable.
  *
- * Not a link while the category pages are off — so no hover zoom either,
- * which would promise a click that goes nowhere. Swapping category
- * cross-fades the whole layer, so it reads as the same card showing a
- * different range.
+ * Not a link while the category pages are off — so no hover zoom either.
+ * Swapping category cross-fades the whole layer.
  */
 function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
   return (
     <div
       aria-live="polite"
-      className="@container relative mt-6 h-[440px] overflow-hidden rounded-[25px] bg-[#141b28] md:mt-[27px] md:h-[590px] lg:h-auto lg:aspect-[1212/650] lg:bg-[#0b0b52]"
+      className="@container relative mt-6 aspect-[1341/2000] max-h-[620px] w-full overflow-hidden rounded-[25px] bg-[#0b1150] sm:aspect-[4/3] sm:max-h-none md:mt-10 lg:mt-[60px] lg:aspect-[1212/650]"
+      style={{
+        ["--py-sm" as string]: `${cat.photoY.sm}%`,
+        ["--py-lg" as string]: `${cat.photoY.lg}%`,
+      }}
     >
       <AnimatePresence initial={false}>
         <motion.div
@@ -246,29 +286,27 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35, ease: EASE_OUT }}
         >
-          {/* Photo: under the band below `lg` (top 150 phone / 230 tablet — just past
-              the tagline's last line), the whole card
-              from `lg`. */}
-          {/* Below `lg` the photo is MASKED to transparent at its top edge
-              rather than covered by a band-coloured overlay: the overlay left
-              a visible 1px seam where the composited photo layer met the
-              card's rounded clip. */}
-          <div className="absolute inset-x-0 bottom-0 top-[150px] [mask-image:linear-gradient(to_bottom,transparent,#000_96px)] md:top-[230px] lg:top-0 lg:[mask-image:none]">
-            <Image
-              src={cat.photo}
-              alt={cat.photoAlt}
-              fill
-              priority
-              sizes="(min-width: 1512px) 1212px, 100vw"
-              className="object-cover object-[65%_50%] lg:object-center"
-            />
-            {/* From `lg`: Figma "Rectangle 26", 600px wide, navy 35% → clear. */}
-            <div
-              aria-hidden="true"
-              className="absolute inset-y-0 left-0 hidden w-[49.5%] lg:block"
-              style={{ background: "linear-gradient(to right, rgba(11,11,82,0.35), rgba(11,11,82,0))" }}
-            />
-          </div>
+          <Image
+            src={cat.photo}
+            alt={cat.photoAlt}
+            fill
+            priority
+            sizes="(min-width: 1512px) 1212px, (min-width: 640px) 92vw, 100vw"
+            className="object-cover object-[50%_100%] sm:object-[50%_var(--py-sm)] lg:object-[50%_var(--py-lg)]"
+          />
+          {/* Phones/tablets: navy from the top, over the spotlight. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-[55%] lg:hidden"
+            style={{ background: "linear-gradient(to bottom, rgba(9,14,66,0.82) 0%, rgba(9,14,66,0.45) 45%, rgba(9,14,66,0) 100%)" }}
+          />
+          {/* Desktop: Figma "Rectangle 26" — navy in from the left, deepened
+              a little for the brighter spotlight in these shots. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-y-0 left-0 hidden w-[55%] lg:block"
+            style={{ background: "linear-gradient(to right, rgba(9,14,66,0.7) 0%, rgba(9,14,66,0.35) 55%, rgba(9,14,66,0) 100%)" }}
+          />
 
           {/* Wordmark at Figma's x60 (x64 for AGRI/TANK), y60; tagline 16
               under it, 24px `#d9d9d9`, 254 wide.
@@ -294,9 +332,11 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
               alt=""
               width={cat.wordmarkWidth}
               height={91}
-              className="h-[60px] w-auto md:h-[91px] lg:h-[7.51cqw]"
+              className="h-[60px] w-auto md:h-[76px] lg:h-[7.51cqw]"
             />
-            <p className="mt-3 text-[19px] leading-[1.15] text-[#d9d9d9] md:mt-4 md:max-w-[340px] md:text-[24px] md:leading-[1.1] lg:mt-[1.32cqw] lg:max-w-[20.96cqw] lg:text-[length:1.98cqw]">
+            {/* Tablet (640–1023): a narrow 240px column — the tanks rise into the
+                top-right of the 4:3 crop and a wider tagline ran over them. */}
+            <p className="mt-3 text-[19px] leading-[1.15] text-[#d9d9d9] sm:max-w-[240px] md:mt-4 md:text-[22px] md:leading-[1.1] lg:mt-[1.32cqw] lg:max-w-[20.96cqw] lg:text-[length:1.98cqw]">
               {cat.tagline}
             </p>
           </div>
@@ -329,9 +369,14 @@ function QuoteBanner({ cat }: { cat: ShowcaseCategory }) {
       <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
         <span
           aria-hidden="true"
-          className="flex size-12 shrink-0 items-center justify-center rounded-[16px] bg-[#171796]/10 text-[#14137e] sm:size-16 sm:rounded-[20px] md:size-20"
+          className="relative size-12 shrink-0 rounded-[16px] bg-[#171796]/10 sm:size-16 sm:rounded-[20px] md:size-20"
         >
-          <QuoteIcon />
+          {/* Figma's chatbox (39px at 20,23 of the 80px tile) and its three
+              lines, flipped vertically as the mock draws them. */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- exported SVG icon */}
+          <img src="/products/icons/chatbox.svg" alt="" width={39} height={39} className="absolute left-[25%] top-[28.75%] size-[48.75%]" />
+          {/* eslint-disable-next-line @next/next/no-img-element -- exported SVG icon */}
+          <img src="/products/icons/chatbox-lines.svg" alt="" width={19.5} height={10.5} className="absolute left-[35.94%] top-[41.09%] h-[13.125%] w-[24.375%] -scale-y-100" />
         </span>
         <div>
           <h2 className="text-[17px] font-medium leading-tight text-[#606060] sm:text-[19px] md:text-[24px] md:leading-none">
@@ -347,14 +392,15 @@ function QuoteBanner({ cat }: { cat: ShowcaseCategory }) {
         className="group flex h-12 shrink-0 touch-manipulation select-none items-center justify-center gap-[10px] whitespace-nowrap rounded-full bg-[#171796] px-4 text-[16px] font-semibold uppercase tracking-[0.36px] text-white transition-[background-color,scale] duration-200 ease-out hover:bg-[#0b0b52] active:scale-[0.98] sm:self-start sm:px-6 sm:text-[18px] lg:self-auto"
       >
         <span className={CAP_TRIM}>{t("becomePartner")}</span>
-        <ArrowIcon className="shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
+        {/* eslint-disable-next-line @next/next/no-img-element -- exported SVG icon */}
+        <img src="/products/icons/arrow.svg" alt="" width={16} height={16} className="shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
       </PartnerLink>
     </div>
   );
 }
 
 /* SearchIcon is exported from the mock (1530:7110); path verbatim, stroke →
-   currentColor. ArrowIcon/QuoteIcon are drawn to match its stroke style. */
+   currentColor. */
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -367,28 +413,4 @@ function SearchIcon({ className }: { className?: string }) {
   );
 }
 
-function ArrowIcon({ className }: { className?: string }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-      <g stroke="currentColor" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3.33333 8H12.6667" />
-        <path d="M8.66667 4L12.6667 8L8.66667 12" />
-      </g>
-    </svg>
-  );
-}
 
-/* Speech bubble with three lines — drawn to sit beside the mock's document
-   icon (24px tall, 1.5 stroke, round caps). */
-function QuoteIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.25 3.75H3.75C2.92157 3.75 2.25 4.42157 2.25 5.25V16.5C2.25 17.3284 2.92157 18 3.75 18H7.5V21.75L12 18H20.25C21.0784 18 21.75 17.3284 21.75 16.5V5.25C21.75 4.42157 21.0784 3.75 20.25 3.75Z" />
-        <path d="M6.75 8.25H17.25" />
-        <path d="M6.75 11.25H17.25" />
-        <path d="M6.75 14.25H12.75" />
-      </g>
-    </svg>
-  );
-}

@@ -55,16 +55,22 @@ function doPost(e) {
     lock.releaseLock();
   }
 
+  // `mail` tells the website what happened to the notification, so a missing
+  // NOTIFY_EMAIL or a Gmail error shows up in its logs instead of silently.
+  var mail = "sent";
   var mailError = null;
-  var to = props.getProperty("NOTIFY_EMAIL");
-  if (to) {
+  var to = (props.getProperty("NOTIFY_EMAIL") || "").trim();
+  if (!to) {
+    mail = "skipped: NOTIFY_EMAIL is not set";
+  } else {
     try {
       sendMail_(to, data);
     } catch (err) {
+      mail = "failed";
       mailError = String(err).slice(0, 200);
     }
   }
-  return reply_({ ok: true, mailError: mailError });
+  return reply_({ ok: true, mail: mail, mailError: mailError });
 }
 
 /** A quick "is it deployed?" check: open the /exec URL in a browser. */
@@ -94,6 +100,28 @@ function testSetup() {
     },
   });
   Logger.log(res.getContent());
+}
+
+/**
+ * Run from the editor when notification emails don't arrive. Check the
+ * Execution log: it shows where mail is going, the remaining daily quota, and
+ * sends one plain test email (no sheet row).
+ */
+function diagnose() {
+  var to = (PropertiesService.getScriptProperties().getProperty("NOTIFY_EMAIL") || "").trim();
+  Logger.log("Script runs as: " + Session.getEffectiveUser().getEmail());
+  Logger.log("NOTIFY_EMAIL: " + (to ? '"' + to + '"' : "NOT SET — add it in Project Settings → Script Properties"));
+  Logger.log("Emails left today (Google quota): " + MailApp.getRemainingDailyQuota());
+  if (!to) return;
+  MailApp.sendEmail(
+    to,
+    "Poddar website — email test",
+    "If this arrived, website notifications can reach this inbox. " +
+      "Sent by the Apps Script attached to the website submissions sheet, from " +
+      Session.getEffectiveUser().getEmail() + ".",
+    { name: "Poddar Pipes Website" }
+  );
+  Logger.log("Test email sent to " + to + ". It is also in the Sent folder of " + Session.getEffectiveUser().getEmail() + ".");
 }
 
 /* ------------------------------------------------------------------ helpers */

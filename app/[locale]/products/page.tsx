@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ProductShowcase } from "@/components/products/ProductShowcase";
+import { ProductsHero } from "@/components/products/ProductsHero";
 import { CTASection } from "@/components/home/CTASection";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -23,7 +24,9 @@ export async function generateMetadata({
 }
 
 /**
- * Figma "product pages" (node 1530:7102): the category showcase, then the
+ * Figma "CPVC Products Page - 2nd draft" (node 1731:7511): the dark hero, the
+ * category showcase (with the range's "What is" / "Why" sections when it has
+ * them — only CPVC so far), then the
  * flush "start a conversation" band — the same CTA as the homepage (its
  * title and copy defaults ARE this mock's copy, already translated; the two
  * button labels are the homepage's "Start a Conversation" / "Download
@@ -52,6 +55,7 @@ export default async function ProductsPage({
 
   return (
     <>
+      <ProductsHero />
       <ProductShowcase initialCategory={category} initialQuery={q ?? ""} />
       <CTASection
         variant="flush"
