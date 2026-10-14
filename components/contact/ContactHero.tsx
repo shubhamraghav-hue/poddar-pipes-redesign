@@ -21,7 +21,10 @@ const HERO_STILL = "/contact/contact-pipes-1512.webp";
 const NAVY = "#0b0b52";
 const NAVY_0 = "rgba(11,11,82,0)";
 
-/** Nodes 1606:11632 / 1606:11635 — 592x240, white @ 5% over the navy band. */
+/** Nodes 1606:11632 / 1606:11635 — white @ 5% over the navy band. Figma's
+    box is 592x240; since the type moved to the home stat cards' sizes
+    (2026-10-14) the height follows the content instead — equal padding all
+    round (58px from `md`, Figma's left inset), no fixed min-height. */
 function ContactCard({ label, value, href }: { label: string; value: string; href: string }) {
   return (
     <a
@@ -30,7 +33,7 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
       // centres `align-items` on flex anchors; it is now scoped away from
       // `flex-col`, but stating the intent here keeps the two in sync. Figma
       // sets the copy flush at x57.8 of 592 (9.76%), which is the `px-[58px]`.
-      className="group @container flex min-h-[160px] touch-manipulation select-none flex-col items-start justify-center rounded-[25px] border-[0.2px] border-[#0b0b52] bg-white/5 px-7 py-8 transition-[background-color,transform,translate,scale] duration-100 ease-out hover:bg-white/[0.08] active:scale-[0.99] active:bg-white/[0.08] md:min-h-[240px] md:px-[58px]"
+      className="group @container flex touch-manipulation select-none flex-col items-start justify-center rounded-[25px] border-[0.2px] border-[#0b0b52] bg-white/5 p-7 transition-[background-color,transform,translate,scale] duration-100 ease-out hover:bg-white/[0.08] active:scale-[0.99] active:bg-white/[0.08] md:p-[58px]"
     >
       {/* 24px at 1.92px tracking is Figma's literal pair; the tracking is 8% of
           the size, which is wide enough that it has to scale with it rather
@@ -40,7 +43,11 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
           `mt-3` between them stays as drawn. Untrimmed, Anek's bottom-heavy
           line box sat the block 7.7px (Call) / 4.2px (Email) high in the card;
           trimming both lines fully would also have shrunk the label→value gap. */}
-      <span className="text-[18px] font-semibold uppercase leading-[1.1] tracking-[0.08em] text-[#f28000] [text-box-edge:cap_alphabetic] [text-box-trim:trim-start] md:text-[24px]">
+      {/* TYPE SIZES match the homepage hero's stat cards (client, 2026-10-14):
+          label = the stat label (12px floor), value = the stat number — see
+          `--hero-card-*` in styles/globals.css — except where the value
+          would not fit: the email is capped by the one-line fit below. */}
+      <span className="text-[length:max(12px,var(--hero-card-label))] font-semibold uppercase leading-[1.1] tracking-[0.08em] text-[#f28000] [text-box-edge:cap_alphabetic] [text-box-trim:trim-start]">
         {label}
       </span>
       {/* SIZED OFF THE CARD, not off the viewport — the same `cqw` technique
@@ -67,7 +74,7 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
           width and force a horizontal scrollbar on the page. */}
       <span
         className="mt-5 break-all font-display font-medium leading-[1.1] text-white transition [text-box-edge:cap_alphabetic] [text-box-trim:trim-end] group-hover:text-[#f28000]"
-        style={{ fontSize: "clamp(14px, 9.7cqw, 44px)" }}
+        style={{ fontSize: "max(14px, min(9.7cqw, var(--hero-card-figure)))" }}
       >
         {value}
       </span>

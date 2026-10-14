@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ChevronDown, Handshake } from "lucide-react";
@@ -22,6 +22,25 @@ export function Navbar() {
   useEffect(() => {
     setOpen(false);
     setActiveMenu(null);
+  }, [pathname]);
+
+  // After a page change, hand focus from the link that was clicked to the new
+  // page (`<main id="main" tabIndex={-1}>` in the locale layout). The navbar
+  // and footer never unmount, so the clicked link otherwise KEPT focus, and
+  // Chrome drew the orange keyboard ring on it the moment any key was pressed
+  // (scrolling with Space/arrows) — "sometimes" a ring on CONTACT. Moving
+  // focus also starts screen readers and Tab on the new page's content.
+  // Only when focus sits outside <main> (nav, footer, menu); query-only
+  // changes (/products?category=…) keep the pathname and are left alone.
+  const seenPath = useRef(pathname);
+  useEffect(() => {
+    if (pathname === seenPath.current) return;
+    seenPath.current = pathname;
+    const main = document.getElementById("main");
+    const active = document.activeElement;
+    if (main && active && active !== document.body && !main.contains(active)) {
+      main.focus({ preventScroll: true });
+    }
   }, [pathname]);
 
   // Mobile menu: lock the page behind it (Lenis + native) and close on
@@ -101,7 +120,10 @@ export function Navbar() {
             const triggerClass = cn(
               // `h-11`: 44px targets — iPads in landscape get this desktop bar
               // with touch, and the links were 29px tall.
-              "flex h-11 items-center gap-1 rounded-full px-4 font-display text-sm font-medium uppercase tracking-tight transition-colors",
+              // `whitespace-nowrap` + tighter padding below `xl`: at 1024 the
+              // two-word labels ("About Us", "News & Media") wrapped onto two
+              // lines.
+              "flex h-11 items-center gap-1 whitespace-nowrap rounded-full px-2.5 font-display text-sm font-medium uppercase tracking-tight transition-colors xl:px-4",
               "text-slate-700 hover:text-ocean-700",
               active && "font-semibold text-ocean-700"
             );

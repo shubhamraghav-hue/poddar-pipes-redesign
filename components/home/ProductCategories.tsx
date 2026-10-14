@@ -10,6 +10,12 @@ import { RangeLink } from "@/components/shared/RangeLink";
 
 // Display order is the brand team's, NOT Figma's layout order — deliberate.
 //
+// `photo` is the SAME 4K studio shot the /products range card uses
+// (lib/data/productShowcase.ts; 2747x4096 webp q90 from the client's
+// originals, 2026-10-14), served at quality 90 — it replaced the older grey
+// studio set (848-1029px wide, no high-res originals). Portrait shots with the
+// product in the bottom third, hence `photoPos` holding the bottom edge.
+//
 // `logo` files are exported from each card's wordmark sub-frame only. The
 // older hand-built `*-logo.svg`s each had an extra "GOLD" pill baked in,
 // invisible at ~40px but obvious once scaled up and duplicating the separate
@@ -23,7 +29,7 @@ const CATEGORIES = [
     logo: "/products/category-cards/cpvc-wordmark.png",
     logoW: 645,
     logoH: 213,
-    photo: "/products/category-cards/cpvc-card.png",
+    photo: "/products/showcase/cpvc-hero.webp",
     photoPos: "50% 100%",
   },
   {
@@ -42,7 +48,7 @@ const CATEGORIES = [
     // still clears the widest render (~225px at the 1400px container) at 2x.
     logoW: 530,
     logoH: 170,
-    photo: "/products/category-cards/upvc-card.png",
+    photo: "/products/showcase/upvc-hero.webp",
     photoPos: "50% 100%",
   },
   {
@@ -53,7 +59,7 @@ const CATEGORIES = [
     logo: "/products/category-cards/swr-wordmark.png",
     logoW: 618,
     logoH: 213,
-    photo: "/products/category-cards/swr-card.png",
+    photo: "/products/showcase/swr-hero.webp",
     photoPos: "50% 100%",
   },
   {
@@ -64,7 +70,7 @@ const CATEGORIES = [
     logo: "/products/category-cards/agri-wordmark.png",
     logoW: 627,
     logoH: 213,
-    photo: "/products/category-cards/agri-card.png",
+    photo: "/products/showcase/agri-hero.webp",
     photoPos: "50% 100%",
   },
   {
@@ -75,7 +81,7 @@ const CATEGORIES = [
     logo: "/products/category-cards/ugd-wordmark.png",
     logoW: 576,
     logoH: 213,
-    photo: "/products/category-cards/ugd-card.png",
+    photo: "/products/showcase/ugd-hero.webp",
     photoPos: "50% 100%",
   },
   {
@@ -86,35 +92,16 @@ const CATEGORIES = [
     logo: "/products/category-cards/tank-wordmark.png",
     logoW: 675,
     logoH: 213,
-    // A pair-of-tanks studio shot (Sep 2026). The frame is the shared
-    // `h-[68%]` box, same for all six cards, and nothing below touches it.
-    //
-    // PLACEMENT lives in PHOTO_PAN below (see its note): x and y, both
-    // editable here with no regeneration, both axes free. `photoPos` is
-    // IGNORED for this card — the pan layer replaces it, because
-    // `object-position` can only ever move along one axis.
-    //
-    // SIZE comes from the crop, and needs regenerating:
-    //   node scripts/crop-tank-card.mjs "<Tanks v3 (1).png>" 820
-    //        --right 0.82 --floor 61 --slack 0 --tag g4
-    //
-    //   820        crop width. SMALLER = bigger tanks. Note the pan `zoom`
-    //              multiplies this, so at zoom 125 a crop of 820 renders the
-    //              tanks the same size a 660 crop did with no pan.
-    //   --slack 0  REQUIRED for panning: it cuts the crop to the frame's own
-    //              aspect, so the pan layer is the only thing moving.
-    //   --right    where the tanks sit in the CROP. Keep them inside the
-    //              pannable band — at zoom 125 only the middle 80% of the
-    //              crop is ever visible, so 0.82 rather than 0.92.
-    //   --floor    floor under the bases in the crop. 61 rather than 10,
-    //              because the zoom would otherwise push the bases out of the
-    //              bottom of the frame before x/y could pull them back.
-    //   --tag      always a NEW one when the source or these numbers change:
-    //              Next's optimiser caches by path.
-    photo: "/products/category-cards/tank-card-g4-z820.png",
-    // No `photoPos` on purpose. It is inert once a card pans, and leaving a
-    // dead value sitting here invites editing it and seeing nothing happen.
-    // Placement for this card is PHOTO_PAN.tanks, immediately below.
+    // The tanks stand taller in the shot than the pipes: lids at y≈53.6%,
+    // bases at ≈86% (pipes ≈63-98%), measured from the file. Desktop's
+    // 1.57:1 frame shows ~43% of the image height, so 82% frames both tanks
+    // whole with room above the lids. The phone frame (2.5:1) shows only
+    // ~27% — less than the tanks' 33% — so phones get their own crop that
+    // keeps the lids and upper bodies (`photoPosMobile`). The old grey tank
+    // shot needed the PHOTO_PAN layer below and scripts/crop-tank-card.mjs.
+    photo: "/products/showcase/tank-hero.webp",
+    photoPos: "50% 82%",
+    photoPosMobile: "50% 64%",
   },
 ] as const;
 
@@ -180,14 +167,11 @@ type Pan = {
 //
 // The desktop values are the ones tuned by hand against the studio shot and are
 // deliberately untouched.
-const PHOTO_PAN: Partial<Record<(typeof CATEGORIES)[number]["id"], Pan>> = {
-  tanks: {
-    zoom: 125,
-    x: 60,
-    y: 85,
-    mobile: { w: 100, h: 160.29, left: 0, top: -28.68 },
-  },
-};
+// No card pans at the moment: the 4K shots (2026-10-14) all frame with
+// `photoPos`. The old grey tank shot used { zoom: 125, x: 60, y: 85, mobile:
+// { w: 100, h: 160.29, left: 0, top: -28.68 } } — the mechanism stays for the
+// next shot that needs two-axis placement.
+const PHOTO_PAN: Partial<Record<(typeof CATEGORIES)[number]["id"], Pan>> = {};
 
 /** Turns a pan into the layer's size and offset. */
 // Emits both placements as custom properties rather than as `width`/`left`
@@ -262,6 +246,7 @@ export async function ProductCategories() {
                         alt=""
                         fill
                         sizes="(min-width: 640px) 42vw, 125vw"
+                        quality={90}
                         className="object-cover"
                       />
                     </div>
@@ -277,12 +262,17 @@ export async function ProductCategories() {
                       alt=""
                       fill
                       sizes="(min-width: 640px) 33vw, 100vw"
-                      // Guarded read: the panning card deliberately has no
-                      // `photoPos`, so this union member may not carry one.
-                      style={{
-                        objectPosition: "photoPos" in cat ? cat.photoPos : undefined,
-                      }}
-                      className="object-cover"
+                      quality={90}
+                      // Through custom properties because an inline style
+                      // cannot carry a media query: `--pos-m` below `sm`
+                      // (the phone frame), `--pos` above it.
+                      style={
+                        {
+                          "--pos": cat.photoPos,
+                          "--pos-m": "photoPosMobile" in cat ? cat.photoPosMobile : cat.photoPos,
+                        } as CSSProperties
+                      }
+                      className="object-cover object-[var(--pos-m)] sm:object-[var(--pos)]"
                     />
                   )}
                 </div>

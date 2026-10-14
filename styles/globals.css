@@ -642,3 +642,32 @@ button[aria-label="Select language"] svg {
 section.bg-ink.mt-\[80px\] :is(a, button).rounded-full:focus-visible {
   outline: none;
 }
+
+/* ---------------------------------------------------------------------------
+   HERO CARD TYPE SCALE — the homepage hero's four stat cards
+   (components/home/Hero.tsx) size their type off the card's own width:
+   number 22.74%, label 5.68% (69 / 17px at 1512). The About and Contact hero
+   cards reuse the SAME sizes (client, 2026-10-14), so these variables rebuild
+   that card's width from the viewport, breakpoint by breakpoint, matching the
+   home grid (`container-edge` + 2 cols / gap 16 below `sm`, 4 cols / gap 20
+   from `sm`).
+
+   Hero.tsx does NOT read these — it keeps its own `cqw` sizes. If its grid or
+   `container-edge` ever changes, update the four widths below to match.
+   `100vw` includes a classic scrollbar, so on desktop browsers these land
+   ~1px larger than the home cards between 640 and 1400 — not visible.
+   --------------------------------------------------------------------------- */
+:root {
+  --hero-card-w: calc((100vw - 64px) / 2);
+  --hero-card-figure: calc(var(--hero-card-w) * 0.2274);
+  --hero-card-label: calc(var(--hero-card-w) * 0.0568);
+}
+@media (min-width: 40rem) {
+  :root { --hero-card-w: calc((100vw - 108px) / 4); }
+}
+@media (min-width: 48rem) {
+  :root { --hero-card-w: calc((100vw - 140px) / 4); }
+}
+@media (min-width: 80rem) {
+  :root { --hero-card-w: calc((min(100vw, 1400px) - 188px) / 4); }
+}

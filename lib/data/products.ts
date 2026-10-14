@@ -35,7 +35,7 @@ export const products: Product[] = [
       "Salt water / coastal lines",
       "Industrial process & semi-aggressive fluid lines",
     ],
-    materials: ["Lead-free virgin uPVC compound", "UV-stabilized outer layer"],
+    materials: ["Lead-free virgin uPVC compound", "UV-stabilised outer layer"],
     installationGuide: [
       "Cut pipe ends square (90°) and remove at least 25mm beyond any cracked or splintered section.",
       "Deburr and lightly bevel the pipe end before dry-fitting it into the socket.",
@@ -61,7 +61,7 @@ export const products: Product[] = [
       "Manufactured to IS 13592:2013 (pipes) / IS 14735:1999 (fittings)",
       "Pushfit (O-ring) and Solfit (solvent cement) jointing options",
       "Self-alignment marks on ½\", ¾\", and 1\" elbows and fittings",
-      "UV-stabilized construction for reliable outdoor and rooftop performance",
+      "UV-stabilised construction for reliable outdoor and rooftop performance",
     ],
     benefits: [
       "100% leak-proof joints under prolonged service",
@@ -172,7 +172,7 @@ export const products: Product[] = [
     applications: [
       "Agricultural water supply mains",
       "Bulk field & irrigation network distribution",
-      "Farm-level pressurized water networks",
+      "Farm-level pressurised water networks",
     ],
     materials: ["Lead-free virgin uPVC compound"],
     installationGuide: [
@@ -199,7 +199,7 @@ export const products: Product[] = [
     features: [
       "Pressure-compensating emitters",
       "Anti-siphon and anti-clog emitter design",
-      "UV-stabilized LLDPE construction",
+      "UV-stabilised LLDPE construction",
       "Compatible with fertigation systems",
     ],
     benefits: [
@@ -236,7 +236,7 @@ export const products: Product[] = [
     categoryLabel: "TANKS",
     shortDescription: "Insulated 4-layer rotomoulded tanks with a foam core that keeps stored water cooler in peak summer heat.",
     description:
-      "Poddar 4-Layer tanks add a foam insulation layer between the UV-stabilized outer shell and food-safe inner layer, keeping stored water between 13°C and 15°C cooler than a 45°C ambient. An anti-bacterial Nano-Silver layer, designed for anti-algae and anti-fungal performance, helps keep stored water hygienic throughout the tank's service life.",
+      "Poddar 4-Layer tanks add a foam insulation layer between the UV-stabilised outer shell and food-safe inner layer, keeping stored water between 13°C and 15°C cooler than a 45°C ambient. An anti-bacterial Nano-Silver layer, designed for anti-algae and anti-fungal performance, helps keep stored water hygienic throughout the tank's service life.",
     features: [
       "Foam insulation layer moderates water temperature against ambient heat",
       "Anti-Bacterial layer with Nano-Silver technology",
@@ -280,11 +280,11 @@ export const products: Product[] = [
     name: "Poddar 3-Layer Water Storage Tanks",
     category: "tanks",
     categoryLabel: "TANKS",
-    shortDescription: "UV-stabilized triple-layer rotomoulded tanks engineered with extra ribs for durability across 500L–10,000L.",
+    shortDescription: "UV-stabilised triple-layer rotomoulded tanks engineered with extra ribs for durability across 500L–10,000L.",
     description:
-      "Poddar 3-Layer tanks pair a UV-stabilized outer shell with a food-safe inner layer, reinforced with extra ribs validated through Finite Element Analysis for structural durability. A Nano-Silver antibacterial layer, designed for anti-algae and anti-fungal performance, helps keep stored water safe, from 500L residential sizes up to 10,000L bulk storage.",
+      "Poddar 3-Layer tanks pair a UV-stabilised outer shell with a food-safe inner layer, reinforced with extra ribs validated through Finite Element Analysis for structural durability. A Nano-Silver antibacterial layer, designed for anti-algae and anti-fungal performance, helps keep stored water safe, from 500L residential sizes up to 10,000L bulk storage.",
     features: [
-      "UV-stabilized outer layer for long outdoor service life",
+      "UV-stabilised outer layer for long outdoor service life",
       "Extra structural ribs engineered using Finite Element Analysis",
       "Anti-Bacterial layer with Nano-Silver technology",
       "Designed for anti-viral, anti-algae and anti-fungal performance",
@@ -296,7 +296,7 @@ export const products: Product[] = [
       "Threaded dual-layer lid resists insect and debris entry",
     ],
     specs: [
-      { label: "Layer construction", value: "3-layer (UV-stabilized outer, structural, food-grade inner)" },
+      { label: "Layer construction", value: "3-layer (UV-stabilised outer, structural, food-grade inner)" },
       { label: "Capacity range", value: "500L – 10,000L" },
       { label: "Colours", value: "White, Nagpur Orange, Yellow, Blue, Ash Grey, Green, Pink, Military Green" },
       { label: "Manhole diameter", value: "400mm (up to 1500L), 470mm (2000L and above)" },
@@ -330,11 +330,11 @@ export const products: Product[] = [
     categoryLabel: "TANKS",
     shortDescription: "2-layer rotomoulded tanks in food-grade virgin plastic, available in black from 500L to 5000L.",
     description:
-      "Poddar's 2-Layer tank is rotomoulded from virgin, food-grade polyethylene for safe, untainted water storage. UV-stabilized construction and a Nano-Silver antibacterial layer give the tank reliable performance for residential and institutional use.",
+      "Poddar's 2-Layer tank is rotomoulded from virgin, food-grade polyethylene for safe, untainted water storage. UV-stabilised construction and a Nano-Silver antibacterial layer give the tank reliable performance for residential and institutional use.",
     features: [
       "Two-layer construction with a food-grade inner layer",
       "Rotational moulded polyethylene construction",
-      "UV-stabilized for outdoor durability",
+      "UV-stabilised for outdoor durability",
       "Anti-Bacterial layer with Nano-Silver technology",
     ],
     benefits: [
@@ -344,7 +344,7 @@ export const products: Product[] = [
       "Robust, dependable solution for everyday water storage",
     ],
     specs: [
-      { label: "Layer construction", value: "2-layer (UV-stabilized outer, food-grade inner)" },
+      { label: "Layer construction", value: "2-layer (UV-stabilised outer, food-grade inner)" },
       { label: "Capacity range", value: "500L – 5,000L" },
       { label: "Colour", value: "Black only" },
       { label: "Manhole diameter", value: "400mm (up to 1500L), 470mm (2000L and above)" },
@@ -428,7 +428,7 @@ export const products: Product[] = [
       "Manufactured to IS 16098 (Part 1):2013; fittings to EN 1401-1:2009 (SDR 41)",
       "Solvent-welded joints for a strong, permanent bond",
       "Three-layer foam-core wall for rigidity at reduced weight",
-      "Smooth internal bore minimizes friction loss and deposit build-up",
+      "Smooth internal bore minimises friction loss and deposit build-up",
     ],
     benefits: [
       "Permanent leak-proof joints for long-term structural integrity",

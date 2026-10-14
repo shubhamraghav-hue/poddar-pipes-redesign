@@ -47,12 +47,14 @@ No other prompt is needed — everything required is below.
 - [x] ~~Outlined CTA 48-vs-46px + high labels~~ — done in `CTASection` (all
       ~14 pages) and `AboutHero` (session 3). Only `Hero.tsx` still has it —
       *locked, ask the user before touching it*.
-- [ ] /products: add "What is" / "Why" content for uPVC, AGRI, SWR, UGD, TANK
+- [ ] /products: add "What is" / "Why" content for AGRI, SWR, TANK (uPVC + UGD done 2026-10-14)
       in `lib/data/productDetails.ts` once the client finalises it.
 - [ ] /products banner: Figma 1731:7511 says "Request a quote" but the client
       asked for "Become a Partner" (2026-10-09) — which wins?
       *(needs user decision)*
-- [ ] Navbar: "ABOUT US" wraps to two lines at 1024 (pre-existing).
+- [x] ~~Navbar: "ABOUT US" wraps to two lines at 1024~~ — fixed 2026-10-14 (nowrap + px-2.5 below xl).
+- [x] ~~Navbar focus ring after clicking a nav link~~ — done 2026-10-14.
+- [x] ~~Hero poster cache-bust~~ — CACHE_BUST is ?v=3 (2026-10-14).
 - [ ] Contact page bottom spacing: Figma 240px under the form, built 120
       (site standard). *(needs user decision)*
 - [ ] Product page bulk-order CTA could pre-fill the product name in the
@@ -62,37 +64,272 @@ No other prompt is needed — everything required is below.
 
 ## Last prompt
 
-> [image: navy backdrop with gold light streaks, 1512x760] use exactly this
-> image as hero bg without any additional effects
+> yes convert all to British English
 
-**Status: done.** `public/products/hero/hero-bg.webp` is now the client's
-file byte-for-byte (1512x760 = the hero's size at 1512), rendered
-`unoptimized` (no re-encode), no overlay. Also removed the cluster's Figma
-navy drop-shadow — it painted a dark band over the backdrop.
+**Status: done, verified in rendered HTML** (/, /contact, /privacy-policy,
+/terms-of-service, a tank product page, /about). Site copy is now British
+ English throughout. Changed (values/strings only; keys, ids and code kept):
+- messages/*.json: Inquiry/inquiry/inquiries -> Enquiry/enquiry/enquiries,
+  Catalog/catalog -> Catalogue/catalogue, organized -> organised (en: 13;
+  the 9 English-placeholder locales: 4 each). Key form.inquiryType unchanged.
+- lib/data/legal.ts: enquiries/enquiry x5, unauthorised x3, authorised,
+  license (noun) -> licence (verb sub-license kept); faq.ts organised;
+  products.ts UV-stabilised x11, pressurised, minimises; productDetails.ts
+  Unplasticised; LegacyStory.tsx revitalised; EnquiryForm.tsx visible
+  strings: Enquiry details, Send Partnership Enquiry.
+- Left as code: id="inquiry" anchor (ProductDetail), autoComplete=organization,
+  schema.org Organization, CSS center/color, Next internal unauthorized key.
+- Rule going forward: write new copy in British/Indian English.
 
-### Previous prompt (same session)
+### Previous prompt (which English)
 
-> https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1731-7511&m=dev
-> can we recreate the product page for now, and update the contents for CPVC as right now all the other products details are not finalised
+> Also can you check which english are we using on our site
 
-**Status: done, verified at 375 / 1024 / 1280 / 1512.** /products rebuilt to
-Figma 1731:7511 ("CPVC Products Page - 2nd draft"):
-- New dark hero `components/products/ProductsHero.tsx` (was dead code): Figma
-  wave backdrop + product cluster in an orange U (`public/products/hero/`).
-  The heading/copy moved here from the showcase. Art width is capped so the
-  heading stays clear down to 1024; the U hangs from the top at every width.
-- `ProductShowcase`: pills 46px, navy 1.2px ring + navy SemiBold (active
-  filled), 12 apart; section 180 top/bottom; card 60 under pills; banner icon
-  and arrow are now Figma's SVGs (`public/products/icons/`). CPVC tagline →
-  "Corrosion-free piping for hot and cold water."
-- New `components/products/ProductDetailSections.tsx` + data
-  `lib/data/productDetails.ts`: "What is CPVC?" (navy, molecule render in 3
-  layers) and "Why CPVC?" (5 photo cards, sideways scroll, snap, mouse drag).
-  **Only CPVC has an entry** — other ranges show no detail sections until
-  their content is added there.
-- Kept the client's "Become a Partner" banner; the Figma draft shows
-  "Request a quote for CPVC" / "Request a quote" instead.
+**Status: answered, no change.** Site copy is British/Indian English (catalogue
+~100x, enquiry ~180x, colour, centre, labour, metre, grey, rotomoulded,
+minimise, centralised). American strays: inquiry/inquiries (messages/en.json
+form.*, home.whyResponse*, manufacturing.ctaEyebrow, contact.heroDesc /
+formHeading / formDesc; lib/data/legal.ts), catalog (en.json
+nav.navViewFullCatalog, products.ctaCustomTitle), organized (faq a4 in en.json
++ lib/data/faq.ts), UV-stabilized x8 + minimizes (lib/data/products.ts),
+authorized (legal.ts). Converted next prompt (2026-10-14).
+
+### Previous prompt (delete verify-hevc-alpha)
+
+> delete the verify-hevc-alpha script too
+
+**Status: done.** scripts/verify-hevc-alpha.mjs git-rm'd (staged). Nothing
+ran it (not in package.json); BRAND_IDENTITY.md ~L2025 still mentions it as
+history, left as is.
+
+### Previous prompt (hero optimizations)
+
+> yes do all three hero optimizations
+
+**Status: done, verified at 375 / 767 / 768 / 1512.** User-approved edits to
+the LOCKED Hero.tsx (this prompt only):
+1. Poster: HERO_POSTER = /hero/hero-fittings-poster.webp (189KB, q85,
+   2576x1440) replacing the 3.3MB PNG (git rm). Used by <video poster> and
+   the next/image overlay. New path, so no stale caches.
+2. Phones: new /hero/hero-fittings-phone.webm = the phone crop only
+   (crop=970:1076:24:0 of the 1924x1076 source, native res, crf31) — 4.9MB
+   vs 12.6MB. The crop equals the phone box ratio (1/1.10945) at the
+   object-[2.525%_50%] position, so framing is identical. Chosen in JS
+   (isPhone = matchMedia(MOBILE_QUERY), set in the same effect as
+   needsMp4Only), not <source media>, which unsupporting browsers ignore.
+   <=767 loads the phone file, >=768 the full one. Safari path unchanged.
+3. Deleted (git rm): hero-fittings-alpha.mp4 (18MB; only
+   scripts/verify-hevc-alpha.mjs used it — script deleted next prompt),
+   hero-fittings-mobile.webm/.mp4/-poster.png, _figma-herostats-full.png,
+   slide-1.webm. public/hero: ~80MB -> 33MB.
+
+### Previous prompt (uPVC + UGD product pages)
+
+> https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1809-9139&m=dev
+> create a similar page as cpvc for upvc design according to the figma directly export assets from figma and try to keep the image quality at its best
+
+(mid-turn) > https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1809-9345&m=dev
+> and do the same for UGD
+
+**Status: done, verified at 1512 + 375 for CPVC / uPVC / UGD.**
+- `lib/data/productDetails.ts`: entries for upvc-pipes (Figma 1809:9139) and
+  ugd-pipes (1809:9345). New `whatIs.art` {w,h,centerY} (CPVC/uPVC 778x1160
+  +40; UGD 757x1129 +100.5 = top -74); `WhyCard.image/crop` optional.
+- Assets: public/products/upvc/*, public/products/ugd/* exported from Figma
+  at FULL source resolution, webp q90 (no upscaling). CPVC set re-exported
+  the same way (was resized, q80). UGD What-is images are only 848x1264 /
+  687x1024 in Figma — the max available.
+- UGD "Leak-Proof Joints": Figma flips + rotates the photo 159.15deg; baked
+  into why-leak-proof.webp (613x735, source scale) instead of CSS transforms.
+- UGD "Corrosion Resistant & Rodent Proof" has NO photo in the mock — card
+  renders navy + footer. Needs an image from the client. *(needs user input)*
+- uPVC "Resistant to Chemicals" photo is 470 tall in Figma (10px short of
+  the card) — scaled to 480 about its centre.
+- `ProductDetailSections.tsx`: range names keep case (normal-case → "uPVC");
+  art box data-driven (CSS vars); Why cards now use the newer frames' style
+  for ALL ranges: 21px one-line titles (5.25cqw), x30 (7.5%), bottom 7cqw,
+  200px footer (41.67%) at 8px blur; quality 90; per-card sizes = crop width
+  (wide crops were served soft). Navy wash extended 1px left (hairline seam).
+- Banner in the UGD frame says "Request a quote for uPVC" (copy-paste in
+  the mock); site keeps the client's Become a Partner banner.
+
+### Previous prompt (Why card titles one line)
+
+> [screenshot: the Why CPVC cards, titles wrapping] Make text smaller to fit in one line.
+
+**Status: done, measured at 375 / 768 / 1512.** components/products/ProductDetailSections.tsx:
+the Why cards are now @container and the h3 is whitespace-nowrap at 5cqw
+(20px on the 400px card, ~14.6px on the 293px phone card), insets 10% /
+bottom 8cqw. Sized by the longest title, Self-Extinguishing and Fire
+Retardant (15.16x its font size = 303px of the 320px inner width). All
+five titles one line at every width. A longer future title needs this
+size revisited.
+
+### Previous prompt (old card images, media load, 1975 copy)
+
+> yes delete the old card images, also see if we can reduce the image and
+> media load time site wide
+
+(mid-turn) > on about us page change just the text for 1975 [old: "The
+> Poddar Family was founded in Patna, beginning its journey in pipe
+> manufacturing." → new: "The Poddar Family began it's journey in pipe
+> manufacturing in Patna."]
+
+**Status: done (non-hero parts); hero parts need user OK.**
+- Deleted (git rm, staged): `public/products/category-cards/{cpvc,upvc,swr,agri,ugd}-card.png`,
+  `tank-card-g4-z820.png` (7.2MB, unused). Wordmarks kept.
+- About "Our Story" gold backdrop (`components/home/LegacyStory.tsx`): 1.2MB
+  PNG served `unoptimized` → `public/legacy/legacy-gold-bg.webp` (62KB
+  master, opaque) through next/image: 18KB transferred at 1512. Old PNG
+  git-rm'd. New path on purpose (Next's optimiser caches by path).
+- `/products` range card: dropped `priority` (below the fold since
+  ProductsHero went in above it; it competed with the hero for first paint).
+- 1975 copy (LegacyStory.tsx `desc`): "The Poddar Family began its journey
+  in pipe manufacturing in Patna." — "its", not the screenshot's "it's".
+- Audit, measured, NOT done (Hero.tsx locked — ask):
+  1. `<video poster>` fetches the raw 3.3MB PNG; as WebP q82 it is ~171KB
+     (~92KB at 1924w). Needs HERO_POSTER path change in Hero.tsx.
+  2. Phones download the same 12.6MB desktop WebM (Safari phones already get
+     the 2.7MB packed-half). A 1288x720 WebM (crf 32) is ~5MB; needs a
+     `<source media="(max-width: 767px)">` in Hero.tsx.
+  3. Desktop WebM: native 1924 crf30 ≈ 12.2MB vs 12.6MB now — not worth it.
   *(needs user decision)*
+- Unused (not loaded, only deploy weight): hero-fittings-mobile.webm (5MB),
+  -mobile.mp4 (2.9MB), -mobile-poster.png, _figma-herostats-full.png,
+  slide-1.webm; hero-fittings-alpha.mp4 (18MB) only referenced by test
+  page/scripts. Offered to delete. *(needs user decision)*
+
+### Previous prompt (home product images + header)
+
+> Also can we update the product images that we used in there and use the
+> same in the home page product section, i just want to enhance the quality
+> of the images is it possible or not?
+
+(mid-turn) > remove the calculater link from header and keep only News&
+> Media section instead of Resources dropdown
+
+**Status: both done, verified in-browser.**
+- **Home product cards** (`components/home/ProductCategories.tsx`): all six
+  now use the /products 4K shots (`/products/showcase/*-hero.webp`) at
+  `quality={90}`, replacing the older grey studio set (848-1029px, no
+  high-res originals). Pipes keep `photoPos` 50% 100%. Tank: measured lids
+  y≈53.6%, bases ≈86% → desktop `50% 82%` (whole tanks), phones get
+  `photoPosMobile: "50% 64%"` (the 2.5:1 phone frame shows only ~27% of the
+  height, so the bases are cropped, lids kept). Positions go through
+  `--pos`/`--pos-m` + `object-[var(--pos-m)] sm:object-[var(--pos)]`.
+  PHOTO_PAN is now empty (mechanism kept; old tank values in a comment).
+  Old `public/products/category-cards/*-card*.png` (7.2MB) are now unused —
+  offered to delete. *(needs user decision)*
+- **Header** (`lib/data/nav.ts`): Resources dropdown → plain
+  `{ key: "navBlogsArticles", href: "/articles" }` ("News & Media"); the
+  calculator left the header (still in the footer, page still live).
+  `nav.navBlogsArticles` was missing in 9 locales (no next-intl fallback →
+  raw key) — added as English "News & Media" placeholders (bn, gu, kn, ml,
+  mr, or, pa, ta, te). Navbar triggers now `whitespace-nowrap`, `px-2.5`
+  below `xl` (`xl:px-4`): no two-line labels from 1024 up.
+- Pre-existing uncommitted edits seen in messages/*.json
+  (`newsletterDescription` comma) are not from this session.
+
+### Previous prompt (hero poster cache bust)
+
+> yes bump the hero poster cache bust too
+
+**Status: done.** User-approved one-line edit to the LOCKED Hero.tsx:
+CACHE_BUST "?v=2" -> "?v=3" (the <video poster> URL). Verified on / : poster
+attr is /hero/hero-fittings-poster.png?v=3, video plays. The next/image poster
+overlay (src without a query) is not busted by this; Next 16 caches optimized
+images for minimumCacheTTL (4h default), so returning visitors could see the
+old frame there briefly within that window. Renaming the PNG would fully bust
+it, but needs another Hero.tsx edit (ask first).
+
+### Previous prompt (navbar focus fix + card heights)
+
+> yes add the navbar focus fix, also the font sizes that you reduced should
+> also make their cards smaller accordingly so there is not extra vacant space
+
+**Status: done, verified in-browser.**
+- **Navbar focus fix** (`components/layout/Navbar.tsx`): on a pathname
+  change, if focus sits outside `<main id="main" tabIndex={-1}>` (nav,
+  footer, menu), it moves to `<main>` with `preventScroll`. Verified: click
+  CONTACT → focus on MAIN, scrollY 0; pressing ↓ draws no ring in the header;
+  Tab then lands on "Send Us a Message" with its ring. Query-only changes
+  (/products?category=) are untouched.
+- **About Vision/Mission cards** (`components/about/AboutHero.tsx`): from
+  `md` the height follows the content — 50px sides/bottom (8.4459cqw), title
+  starts 20px under the quote cut-out (pt 28.2095cqw; level with it the
+  title hit the cut-out on the 323px two-up cards at 768). The shape SVG
+  (`preserveAspectRatio="none"`) keeps its 582/518 ratio pinned top-left and
+  is clipped. `bodyWidth` props are now cqw. 1512: 622x359 (was ~473 tall);
+  1024: 451x261; 768: 323x208. Mobile strip layout unchanged.
+- **Contact cards** (`components/contact/ContactHero.tsx`): no min-height,
+  equal padding (p-7 / md:p-[58px]). 1512: 189 tall (was 240); 375: 108.
+
+### Previous prompt (hero card type sizes)
+
+> also for about us hero section and contact us hero section the cards below
+> should follow the consistent font size as in the home page hero section 4 cards
+
+**Status: done, measured at 375 / 768 / 1024 / 1512.** Hero.tsx untouched.
+- New `--hero-card-w` / `--hero-card-figure` (x0.2274) /
+  `--hero-card-label` (x0.0568) on `:root` at the END of
+  styles/globals.css — the home stat card's width rebuilt from the viewport
+  per breakpoint (container-edge + 2 cols/gap16, 4 cols/gap20 from sm). If
+  Hero's grid or container-edge changes, update those widths.
+- About Vision/Mission: title = stat number size, body = stat label size
+  (12px floor). Contact cards: label = stat label (12px floor), value =
+  min(stat number, the email's one-line fit 9.7cqw) — at 1512 that is 45px,
+  not 69, because the email would overflow the card at 69.
+- Measured (number / label px): home 68.9/17.2 at 1512 = about 68.9/17.2;
+  1024 home 49.4/12.3, about 50.3/12.6 (100vw includes the scrollbar).
+- Hit the .next trap: the dev server never picked up the globals.css append
+  until stop -> rm -rf .next -> start.
+
+### Previous prompt (navbar focus ring)
+
+> [screenshot: /contact, orange ring around CONTACT in the navbar] why is it
+> that sometimes i see a orange hover on navbar selection and not always?
+
+**Status: answered, no code change.** It is the keyboard-focus ring
+(`:focus-visible`, 3px #d96d00, unlayered in styles/globals.css ~L632), not
+a hover. The clicked nav link keeps focus after client-side navigation (the
+navbar never unmounts); Chrome shows the ring only once the last input was a
+key (Tab, arrows, Space/PageDown to scroll, shortcuts), hence "sometimes".
+Offered fix: on route change, move focus off the header to the page
+(`<main>`), which clears the ring and is better for screen readers.
+*(needs user decision)*
+
+### Previous prompt (2026-10-14, hero video)
+
+> "C:\Users\VX-LT-360\Downloads\Updated Homepage Hero Image for Poddar Pipes Website (1).webm"
+> update the video for the hero section and keep the allignment as same across all the layouts and screen sizes
+
+**Status: done, verified at 375 / 768 / 1024 / 1512 + the WebKit packed
+path on `/_alpha-packed-test.html`.** Hero.tsx was NOT edited (locked) —
+only its five assets in `public/hero/` were replaced, same names and
+dimensions:
+- Source: 1924x1076 VP9 with alpha, 10s (old: 2576x1440, 15.12s). Same
+  scene and framing: alpha-matte diff at 0 offset was the best match, so
+  every crop (incl. the mobile `object-[2.525%_50%]`) lines up as before.
+- Upscaled (lanczos) to the existing 2576x1440 so Hero.tsx/AlphaVideo
+  constants still match. NOTE `setsar=1` is required — the source aspect
+  isn't exactly 16:9-ish 2576:1440, and without it the WebM decoded as
+  2576x1441 in Chrome.
+- Recipes as in BRAND_IDENTITY.md: WebM (yuva420p, alpha_mode=1, crf30
+  10M/14M), MP4 on #14134f (crf27 slow), packed + packed-half (premultiplied
+  colour over luma matte, crf23), poster = frame 0 on #14134f, RGB.
+- Not changed: `CACHE_BUST = "?v=2"` in Hero.tsx for the poster
+  (its comment says to bump it when the PNG is regenerated in place). Locked
+  file — ask the user before bumping it.
+  *(needs user decision)*
+- Unused legacy files left alone: hero-fittings-alpha.mp4, -mobile.*.
+
+### Earlier prompt (2026-10-13)
+
+> the product images we used for product page should be of higher quality
+> since i provided 4k images? but they are breaking on smaller screens
+
+**Status: done** — /products range photos re-exported from the 4K originals,
+`quality={90}` (see §5 "Image quality").
 
 ---
 
@@ -189,6 +426,11 @@ Figma 1731:7511 ("CPVC Products Page - 2nd draft"):
   (the locked Hero) — remove the exclusion once the owner approves.
 - A JSX `{/* */}` comment placed directly before a component's root element in
   `return (` breaks the parse (two roots) — put it inside the element.
+- **Image quality:** next/image defaults to q75 AVIF, which smears dark
+  gradients and small print. Use full-size, high-quality masters and
+  `quality={90}` (already allowed in next.config.ts). Images pasted into chat
+  arrive downscaled (1341x2000); the user's originals are in
+  `C:/Users/VX-LT-360/Downloads`.
 - **Figma MCP** is on a Starter plan with a call cap — prefer `get_metadata`;
   the 1512 viewport in browsers includes a 15px scrollbar (column 1197, not
   1212).

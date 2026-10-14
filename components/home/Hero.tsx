@@ -22,13 +22,18 @@ import { AlphaVideo } from "@/components/home/AlphaVideo";
  *     pre-composited onto the section's own `#14134f`. Do not bake the
  *     blueprint grid into it — `bg-grid-dark` below already paints over the
  *     whole video.
- *   - One source serves every breakpoint. Figma's mobile frame is the same
- *     2576×1440 clip, just cropped left-biased rather than centred, so it
- *     needs `object-position` and not a second file.
+ *   - Figma's mobile frame is the same clip, cropped left-biased rather than
+ *     centred (`object-[2.525%_50%]`). Phones (MOBILE_QUERY) get their own
+ *     WebM of exactly that crop — 970x1076 at x24 of the 1924x1076 source,
+ *     the phone box's own 1/1.10945 ratio, so it frames identically — at the
+ *     source's native resolution: 4.9MB against the desktop file's 12.6MB
+ *     (2026-10-14). Desktop and the MP4 fallback keep the full frame.
  */
 const HERO_VIDEO = "/hero/hero-fittings.webm";
+const HERO_VIDEO_PHONE = "/hero/hero-fittings-phone.webm";
 const HERO_VIDEO_MP4 = "/hero/hero-fittings.mp4";
-const HERO_POSTER = "/hero/hero-fittings-poster.png";
+// WebP, 189KB — the PNG it replaced was 3.3MB, fetched raw by `<video poster>`.
+const HERO_POSTER = "/hero/hero-fittings-poster.webp";
 // Alpha-packed H.264 for WebKit: colour image and alpha matte stacked in one
 // frame, recombined by AlphaVideo's shader. Dimensions are the PACKED size
 // (twice the visible height) and are REQUIRED — WebKit uploads a video
@@ -43,8 +48,8 @@ const OBJECT_POS_X_MOBILE = 0.02525;
 const OBJECT_POS_X = 0.5;
 const MOBILE_QUERY = "(max-width: 767px)";
 // For the raw `<video poster>` fetch only — the next/image overlay rejects a
-// `?`-suffixed local src. Bump if the PNG is ever regenerated in place.
-const CACHE_BUST = "?v=2";
+// `?`-suffixed local src. Bump if the poster is ever regenerated in place.
+const CACHE_BUST = "?v=3";
 
 // Figma node 13:427 — radial vignette. Ported as Figma's own SVG rather than
 // a CSS `radial-gradient` because the `gradientTransform` rotates the
@@ -92,10 +97,16 @@ export function Hero() {
   // HTML parser starts fetching `<source>`s the moment it reads them, so the
   // list must be right in the first markup, not corrected after hydration.
   const [needsMp4Only, setNeedsMp4Only] = useState<boolean | null>(null);
+  // Resolved in the same pass, for the same reason: picked in JS rather than
+  // with `<source media>`, which browsers without support ignore — they would
+  // take the phone crop on desktop. Read once; a window resized across the
+  // breakpoint keeps its file (both frame correctly at any size).
+  const [isPhone, setIsPhone] = useState(false);
   useEffect(() => {
     const ua = navigator.userAgent;
     const isIOS = /iPad|iPhone|iPod/.test(ua);
     const isDesktopSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    setIsPhone(window.matchMedia(MOBILE_QUERY).matches);
     setNeedsMp4Only(isIOS || isDesktopSafari);
   }, []);
 
@@ -179,7 +190,9 @@ export function Hero() {
             {/* WebKit engines are never offered the WebM at all — see the
                 `needsMp4Only` comment for why half-support is worse here
                 than no support. */}
-            {!needsMp4Only && <source src={HERO_VIDEO} type="video/webm" />}
+            {!needsMp4Only && (
+              <source src={isPhone ? HERO_VIDEO_PHONE : HERO_VIDEO} type="video/webm" />
+            )}
             <source src={HERO_VIDEO_MP4} type="video/mp4" />
           </video>
           )}

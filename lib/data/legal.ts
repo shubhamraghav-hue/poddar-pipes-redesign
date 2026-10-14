@@ -53,7 +53,7 @@ export const privacyPolicySections: LegalSection[] = [
       {
         list: [
           "Send product and service updates",
-          "Respond to inquiries and offer support",
+          "Respond to enquiries and offer support",
           "Request user feedback",
           "Improve user experience",
           "Enforce terms and conditions and policies",
@@ -122,8 +122,8 @@ export const privacyPolicySections: LegalSection[] = [
   {
     heading: "9. Information Security",
     body: [
-      `We secure information you provide on computer servers in a controlled, secure environment, protected from unauthorized access, use, or disclosure.`,
-      `We maintain reasonable administrative, technical, and physical safeguards in an effort to protect against unauthorized access, use, modification, and disclosure of Personal Information in our control and custody.`,
+      `We secure information you provide on computer servers in a controlled, secure environment, protected from unauthorised access, use, or disclosure.`,
+      `We maintain reasonable administrative, technical, and physical safeguards in an effort to protect against unauthorised access, use, modification, and disclosure of Personal Information in our control and custody.`,
       `However, no data transmission over the Internet or wireless network can be guaranteed.`,
       `Therefore, while we strive to protect your Personal Information, you acknowledge that:`,
       {
@@ -160,7 +160,7 @@ export const privacyPolicySections: LegalSection[] = [
     body: [
       `You acknowledge that you have read this Policy and agree to all its terms and conditions.`,
       `By accessing and using the Website and Services and submitting your information you agree to be bound by this Policy.`,
-      `If you do not agree to abide by the terms of this Policy, you are not authorized to access or use the Website and Services.`,
+      `If you do not agree to abide by the terms of this Policy, you are not authorised to access or use the Website and Services.`,
     ],
   },
   {
@@ -189,16 +189,16 @@ export const termsOfServiceSections: LegalSection[] = [
   {
     heading: "1. Use of the Website",
     body: [
-      `The Website and Services are provided for the purpose of sharing information about Poddar Pipes' piping systems, products, manufacturing, and related business activities, and for facilitating inquiries, quote requests, newsletter subscriptions, and similar interactions.`,
+      `The Website and Services are provided for the purpose of sharing information about Poddar Pipes' piping systems, products, manufacturing, and related business activities, and for facilitating enquiries, quote requests, newsletter subscriptions, and similar interactions.`,
       `You agree to use the Website and Services only for lawful purposes and in a manner that does not infringe the rights of, or restrict or inhibit the use and enjoyment of the Website by, any third party.`,
-      `You must not attempt to gain unauthorized access to the Website, the server on which it is hosted, or any server, computer, or database connected to it, and you must not attack the Website via a denial-of-service attack or any similar disruptive means.`,
+      `You must not attempt to gain unauthorised access to the Website, the server on which it is hosted, or any server, computer, or database connected to it, and you must not attack the Website via a denial-of-service attack or any similar disruptive means.`,
     ],
   },
   {
     heading: "2. Intellectual Property Rights",
     body: [
       `Unless otherwise stated, we (or our licensors) own the intellectual property rights in the Website and all material on it, including but not limited to text, graphics, logos, product imagery, and the underlying design and code.`,
-      `Subject to the license below, all these intellectual property rights are reserved.`,
+      `Subject to the licence below, all these intellectual property rights are reserved.`,
       `You may view, download for caching purposes only, and print pages from the Website for your own personal, non-commercial use, subject to the restrictions set out below and elsewhere in these Terms.`,
       {
         list: [
@@ -219,11 +219,11 @@ export const termsOfServiceSections: LegalSection[] = [
     ],
   },
   {
-    heading: "4. Forms, Inquiries & Submissions",
+    heading: "4. Forms, Enquiries & Submissions",
     body: [
-      `When you submit information through a form on the Website — including inquiry forms, the newsletter subscription, or any other contact mechanism — you confirm that the information you provide is accurate and that you have the right to provide it.`,
+      `When you submit information through a form on the Website — including enquiry forms, the newsletter subscription, or any other contact mechanism — you confirm that the information you provide is accurate and that you have the right to provide it.`,
       `You agree not to submit any content that is unlawful, defamatory, misleading, or that infringes the rights of any third party.`,
-      `We may use submissions in accordance with our Privacy Policy to respond to your inquiry, provide requested information, or improve our Services.`,
+      `We may use submissions in accordance with our Privacy Policy to respond to your enquiry, provide requested information, or improve our Services.`,
     ],
   },
   {

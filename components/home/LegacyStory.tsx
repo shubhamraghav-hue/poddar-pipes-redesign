@@ -28,7 +28,7 @@ import Image from "next/image";
 
 // Figma exports the artwork as three separate layers, kept as three files so
 // the mask stays independent of the pipe render.
-const GOLD_BG = "/legacy/legacy-gold-bg.png";
+const GOLD_BG = "/legacy/legacy-gold-bg.webp";
 const PIPES = "/legacy/legacy-pipes.png";
 const PIPES_MASK = "/legacy/legacy-pipes-mask.svg";
 
@@ -88,7 +88,7 @@ const MILESTONES: Milestone[] = [
     // 236px — Figma draws 215, see `descWidth` above.
     descWidth: 15.6085,
     desc: [
-      "The Poddar Family was founded in Patna, beginning its journey in pipe manufacturing.",
+      "The Poddar Family began its journey in pipe manufacturing in Patna.",
     ],
   },
   {
@@ -138,7 +138,7 @@ const MILESTONES: Milestone[] = [
     yearTop: 17.1852,
     descTop: 24.7407,
     descWidth: 11.6402,
-    desc: ["Reimagined, revitalized, and ready to build the future."],
+    desc: ["Reimagined, revitalised, and ready to build the future."],
     label: "THE PODDAR FAMILY RETURNS",
     labelTop: 20.5926,
   },
@@ -225,10 +225,12 @@ export function LegacyStory({
             which arrives already composed at the frame's 1512×1350 and so
             sits at `inset-0`. Do not hand-draw a replacement.
 
-            `unoptimized` because Next's optimiser caches by source path and
-            kept serving its cached copy of the earlier blank file. */}
+            Was a 1.2MB PNG served `unoptimized` (to dodge a stale optimiser
+            cache of an earlier blank export). Now a WebP under a NEW path, so
+            no stale copy exists, and it goes through next/image like the rest
+            (2026-10-14). The render is fully opaque — no alpha was lost. */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <Image src={GOLD_BG} alt="" fill sizes="100vw" unoptimized className="object-cover" />
+          <Image src={GOLD_BG} alt="" fill sizes="100vw" className="object-cover" />
         </div>
 
         {/* White fade at the foot of the section (node 51:490), softening the

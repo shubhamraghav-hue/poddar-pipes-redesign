@@ -647,7 +647,7 @@ export function PartnerForm({
 
       {/* ------------------------------------------------- inquiry details */}
       <fieldset className="flex flex-col gap-6">
-        <legend className={cn(groupTitle, "mb-6")}>Inquiry details</legend>
+        <legend className={cn(groupTitle, "mb-6")}>Enquiry details</legend>
         <Field id={fid("message")} label="Additional Information / Message" labelClass={s.label} {...fieldError("message")}>
           <Textarea
             id={fid("message")}
@@ -697,7 +697,7 @@ export function PartnerForm({
             <span className={CAP_TRIM}>Sending</span>
           </>
         ) : (
-          "Send Partnership Inquiry"
+          "Send Partnership Enquiry"
         )}
       </Button>
     </form>

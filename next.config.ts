@@ -66,6 +66,9 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    // 75 is the default; 90 is for the /products range photos (navy studio
+    // gradients and small printed logos smear and band at 75).
+    qualities: [75, 90],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "images.pexels.com" },

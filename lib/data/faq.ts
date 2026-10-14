@@ -24,7 +24,7 @@ export const faqs: FAQItem[] = [
   {
     question: "Where can I download product datasheets and catalogues?",
     answer:
-      "All product datasheets, brochures, and installation manuals are available in the Resources section, organized by product category.",
+      "All product datasheets, brochures, and installation manuals are available in the Resources section, organised by product category.",
   },
   {
     question: "Do you offer bulk pricing for large orders?",

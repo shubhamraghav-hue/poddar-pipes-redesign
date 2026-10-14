@@ -290,7 +290,10 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
             src={cat.photo}
             alt={cat.photoAlt}
             fill
-            priority
+            // No `priority`: since ProductsHero went in above it, this card
+            // sits below the fold, and preloading it competed with the hero's
+            // own images for first paint.
+            quality={90}
             sizes="(min-width: 1512px) 1212px, (min-width: 640px) 92vw, 100vw"
             className="object-cover object-[50%_100%] sm:object-[50%_var(--py-sm)] lg:object-[50%_var(--py-lg)]"
           />

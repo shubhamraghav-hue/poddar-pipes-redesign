@@ -152,7 +152,7 @@ const CARD_SHAPE_MOBILE = "/about/vision-mission-card-mobile.svg";
 function VisionMissionCard({
   title,
   body,
-  /** % of card width — Figma sets the two DESKTOP copy blocks to 370 and 388
+  /** cqw of the card — Figma sets the two DESKTOP copy blocks to 370 and 388
       of 592. Mobile sets both to 233 of 342, so it ignores this. */
   bodyWidth,
 }: {
@@ -161,11 +161,21 @@ function VisionMissionCard({
   bodyWidth: string;
 }) {
   return (
-    <div className="@container relative aspect-[342/162] w-full overflow-hidden rounded-[14.666px] md:aspect-[592/450] md:rounded-[25px]">
+    <div className="@container relative aspect-[342/162] w-full overflow-hidden rounded-[14.666px] md:aspect-auto md:rounded-[25px]">
       {/* Mobile: the shape fills its box exactly (342x162 in 342x162).
-          Desktop: 582x518 pinned top-left inside 592x450, exactly as Figma has
-          it — so it overhangs the bottom by 68px and is clipped, and the 10px
-          strip down the right stays empty navy. */}
+          Desktop: the 582x518 shape pinned top-left at its OWN ratio (the SVG
+          is `preserveAspectRatio="none"`, so sizing it to the card would
+          squash the quote cut-out) and clipped by the card, as Figma clips it;
+          the 10px strip down the right stays empty navy.
+
+          DESKTOP HEIGHT FOLLOWS THE CONTENT (2026-10-14). Figma's 592x450 box
+          was drawn around 64/28px type; with the type now at the home stat
+          cards' sizes (69/17px at 1512) that box left ~150px of empty glass
+          under the copy. So from `md` the card is padded copy instead of a
+          fixed ratio: 50px sides and bottom at 592 (8.4459cqw = Figma's left
+          inset), and the title starts 20px under the quote cut-out (its
+          bottom is y147 of 592 = 24.83cqw, +3.38cqw) — level with the
+          cut-out it ran into it on the narrow two-up cards at 768. */}
       <img
         src={CARD_SHAPE_MOBILE}
         alt=""
@@ -176,26 +186,34 @@ function VisionMissionCard({
         src={CARD_SHAPE}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 hidden h-[115.1111%] w-[98.3108%] max-w-none md:block"
+        className="pointer-events-none absolute left-0 top-0 hidden aspect-[582/518] h-auto w-[98.3108%] max-w-none md:block"
       />
 
-      {/* Both blocks are vertically centred on their Figma y, hence the
-          -translate-y-1/2 against a `top` of that coordinate. Two independently
-          positioned frames rather than a stack: Figma anchors each from the TOP
-          and leaves real empty space at the card's bottom. */}
-      <h3 className="absolute left-[5.848%] top-[44.4444%] -translate-y-1/2 text-[8.1871cqw] font-semibold uppercase leading-none tracking-[-0.0819cqw] text-white md:left-[8.4459%] md:top-[47.1111%] md:text-[10.8108cqw] md:tracking-[-0.1081cqw]">
+      {/* Mobile: both blocks vertically centred on their Figma y (hence the
+          -translate-y-1/2 against a `top`), positioned against the card via
+          the `absolute inset-0` wrapper. From `md`: a padded stack in flow,
+          which is what sizes the card. */}
+      <div className="absolute inset-0 md:relative md:inset-auto md:px-[8.4459cqw] md:pb-[8.4459cqw] md:pt-[28.2095cqw]">
+      {/* TYPE SIZES match the homepage hero's stat cards (client, 2026-10-14):
+          title = the stat number, body = the stat label, at every width — see
+          `--hero-card-figure` / `--hero-card-label` in styles/globals.css.
+          The body keeps a 12px floor: the home label drops to ~8px on phones,
+          which is unreadable for a paragraph. */}
+      <h3 className="absolute left-[5.848%] top-[44.4444%] -translate-y-1/2 text-[length:var(--hero-card-figure)] font-semibold uppercase leading-none tracking-[-0.01em] text-white md:static md:translate-y-0">
         {title}
       </h3>
       {/* Width is the one value that still needs `style`: it is per-card on
-          desktop (`bodyWidth`) and a flat 233/342 on mobile, and Tailwind
+          desktop (`bodyWidth`, in cqw so it stays a share of the CARD, not of
+          the padded wrapper) and a flat 233/342 on mobile, and Tailwind
           cannot generate a class from a prop. `--body-w` is read back by the
           `md:` width below via arbitrary-property syntax. */}
       <p
-        className="absolute left-[5.848%] top-[69.7531%] w-[68.1287%] -translate-y-1/2 text-[max(12px,3.8012cqw)] leading-[1.1] text-[#c0c0c0] md:left-[8.4459%] md:top-[71.5556%] md:w-[var(--body-w)] md:text-[4.7297cqw] md:leading-[1.2] md:text-white"
+        className="absolute left-[5.848%] top-[69.7531%] w-[68.1287%] -translate-y-1/2 text-[length:max(12px,var(--hero-card-label))] leading-[1.1] text-[#c0c0c0] md:static md:mt-[3.3784cqw] md:w-[var(--body-w)] md:translate-y-0 md:leading-[1.2] md:text-white"
         style={{ "--body-w": bodyWidth } as CSSProperties}
       >
         {body}
       </p>
+      </div>
     </div>
   );
 }
@@ -351,12 +369,12 @@ export async function AboutHero() {
           <VisionMissionCard
             title={t("visionTitle")}
             body={t("visionDesc")}
-            bodyWidth="62.5%"
+            bodyWidth="62.5cqw"
           />
           <VisionMissionCard
             title={t("missionTitle")}
             body={t("missionDesc")}
-            bodyWidth="65.5405%"
+            bodyWidth="65.5405cqw"
           />
         </RevealOnScroll>
       </div>

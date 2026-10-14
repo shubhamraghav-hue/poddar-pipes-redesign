@@ -75,27 +75,14 @@ export const navItems: NavItem[] = [
     ],
   },
   // { key: "industries", href: "/industries" },
-  {
-    key: "resources",
-    megaMenu: [
-      {
-        heading: "navResources",
-        links: [
-          // { label: "navProductCatalogues", href: "/resources#catalogues" },
-          // { label: "navTechnicalDataSheets", href: "/resources#datasheets" },
-          { label: "navBlogsArticles", href: "/articles" },
-          // { label: "navFaqs", href: "/resources#faqs" },
-        ],
-      },
-      {
-        heading: "navToolsGuides",
-        links: [
-          { label: "navPipeCementCalculator", href: "/tools/calculator" },
-          // { label: "navInstallationGuide", href: "/resources/installation" },
-        ],
-      },
-    ],
-  },
+  // "Resources" dropdown replaced by a plain News & Media link, and the
+  // Pipe & Cement Calculator dropped from the header (client, 2026-10-14).
+  // The calculator page stays live, linked from the footer. The old item:
+  //   { key: "resources", megaMenu: [
+  //     { heading: "navResources", links: [{ label: "navBlogsArticles", href: "/articles" }] },
+  //     { heading: "navToolsGuides", links: [{ label: "navPipeCementCalculator", href: "/tools/calculator" }] },
+  //   ] },
+  { key: "navBlogsArticles", href: "/articles" },
   { key: "contact", href: "/contact" },
   { key: "faq", href: "/faq" },
 ];
