@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -267,6 +267,32 @@ export function ProductShowcase({
  * Not a link while the category pages are off — so no hover zoom either.
  * Swapping category cross-fades the whole layer.
  */
+const PHOTO_SIZES = "(min-width: 1512px) 1212px, (min-width: 640px) 92vw, 100vw";
+const PHOTO_CLASS =
+  "absolute inset-0 size-full object-cover object-[50%_100%] sm:object-[50%_var(--py-sm)] lg:object-[50%_var(--py-lg)]";
+
+/**
+ * A range with its own landscape shot for the desktop card (TANK — Figma
+ * 1858:11864, 4096x2286, centred in the 1212x650 card). ART DIRECTION with
+ * <picture>: the browser picks ONE source by width and downloads only that —
+ * two next/images with one hidden by CSS made phones fetch the 351KB wide
+ * shot too. From `lg` the wide source wins and is centred (--py-lg: 50%).
+ */
+function ArtDirectedPhoto({ cat }: { cat: ShowcaseCategory }) {
+  const common = { alt: cat.photoAlt, fill: true, quality: 90 } as const;
+  const {
+    props: { srcSet: wideSrcSet },
+  } = getImageProps({ ...common, src: cat.photoWide!, sizes: "(min-width: 1512px) 1212px, 92vw" });
+  const { props: rest } = getImageProps({ ...common, src: cat.photo, sizes: PHOTO_SIZES });
+  return (
+    <picture>
+      <source media="(min-width: 1024px)" srcSet={wideSrcSet} sizes="(min-width: 1512px) 1212px, 92vw" />
+      {/* eslint-disable-next-line jsx-a11y/alt-text -- getImageProps supplies src/srcSet/alt */}
+      <img {...rest} className={PHOTO_CLASS} style={{ ...rest.style, ["--py-lg" as string]: "50%" }} />
+    </picture>
+  );
+}
+
 function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
   return (
     <div
@@ -286,17 +312,19 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35, ease: EASE_OUT }}
         >
-          <Image
-            src={cat.photo}
-            alt={cat.photoAlt}
-            fill
-            // No `priority`: since ProductsHero went in above it, this card
-            // sits below the fold, and preloading it competed with the hero's
-            // own images for first paint.
-            quality={90}
-            sizes="(min-width: 1512px) 1212px, (min-width: 640px) 92vw, 100vw"
-            className="object-cover object-[50%_100%] sm:object-[50%_var(--py-sm)] lg:object-[50%_var(--py-lg)]"
-          />
+          {cat.photoWide ? <ArtDirectedPhoto cat={cat} /> : (
+            <Image
+              src={cat.photo}
+              alt={cat.photoAlt}
+              fill
+              // No `priority`: since ProductsHero went in above it, this card
+              // sits below the fold, and preloading it competed with the hero's
+              // own images for first paint.
+              quality={90}
+              sizes={PHOTO_SIZES}
+              className={PHOTO_CLASS}
+            />
+          )}
           {/* Phones/tablets: navy from the top, over the spotlight. */}
           <div
             aria-hidden="true"

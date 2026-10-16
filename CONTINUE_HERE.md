@@ -47,7 +47,7 @@ No other prompt is needed — everything required is below.
 - [x] ~~Outlined CTA 48-vs-46px + high labels~~ — done in `CTASection` (all
       ~14 pages) and `AboutHero` (session 3). Only `Hero.tsx` still has it —
       *locked, ask the user before touching it*.
-- [ ] /products: add "What is" / "Why" content for AGRI, SWR, TANK (uPVC + UGD done 2026-10-14)
+- [x] ~~/products detail content for all six ranges~~ — done 2026-10-16 (Figma 1859:12796).
       in `lib/data/productDetails.ts` once the client finalises it.
 - [ ] /products banner: Figma 1731:7511 says "Request a quote" but the client
       asked for "Become a Partner" (2026-10-09) — which wins?
@@ -63,6 +63,107 @@ No other prompt is needed — everything required is below.
 - [ ] i18n pass for English-only copy (see §4 item 6).
 
 ## Last prompt
+
+> https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1606-11700&m=dev
+> check and fix for any mismatch on the contact us page
+
+**Status: hero fixed; 3 items need user decisions.** Measured /contact at 1512
+against Figma 1606:11505 (section 1606:11700).
+- FIXED: hero background is now Figma "contact page BG 1" (node 1861:12806,
+  grey pipes, 4096x2286 -> public/contact/contact-pipes-grey.webp q88),
+  placed as Figma does: 2289x1278 at (-87,-200) of the 1512x895 box, as %
+  (left -5.754 top -22.346 w 151.389 h 142.793), object-cover inside so the
+  481px phone floor crops, not stretches. Old contact-pipes-1512.webp removed.
+- Matches (<=3px): hero h1/copy/buttons, Send-message h2/intro/rule/office
+  labels/addresses, form position, 48px inputs r10 #c0c0c0, labels 16/500/1px.
+- Intentional deviations kept: hero cards sized per 2026-10-14 requests
+  (section 1075 tall vs Figma 1125); section column x150 vs Figma 147.
+- NEEDS DECISION 1: Figma form has "Select Type Of Enquiry *" (form 737 tall);
+  ours has none (626 tall). It was REMOVED deliberately in commit 429d5a5
+  "forms integrated" (2026-10-09) — server/Sheet always record "General".
+- NEEDS DECISION 2: addresses differ from COMPANY (client-approved):
+  "100 Ft Road" vs Figma "100 Feet Road"; plant PIN 563157 (+", India") vs
+  Figma 563128.
+- NEEDS DECISION 3 (old): Figma leaves 240px under the form; we use 120.
+
+### Previous prompt (heading sizes)
+
+> What is / PODDAR TANK? / Why / PODDAR TANK? — also check for both headings font size
+(answers: keep caps; both headings 48px; "make sure font size is consistent throughout the page")
+
+**Status: done.** ProductDetailSections: What-is h2 now uses the Why h2's type,
+and both follow CTASection's ramp: 28 / 36 (sm) / 48px (md+). Measured on
+/products at 375/640/768/1024/1512: What is = Why = Tell us (CTA) at every
+width, no wraps. Figma had What-is at 60px. Hero h1 (60px) left as the page title.
+
+### Previous prompt (heading consistency)
+
+> also check for all product pages that their section headings should be consistent
+
+**Status: done.** Measured all six ranges at 1512: heading STYLES were already
+identical (What-is 60px 300/700 white; Why 48px 300/700 #606060; banner 24px
+500 #606060). Only TANK broke the TEXT pattern: "PODDAR / TANK" (from Figma
+1858:11843) vs "WHAT IS / X?". Now "WHAT IS / PODDAR TANK?" (lib/data/
+productDetails.ts; lead removed), matching its "WHY / PODDAR TANK?". Fits on
+one line at 375 and 1512. Deviation from the TANK mock — by request.
+
+### Previous prompt (404 on every route)
+
+> [screenshot: 404 page at /products?category=cpvc-pipes#range] why is it showing 404 page for every product? i want them active on these types of links like it was earlier working
+
+**Status: fixed, no code change.** The dev server's .next was corrupted —
+EVERY route but / returned 404 (/about, /contact too), not just products.
+Stopped the dev server, rm -rf .next, restarted, warmed / first. All routes
+200 again; /products?category=cpvc-pipes#range and ?category=tanks#range open
+with the range selected and the pills scrolled under the navbar. See the
+.next trap in §5 — it happened this time with no build (two dev servers?).
+
+### Previous prompt (all six product pages)
+
+> https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1859-12796&m=dev
+> use the design for all product pages and make them all responsive
+
+**Status: done, measured at 375 / 768 / 1023-1024 / 1512 for all six ranges.**
+Figma section 1859:12796 = one 1512 frame per range (CPVC 1858:10809, uPVC
+1858:11020, UGD 1858:11226, SWR 1858:11432, AGRI 1858:11638, TANK 1858:11843).
+No mobile frames exist — responsive behaviour is ours.
+- lib/data/productDetails.ts now has ALL six ranges. New fields: whatIs.lead
+  (TANK: "Poddar" / "TANK"), whatIs.bodyW (TANK 505), art.washW (AGRI
+  605/813), WhyCard.flipX (SWR soil/waste/rain card). CPVC titles now use
+  "&". UGD: 4 new card photos (card 4 now has one); "Leak-Proof Joints" is a
+  new photo, rotated 160.6deg + flipped in Figma, baked (582x698).
+- Assets: public/products/{swr,agri,tank}/*, ugd updates,
+  showcase/tank-wide.webp (4096x2286) — full source res, webp q90. SWR
+  What-is render is only 1767x2633 in Figma.
+- ProductDetailSections WhatIs: below lg shows the SAME crop as the desktop
+  band (box ratio w:780, object-position from art geometry) — every range
+  framed as its mock. lg..1512: art width clamp(w*780/h px, w/15.12 vw, w px)
+  and top clamp(780-artH, Figma centre, 0) so the box always covers the band
+  (plain scaling left 37-108px gaps at 1024). At 1512 = Figma exactly.
+- TANK range card: showcase photoWide via <picture> (getImageProps): portrait
+  below 1024, landscape from 1024; each device downloads only its one file
+  (two next/images with CSS hiding made phones fetch both).
+- Checks: no horizontal overflow anywhere; all 30 Why titles one line
+  (21px desktop, ~15px at 375); every card has its photo.
+
+### Previous prompt (What-is cropping on tablet)
+
+> [screenshot: uPVC "What is" molecule cut off top and bottom on a tablet] Why is this getting cropped
+
+**Status: fixed, measured at 375 / 768 / 1023 for CPVC, uPVC, UGD.** Cause:
+below lg the render was a full-width strip of FIXED height (420 / 520px)
+with object-cover; the 2:3 image at 768 wide showed only 27-72% of its
+height, the molecule spans 20.5-75%. Now (ProductDetailSections.tsx WhatIs):
+below lg the box is aspect 1.0818 (shows 62% of the height), object-position
+50% 45% => window 17.1-79.1% at every width (subjects: CPVC 20.5-75,
+uPVC 23-75.2, UGD 29.9-68, measured from the cut-outs), max-w 600 centred,
+sides faded with a mask (lg:[mask-image:none]); top wash 50% -> 14% (it
+ would have dimmed the molecule top). Desktop (lg+) unchanged.
+- Note: .next/dev/types/routes.d.ts was found corrupted (a stale tail after a
+  shorter rewrite — two dev servers writing one .next?). tsc on source is
+  clean; if a build fails on it: stop dev, rm -rf .next, restart.
+
+### Previous prompt (British English)
 
 > yes convert all to British English
 
@@ -383,6 +484,7 @@ dimensions:
 
 ## 5. Environment traps (each one cost real time)
 
+- **`.next` corruption (2026-10-16):** every route but / 404s — also without a build. Fix: stop dev, rm -rf .next, restart, warm / first.
 - **`.next` cache:** new files' Tailwind classes are ignored until
   stop server → `rm -rf .next` → start. Stop FIRST or every route 500s.
 - **Double-compile:** after a fresh start, let `/` finish compiling before

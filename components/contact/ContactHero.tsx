@@ -16,7 +16,9 @@ import { COMPANY } from "@/lib/data/offices";
  * continuous `#0b0b52` surface in the mock and splitting them out would put a
  * seam through a background that has none.
  */
-const HERO_STILL = "/contact/contact-pipes-1512.webp";
+// Figma "contact page BG 1" (node 1861:12806, 2026-10-16) — grey pipe stack,
+// 4096x2286 source, replacing the earlier orange-pipe still.
+const HERO_STILL = "/contact/contact-pipes-grey.webp";
 
 const NAVY = "#0b0b52";
 const NAVY_0 = "rgba(11,11,82,0)";
@@ -91,18 +93,22 @@ export function ContactHero() {
         style={{ maxHeight: "100%" }}
       >
         <div className="relative aspect-[1512/895] min-h-[481px] w-full">
-          {/* `object-[62%_50%]` rather than centre: the mock crops a 2752px
-              source down to a 1512 window biased right of centre, which is
-              where the pipe mouths are densest. Centring it frames the flatter
-              left-hand stack instead. */}
-          <Image
-            src={HERO_STILL}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[62%_50%]"
-          />
+          {/* Placed exactly as the mock places it in its 1512x895 frame:
+              2289x1278 at (-87, -200) — as percentages of the box, so it holds
+              at every width. Inside that layer the photo is `object-cover`,
+              so where the box is taller than 1512:895 (the 481px floor on
+              phones) it crops rather than stretches. */}
+          <div className="absolute left-[-5.754%] top-[-22.346%] h-[142.793%] w-[151.389%]">
+            <Image
+              src={HERO_STILL}
+              alt=""
+              fill
+              priority
+              quality={90}
+              sizes="152vw"
+              className="object-cover"
+            />
+          </div>
         </div>
 
         {/* Node 1606:11622 — y499..895, the last 44.25% of the backdrop. */}

@@ -21,41 +21,71 @@ export function ProductDetailSections({ detail }: { detail: ProductDetail }) {
 }
 
 /**
- * "What is <range>?" — navy, 780 tall at 1512. Copy at x150/y150: 60px
- * heading, 24px body 551 wide, 20 under it.
+ * "What is <range>?" — navy, 780 tall at 1512. Copy at x150/y150: 48px
+ * heading (the "Why" heading's size; Figma 60) ("What is" / name; TANK's frame says "Poddar" / "Tank" — `lead`),
+ * 24px body 551 wide (TANK 505 — `bodyW`), 20 under it.
  *
  * The render is three layers on the right, exactly as the mock stacks them:
  * the full render (backdrop + floor reflection), a navy wash in from the left
- * that melts its edge into the band, then the subject alone on top so the
- * wash never dims it. The box is the image's own ratio, flush right; its size
- * and vertical centre come from the data (`art`): CPVC/uPVC 778x1160, 40px
- * below the band's middle; UGD 757x1129 at +100.5 — the band crops it. Width
- * scales with the viewport below 1512 (`w / 15.12` vw). Below `lg` the render
- * drops under the copy as a 420px strip, washed from the top instead.
+ * that melts its edge into the band (AGRI's covers only 74% of the box —
+ * `washW`), then the subject alone on top so the wash never dims it. The box
+ * is the image's own ratio, flush right; its size and vertical centre come
+ * from the data (`art`) and the band crops it. Below 1512 the width scales
+ * with the viewport (`w / 15.12` vw) but never so far that the box stops
+ * covering the band's full height, and its top is clamped to keep it covering.
+ *
+ * BELOW `lg` the render drops under the copy and shows the SAME crop the
+ * desktop band does: the art box cut to the band's 780px height (box ratio
+ * w:780), with the image positioned where the band sits on it. Every range is
+ * framed exactly as in its mock, and the subject is never cut — CPVC/uPVC
+ * show 13-80% of the image height (molecule 20.5-75%), UGD 7-76% (30-68%),
+ * AGRI 36-100% (55-85%), TANK 14-86% (25-79.5%); SWR's pipes run past the
+ * frame in the mock too. Capped at 600 wide and centred, its side edges faded
+ * out so the photo's backdrop never ends in a hard seam.
  */
 function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
-  const { w, h, centerY } = detail.art;
+  const { w, h, centerY, washW = 1 } = detail.art;
+  // Where the 780px band sits on the image, as an object-position: the band's
+  // top in image space over the image's spare height.
+  const bandTop = (h / 2 - 390 - centerY) / h;
+  const posY = h > 780 ? (bandTop / (1 - 780 / h)) * 100 : 50;
   return (
     <section className="relative overflow-hidden bg-[#0b0b52] lg:h-[780px]">
       <div className="container-figma relative z-10 pt-20 md:pt-[120px] lg:pt-[150px]">
-        <h2 className="font-display text-[min(36px,9.4vw)] uppercase leading-[1.02] tracking-[0.2088px] text-white sm:text-5xl md:text-[60px] md:tracking-[0.32px]">
-          <span className="block font-light">What is</span>
+        {/* ONE size for every section heading on the product page (client,
+            2026-10-16): this, "Why" below and the closing CTASection all run
+            28 / 36 (sm) / 48px (md+) — CTASection's ramp, since it is shared
+            site-wide. Figma set this one at 60px. */}
+        <h2 className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] text-white sm:text-4xl md:text-[48px]">
+          <span className="block font-light">{detail.lead ?? "What is"}</span>
           {/* `normal-case`: the range name keeps its own case — "uPVC", as
               the mocks set it, not "UPVC". */}
           <span className="block font-bold normal-case">{detail.name}</span>
         </h2>
-        <p className="mt-5 max-w-[551px] text-[18px] leading-[1.3] text-white md:text-[24px] md:leading-[1.2]">
+        <p
+          className="mt-5 text-[18px] leading-[1.3] text-white md:text-[24px] md:leading-[1.2]"
+          style={{ maxWidth: detail.bodyW ?? 551 }}
+        >
           {detail.body}
         </p>
       </div>
 
       <div
-        className="relative mt-6 h-[420px] w-full sm:h-[520px] lg:absolute lg:right-0 lg:top-[calc(50%+var(--art-dy))] lg:mt-0 lg:aspect-[var(--art-ratio)] lg:h-auto lg:w-[var(--art-w)] lg:-translate-y-1/2"
+        className="relative mx-auto mt-6 aspect-[var(--art-m-ratio)] w-full max-w-[600px] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)] lg:absolute lg:right-0 lg:top-[var(--art-top)] lg:mx-0 lg:mt-0 lg:aspect-[var(--art-ratio)] lg:h-auto lg:w-[var(--art-w)] lg:max-w-none lg:[mask-image:none]"
         style={
           {
-            "--art-w": `min(${w}px, ${(w / 15.12).toFixed(4)}vw)`,
+            // Scales with the viewport below 1512, but never below the width
+            // whose height still covers the 780 band (w * 780 / h) — at 1024
+            // a plainly scaled box ended 37-108px short of the band's top or
+            // bottom and showed the photo's edge.
+            "--art-w": `clamp(${Math.ceil((w * 780) / h)}px, ${(w / 15.12).toFixed(4)}vw, ${w}px)`,
+            "--art-h": `calc(var(--art-w) * ${(h / w).toFixed(5)})`,
+            // Figma's centre (band middle + centerY), clamped so the box always
+            // spans the band top to bottom. At 1512 this IS Figma's top.
+            "--art-top": `clamp(calc(780px - var(--art-h)), calc(390px + ${centerY}px - var(--art-h) / 2), 0px)`,
             "--art-ratio": `${w} / ${h}`,
-            "--art-dy": `${centerY}px`,
+            "--art-m-ratio": `${w} / 780`,
+            "--art-py": `${posY.toFixed(2)}%`,
           } as React.CSSProperties
         }
       >
@@ -64,27 +94,28 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
           alt=""
           fill
           quality={90}
-          sizes="(min-width: 1024px) 52vw, 100vw"
-          className="object-cover"
+          sizes="(min-width: 1024px) 54vw, (min-width: 600px) 600px, 100vw"
+          className="object-cover object-[50%_var(--art-py)] lg:object-center"
         />
         <div
           aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-[#0b0b52] to-[rgba(11,11,82,0)] lg:hidden"
+          className="absolute inset-x-0 top-0 h-[14%] bg-gradient-to-b from-[#0b0b52] to-[rgba(11,11,82,0)] lg:hidden"
         />
         <div
           aria-hidden="true"
           // 1px past the box's left edge: the box lands on fractional pixels,
           // and with the photo and this wash both anti-aliased on the SAME
           // edge, a hairline of photo showed through as a vertical seam.
-          className="absolute inset-y-0 -left-px hidden w-[calc(100%+1px)] bg-gradient-to-r from-[#0b0b52] to-[rgba(11,11,82,0)] lg:block"
+          className="absolute inset-y-0 -left-px hidden bg-gradient-to-r from-[#0b0b52] to-[rgba(11,11,82,0)] lg:block"
+          style={{ width: `calc(${(washW * 100).toFixed(3)}% + 1px)` }}
         />
         <Image
           src={detail.cutout}
           alt={detail.alt}
           fill
           quality={90}
-          sizes="(min-width: 1024px) 52vw, 100vw"
-          className="object-cover"
+          sizes="(min-width: 1024px) 54vw, (min-width: 600px) 600px, 100vw"
+          className="object-cover object-[50%_var(--art-py)] lg:object-center"
         />
       </div>
     </section>
@@ -130,7 +161,7 @@ function Why({ name, cards }: { name: string; cards: WhyCard[] }) {
   return (
     <section className="bg-[#f5f5f5] py-20 md:py-[120px] lg:py-[150px]">
       <div className="container-figma">
-        <h2 className="font-display text-[min(32px,8.4vw)] uppercase leading-[1.08] tracking-[0.32px] text-[#606060] md:text-[48px]">
+        <h2 className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] text-[#606060] sm:text-4xl md:text-[48px]">
           <span className="block font-light">Why</span>
           <span className="block font-bold normal-case">{name}</span>
         </h2>
@@ -165,7 +196,7 @@ function Why({ name, cards }: { name: string; cards: WhyCard[] }) {
                 // its size hint is the crop's own width — a flat card-width
                 // hint served wide crops soft.
                 sizes={`(min-width: 640px) ${card.crop.width}px, ${((card.crop.width / 400) * 78).toFixed(1)}vw`}
-                className="absolute max-w-none object-cover"
+                className={`absolute max-w-none object-cover ${card.flipX ? "-scale-x-100" : ""}`}
                 style={{
                   left: `${(card.crop.left / 400) * 100}%`,
                   top: `${(card.crop.top / 480) * 100}%`,

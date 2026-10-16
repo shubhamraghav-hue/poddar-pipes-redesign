@@ -38,6 +38,11 @@ export type ShowcaseCategory = {
    * bottom); the tanks are taller and start at y≈50%, so they sit higher.
    */
   photoY: { sm: number; lg: number };
+  /**
+   * A landscape shot used INSTEAD of `photo` on the desktop card (`lg`+),
+   * where the card is 1212:650. TANK only (Figma 1858:11864, 4096x2286).
+   */
+  photoWide?: string;
 };
 
 export const showcaseCategories: ShowcaseCategory[] = [
@@ -106,5 +111,6 @@ export const showcaseCategories: ShowcaseCategory[] = [
     wordmarkWidth: 288,
     wordmarkInset: 64,
     photoY: { sm: 86, lg: 78 },
+    photoWide: "/products/showcase/tank-wide.webp",
   },
 ];
