@@ -64,6 +64,18 @@ No other prompt is needed — everything required is below.
 
 ## Last prompt
 
+> [screenshot: footer columns] remove Manufacturing, Quality and Sustainability from company; remove pipe material estimator as well
+
+**Status: done, verified at 375 + 1512.** components/layout/Footer.tsx: Company =
+About Us, Careers; Resources = News & Media, Contact (desktop columns and the
+mobile accordion share the arrays). The pages themselves still exist and are
+still in app/sitemap.ts (/manufacturing, /quality, /sustainability,
+/tools/calculator); the only other live link to the calculator is the CTA on
+/resources/installation (reached from product detail pages). Offered to
+unlist/redirect them. *(needs user decision)*
+
+### Previous prompt (contact page vs Figma)
+
 > https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1606-11700&m=dev
 > check and fix for any mismatch on the contact us page
 

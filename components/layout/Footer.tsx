@@ -130,11 +130,10 @@ export function Footer() {
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
 
+  // Manufacturing, Quality and Sustainability dropped from the footer
+  // (client, 2026-10-16) — the pages still exist, they are just not linked.
   const companyLinks = [
     { key: "about", href: "/about" },
-    { key: "manufacturing", href: "/manufacturing" },
-    { key: "quality", href: "/quality" },
-    { key: "sustainability", href: "/sustainability" },
     { key: "careers", href: "/careers" },
   ];
 
@@ -147,11 +146,11 @@ export function Footer() {
     { label: "UGD", href: "/products?category=ugd-pipes#range" },
   ];
 
-  // /resources is gone (client decision 2026-10-08): the column lists what
-  // the header's Resources dropdown holds, plus Contact.
+  // /resources is gone (client decision 2026-10-08). The Pipe Material
+  // Estimator left the footer too (client, 2026-10-16), after the header; the
+  // /tools/calculator page itself is still live, just no longer linked here.
   const resourceLinks = [
     { key: "navBlogsArticles", href: "/articles" },
-    { key: "navPipeCementCalculator", href: "/tools/calculator" },
     { key: "contact", href: "/contact" },
   ];
 
