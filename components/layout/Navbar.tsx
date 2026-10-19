@@ -18,6 +18,7 @@ export function Navbar() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const tCommon = useTranslations("common");
 
   useEffect(() => {
     setOpen(false);
@@ -103,7 +104,7 @@ export function Navbar() {
       className="fixed inset-x-0 top-0 z-50 bg-[#fbfbfb] shadow-[0_4px_8px_0_rgba(0,0,0,0.12)]"
     >
       <nav className="container-edge flex h-20 items-center justify-between">
-        <Link href="/" aria-label="Poddar Pipes — home" className="flex shrink-0 items-center gap-2.5 py-1">
+        <Link href="/" aria-label={tCommon("homeLinkLabel")} className="flex shrink-0 items-center gap-2.5 py-1">
           {/* 36px renders the same artwork size the old `h-16` did: that 64px
               was 55.2% logo and 44.8% margin baked into the asset's viewBox.
               The asset is cropped to its ink now, so this also pulls the mark

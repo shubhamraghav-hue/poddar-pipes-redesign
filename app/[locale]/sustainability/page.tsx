@@ -13,9 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // English title/description are the page's own copy. There are no
-  // per-page meta keys in messages/*.json yet, so other locales reuse the
-  // page's translated nav label as the title; the description stays English.
+  // Title and description from messages (seo.*), per locale.
   const t = await getTranslations({ locale });
   return buildPageMetadata({
     locale,
@@ -23,8 +21,8 @@ export async function generateMetadata({
     // SEO-004 (2026-10-19): not linked from the site and content not yet
     // confirmed, so kept out of search and the sitemap. Works for visitors.
     noindex: true,
-    title: locale === "en" ? "Sustainability & CSR" : t("nav.navSustainabilityCSR"),
-    description: "Poddar Pipes' approach to water conservation, green manufacturing, recycling, carbon reduction, energy efficiency, and community programmes.",
+    title: t("seo.sustainabilityTitle"),
+    description: t("seo.sustainabilityDescription"),
   });
 }
 
@@ -39,6 +37,7 @@ export default async function SustainabilityPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("sustainability");
+  const tCommon = await getTranslations("common");
 
   const pillars = PILLAR_ICONS.map((Icon, i) => ({
     icon: Icon,
@@ -94,9 +93,9 @@ export default async function SustainabilityPage({
           <RevealOnScroll className="mt-12 grid grid-cols-2 gap-8 sm:grid-cols-4">
             {[
               { value: 40, suffix: "%", label: t("waterStat0Label") },
-              { value: 5, suffix: "-7 yrs", label: t("waterStat1Label") },
-              { value: 120, suffix: " mesh", label: t("waterStat2Label") },
-              { value: 50, suffix: "+ yrs", label: t("waterStat3Label") },
+              { value: 5, suffix: `-7 ${tCommon("years")}`, label: t("waterStat1Label") },
+              { value: 120, suffix: ` ${tCommon("mesh")}`, label: t("waterStat2Label") },
+              { value: 50, suffix: `+ ${tCommon("years")}`, label: t("waterStat3Label") },
             ].map((stat) => (
               <div key={stat.label}>
                 <Counter value={stat.value} suffix={stat.suffix} className="font-display text-3xl font-medium text-slate-900" />

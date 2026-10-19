@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { LegalSection } from "@/types";
+import { useTranslations } from "next-intl";
 import { COMPANY } from "@/lib/data/offices";
 
 export function LegalIntro({ paragraphs }: { paragraphs: string[] }) {
@@ -71,13 +72,14 @@ function LegalUL({ items }: { items: string[] }) {
 
 /** The one piece of real contact data both legal pages point to. */
 export function LegalContactBlock() {
+  const t = useTranslations("legal");
   return (
     <address className="mt-4 not-italic type-body leading-[1.7] text-slate-900/80">
       {COMPANY.legalName}
       <br />
       {COMPANY.address.oneLine}
       <br />
-      Email:{" "}
+      {t("emailLabel")}{" "}
       <a
         href={`mailto:${COMPANY.email}`}
         className="font-medium text-ocean-600 underline decoration-ocean-600/30 underline-offset-2 transition-colors hover:text-amber-600"
@@ -85,7 +87,7 @@ export function LegalContactBlock() {
         {COMPANY.email}
       </a>
       <br />
-      Phone:{" "}
+      {t("phoneLabel")}{" "}
       <a
         href={COMPANY.phone.href}
         className="font-medium text-ocean-600 underline decoration-ocean-600/30 underline-offset-2 transition-colors hover:text-amber-600"

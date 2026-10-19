@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { scrollToElement } from "@/hooks/useLenis";
 import { CalculatorIcon, PhoneCallIcon, ShareSocialIcon } from "@/components/tools/EstimatorIcons";
 import { CAP_TRIM } from "@/components/shared/capTrim";
@@ -16,6 +17,19 @@ import {
   type PipeType,
   type StepperInput,
 } from "@/lib/data/estimator";
+import { ESTIMATOR_TABS_HI } from "@/lib/data/hi/estimator";
+import { hasOverlays, localizeList } from "@/lib/i18n/localize";
+
+type Translate = ReturnType<typeof useTranslations>;
+
+/** The tab definitions with the locale's labels merged over the English. */
+function useEstimatorTabs() {
+  const locale = useLocale();
+  return useMemo(
+    () => (hasOverlays(locale) ? localizeList(ESTIMATOR_TABS, ESTIMATOR_TABS_HI, "id") : ESTIMATOR_TABS),
+    [locale]
+  );
+}
 
 /**
  * Motion. One curve for everything that ENTERS (a strong ease-out: fast start,
@@ -44,12 +58,13 @@ const EASE_OUT = [0.23, 1, 0.32, 1] as const;
  * scrolling past a table.
  */
 export function Estimator() {
-  const [tabId, setTabId] = useState(ESTIMATOR_TABS[0].id);
-  const tab = ESTIMATOR_TABS.find((t) => t.id === tabId)!;
+  const tabs = useEstimatorTabs();
+  const [tabId, setTabId] = useState(tabs[0].id);
+  const tab = tabs.find((t) => t.id === tabId)!;
 
   return (
     <div className="flex flex-col gap-6">
-      <TabStrip activeId={tabId} onSelect={setTabId} />
+      <TabStrip tabs={tabs} activeId={tabId} onSelect={setTabId} />
       {/* `key` remounts the panel on tab change, which resets counts, the pipe
           selection and the result together. Carrying them across tabs would be
           meaningless — the inputs are not the same quantities. */}
@@ -90,11 +105,20 @@ export function Estimator() {
  * pill with a chevron and the other three drop beneath it — any tab one tap
  * away, nothing hidden off-screen.
  */
-function TabStrip({ activeId, onSelect }: { activeId: string; onSelect: (id: string) => void }) {
+function TabStrip({
+  tabs,
+  activeId,
+  onSelect,
+}: {
+  tabs: EstimatorTab[];
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  const t = useTranslations("estimator");
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
-  const active = ESTIMATOR_TABS.find((t) => t.id === activeId)!;
+  const active = tabs.find((tab) => tab.id === activeId)!;
 
   // Close on Escape and on a tap outside. A disclosure that can only be shut by
   // re-tapping its own trigger is the usual mobile-menu annoyance.
@@ -143,18 +167,18 @@ function TabStrip({ activeId, onSelect }: { activeId: string; onSelect: (id: str
         >
           <div className="overflow-hidden">
             <ul className="mt-2 flex flex-col gap-2 rounded-[25px] border border-[#c0c0c0] bg-white p-2">
-              {ESTIMATOR_TABS.filter((t) => t.id !== activeId).map((t) => (
-                <li key={t.id}>
+              {tabs.filter((tab) => tab.id !== activeId).map((tab) => (
+                <li key={tab.id}>
                   <button
                     type="button"
                     tabIndex={open ? 0 : -1}
                     onClick={() => {
-                      onSelect(t.id);
+                      onSelect(tab.id);
                       setOpen(false);
                     }}
                     className="flex h-[48px] w-full touch-manipulation select-none items-center rounded-[100px] px-4 text-left text-[16px] uppercase leading-none text-[#606060] transition-colors duration-100 ease-out hover:bg-[#f5f5f5] hover:text-[#171796] active:bg-[#ebebeb]"
                   >
-                    <span className={CAP_TRIM}>{t.label}</span>
+                    <span className={CAP_TRIM}>{tab.label}</span>
                   </button>
                 </li>
               ))}
@@ -166,25 +190,25 @@ function TabStrip({ activeId, onSelect }: { activeId: string; onSelect: (id: str
       {/* --------------------------------------------------- desktop: the row */}
       <div
         role="tablist"
-        aria-label="Estimator type"
+        aria-label={t("tabsAria")}
         className="hidden touch-pan-y items-center gap-2 overflow-x-auto overscroll-x-contain scrollbar-hide rounded-[100px] border border-[#c0c0c0] bg-white px-[20px] py-[12px] lg:flex min-[1512px]:justify-center min-[1512px]:gap-[20px] min-[1512px]:overflow-visible"
       >
-        {ESTIMATOR_TABS.map((t) => {
-          const on = t.id === activeId;
+        {tabs.map((tab) => {
+          const on = tab.id === activeId;
           return (
             <button
-              key={t.id}
+              key={tab.id}
               type="button"
               role="tab"
               aria-selected={on}
-              onClick={() => onSelect(t.id)}
+              onClick={() => onSelect(tab.id)}
               className={`flex h-[44px] shrink-0 touch-manipulation select-none items-center justify-center rounded-[100px] px-5 text-[18px] uppercase leading-[0.8] transition-[background-color,color,transform,translate,scale] duration-100 ease-out active:scale-[0.97] min-[1512px]:h-[43px] min-[1512px]:px-[56px] ${
                 on
                   ? "bg-[#171796] font-semibold text-white"
                   : "font-normal text-[#606060] hover:text-[#171796]"
               }`}
             >
-              <span className={CAP_TRIM}>{t.label}</span>
+              <span className={CAP_TRIM}>{tab.label}</span>
             </button>
           );
         })}
@@ -194,6 +218,7 @@ function TabStrip({ activeId, onSelect }: { activeId: string; onSelect: (id: str
 }
 
 function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
+  const t = useTranslations("estimator");
   const steppers = useMemo(
     () => tab.inputs.filter((i): i is StepperInput => i.kind === "stepper"),
     [tab]
@@ -246,8 +271,8 @@ function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
   const notReadyHint = ready
     ? null
     : !hasCounts
-      ? "Add at least one item above to calculate."
-      : "Choose a pipe type to calculate.";
+      ? t("hintAddItem")
+      : t("hintChoosePipe");
 
   return (
     <div className="overflow-hidden rounded-[25px] border border-[#c0c0c0] bg-white">
@@ -373,7 +398,7 @@ function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
             onClick={() => setResult(estimate(tab, counts, pipeType ?? "combination"))}
             className="mt-auto flex h-[46px] w-full touch-manipulation select-none items-center justify-center rounded-full bg-[#f28000] px-[14px] text-[18px] font-semibold uppercase leading-[1.08] text-[#0b0b52] transition-[filter,transform,translate,scale] duration-100 ease-out hover:brightness-95 active:scale-[0.98] active:brightness-90 disabled:cursor-not-allowed disabled:opacity-40 lg:max-w-[400px]"
           >
-            <span className={CAP_TRIM}>Calculate Estimate</span>
+            <span className={CAP_TRIM}>{t("calculate")}</span>
           </button>
           {notReadyHint && (
             <p id="estimator-hint" className="-mt-1 text-[13px] leading-[1.4] text-[#606060]">
@@ -395,7 +420,7 @@ function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
         >
           <div className="mb-6 flex items-center justify-between gap-4">
             <h3 className="text-[20px] font-medium uppercase leading-none text-[#606060] md:text-[24px]">
-              {SHOW_PRICES ? "Cost Breakdown" : "Material List"}
+              {SHOW_PRICES ? t("costBreakdown") : t("materialList")}
             </h3>
             {/* Only in the `selected` variant — the empty state has no actions
                 because there is nothing yet to call about or share. */}
@@ -404,10 +429,10 @@ function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
                 {/* Opens the enquiry pop-up with this estimate already in the
                     message, so the sales team sees what was calculated. */}
                 <EnquiryLink
-                  aria-label="Contact us about this estimate"
+                  aria-label={t("contactAria")}
                   className={ACTION_BUTTON}
                   preset={{
-                    message: estimateSummary(tab, steppers, counts, pipeType, result.grandTotal),
+                    message: estimateSummary(t, tab, steppers, counts, pipeType, result.grandTotal),
                   }}
                 >
                   <PhoneCallIcon />
@@ -426,7 +451,7 @@ function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
               tab={tab}
               result={result}
               summary={inputsSummary(tab, steppers, counts, pipeType)}
-              enquiryMessage={estimateSummary(tab, steppers, counts, pipeType, result.grandTotal)}
+              enquiryMessage={estimateSummary(t, tab, steppers, counts, pipeType, result.grandTotal)}
             />
           )}
         </div>
@@ -446,6 +471,7 @@ function Stepper({
   /** +1 / -1 only — the parent owns the clamp, see `stepCount`. */
   onStep: (delta: number) => void;
 }) {
+  const t = useTranslations("estimator");
   const shown = value === undefined ? "-" : value;
   const current = value ?? 0;
 
@@ -463,7 +489,7 @@ function Stepper({
       <div className="flex h-[50px] w-full max-w-[400px] items-stretch overflow-hidden rounded-full border border-[#c0c0c0] bg-white">
         <button
           type="button"
-          aria-label={`Decrease ${input.label}`}
+          aria-label={t("decrease", { label: input.label })}
           disabled={current <= input.min}
           onClick={() => step(-1)}
           className="flex w-[50px] shrink-0 touch-manipulation items-center justify-center select-none bg-[#f5f5f5] text-[24px] font-medium text-[#4a4a4a] transition-colors duration-100 ease-out hover:bg-[#ebebeb] active:bg-[#e0e0e0] disabled:opacity-40"
@@ -491,7 +517,7 @@ function Stepper({
         </span>
         <button
           type="button"
-          aria-label={`Increase ${input.label}`}
+          aria-label={t("increase", { label: input.label })}
           disabled={current >= input.max}
           onClick={() => step(1)}
           className="flex w-[50px] shrink-0 touch-manipulation items-center justify-center select-none bg-[#f5f5f5] text-[24px] font-medium text-[#4a4a4a] transition-colors duration-100 ease-out hover:bg-[#ebebeb] active:bg-[#e0e0e0] disabled:opacity-40"
@@ -505,6 +531,7 @@ function Stepper({
 
 /** The `default` variant's right pane (Figma 1582:8479). */
 function EmptyState() {
+  const t = useTranslations("estimator");
   return (
     <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[25px] border border-dashed border-[#c0c0c0] bg-[#f5f5f5]/35 px-8 py-16 text-center lg:min-h-[596px]">
       <span
@@ -514,11 +541,10 @@ function EmptyState() {
         <Plus className="size-6 text-[#171796]" />
       </span>
       <p className="font-display text-[18px] font-bold uppercase text-[#4a4a4a] md:text-[20px]">
-        Your estimate will appear here
+        {t("emptyTitle")}
       </p>
       <p className="mt-2 max-w-[340px] text-[14px] leading-[1.4] text-[#606060]">
-        Enter your project details and choose the plumbing type to see the material
-        breakdown.
+        {t("emptyDesc")}
       </p>
     </div>
   );
@@ -531,6 +557,7 @@ function ResultTable({
   tab: EstimatorTab;
   result: ReturnType<typeof estimate>;
 }) {
+  const t = useTranslations("estimator");
   return (
     // `@container`: cards or table is decided by the width THIS pane gets, not
     // the viewport. The two do not track each other — the pane is 480px at
@@ -561,7 +588,7 @@ function ResultTable({
           <thead>
             <tr className="bg-[#171796] text-[14px] font-semibold uppercase text-white md:text-[18px]">
               <th scope="col" className="px-5 py-4 font-semibold md:max-[1511px]:px-8 min-[1512px]:px-[60px]">
-                Items
+                {t("items")}
               </th>
               {result.columns.map((c) => (
                 <th key={c.id} scope="col" className="px-4 py-4 text-right font-semibold">
@@ -569,7 +596,7 @@ function ResultTable({
                 </th>
               ))}
               <th scope="col" className="px-4 py-4 pr-5 text-right font-semibold md:pr-8">
-                Total
+                {t("total")}
               </th>
             </tr>
           </thead>
@@ -596,7 +623,7 @@ function ResultTable({
           <tfoot>
             <tr className="bg-[#171796] text-[14px] font-semibold text-white md:text-[18px]">
               <th scope="row" className="px-5 py-4 text-left uppercase md:max-[1511px]:px-8 min-[1512px]:px-[60px]">
-                Total Cost (MRP)
+                {t("totalCost")}
               </th>
               {result.columnTotals.map((total, i) => (
                 <td
@@ -615,7 +642,7 @@ function ResultTable({
       </div>
 
       <div className="text-[13px] leading-[1.5] text-[#86868c]">
-        <p className="font-medium">Assumptions:</p>
+        <p className="font-medium">{t("assumptions")}</p>
         <ul className="list-inside list-disc">
           {tab.assumptions.map((a) => (
             <li key={a}>{a}</li>
@@ -625,7 +652,7 @@ function ResultTable({
             the banner in lib/data/estimator.ts. Saying so in the UI is the
             honest default; delete this line once real MRPs are in. */}
         <p className="mt-2 font-medium text-[#f28000]">
-          Indicative rates only — not yet loaded with live Poddar MRPs.
+          {t("indicativeRates")}
         </p>
       </div>
     </motion.div>
@@ -655,12 +682,13 @@ function rupees(value: number) {
  * Single-column tabs drop the summary split; it would only repeat the total.
  */
 function ResultCards({ result }: { result: ReturnType<typeof estimate> }) {
+  const t = useTranslations("estimator");
   const split = result.columns.length > 1;
   return (
     <div className="flex flex-col gap-3 @min-[540px]:hidden">
       <div className="rounded-[25px] bg-[#171796] px-5 py-5 text-white">
         <p className="text-[13px] font-semibold uppercase leading-none tracking-[0.04em] text-white/70">
-          Total Cost (MRP)
+          {t("totalCost")}
         </p>
         <p className="mt-2 font-display text-[32px] font-bold leading-none tabular-nums">
           {rupees(result.grandTotal)}
@@ -682,7 +710,7 @@ function ResultCards({ result }: { result: ReturnType<typeof estimate> }) {
       {/* Line items follow the total in a short stagger (35ms apart, after a
           120ms beat), so the eye lands on the headline figure first. */}
       <motion.ul
-        aria-label="Line items"
+        aria-label={t("lineItemsAria")}
         initial="hidden"
         animate="shown"
         variants={{ shown: { transition: { delayChildren: 0.12, staggerChildren: 0.035 } } }}
@@ -732,6 +760,7 @@ function ResultCards({ result }: { result: ReturnType<typeof estimate> }) {
  * was set, the pipe family and the indicative total. Editable in the form.
  */
 function estimateSummary(
+  t: Translate,
   tab: EstimatorTab,
   steppers: StepperInput[],
   counts: Record<string, number>,
@@ -744,14 +773,15 @@ function estimateSummary(
   const choice = tab.inputs.find((i) => i.kind === "choice");
   if (choice && choice.kind === "choice" && pipeType) {
     const picked = choice.options.find((o) => o.value === pipeType);
-    if (picked) lines.push(`• ${choice.label.replace(/^Select\s+/i, "")}: ${picked.label}`);
+    // English "Select X" / Hindi "X चुनें" -> "X".
+    if (picked) lines.push(`• ${choice.label.replace(/^Select\s+|\s+चुनें$/i, "")}: ${picked.label}`);
   }
   return [
-    SHOW_PRICES ? "I'd like to discuss this estimate:" : "Please send me pricing for this material list:",
+    SHOW_PRICES ? t("summaryIntroPrices") : t("summaryIntroList"),
     "",
     tab.title,
     ...lines,
-    ...(SHOW_PRICES ? ["", `Indicative total: ₹${formatINR(total)} (MRP)`] : []),
+    ...(SHOW_PRICES ? ["", t("summaryTotal", { total: formatINR(total) })] : []),
   ].join("\n");
 }
 
@@ -764,7 +794,8 @@ function inputsSummary(
 ) {
   const parts = steppers
     .filter((s) => (counts[s.id] ?? 0) > 0)
-    .map((s) => `${s.label.replace(/^Number of\s+/i, "")}: ${counts[s.id]}`);
+    // English "Number of X" / Hindi "X की संख्या" -> "X".
+    .map((s) => `${s.label.replace(/^Number of\s+|\s+की संख्या$/i, "")}: ${counts[s.id]}`);
   const choice = tab.inputs.find((i) => i.kind === "choice");
   if (choice && choice.kind === "choice" && pipeType) {
     const picked = choice.options.find((o) => o.value === pipeType);
@@ -791,6 +822,7 @@ function MaterialList({
   summary: string;
   enquiryMessage: string;
 }) {
+  const t = useTranslations("estimator");
   const rows = result.rows.filter((r) => r.total > 0);
   // The tabs' assumptions were written for the priced result; drop the ones
   // about MRP while no prices are shown.
@@ -804,13 +836,13 @@ function MaterialList({
     >
       <div className="rounded-[25px] bg-[#171796] px-5 py-5 text-white md:px-8 md:py-6">
         <p className="text-[13px] font-semibold uppercase leading-none tracking-[0.04em] text-white/70">
-          You&rsquo;ll need {rows.length} {rows.length === 1 ? "item" : "items"}
+          {t("needItems", { count: rows.length })}
         </p>
         <p className="mt-2 text-[16px] font-medium leading-[1.35] md:text-[18px]">{summary}</p>
       </div>
 
       <motion.ul
-        aria-label="Materials"
+        aria-label={t("materialsAria")}
         initial="hidden"
         animate="shown"
         variants={{ shown: { transition: { delayChildren: 0.12, staggerChildren: 0.035 } } }}
@@ -840,19 +872,18 @@ function MaterialList({
 
       <div className="flex flex-col gap-3 rounded-[25px] border border-[#c0c0c0] p-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
         <p className="text-[14px] leading-[1.45] text-[#4a4a4a]">
-          Prices aren&rsquo;t published online yet. Send this list to our sales team for
-          quantities and a quote.
+          {t("pricesNote")}
         </p>
         <EnquiryLink
           preset={{ message: enquiryMessage }}
           className="flex h-[46px] shrink-0 touch-manipulation select-none items-center justify-center rounded-full bg-[#f28000] px-6 text-[16px] font-semibold uppercase tracking-[0.3px] text-[#0b0b52] transition-[filter] hover:brightness-95"
         >
-          <span className={CAP_TRIM}>Get a quote</span>
+          <span className={CAP_TRIM}>{t("getQuote")}</span>
         </EnquiryLink>
       </div>
 
       <div className="text-[13px] leading-[1.5] text-[#606060]">
-        <p className="font-medium">Assumptions:</p>
+        <p className="font-medium">{t("assumptions")}</p>
         <ul className="list-inside list-disc">
           {assumptions.map((a) => (
             <li key={a}>{a}</li>
@@ -890,17 +921,19 @@ function ShareButton({
   total: number;
   rows: ReturnType<typeof estimate>["rows"];
 }) {
-  const subject = `Poddar Pipes — ${tab.title}`;
+  const t = useTranslations("estimator");
+  const type = tab.label.toLowerCase();
+  const subject = t("shareSubject", { title: tab.title });
   const body = SHOW_PRICES
-    ? `My ${tab.label.toLowerCase()} estimate comes to Rs ${formatINR(total)} (indicative MRP).`
-    : `My ${tab.label.toLowerCase()} material list from Poddar Pipes:\n${rows
+    ? t("shareBodyPrices", { type, total: formatINR(total) })
+    : `${t("shareBodyList", { type })}\n${rows
         .filter((r) => r.total > 0)
         .map((r) => `- ${r.label}`)
         .join("\n")}`;
   return (
     <a
       href={`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
-      aria-label="Share this estimate by email"
+      aria-label={t("shareAria")}
       className={ACTION_BUTTON}
     >
       <ShareSocialIcon />

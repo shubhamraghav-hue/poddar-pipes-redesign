@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { products } from "@/lib/data/products";
+import { productsHi } from "@/lib/data/hi/products";
+import { hasOverlays, localizeList } from "@/lib/i18n/localize";
 import { ProductDetail } from "@/components/products/ProductDetail";
 import { RelatedProducts } from "@/components/products/RelatedProducts";
 import { Breadcrumbs, getBreadcrumbSchema } from "@/components/shared/Breadcrumbs";
@@ -9,6 +11,7 @@ import { CTASection } from "@/components/home/CTASection";
 import { routing } from "@/i18n/routing";
 import { buildPageMetadata } from "@/lib/seo";
 import { showcaseCategories } from "@/lib/data/productShowcase";
+import { productShowcaseHi } from "@/lib/data/hi/productShowcase";
 import { ProductsRangePage } from "@/components/products/ProductsRangePage";
 
 /**
@@ -22,6 +25,9 @@ import { ProductsRangePage } from "@/components/products/ProductsRangePage";
  * Range ids and product slugs never overlap (products are "poddar-…" etc.).
  */
 const rangeFor = (slug: string) => showcaseCategories.find((c) => c.id === slug);
+/** The range with its SEO copy in `locale` (Hindi overlay for "hi"). */
+const localizedRange = (range: (typeof showcaseCategories)[number], locale: string) =>
+  hasOverlays(locale) ? { ...range, ...productShowcaseHi[range.id] } : range;
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => [
@@ -29,6 +35,10 @@ export function generateStaticParams() {
     ...products.map((p) => ({ locale, slug: p.slug })),
   ]);
 }
+
+/** Product-detail data for a locale: English, plus the Hindi overlay on /hi. */
+const productsFor = (locale: string) =>
+  localizeList(products, hasOverlays(locale) ? productsHi : undefined, "slug");
 
 export async function generateMetadata({
   params,
@@ -41,15 +51,16 @@ export async function generateMetadata({
     return buildPageMetadata({
       locale,
       path: `/products/${range.id}`,
-      title: range.metaTitle,
-      description: range.metaDescription,
+      title: localizedRange(range, locale).metaTitle,
+      description: localizedRange(range, locale).metaDescription,
     });
   }
-  const product = products.find((p) => p.slug === slug);
+  const product = productsFor(locale).find((p) => p.slug === slug);
   if (!product) return {};
 
-  // Product names/descriptions live in lib/data/products.ts (English only),
-  // so every locale uses them; canonical/hreflang are per-locale.
+  // Product names/descriptions come from lib/data/products.ts, with the
+  // Hindi overlay (lib/data/hi/products.ts) on /hi; canonical/hreflang are
+  // per-locale.
   return buildPageMetadata({
     locale,
     path: `/products/${product.slug}`,
@@ -81,7 +92,7 @@ export default async function ProductDetailPage({
   const t = await getTranslations("products");
   const nav = await getTranslations("nav");
 
-  const product = products.find((p) => p.slug === slug);
+  const product = productsFor(locale).find((p) => p.slug === slug);
 
   if (!product) {
     notFound();
@@ -115,7 +126,7 @@ export default async function ProductDetailPage({
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(getBreadcrumbSchema(breadcrumbItems)) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(getBreadcrumbSchema(breadcrumbItems, nav("home"))) }}
       />
       {/* A slim brand-colour strip exactly matching the fixed navbar's height
           (h-20) — not a hero; the same strip opens every inner page that has no
@@ -125,7 +136,7 @@ export default async function ProductDetailPage({
         <Breadcrumbs items={breadcrumbItems} />
       </div>
       <ProductDetail product={product} />
-      <RelatedProducts current={product} />
+      <RelatedProducts current={product} locale={locale} />
       <CTASection
         eyebrow={t("ctaBulkEyebrow")}
         title={t("ctaBulkTitle")}

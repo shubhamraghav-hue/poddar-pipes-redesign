@@ -12,15 +12,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // English title/description are the page's own copy. There are no
-  // per-page meta keys in messages/*.json yet, so other locales reuse the
-  // page's translated nav label as the title; the description stays English.
+  // Title and description from messages (seo.*), per locale.
   const t = await getTranslations({ locale });
   return buildPageMetadata({
     locale,
     path: "/about",
-    title: locale === "en" ? "About Us — Our Story, Vision & Quality Assurances" : t("nav.about"),
-    description: "Five decades of Poddar Pipes: the vision and mission behind the company, the ten assurances behind every product, and the milestones from 1975 to today.",
+    title: t("seo.aboutTitle"),
+    description: t("seo.aboutDescription"),
   });
 }
 
@@ -59,7 +57,7 @@ export default async function AboutPage({
           which is `LegacyStory`'s default, so no `yearColor` override here.
           The rest of that spec (Anek Devanagari, 600, 48px, 108%, 0.32px,
           uppercase) the component already matched exactly. */}
-      <LegacyStory titleLead="Our" />
+      <LegacyStory titleLead={(await getTranslations({ locale, namespace: "legacyStory" }))("ourLead")} />
       <CTASection
         variant="flush"
         primaryLabel={t("ctaPrimaryHome")}

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { Loader2, Phone } from "lucide-react";
 import { scrollToElement } from "@/hooks/useLenis";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,8 @@ import {
   useRenderedAt,
   type SubmitResult,
 } from "@/lib/forms/client";
+import { hasOverlays } from "@/lib/i18n/localize";
+import { PARTNER_OPTION_LABELS_HI } from "@/lib/data/hi/enquiries";
 import {
   Select,
   SelectTrigger,
@@ -115,6 +118,44 @@ const STYLES: Record<
   },
 };
 
+type Translate = ReturnType<typeof useTranslations>;
+
+/**
+ * The visible text of a failed submit. The form-level message comes from the
+ * error CODE (lib/forms/client.ts keeps the English originals); per-field
+ * messages arrive from the server in English, so on other locales the known
+ * shapes are mapped to translated text and anything unrecognised is shown as
+ * sent. English passes through untouched.
+ */
+function useSubmitErrorText() {
+  const locale = useLocale();
+  const t = useTranslations("enquiryForm");
+  const formMessage = (e: SubmitError) => t(`error_${e.error}`);
+  const fieldMessage = (msg: string) => (locale === "en" ? msg : localizeFieldError(msg, t));
+  return { formMessage, fieldMessage };
+}
+
+const FIELD_ERRORS: Record<string, string> = {
+  "Please enter a valid email address.": "fieldErrorEmail",
+  "Please enter a 10-digit mobile number (optionally with +91 or 0).": "fieldErrorMobile",
+  "Please enter a website or social page address, e.g. example.com.": "fieldErrorUrl",
+  "Please enter a valid phone / WhatsApp number with country code.": "fieldErrorPhoneIntl",
+  "Pincode must be 6 digits.": "fieldErrorPincode",
+  "Please choose your state.": "errorChooseState",
+  "Please choose your business type.": "errorChooseBusinessType",
+};
+
+function localizeFieldError(msg: string, t: Translate): string {
+  const known = FIELD_ERRORS[msg];
+  if (known) return t(known);
+  if (/ is required\.$/.test(msg)) return t("fieldErrorRequired");
+  const tooLong = msg.match(/ must be (\d+) characters or fewer\.$/);
+  if (tooLong) return t("fieldErrorTooLong", { max: Number(tooLong[1]) });
+  if (/ is invalid\.$/.test(msg)) return t("fieldErrorInvalid");
+  if (/^Please choose a valid /.test(msg)) return t("fieldErrorChoice");
+  return msg;
+}
+
 export function EnquiryForm({
   variant = "page",
   preset,
@@ -125,6 +166,8 @@ export function EnquiryForm({
   /** Shown in the success state as a "Close" action (the dialog passes one). */
   onDone?: () => void;
 }) {
+  const t = useTranslations("enquiryForm");
+  const errText = useSubmitErrorText();
   const [status, setStatus] = useState<Status>("idle");
   const [sent, setSent] = useState<SentSummary | null>(null);
   // Server-side field messages, keyed by field name, and the form-level error
@@ -212,7 +255,9 @@ export function EnquiryForm({
       ? { "aria-invalid": true as const, "aria-describedby": fid(`${name}-error`) }
       : {};
   const fieldError = (name: string) =>
-    fieldErrors[name] ? { error: fieldErrors[name], errorId: fid(`${name}-error`) } : {};
+    fieldErrors[name]
+      ? { error: errText.fieldMessage(fieldErrors[name]), errorId: fid(`${name}-error`) }
+      : {};
 
   return (
     <form
@@ -232,7 +277,7 @@ export function EnquiryForm({
           collapses to one column below `sm` where 266px would be narrower than
           a thumb. */}
       <div className={cn("grid grid-cols-1 gap-x-[18px] sm:grid-cols-2", s.grid)}>
-        <Field id={fid("name")} label="Name" required labelClass={s.label} {...fieldError("name")}>
+        <Field id={fid("name")} label={t("name")} required labelClass={s.label} {...fieldError("name")}>
           <Input
             id={fid("name")}
             name="name"
@@ -243,7 +288,7 @@ export function EnquiryForm({
             {...invalid("name")}
           />
         </Field>
-        <Field id={fid("email")} label="Email" required labelClass={s.label} {...fieldError("email")}>
+        <Field id={fid("email")} label={t("email")} required labelClass={s.label} {...fieldError("email")}>
           <Input
             id={fid("email")}
             name="email"
@@ -259,7 +304,7 @@ export function EnquiryForm({
             {...invalid("email")}
           />
         </Field>
-        <Field id={fid("mobile")} label="Mobile Number" required labelClass={s.label} {...fieldError("mobile")}>
+        <Field id={fid("mobile")} label={t("mobile")} required labelClass={s.label} {...fieldError("mobile")}>
           {/* 10 digits, optionally after +91 or 0, spaces/dashes allowed
               between them — the same rule the server applies. */}
           <Input
@@ -268,7 +313,7 @@ export function EnquiryForm({
             type="tel"
             required
             pattern="(\+91|0)?[ \-]*[0-9](?:[ \-]*[0-9]){9}"
-            title="A 10-digit mobile number, optionally starting with +91 or 0, e.g. 98888 22333"
+            title={t("mobileTitle")}
             maxLength={20}
             autoComplete="tel"
             inputMode="tel"
@@ -277,7 +322,7 @@ export function EnquiryForm({
             {...invalid("mobile")}
           />
         </Field>
-        <Field id={fid("company")} label="Company Name" labelClass={s.label} {...fieldError("company")}>
+        <Field id={fid("company")} label={t("company")} labelClass={s.label} {...fieldError("company")}>
           <Input
             id={fid("company")}
             name="company"
@@ -287,7 +332,7 @@ export function EnquiryForm({
             {...invalid("company")}
           />
         </Field>
-        <Field id={fid("city")} label="City" required labelClass={s.label} {...fieldError("city")}>
+        <Field id={fid("city")} label={t("city")} required labelClass={s.label} {...fieldError("city")}>
           <Input
             id={fid("city")}
             name="city"
@@ -298,7 +343,7 @@ export function EnquiryForm({
             {...invalid("city")}
           />
         </Field>
-        <Field id={fid("pincode")} label="Pincode" labelClass={s.label} {...fieldError("pincode")}>
+        <Field id={fid("pincode")} label={t("pincode")} labelClass={s.label} {...fieldError("pincode")}>
           {/* `inputMode="numeric"` rather than `type="number"`: a pincode is a
               6-digit identifier, not a quantity, and `number` brings spinners
               and strips a leading zero. */}
@@ -307,7 +352,7 @@ export function EnquiryForm({
             name="pincode"
             inputMode="numeric"
             pattern="[0-9]{6}"
-            title="A 6-digit pincode, e.g. 700001"
+            title={t("pincodeTitle")}
             maxLength={6}
             autoComplete="postal-code"
             enterKeyHint="next"
@@ -317,7 +362,7 @@ export function EnquiryForm({
         </Field>
       </div>
 
-      <Field id={fid("message")} label="Message" labelClass={s.label} {...fieldError("message")}>
+      <Field id={fid("message")} label={t("message")} labelClass={s.label} {...fieldError("message")}>
         <Textarea
           id={fid("message")}
           name="message"
@@ -339,7 +384,7 @@ export function EnquiryForm({
           role="alert"
           className="-mt-3 rounded-[10px] border border-[#b42318]/30 bg-[#fef3f2] px-4 py-3 text-[14px] leading-[1.45] text-[#b42318]"
         >
-          <p>{formError.message}</p>
+          <p>{errText.formMessage(formError)}</p>
           {formError.offerDirect && (
             <p className="mt-1">
               <a href={OFFICE_CONTACT.phone.href} className="font-semibold underline underline-offset-2">
@@ -376,10 +421,10 @@ export function EnquiryForm({
           <>
             <Loader2 className="mr-2 size-4 animate-spin" />
             {/* Inside a fragment, so `Button` does not trim it for us. */}
-            <span className={CAP_TRIM}>Sending</span>
+            <span className={CAP_TRIM}>{t("sending")}</span>
           </>
         ) : (
-          "Submit"
+          t("submit")
         )}
       </Button>
     </form>
@@ -412,6 +457,11 @@ export function PartnerForm({
   /** Title + intro shown above the form; hidden once it has been sent. */
   intro?: ReactNode;
 }) {
+  const t = useTranslations("enquiryForm");
+  const errText = useSubmitErrorText();
+  const locale = useLocale();
+  // Display text for a dropdown option; the posted value stays English.
+  const optionLabel = (o: string) => (hasOverlays(locale) ? PARTNER_OPTION_LABELS_HI[o] ?? o : o);
   const [status, setStatus] = useState<Status>("idle");
   const [sent, setSent] = useState<SentSummary | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -431,8 +481,8 @@ export function PartnerForm({
     // Radix's hidden <select> reports VALID while empty, so the required
     // dropdowns are checked by hand (as the contact form's type field was).
     const missing: Record<string, string> = {};
-    if (india && !state) missing.state = "Please choose your state.";
-    if (!businessType) missing.businessType = "Please choose your business type.";
+    if (india && !state) missing.state = t("errorChooseState");
+    if (!businessType) missing.businessType = t("errorChooseBusinessType");
     if (Object.keys(missing).length) {
       setFieldErrors((f) => ({ ...f, ...missing }));
       document.getElementById(fid(Object.keys(missing)[0]))?.focus();
@@ -498,7 +548,9 @@ export function PartnerForm({
   const invalid = (name: string) =>
     fieldErrors[name] ? { "aria-invalid": true as const, "aria-describedby": fid(`${name}-error`) } : {};
   const fieldError = (name: string) =>
-    fieldErrors[name] ? { error: fieldErrors[name], errorId: fid(`${name}-error`) } : {};
+    fieldErrors[name]
+      ? { error: errText.fieldMessage(fieldErrors[name]), errorId: fid(`${name}-error`) }
+      : {};
   const clear = (name: string) => setFieldErrors(({ [name]: _cleared, ...rest }) => rest);
   const groupTitle = "text-[13px] font-semibold uppercase tracking-[0.14em] text-[#171796]";
 
@@ -525,13 +577,13 @@ export function PartnerForm({
           aria-describedby={fieldErrors[name] ? fid(`${name}-error`) : undefined}
           className={cn(s.select, fieldErrors[name] && "border-[#d92d20]")}
         >
-          <SelectValue placeholder={<span className={`block ${CAP_TRIM}`}>Choose</span>} />
+          <SelectValue placeholder={<span className={`block ${CAP_TRIM}`}>{t("choose")}</span>} />
         </SelectTrigger>
         {/* `z-[70]`: above the dialog's z-60 overlay (see the contact form). */}
         <SelectContent className="z-[70] max-h-[min(320px,var(--radix-select-content-available-height))]">
           {options.map((o) => (
             <SelectItem key={o} value={o} className="min-h-9">
-              <span className={`block ${CAP_TRIM}`}>{o}</span>
+              <span className={`block ${CAP_TRIM}`}>{optionLabel(o)}</span>
             </SelectItem>
           ))}
         </SelectContent>
@@ -554,15 +606,15 @@ export function PartnerForm({
 
       {/* ------------------------------------------- contact & company */}
       <fieldset className="flex flex-col gap-6">
-        <legend className={cn(groupTitle, "mb-6")}>Contact &amp; company details</legend>
+        <legend className={cn(groupTitle, "mb-6")}>{t("partnerLegendContact")}</legend>
         <div className={cn("grid grid-cols-1 gap-x-[18px] gap-y-6 sm:grid-cols-2")}>
-          <Field id={fid("name")} label="Contact Name" required labelClass={s.label} {...fieldError("name")}>
+          <Field id={fid("name")} label={t("partnerContactName")} required labelClass={s.label} {...fieldError("name")}>
             <Input id={fid("name")} name="name" required maxLength={100} autoComplete="name" className={s.control} {...invalid("name")} />
           </Field>
-          <Field id={fid("company")} label="Business / Company Name" required labelClass={s.label} {...fieldError("company")}>
+          <Field id={fid("company")} label={t("partnerBusinessName")} required labelClass={s.label} {...fieldError("company")}>
             <Input id={fid("company")} name="company" required maxLength={120} autoComplete="organization" className={s.control} {...invalid("company")} />
           </Field>
-          <Field id={fid("email")} label="Business Email" required labelClass={s.label} {...fieldError("email")}>
+          <Field id={fid("email")} label={t("partnerBusinessEmail")} required labelClass={s.label} {...fieldError("email")}>
             <Input
               id={fid("email")}
               name="email"
@@ -577,7 +629,7 @@ export function PartnerForm({
               {...invalid("email")}
             />
           </Field>
-          <Field id={fid("phone")} label="Phone / WhatsApp" required labelClass={s.label} {...fieldError("phone")}>
+          <Field id={fid("phone")} label={t("partnerPhone")} required labelClass={s.label} {...fieldError("phone")}>
             <Input
               id={fid("phone")}
               name="phone"
@@ -585,7 +637,7 @@ export function PartnerForm({
               required
               // India: the 10-digit rule. Elsewhere: 7–15 digits with country code.
               pattern={india ? "(\\+91|0)?[ \\-]*[0-9](?:[ \\-]*[0-9]){9}" : "\\+?[0-9 \\-()]{7,20}"}
-              title={india ? "A 10-digit mobile number, optionally starting with +91 or 0" : "Phone number with country code, e.g. +971 50 123 4567"}
+              title={india ? t("partnerPhoneTitleIndia") : t("partnerPhoneTitleIntl")}
               maxLength={24}
               autoComplete="tel"
               inputMode="tel"
@@ -594,7 +646,7 @@ export function PartnerForm({
             />
           </Field>
         </div>
-        <Field id={fid("companyWebsite")} label="Company Website / Social Page" labelClass={s.label} {...fieldError("companyWebsite")}>
+        <Field id={fid("companyWebsite")} label={t("partnerWebsite")} labelClass={s.label} {...fieldError("companyWebsite")}>
           <Input
             id={fid("companyWebsite")}
             name="companyWebsite"
@@ -603,7 +655,7 @@ export function PartnerForm({
             autoComplete="url"
             autoCapitalize="none"
             spellCheck={false}
-            placeholder="e.g. yourbusiness.com or instagram.com/yourstore"
+            placeholder={t("partnerWebsitePlaceholder")}
             className={s.control}
             {...invalid("companyWebsite")}
           />
@@ -612,50 +664,50 @@ export function PartnerForm({
 
       {/* ------------------------------------- location & business profile */}
       <fieldset className="flex flex-col gap-6">
-        <legend className={cn(groupTitle, "mb-6")}>Location &amp; business profile</legend>
+        <legend className={cn(groupTitle, "mb-6")}>{t("partnerLegendLocation")}</legend>
         <div className="grid grid-cols-1 gap-x-[18px] gap-y-6 sm:grid-cols-2">
-          {pick("country", "Country / Region", country, (v) => {
+          {pick("country", t("partnerCountry"), country, (v) => {
             setCountry(v);
             setState("");
           }, PARTNER_COUNTRIES)}
           {country === "Other" ? (
-            <Field id={fid("countryOther")} label="Your Country" required labelClass={s.label} {...fieldError("countryOther")}>
+            <Field id={fid("countryOther")} label={t("partnerYourCountry")} required labelClass={s.label} {...fieldError("countryOther")}>
               <Input id={fid("countryOther")} name="countryOther" required maxLength={60} autoComplete="country-name" className={s.control} {...invalid("countryOther")} />
             </Field>
           ) : india ? (
-            pick("state", "State", state, setState, INDIAN_STATES)
+            pick("state", t("partnerState"), state, setState, INDIAN_STATES)
           ) : (
-            <Field id={fid("state")} label="State / Region" required labelClass={s.label} {...fieldError("state")}>
+            <Field id={fid("state")} label={t("partnerStateRegion")} required labelClass={s.label} {...fieldError("state")}>
               <Input id={fid("state")} name="state" required maxLength={80} autoComplete="address-level1" className={s.control} {...invalid("state")} />
             </Field>
           )}
           {country === "Other" && (
-            <Field id={fid("state")} label="State / Region" required labelClass={s.label} {...fieldError("state")}>
+            <Field id={fid("state")} label={t("partnerStateRegion")} required labelClass={s.label} {...fieldError("state")}>
               <Input id={fid("state")} name="state" required maxLength={80} autoComplete="address-level1" className={s.control} {...invalid("state")} />
             </Field>
           )}
-          <Field id={fid("city")} label="City" required labelClass={s.label} {...fieldError("city")}>
+          <Field id={fid("city")} label={t("city")} required labelClass={s.label} {...fieldError("city")}>
             <Input id={fid("city")} name="city" required maxLength={80} autoComplete="address-level2" className={s.control} {...invalid("city")} />
           </Field>
-          {pick("businessType", "Primary Business Type", businessType, setBusinessType, PARTNER_BUSINESS_TYPES)}
-          {pick("yearsInBusiness", "Years in Business", years, setYears, PARTNER_YEARS, false)}
+          {pick("businessType", t("partnerBusinessType"), businessType, setBusinessType, PARTNER_BUSINESS_TYPES)}
+          {pick("yearsInBusiness", t("partnerYears"), years, setYears, PARTNER_YEARS, false)}
         </div>
-        <Field id={fid("coverage")} label="Distribution Network / Coverage Area" labelClass={s.label} {...fieldError("coverage")}>
-          <Input id={fid("coverage")} name="coverage" maxLength={120} placeholder="e.g. Local, Regional, National" className={s.control} {...invalid("coverage")} />
+        <Field id={fid("coverage")} label={t("partnerCoverage")} labelClass={s.label} {...fieldError("coverage")}>
+          <Input id={fid("coverage")} name="coverage" maxLength={120} placeholder={t("partnerCoveragePlaceholder")} className={s.control} {...invalid("coverage")} />
         </Field>
       </fieldset>
 
       {/* ------------------------------------------------- inquiry details */}
       <fieldset className="flex flex-col gap-6">
-        <legend className={cn(groupTitle, "mb-6")}>Enquiry details</legend>
-        <Field id={fid("message")} label="Additional Information / Message" labelClass={s.label} {...fieldError("message")}>
+        <legend className={cn(groupTitle, "mb-6")}>{t("partnerLegendEnquiry")}</legend>
+        <Field id={fid("message")} label={t("partnerMessage")} labelClass={s.label} {...fieldError("message")}>
           <Textarea
             id={fid("message")}
             name="message"
             rows={4}
             maxLength={5000}
             defaultValue={preset?.message}
-            placeholder="Tell us a bit about your business, current product lines, or estimated initial order volume."
+            placeholder={t("partnerMessagePlaceholder")}
             className={cn("min-h-[110px]", s.control, s.textarea)}
             {...invalid("message")}
           />
@@ -667,7 +719,7 @@ export function PartnerForm({
           role="alert"
           className="-mt-3 rounded-[10px] border border-[#b42318]/30 bg-[#fef3f2] px-4 py-3 text-[14px] leading-[1.45] text-[#b42318]"
         >
-          <p>{formError.message}</p>
+          <p>{errText.formMessage(formError)}</p>
           {formError.offerDirect && (
             <p className="mt-1">
               <a href={OFFICE_CONTACT.phone.href} className="font-semibold underline underline-offset-2">
@@ -694,10 +746,10 @@ export function PartnerForm({
         {status === "submitting" ? (
           <>
             <Loader2 className="mr-2 size-4 animate-spin" />
-            <span className={CAP_TRIM}>Sending</span>
+            <span className={CAP_TRIM}>{t("sending")}</span>
           </>
         ) : (
-          "Send Partnership Enquiry"
+          t("partnerSubmit")
         )}
       </Button>
     </form>
@@ -710,11 +762,14 @@ const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 /** The office line, as printed in the footer and on the /contact call card. */
 const OFFICE_PHONE = OFFICE_CONTACT.phone;
 
-const NEXT_STEPS = [
-  { title: "Received", body: "Your message is with our office team." },
-  { title: "Routed", body: "Passed to the right sales or technical lead." },
-  { title: "Reply", body: "Within one business day, by email or phone." },
-];
+/** Message keys: `<key>Title` / `<key>Body` in the enquiryForm namespace. */
+const NEXT_STEPS = ["stepReceived", "stepRouted", "stepReply"] as const;
+
+/** `SentSummary.enquiryType` (English, as recorded) -> its display key. */
+const ENQUIRY_TYPE_KEYS: Record<string, string> = {
+  General: "typeGeneral",
+  Partnership: "typePartnership",
+};
 
 /**
  * The confirmation that replaces the form after a successful submit, on both
@@ -748,9 +803,12 @@ function EnquirySuccess({
   onDone?: () => void;
   onAgain: () => void;
 }) {
+  const t = useTranslations("enquiryForm");
   const rootRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const reduce = useReducedMotion();
+  const typeKey = ENQUIRY_TYPE_KEYS[sent.enquiryType];
+  const enquiryType = typeKey ? t(typeKey) : sent.enquiryType;
 
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -823,7 +881,7 @@ function EnquirySuccess({
         variants={item}
         className="mt-6 text-[13px] font-semibold uppercase leading-none tracking-[0.14em] text-[#171796]"
       >
-        Message sent
+        {t("messageSent")}
       </motion.p>
 
       <motion.h3
@@ -833,7 +891,7 @@ function EnquirySuccess({
         className="mt-3 font-display text-[28px] uppercase leading-[1.08] text-[#4a4a4a] outline-none md:text-[36px]"
       >
         <span className="block font-light">
-          Thank you
+          {t("thankYou")}
           {sent.firstName ? (
             <>
               ,{" "}
@@ -843,25 +901,25 @@ function EnquirySuccess({
             </>
           ) : null}
         </span>
-        <span className="block font-bold">We&rsquo;ll be in touch</span>
+        <span className="block font-bold">{t("inTouch")}</span>
       </motion.h3>
 
       <motion.p
         variants={item}
         className="mt-4 max-w-[420px] text-balance text-[14px] leading-[1.5] text-[#606060] md:text-[15px]"
       >
-        Your <span className="font-semibold text-[#4a4a4a]">{sent.enquiryType}</span> enquiry has
-        reached our office team. Expect a reply
-        {sent.email ? (
-          <>
-            {" "}
-            at {/* `overflow-wrap: anywhere`, not `break-all`: the line wraps BEFORE
-                the address when it can, and only splits it if it is wider than
-                the column — `break-all` was cutting "priya.shar|ma@…". */}
-            <span className="font-semibold text-[#4a4a4a] [overflow-wrap:anywhere]">{sent.email}</span>
-          </>
-        ) : null}{" "}
-        within one business day.
+        {/* `overflow-wrap: anywhere` on the address, not `break-all`: the
+            line wraps BEFORE the address when it can, and only splits it if it
+            is wider than the column — `break-all` was cutting
+            "priya.shar|ma@…". */}
+        {t.rich(sent.email ? "successBodyEmail" : "successBody", {
+          type: enquiryType,
+          email: sent.email,
+          b: (chunks) => <span className="font-semibold text-[#4a4a4a]">{chunks}</span>,
+          address: (chunks) => (
+            <span className="font-semibold text-[#4a4a4a] [overflow-wrap:anywhere]">{chunks}</span>
+          ),
+        })}
       </motion.p>
 
       {/* What happens next — step 1 already done (navy, checked), 2 and 3
@@ -874,7 +932,7 @@ function EnquirySuccess({
           const done = i === 0;
           return (
             <li
-              key={step.title}
+              key={step}
               className="relative flex gap-3 sm:flex-col sm:items-center sm:gap-2 sm:px-2 sm:text-center"
             >
               {/* Connector to the next step, disc edge to disc edge (sm+). */}
@@ -909,11 +967,11 @@ function EnquirySuccess({
               </span>
               <span>
                 <span className="block text-[13px] font-semibold uppercase leading-4 tracking-[0.06em] text-[#4a4a4a]">
-                  {step.title}
-                  {done && <span className="sr-only"> (done)</span>}
+                  {t(`${step}Title`)}
+                  {done && <span className="sr-only"> {t("doneSr")}</span>}
                 </span>
                 <span className="mt-1 block text-[13px] leading-[1.4] text-[#86868c]">
-                  {step.body}
+                  {t(`${step}Body`)}
                 </span>
               </span>
             </li>
@@ -927,7 +985,7 @@ function EnquirySuccess({
             onClick={onDone}
             className="h-[46px] rounded-full bg-[#171796] px-8 py-0 text-lg font-semibold uppercase tracking-[0.36px] text-white transition-[background-color,transform,translate,scale] duration-150 ease-out hover:bg-[#0b0b52] active:scale-[0.98]"
           >
-            Done
+            {t("done")}
           </Button>
         ) : (
           <Button
@@ -935,13 +993,13 @@ function EnquirySuccess({
             onClick={onAgain}
             className="h-11 rounded-full px-6 py-0 text-[15px] font-semibold uppercase tracking-[0.3px]"
           >
-            Send another message
+            {t("sendAnother")}
           </Button>
         )}
         {/* One flex row, both halves cap-trimmed: an inline-flex link inside
             running text sat ~2px above "Need it sooner?". */}
         <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[13px] text-[#86868c]">
-          <span className={CAP_TRIM}>Need it sooner?</span>
+          <span className={CAP_TRIM}>{t("needSooner")}</span>
           <a
             href={OFFICE_PHONE.href}
             className="flex items-center gap-1 font-semibold text-[#171796] underline-offset-4 transition-colors hover:text-[#f28000] hover:underline"

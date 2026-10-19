@@ -15,6 +15,8 @@ import { COMPANY } from "@/lib/data/offices";
  */
 export async function Facilities() {
   const t = await getTranslations("about");
+  // Place names per locale (messages: places.*); English keys = the data values.
+  const tPlace = await getTranslations("places");
   const plant = COMPANY.plant;
   return (
     <section className="container-figma py-24 md:py-28">
@@ -34,7 +36,7 @@ export async function Facilities() {
               {t("facility0Focus")}
             </p>
             <h3 className="mt-2 font-display text-xl font-medium text-slate-900 sm:text-2xl">
-              {plant.locality}, {plant.region}
+              {tPlace(plant.locality as never)}, {tPlace(plant.region as never)}
             </h3>
             <address className="mt-2 not-italic text-sm leading-relaxed text-slate-600 sm:text-base">
               {plant.oneLine}

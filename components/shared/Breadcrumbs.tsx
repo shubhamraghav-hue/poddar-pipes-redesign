@@ -1,4 +1,5 @@
 import { ChevronRight, Home } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 export interface BreadcrumbItem {
@@ -8,9 +9,12 @@ export interface BreadcrumbItem {
 
 const SITE_URL = "https://www.poddarpipes.com";
 
-/** BreadcrumbList JSON-LD matching the visual trail rendered by <Breadcrumbs>. */
-export function getBreadcrumbSchema(items: BreadcrumbItem[]) {
-  const allItems = [{ label: "Home", href: "/" }, ...items];
+/**
+ * BreadcrumbList JSON-LD matching the visual trail rendered by <Breadcrumbs>.
+ * `homeLabel` is the locale's "Home" (nav.home); English by default.
+ */
+export function getBreadcrumbSchema(items: BreadcrumbItem[], homeLabel = "Home") {
+  const allItems = [{ label: homeLabel, href: "/" }, ...items];
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -24,13 +28,14 @@ export function getBreadcrumbSchema(items: BreadcrumbItem[]) {
 }
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
+  const t = useTranslations();
   return (
     // Links get `py-2.5` (with the row pulled back by `-my-2.5`) so each is a
     // ~40px tap target without changing how the trail looks.
-    <nav aria-label="Breadcrumb" className="-my-2.5 flex flex-wrap items-center gap-1.5 text-sm">
+    <nav aria-label={t("common.breadcrumbAria")}className="-my-2.5 flex flex-wrap items-center gap-1.5 text-sm">
       <Link
         href="/"
-        aria-label="Home"
+        aria-label={t("nav.home")}
         className="flex items-center px-1 py-2.5 text-slate-500 transition-colors hover:text-ocean-600"
       >
         <Home className="h-3.5 w-3.5" aria-hidden="true" />

@@ -10,6 +10,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { FeaturePill } from "@/components/shared/FeaturePill";
 import { getFeatureTags } from "@/lib/productTags";
+import { products } from "@/lib/data/products";
 import type { Product } from "@/types";
 
 /**
@@ -37,8 +38,13 @@ export function ProductDetail({ product }: { product: Product }) {
   const t = useTranslations("products");
   const tHome = useTranslations("home");
   const Icon = iconMap[product.icon];
-  const featureTags = getFeatureTags(product);
-  const standardSpec = product.specs.find((s) => s.label === "Standard");
+  // `product` may carry the Hindi overlay. Tags and the "Standard" row are
+  // matched on the English source copy (same id), then shown translated.
+  const source = products.find((p) => p.id === product.id) ?? product;
+  const featureTags = getFeatureTags(source);
+  const standardIndex = source.specs.findIndex((s) => s.label === "Standard");
+  const standardSpec = standardIndex >= 0 ? product.specs[standardIndex] : undefined;
+  const partnerMessage = t("partnerMessage", { name: product.name } as never);
 
   return (
     <>
@@ -64,7 +70,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {featureTags.map((tag) => (
                   <FeaturePill key={tag} dark>
-                    {tag}
+                    {t(`featureTags.${tag.replace(/-/g, "")}` as never)}
                   </FeaturePill>
                 ))}
               </div>
@@ -82,7 +88,7 @@ export function ProductDetail({ product }: { product: Product }) {
               <Button variant="outline-light" asChild>
                 {/* Opens the partner (dealers & distributors) form with the
                     product named in the message. */}
-                <PartnerLink preset={{ message: `Interested in stocking ${product.name}.` }}>
+                <PartnerLink preset={{ message: partnerMessage }}>
                   {t("becomePartner")}
                 </PartnerLink>
               </Button>
@@ -149,10 +155,10 @@ export function ProductDetail({ product }: { product: Product }) {
                   // Phrase as design intent only — never "certified/compliant".
                   <div className="mb-8 rounded-[25px] border border-slate-200/70 bg-white p-5">
                     <p className="text-xs font-medium uppercase tracking-wide text-[#171796]">
-                      Design standard
+                      {t("designStandardH")}
                     </p>
                     <p className="mt-1 text-sm leading-relaxed text-slate-600">
-                      Designed and manufactured to {standardSpec.value} specifications.
+                      {t("designStandardBody", { standard: standardSpec.value } as never)}
                     </p>
                   </div>
                 )}
@@ -227,7 +233,7 @@ export function ProductDetail({ product }: { product: Product }) {
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-[#c0c0c0]">{t("partnerDesc")}</p>
               <Button asChild variant="accent-ink" className="mt-6 gap-2 text-[#0b0b52] hover:text-[#0b0b52]">
-                <PartnerLink preset={{ message: `Interested in stocking ${product.name}.` }}>
+                <PartnerLink preset={{ message: partnerMessage }}>
                   {t("becomePartner")}
                 </PartnerLink>
               </Button>

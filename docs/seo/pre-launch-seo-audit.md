@@ -7,7 +7,84 @@
 | **Preview inspected** | https://poddar-pipes-redesign.vercel.app/ |
 | **Intended production origin** | https://www.poddarpipes.com. Today it serves a noindex "Launching Soon" holding page; `http://` and the apex 308 → `https://www` (verified 19 Oct 2026). robots.txt and sitemap.xml return 404 there. |
 | **Market** | India |
-| **Status** | AUDIT ONLY. No production code has been changed. Implementation waits for approval (§E). |
+| **Status** | **v2, re-run 19 Oct 2026 after implementation.** SEO-003, SEO-004 and SEO-005 are done; the installation guides were removed. Current state: §0. The original v1 findings (§A–§G) stay below as the baseline, with a status column added in §0. |
+
+---
+
+## 0. Audit v2: current state (re-run 19 Oct 2026)
+
+**Method.** The full crawl was re-run on the local dev server (Googlebot user-agent) over every route in both locales, plus the six range URLs. A Hindi-content inventory compared every visible text node and attribute on 21 `/hi` URLs. English pages were checked against the v1 baseline crawl.
+
+### 0.1 Readiness
+
+| Area | v1 (baseline) | **v2 (now)** |
+|---|---|---|
+| Indexable product pages | 1 (`/products`, CPVC state only) | **6 range URLs** × 2 locales, each self-canonical with a unique title, description and H1 |
+| Sitemap | 25 routes × 2, incl. 16 orphan/unconfirmed URLs | **14 routes × 2 = 28 URLs**, all linked, indexable and 200 |
+| Orphan / unconfirmed pages | indexable | `noindex, follow` and out of the sitemap (still reachable for visitors) |
+| Hindi pages | 3–30% Devanagari on many pages; English meta descriptions; English legal, contact, calculator and product text | **59–94% Devanagari**. All titles and descriptions in Hindi. English text segments on /hi down from **581 to 195**, and every remaining one is intentional (see 0.4) |
+| English pages | — | Title, description, canonical, H1 and word count unchanged on every page, except the intended SEO-003 changes (`/products` → CPVC canonical; `?category=` → 308) and the removed installation page (404) |
+| Type check / lint | — | `tsc` clean; ESLint 0 errors (7 pre-existing `<img>` warnings) |
+
+**Overall: technically ready apart from the launch configuration (SEO-001/002) and the business confirmations (SEO-007/019/020).** Those are the only remaining blockers.
+
+### 0.2 Issue status
+
+| ID | Severity | Status | Note |
+|---|---|---|---|
+| SEO-001 | Critical | **Open: needs Vercel access** | `NEXT_PUBLIC_SITE_ENV=production` on the production project only |
+| SEO-002 | Critical | **Open: needs Vercel + DNS** | www.poddarpipes.com still serves the "Launching Soon" page; redirect `*.vercel.app` and the apex to www |
+| SEO-003 | High | **Done** | Range URLs `/products/<range>`; see the log below |
+| SEO-004 | High | **Done** | Orphans noindexed and removed from the sitemap |
+| SEO-005 | High | **Done** | Hindi translated site-wide (details in 0.3). Hindi stays in the sitemap and hreflang |
+| SEO-006 | High | **Partly done** | The six range titles are done. The home title still lacks product terms (proposal in §C3, awaiting approval) |
+| SEO-007 | High | **Open: business confirmation** | 1991 vs 1975; uPVC hot water; IS 4985 edition and size range; `taxID` |
+| SEO-008 | Medium | Open (approved-ready) | Drop the retired SearchAction; Product markup has no offers or rating, so it's not rich-result eligible |
+| SEO-009 | Medium | Open (approved-ready) | Over-long descriptions: /contact 176, /hi/contact 188; /careers 60 is thin; the FAQ description mentions warranty and support, which the FAQ doesn't cover. /hi/about title is 73 chars |
+| SEO-010 | Medium | Open | Automatic language redirect (Accept-Language → /hi) |
+| SEO-011 | Medium | Open: needs permission (Hero locked) | Hero video 12.9 MB / 4.9 MB |
+| SEO-012 | Low | Open | 404 shows the homepage `<title>` |
+| SEO-013 | Low | Open | Preview: Disallow + noindex; prefer Deployment Protection |
+| SEO-014 | Low | Won't fix | `keywords` meta is harmless |
+| SEO-015 | Low | Open | `lastmod` = build time |
+| SEO-016 | Low | Open | One generic share image |
+| SEO-017 | Medium | **Open: needs DNS + analytics choice** | Search Console Domain property; GA4 (needs consent) or cookieless |
+| SEO-018 | Low | Open | `/About` → 200 (canonical handles it) |
+| SEO-019 | High | **Open: legal/business** | "Since 1975" heritage wording |
+| SEO-020 | High | **Open: product team** | CPVC "93°C" meta description (IS 15778 scope is 82°C); IS 16098 Part 1 vs 2; no ISI/"certified" wording |
+| SEO-021 | High | **New: legal review** | The Hindi Privacy Policy and Terms are translations and **must be reviewed by legal counsel** before launch. No "English version prevails" clause was added; that's a legal decision. The English source itself has oddities that were translated faithfully: "last updated at the bottom of this page" (it's at the top), and the Terms are still the unreviewed standard draft |
+| SEO-022 | Medium | **New: business decision** | Pre-filled enquiry messages are now Hindi on /hi (partner form, range partner strip, estimator material list), so the sales team will receive Hindi text. Keep, or force English? (one-line change each) |
+| SEO-023 | Low | **New: terminology sign-off** | Hindi wording to confirm. "Fire retardant" appears as अग्नि-मंदक (range pages) but as अग्निरोधी, which can read as "fireproof", on product-detail pills, so pick one. Also: संक्षारण-मुक्त (corrosion-free), जीवाणु-/शैवाल-/कवक-रोधी (anti-bacterial/algae/fungal), and whether "Agri" stays Latin or becomes एग्री. Product-detail claims ("गारंटी" for guaranteed volume, "lowest bacterial growth", "50–60% cost saving", "रोडेंट-प्रूफ") must not read stronger than the English |
+
+### 0.3 What the Hindi implementation covers
+- **Mechanism:** English data files are unchanged. Hindi lives in overlays under `lib/data/hi/` (`products`, `productShowcase`, `productDetails`, `articles`, `legal`, `estimator`, `enquiries`), merged by `lib/i18n/localize.ts` only for `hi`. UI strings moved into `messages/*.json` (en values identical to the old text). `i18n/request.ts` falls back to English for any missing key.
+- **Pages:**
+  - home
+  - about (incl. the timeline)
+  - all six range pages
+  - articles (headlines, summaries, a11y labels)
+  - careers
+  - contact (hero, cards, form, validation, success state)
+  - FAQ
+  - privacy and terms
+  - the noindexed industries, manufacturing, quality, sustainability, calculator and product-detail pages
+  - the shared header, footer and skip link
+  - both enquiry pop-ups
+- **Metadata:** every page has a Hindi `<title>` and meta description.
+
+### 0.4 English intentionally left on /hi
+- Brand and legal names: "Poddar Plumbing System Pvt. Ltd.", the Hinglish brand line "Pipes ka Gold Standard. Phir se."
+- Postal addresses, emails and phone numbers.
+- Social network names; press outlet names (The Hindu, Deccan Herald…).
+- Standard and product codes: CPVC, uPVC, SWR, UGD, IS/ASTM/EN/ISO numbers, SDR, SN, units.
+- Range pills; a hidden anti-spam form field.
+- Everything posted to the backend: field names and option values. Only the on-screen text changed.
+
+### 0.5 Recommended next batch
+1. **Approve SEO-006 home title, SEO-008 and SEO-009.** No visual change; I can do these immediately.
+2. **Answer SEO-007/019/020/022/023** (facts, wording, sales-language preference).
+3. **Legal review of the Hindi legal pages (SEO-021).**
+4. **Launch configuration SEO-001/002 and Search Console (SEO-017).** Then run §F on production.
 
 ### How this audit was done
 - **Source code read directly:** routing, metadata, robots, sitemap, structured data, data files, components and config.
@@ -35,6 +112,7 @@
 |---|---|---|
 | 19 Oct 2026 | **SEO-003 range URLs** (approved: 1A /products → canonical CPVC; 2A screen-reader H1 per range; titles and descriptions as proposed) | **Done.** `/products/{cpvc-pipes,upvc-pipes,swr-pipes,agricultural-pipes,ugd-pipes,tanks}` (+ `/hi/…`) are 200, self-canonical, with unique title and description, one H1 and reciprocal hreflang, and are in the sitemap. `/products` canonicalises to `/products/cpvc-pipes` and is out of the sitemap. `?category=x` and `/products/category/x` give a single 308 to the range URL (`?q=` kept). Range buttons are links; 18 internal links updated. Verified: tsc, lint, crawl, browser (pill click, search, Back, home-card arrival); visual unchanged. |
 | 19 Oct 2026 | **SEO-004 orphan pages** | **Done.** `noindex, follow` (still reachable by visitors) and out of the sitemap: /industries, /manufacturing, /quality, /sustainability, /tools/calculator and the 10 product-detail pages (`buildPageMetadata({ noindex })`). The sitemap now holds 14 indexable routes × 2 locales. |
+| 19 Oct 2026 | **SEO-005 Hindi site-wide** | **Done.** Five parallel streams covered range pages, product details, legal, contact/forms/estimator, and the rest (about timeline, articles, global strings, page meta). English on /hi went from 581 to 195 segments, all intentional; Devanagari share is now 59–94%. English pages unchanged. New follow-ups: SEO-021/022/023. |
 | 19 Oct 2026 | **Installation guides removed** (client decision) | /resources/installation (now 404), its stepper and data, the product-detail "Installation" tab and its per-product steps, and all related message keys in every locale. Keyword cluster #13 and the "re-link the installation guide" recommendations are withdrawn. |
 
 ## A. Executive summary

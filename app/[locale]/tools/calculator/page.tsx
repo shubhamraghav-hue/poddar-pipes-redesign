@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
@@ -15,16 +15,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // No translation key exists for this page's title/description yet, so
-  // every locale keeps the English copy (canonical/hreflang are per-locale).
+  const t = await getTranslations({ locale, namespace: "meta" });
   return buildPageMetadata({
     locale,
     path: "/tools/calculator",
     // SEO-004 (2026-10-19): not linked from the site and content not yet
     // confirmed, so kept out of search and the sitemap. Works for visitors.
     noindex: true,
-    title: "Pipe Material Estimator — Estimate Your Piping Needs",
-    description: "Choose your project type — home plumbing, drainage, underground lines or irrigation — and get an instant indicative material estimate based on Poddar Pipes products.",
+    title: t("calculatorTitle"),
+    description: t("calculatorDescription"),
   });
 }
 
@@ -52,6 +51,7 @@ export default async function CalculatorPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "calculatorPage" });
 
   return (
     <>
@@ -98,16 +98,14 @@ export default async function CalculatorPage({
         <div className="container-figma relative pb-24 pt-24 md:pb-[150px] md:pt-[150px]">
           <RevealOnScroll>
             <h1 className="max-w-[307px] font-display text-[36px] uppercase leading-[1.02] tracking-[0.2088px] text-white sm:max-w-[511px] sm:text-5xl sm:tracking-[0.32px] md:text-[60px]">
-              <span className="block font-light">Estimate Your</span>
-              <span className="block font-bold">Piping Needs</span>
+              <span className="block font-light">{t("heroLine1")}</span>
+              <span className="block font-bold">{t("heroLine2")}</span>
             </h1>
           </RevealOnScroll>
 
           <RevealOnScroll delay={0.08}>
             <p className="mt-[13px] max-w-[307px] text-[13px] leading-[1.2] text-white sm:mt-7 sm:max-w-[486px] sm:text-base">
-              Choose your project type — home plumbing, drainage, underground lines or
-              irrigation — and get an instant material estimate based on real Poddar
-              Pipes products.
+              {t("heroDesc")}
             </p>
           </RevealOnScroll>
 
@@ -127,7 +125,7 @@ export default async function CalculatorPage({
                 className="h-[46px] w-full max-w-[307px] px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
               >
                 <a href="#estimator">
-                  <span className={CAP_TRIM}>Start Estimating</span>
+                  <span className={CAP_TRIM}>{t("startEstimating")}</span>
                 </a>
               </Button>
               <Button
@@ -137,7 +135,7 @@ export default async function CalculatorPage({
                 className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:w-auto sm:max-w-none"
               >
                 <EnquiryLink>
-                  <span className={CAP_TRIM}>Talk to Our Team</span>
+                  <span className={CAP_TRIM}>{t("talkToTeam")}</span>
                 </EnquiryLink>
               </Button>
             </div>
@@ -155,10 +153,10 @@ export default async function CalculatorPage({
           <Estimator />
           <div className="mt-16 md:mt-[120px]">
             <QuoteCTA
-              lead="Need a precise quote"
-              accent="Not just an estimate?"
-              description="Share your project scope and quantity requirements — our sales team will follow up within one business day with recommendations and a formal quote."
-              primaryLabel="Start a Conversation"
+              lead={t("quoteLead")}
+              accent={t("quoteAccent")}
+              description={t("quoteDesc")}
+              primaryLabel={t("quotePrimary")}
               primaryHref="/contact"
             />
           </div>

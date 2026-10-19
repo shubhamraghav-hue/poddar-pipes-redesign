@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { EnquiryLink } from "@/components/enquiry/EnquiryProvider";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
@@ -84,6 +85,7 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
 }
 
 export function ContactHero() {
+  const t = useTranslations("contactPage");
   return (
     <section className="relative mt-[80px] overflow-hidden bg-[#0b0b52]">
       <div
@@ -133,15 +135,14 @@ export function ContactHero() {
       <div className="container-figma relative pb-16 pt-24 md:pb-[150px] md:pt-[150px]">
         <RevealOnScroll>
           <h1 className="max-w-[307px] font-display type-hero uppercase text-white sm:max-w-[511px]">
-            <span className="block font-light">We&rsquo;d Love To</span>
-            <span className="block font-bold">Hear From You</span>
+            <span className="block font-light">{t("heroLine1")}</span>
+            <span className="block font-bold">{t("heroLine2")}</span>
           </h1>
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.08}>
           <p className="mt-[13px] max-w-[307px] type-body text-white sm:mt-5 sm:max-w-[437px]">
-            Questions about our upcoming range, partnerships or projects? Reach the
-            Poddar Pipes team and we&rsquo;ll get back to you within one business day.
+            {t("heroDesc")}
           </p>
         </RevealOnScroll>
 
@@ -159,7 +160,7 @@ export function ContactHero() {
               className="h-[46px] w-full max-w-[307px] px-6 py-0 type-button font-semibold uppercase text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
             >
               <EnquiryLink href="/contact#send-a-message">
-                <span className={CAP_TRIM}>Send Us a Message</span>
+                <span className={CAP_TRIM}>{t("ctaSendMessage")}</span>
               </EnquiryLink>
             </Button>
             <Button
@@ -169,7 +170,7 @@ export function ContactHero() {
               className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 type-button font-semibold uppercase shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:w-auto sm:max-w-none"
             >
               <EnquiryLink href="/contact#send-a-message">
-                <span className={CAP_TRIM}>Talk to Our Team</span>
+                <span className={CAP_TRIM}>{t("ctaTalkToTeam")}</span>
               </EnquiryLink>
             </Button>
           </div>
@@ -183,8 +184,8 @@ export function ContactHero() {
           delay={0.1}
           className="mt-20 grid grid-cols-1 gap-7 md:mt-[280px] lg:grid-cols-2"
         >
-          <ContactCard label="Call Our Office" value={COMPANY.phone.display} href={COMPANY.phone.href} />
-          <ContactCard label="Email Us" value={COMPANY.email} href={`mailto:${COMPANY.email}`} />
+          <ContactCard label={t("callLabel")} value={COMPANY.phone.display} href={COMPANY.phone.href} />
+          <ContactCard label={t("emailLabel")} value={COMPANY.email} href={`mailto:${COMPANY.email}`} />
         </RevealOnScroll>
       </div>
     </section>

@@ -89,6 +89,7 @@ export default async function LocaleLayout({
     notFound();
   }
   setRequestLocale(locale);
+  const tCommon = await getTranslations("common");
 
   // Contact details from `COMPANY` (lib/data/offices.ts, client-approved).
   const orgSchema = {
@@ -158,7 +159,7 @@ export default async function LocaleLayout({
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-[#0b0b52] focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
         >
-          Skip to content
+          {tCommon("skipToContent")}
         </a>
         <NextIntlClientProvider>
           <SmoothScroll>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Handshake } from "lucide-react";
 import Image, { getImageProps } from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { products } from "@/lib/data/products";
 import { showcaseCategories, type ShowcaseCategory } from "@/lib/data/productShowcase";
@@ -15,6 +15,9 @@ import { scrollToElement } from "@/hooks/useLenis";
 import { PRODUCT_FOCUS_EVENT, PRODUCT_FOCUS_HASH, productRangeHref, requestProductFocus } from "@/lib/productFocus";
 import { productDetails } from "@/lib/data/productDetails";
 import { ProductDetailSections } from "@/components/products/ProductDetailSections";
+import { hasOverlays, localizeList, type Overlay } from "@/lib/i18n/localize";
+import { productShowcaseHi } from "@/lib/data/hi/productShowcase";
+import { productDetailsHi } from "@/lib/data/hi/productDetails";
 
 /**
  * /products — Figma "CPVC Products Page - 2nd draft" (node 1731:7511),
@@ -48,7 +51,11 @@ const EASE_OUT = [0.23, 1, 0.32, 1] as const;
  * outranks hits on its products' names, descriptions and applications; ties
  * keep the current category so the card does not flicker while someone types.
  */
-function matchCategory(query: string, current: CategoryId): CategoryId | null {
+function matchCategory(
+  query: string,
+  current: CategoryId,
+  overlay?: Overlay<ShowcaseCategory>
+): CategoryId | null {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (words.length === 0) return current;
   const hits = (...texts: string[]) => {
@@ -57,7 +64,11 @@ function matchCategory(query: string, current: CategoryId): CategoryId | null {
   };
   let best: { id: CategoryId; score: number } | null = null;
   for (const cat of showcaseCategories) {
-    let score = hits(cat.label, cat.id, cat.tagline) ? 3 : 0;
+    // On a translated page the translated tagline and H1 match too (English
+    // still does), so a Hindi query finds its range.
+    const o = overlay?.[cat.id];
+    const local = o ? [o.tagline ?? "", o.h1 ?? ""] : [];
+    let score = hits(cat.label, cat.id, cat.tagline, ...local) ? 3 : 0;
     for (const p of products) {
       if (p.category === cat.id && hits(p.name, p.shortDescription, ...p.applications)) score += 1;
     }
@@ -78,6 +89,8 @@ export function ProductShowcase({
 }) {
   const t = useTranslations("products");
   const router = useRouter();
+  const locale = useLocale();
+  const showcaseOverlay = hasOverlays(locale) ? productShowcaseHi : undefined;
 
   const fallback = showcaseCategories[0].id;
   const valid = (id?: string) => showcaseCategories.some((c) => c.id === id);
@@ -138,7 +151,7 @@ export function ProductShowcase({
   // should land on the matching category, as typing would.
   useEffect(() => {
     if (!initialQuery) return;
-    const hit = matchCategory(initialQuery, active);
+    const hit = matchCategory(initialQuery, active, showcaseOverlay);
     if (hit) setActive(hit);
     else setNoMatch(true);
     // Mount only: later changes go through the handlers below.
@@ -163,7 +176,7 @@ export function ProductShowcase({
 
   function onQuery(next: string) {
     setQuery(next);
-    const hit = matchCategory(next, active);
+    const hit = matchCategory(next, active, showcaseOverlay);
     setNoMatch(hit === null);
     const nextActive = hit ?? active;
     if (hit) setActive(hit);
@@ -172,9 +185,10 @@ export function ProductShowcase({
     syncUrl(nextActive, next, "replace");
   }
 
-  const cat = showcaseCategories.find((c) => c.id === active)!;
+  const cat = localizeList(showcaseCategories, showcaseOverlay, "id").find((c) => c.id === active)!;
 
-  const detail = productDetails[active];
+  const enDetail = productDetails[active];
+  const detail = enDetail && hasOverlays(locale) ? { ...enDetail, ...productDetailsHi[active] } : enDetail;
 
   return (
     <>
@@ -197,7 +211,7 @@ export function ProductShowcase({
               the ring here is an inset shadow that takes no space. */}
           {/* Phones: an even 3x2 grid — free-wrapping gave rows of uneven
               pill widths with a ragged right edge. One row from `sm`. */}
-          <div role="group" aria-label="Product category" className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+          <div role="group" aria-label={t("categoryGroupAria")} className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
             {showcaseCategories.map((c) => {
               const on = c.id === active;
               return (
@@ -418,7 +432,7 @@ function QuoteBanner({ cat }: { cat: ShowcaseCategory }) {
         </span>
         <div>
           <h2 className="type-sub font-semibold uppercase text-[#606060]">
-            {t("partnerHeading", { name: `Poddar ${cat.label}` })}
+            {t("partnerHeading", { name: t("partnerRangeName", { label: cat.label }) })}
           </h2>
           <p className="mt-1.5 type-body text-[#606060] md:mt-2">
             {t("partnerDesc")}
@@ -426,7 +440,7 @@ function QuoteBanner({ cat }: { cat: ShowcaseCategory }) {
         </div>
       </div>
       <PartnerLink
-        preset={{ message: `Interested in stocking Poddar ${cat.label}.` }}
+        preset={{ message: t("partnerPresetMessage", { label: cat.label }) }}
         className="group flex h-12 shrink-0 touch-manipulation select-none items-center justify-center gap-[5px] whitespace-nowrap rounded-full bg-[#171796] px-[21px] text-[17px] font-medium text-[#fbfbfb] transition-[background-color,scale] duration-200 ease-out hover:bg-[#0b0b52] active:scale-[0.98] sm:self-start lg:self-auto"
       >
         {/* Figma "header button 4": 25px handshake, 16.95px Medium label, not caps. */}

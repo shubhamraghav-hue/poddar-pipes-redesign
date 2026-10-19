@@ -13,9 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // English title/description are the page's own copy. There are no
-  // per-page meta keys in messages/*.json yet, so other locales reuse the
-  // page's translated nav label as the title; the description stays English.
+  // Title and description from messages (seo.*), per locale.
   const t = await getTranslations({ locale });
   return buildPageMetadata({
     locale,
@@ -23,8 +21,8 @@ export async function generateMetadata({
     // SEO-004 (2026-10-19): not linked from the site and content not yet
     // confirmed, so kept out of search and the sitemap. Works for visitors.
     noindex: true,
-    title: locale === "en" ? "Quality Assurance & Standards" : t("nav.navQualityAssurance"),
-    description: "Poddar Pipes' quality policy, testing procedures, the Indian Standards our products are designed to, and our R&D approach.",
+    title: t("seo.qualityTitle"),
+    description: t("seo.qualityDescription"),
   });
 }
 

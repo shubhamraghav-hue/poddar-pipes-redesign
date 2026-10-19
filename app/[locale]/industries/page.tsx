@@ -6,6 +6,8 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Link } from "@/i18n/navigation";
 import { industries } from "@/lib/data/industries";
 import { products } from "@/lib/data/products";
+import { productsHi } from "@/lib/data/hi/products";
+import { hasOverlays, localizeList } from "@/lib/i18n/localize";
 import { CTASection } from "@/components/home/CTASection";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -15,9 +17,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // English title/description are the page's own copy. There are no
-  // per-page meta keys in messages/*.json yet, so other locales reuse the
-  // page's translated nav label as the title; the description stays English.
+  // Title and description from messages (seo.*), per locale.
   const t = await getTranslations({ locale });
   return buildPageMetadata({
     locale,
@@ -25,8 +25,8 @@ export async function generateMetadata({
     // SEO-004 (2026-10-19): not linked from the site and content not yet
     // confirmed, so kept out of search and the sitemap. Works for visitors.
     noindex: true,
-    title: locale === "en" ? "Industries We Serve" : t("nav.industries"),
-    description: "Poddar Pipes serves residential, commercial, industrial, agricultural, infrastructure, irrigation, water supply, construction, and government projects.",
+    title: t("seo.industriesTitle"),
+    description: t("seo.industriesDescription"),
   });
 }
 
@@ -42,6 +42,7 @@ export default async function IndustriesPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("industries");
+  const productList = localizeList(products, hasOverlays(locale) ? productsHi : undefined, "slug");
 
   return (
     <>
@@ -99,7 +100,7 @@ export default async function IndustriesPage({
             titleAccent={t("coverageH2")}
           />
           <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {products.slice(0, 8).map((p) => (
+            {productList.slice(0, 8).map((p) => (
               <div key={p.id} className="flex items-center justify-between rounded-[25px] border border-slate-200/70 bg-white px-5 py-4">
                 <span className="text-sm font-medium text-slate-800">{p.name}</span>
                 <span className="text-xs text-slate-500">{p.applications[0]}</span>

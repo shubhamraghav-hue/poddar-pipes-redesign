@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight, Pipette, Flame, Waves, Cylinder, Network, Sprout } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { TiltCard } from "@/components/shared/TiltCard";
 import type { Product } from "@/types";
@@ -16,6 +17,7 @@ const iconMap = {
 } as const;
 
 export function ProductCard({ product }: { product: Product }) {
+  const t = useTranslations("products");
   const Icon = iconMap[product.icon] ?? Pipette;
 
   return (
@@ -56,7 +58,7 @@ export function ProductCard({ product }: { product: Product }) {
 
           <span className="mt-6 flex items-center gap-1.5 text-sm font-medium text-ocean-700">
             <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-              View specifications
+              {t("viewSpecifications")}
             </span>
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>

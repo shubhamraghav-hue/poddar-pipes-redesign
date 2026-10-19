@@ -107,9 +107,10 @@ function BrandTagline() {
  */
 function BrandLockupDesktop() {
   const t = useTranslations("footer");
+  const tCommon = useTranslations("common");
   return (
     <div className="flex items-center gap-[60px]">
-      <Link href="/" aria-label="Poddar Pipes — home" className="mt-[2px] block shrink-0">
+      <Link href="/" aria-label={tCommon("homeLinkLabel")} className="mt-[2px] block shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element -- the SVG logo */}
         <img src="/logo.svg" alt="Poddar Pipes" className="block h-[49.69px] w-auto" />
       </Link>
@@ -128,6 +129,7 @@ function BrandLockupDesktop() {
 
 export function Footer() {
   const t = useTranslations("footer");
+  const tCommon = useTranslations("common");
   const tNav = useTranslations("nav");
 
   // Manufacturing, Quality and Sustainability dropped from the footer
@@ -225,7 +227,7 @@ export function Footer() {
                 SIDE BY SIDE 59px apart on desktop (1447:13320 / 1447:13308).
                 Hence a row/column switch here rather than a wrap. */}
             <div className="flex flex-col items-start gap-[18px] lg:hidden">
-              <Link href="/" aria-label="Poddar Pipes — home" className="flex shrink-0 items-center gap-2.5 py-1">
+              <Link href="/" aria-label={tCommon("homeLinkLabel")} className="flex shrink-0 items-center gap-2.5 py-1">
                 {/* 36px, and the number dropped from 65 WITHOUT the logo
                     getting smaller. `logo.svg` used to carry a uniform 72-unit
                     margin inside its own 757x323.89 viewBox — measured 72.00

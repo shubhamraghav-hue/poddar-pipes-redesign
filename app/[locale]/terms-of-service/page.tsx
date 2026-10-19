@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { LegalIntro, LegalSections } from "@/components/shared/LegalPage";
 import { termsOfServiceIntro, termsOfServiceSections } from "@/lib/data/legal";
+import { termsOfServiceIntroHi, termsOfServiceSectionsHi } from "@/lib/data/hi/legal";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -11,15 +12,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // English title/description are the page's own copy. There are no
-  // per-page meta keys in messages/*.json yet, so other locales reuse the
-  // page's translated nav label as the title; the description stays English.
+  // Title and description from messages (seo.*), per locale.
   const t = await getTranslations({ locale });
   return buildPageMetadata({
     locale,
     path: "/terms-of-service",
-    title: locale === "en" ? "Terms of Service" : t("footer.termsOfService"),
-    description: "Terms of Service for the poddarpipes.com website, operated by Poddar Plumbing System Pvt. Ltd.",
+    title: t("seo.termsTitle"),
+    description: t("seo.termsDescription"),
   });
 }
 
@@ -30,6 +29,12 @@ export default async function TermsOfServicePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale });
+  // Hindi is a full translation of the English text (lib/data/hi/legal.ts),
+  // not an overlay — legal text is swapped whole, never mixed.
+  const isHi = locale === "hi";
+  const intro = isHi ? termsOfServiceIntroHi : termsOfServiceIntro;
+  const sections = isHi ? termsOfServiceSectionsHi : termsOfServiceSections;
 
   return (
     <section className="pb-20 pt-32 md:pt-36">
@@ -38,9 +43,9 @@ export default async function TermsOfServicePage({
           <h1
             className="mt-2 font-display type-heading font-medium uppercase text-slate-900"
           >
-            Terms of Service
+            {t("footer.termsOfService")}
           </h1>
-          <p className="mt-3 type-body text-slate-500">Last updated: 13 August 2026</p>
+          <p className="mt-3 type-body text-slate-500">{t("legal.lastUpdated")}</p>
 
           {/* Unlike the Privacy Policy (ported verbatim from poddarpipes.com's
               launch site), no Terms & Conditions page existed anywhere to
@@ -56,8 +61,11 @@ export default async function TermsOfServicePage({
             </p>
           </div> */}
 
-          <LegalIntro paragraphs={termsOfServiceIntro} />
-          <LegalSections sections={termsOfServiceSections} contactBlockAfterHeading="11. Contact Us" />
+          <LegalIntro paragraphs={intro} />
+          <LegalSections
+            sections={sections}
+            contactBlockAfterHeading={isHi ? "11. हमसे संपर्क करें" : "11. Contact Us"}
+          />
         </RevealOnScroll>
       </div>
     </section>

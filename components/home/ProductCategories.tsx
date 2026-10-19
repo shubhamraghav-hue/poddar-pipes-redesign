@@ -47,7 +47,7 @@ const CATEGORIES = [
     logoPx: { w: 284, h: 142 },
     logoW: 112.396,
     descW: 180,
-    photo: "/products/showcase/cpvc-hero.webp",
+    photo: "/products/showcase/cpvc-hero.png",
   },
   {
     id: "upvc",
@@ -70,7 +70,7 @@ const CATEGORIES = [
     logoPx: { w: 266, h: 142 },
     logoW: 105.272,
     descW: 180,
-    photo: "/products/showcase/swr-hero.webp",
+    photo: "/products/showcase/swr-hero.png",
   },
   {
     id: "agri",
@@ -81,7 +81,7 @@ const CATEGORIES = [
     logoPx: { w: 272, h: 142 },
     logoW: 107.647,
     descW: 167,
-    photo: "/products/showcase/agri-hero.webp",
+    photo: "/products/showcase/agri-hero.png",
   },
   {
     id: "ugd",
@@ -92,7 +92,7 @@ const CATEGORIES = [
     logoPx: { w: 238, h: 142 },
     logoW: 94.191,
     descW: 180,
-    photo: "/products/showcase/ugd-hero.webp",
+    photo: "/products/showcase/ugd-hero.png",
   },
   {
     id: "tanks",
@@ -159,6 +159,7 @@ function PhoneCard({ cat }: { cat: (typeof CATEGORIES)[number] }) {
 
 export async function ProductCategories() {
   const t = await getTranslations("home");
+  const tCommon = await getTranslations("common");
 
   return (
     <section className="bg-[#F5F5F5] py-24 md:py-32">
@@ -222,7 +223,7 @@ export async function ProductCategories() {
                     className={`absolute left-[76.5%] top-[67.7333%] flex h-[11.5cqw] w-max -translate-x-1/2 translate-y-[30.5cqw] items-center gap-[1.5cqw] whitespace-nowrap rounded-full bg-[#f28000] pl-[6cqw] pr-[4cqw] ${MOTION} group-hover:translate-y-0 group-focus-visible:translate-y-0 [@media(hover:none)]:translate-y-0`}
                   >
                     <span className={`text-[4.5cqw] font-semibold uppercase leading-none tracking-[0.09cqw] text-[#0b0b52] ${CAP_TRIM}`}>
-                      View
+                      {tCommon("view")}
                     </span>
                     {/* eslint-disable-next-line @next/next/no-img-element -- Figma's 20px arrow-up-right */}
                     <img src="/brand/arrow-up-right.svg" alt="" width={20} height={20} className="size-[5cqw]" />

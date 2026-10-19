@@ -11,15 +11,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // English title/description are the page's own copy. There are no
-  // per-page meta keys in messages/*.json yet, so other locales reuse the
-  // page's translated nav label as the title; the description stays English.
+  // Title and description from messages (seo.*), per locale.
   const t = await getTranslations({ locale });
   return buildPageMetadata({
     locale,
     path: "/faq",
-    title: locale === "en" ? "Frequently Asked Questions" : t("nav.navFaqs"),
-    description: "Answers to common questions about Poddar Pipes products, Indian Standards, bulk orders, warranty, and technical support.",
+    title: t("seo.faqTitle"),
+    description: t("seo.faqDescription"),
   });
 }
 

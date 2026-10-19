@@ -15,6 +15,7 @@ import {
 } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { setScrollLocked } from "@/hooks/useLenis";
 import { EnquiryForm, PartnerForm, type EnquiryPreset } from "@/components/enquiry/EnquiryForm";
@@ -47,6 +48,7 @@ export function useEnquiry() {
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
 export function EnquiryProvider({ children }: { children: ReactNode }) {
+  const t = useTranslations("enquiryDialog");
   const [isOpen, setIsOpen] = useState(false);
   // Which form the pop-up shows: the contact form, or "Become a Partner".
   const [mode, setMode] = useState<"enquiry" | "partner">("enquiry");
@@ -145,18 +147,18 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                     {/* The mock has no visible heading; the dialog still needs
                         an accessible name. */}
                     {mode === "enquiry" ? (
-                      <DialogPrimitive.Title className="sr-only">Send us an enquiry</DialogPrimitive.Title>
+                      <DialogPrimitive.Title className="sr-only">{t("enquiryTitle")}</DialogPrimitive.Title>
                     ) : (
                       // Accessible name for the partner pop-up; the visible
                       // title + intro are rendered by PartnerForm (`intro`) so
                       // they give way to the success screen after submit.
-                      <DialogPrimitive.Title className="sr-only">Become a Poddar Partner</DialogPrimitive.Title>
+                      <DialogPrimitive.Title className="sr-only">{t("partnerTitle")}</DialogPrimitive.Title>
                     )}
 
                     {/* Node 1606:11709: the 32px "add" glyph turned 45° in a
                         45px hit area, 9px in from the top-right corner. */}
                     <DialogPrimitive.Close
-                      aria-label="Close"
+                      aria-label={t("close")}
                       className="absolute right-[9px] top-[9px] flex size-[45px] items-center justify-center rounded-full text-[#4a4a4a] transition-[background-color,color,rotate] duration-200 ease-out hover:rotate-90 hover:bg-black/5 hover:text-[#f28000] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171796]/40"
                     >
                       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true" className="rotate-45">
@@ -185,20 +187,17 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                         intro={
                           <div className="mb-10">
                             <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#f28000]">
-                              Dealers &amp; Distributors
+                              {t("partnerEyebrow")}
                             </p>
                             <p
                               aria-hidden="true"
                               className="mt-3 font-display text-[28px] uppercase leading-[1.08] text-[#4a4a4a] md:text-[36px]"
                             >
-                              <span className="block font-light">Become a</span>
-                              <span className="block font-bold">Poddar Partner</span>
+                              <span className="block font-light">{t("partnerLine1")}</span>
+                              <span className="block font-bold">{t("partnerLine2")}</span>
                             </p>
                             <DialogPrimitive.Description className="mt-4 text-[14px] leading-[1.5] text-[#606060] md:text-[15px]">
-                              Interested in partnering with us? We are always looking to expand our
-                              distribution network with reliable business partners. Please complete
-                              the form below, and our business development team will get back to you
-                              shortly.
+                              {t("partnerIntro")}
                             </DialogPrimitive.Description>
                           </div>
                         }
@@ -241,7 +240,7 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                     transition={{ duration: 0.24, ease: EASE_OUT }}
                   >
                     <DialogPrimitive.Close
-                      aria-label="Close"
+                      aria-label={t("close")}
                       className="absolute right-[9px] top-[9px] flex size-[45px] items-center justify-center rounded-full text-[#4a4a4a] transition-[background-color,color,rotate] duration-200 ease-out hover:rotate-90 hover:bg-black/5 hover:text-[#f28000] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171796]/40"
                     >
                       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true" className="rotate-45">
@@ -256,11 +255,11 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                     </DialogPrimitive.Close>
 
                     <DialogPrimitive.Title className="font-display text-[28px] uppercase leading-[1.08] text-[#4a4a4a] md:text-[36px]">
-                      <span className="block font-light">Product</span>
-                      <span className="block font-bold">Catalogues</span>
+                      <span className="block font-light">{t("cataloguesLine1")}</span>
+                      <span className="block font-bold">{t("cataloguesLine2")}</span>
                     </DialogPrimitive.Title>
                     <DialogPrimitive.Description className="mt-4 text-[14px] leading-[1.5] text-[#606060] md:text-[15px]">
-                      Pick a range to download its catalogue (PDF).
+                      {t("cataloguesDesc")}
                     </DialogPrimitive.Description>
 
                     <ul className="mt-8 divide-y divide-[#c0c0c0] overflow-hidden rounded-[20px] border border-[#c0c0c0] bg-white">

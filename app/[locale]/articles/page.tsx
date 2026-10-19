@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { CAP_TRIM } from "@/components/shared/capTrim";
 import { pressArticles } from "@/lib/data/articles";
+import { pressArticlesHi } from "@/lib/data/hi/articles";
+import { hasOverlays, localizeList } from "@/lib/i18n/localize";
 import type { PressArticle } from "@/types";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -12,13 +14,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // No translation key exists for this page's title/description yet, so
-  // every locale keeps the English copy (canonical/hreflang are per-locale).
+  const t = await getTranslations({ locale });
   return buildPageMetadata({
     locale,
     path: "/articles",
-    title: "News & Media — Press Coverage",
-    description: "Press coverage of Poddar Plumbing's ₹758 crore Vemagal, Karnataka expansion — the investment, the jobs, and the timeline, as reported by the press.",
+    title: t("seo.articlesTitle"),
+    description: t("seo.articlesDescription"),
   });
 }
 
@@ -57,10 +58,10 @@ export default async function ArticlesPage({
             mock's 385.33px each only at a 1512 viewport; narrower, they share
             the column and the card height floor keeps every row level. */}
         <ul className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-7 lg:grid-cols-3">
-          {pressArticles.map((article, i) => (
+          {localizeList(pressArticles, hasOverlays(locale) ? pressArticlesHi : undefined, "id").map((article, i) => (
             <li key={article.id} className="flex">
               <RevealOnScroll delay={Math.min(i * 0.06, 0.3)} className="flex w-full">
-                <MediaCard article={article} readLabel={t("readLabel")} />
+                <MediaCard article={article} readLabel={t("readLabel")} newTabLabel={t("opensNewTab")} />
               </RevealOnScroll>
             </li>
           ))}
@@ -87,7 +88,7 @@ export default async function ArticlesPage({
  * than 385 and the longer headlines take a fourth line, which a fixed height
  * would clip.
  */
-function MediaCard({ article, readLabel }: { article: PressArticle; readLabel: string }) {
+function MediaCard({ article, readLabel, newTabLabel }: { article: PressArticle; readLabel: string; newTabLabel: string }) {
   return (
     <article className="flex min-h-[400px] w-full flex-col rounded-[24px] border border-[#dedede] bg-[#f5f5f5]/35 p-6 transition-[border-color,background-color] duration-200 ease-out hover:border-[#c0c0c0] hover:bg-[#f5f5f5]/60 md:min-h-[460px] md:px-[31px] md:pb-[31px] md:pt-[39px]">
       <span className="flex h-[33px] w-fit max-w-full items-center rounded-[30px] bg-[#f0f0fa] px-[14px] type-small font-semibold uppercase text-[#171796]">
@@ -120,7 +121,7 @@ function MediaCard({ article, readLabel }: { article: PressArticle; readLabel: s
         href={article.sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`${readLabel}: ${article.headline} (${article.outlet}, opens in a new tab)`}
+        aria-label={`${readLabel}: ${article.headline} (${article.outlet}, ${newTabLabel})`}
         className="group/read flex h-[46px] w-fit touch-manipulation select-none items-center gap-[10px] rounded-full px-6 type-button font-semibold uppercase text-[#171796] shadow-[inset_0_0_0_1.5px_#171796] transition-[background-color,color,scale] duration-200 ease-out hover:bg-[#171796] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171796]/40 focus-visible:ring-offset-2 active:scale-[0.98]"
       >
         <span className={CAP_TRIM}>{readLabel}</span>

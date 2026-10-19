@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 /**
  * Figma "legacy section" (node 51:488) — milestone timeline along a stepped
@@ -161,10 +162,19 @@ interface LegacyStoryProps {
   yearColor?: string;
 }
 
-export function LegacyStory({
-  titleLead = "Legacy",
+export async function LegacyStory({
+  titleLead,
   yearColor = AMBER,
 }: LegacyStoryProps = {}) {
+  // Copy per locale (messages: legacyStory.*). A description's line breaks
+  // (the desktop artwork draws each line separately) are "\n" in the string.
+  const t = await getTranslations("legacyStory");
+  const lead = titleLead ?? t("legacyLead");
+  const milestones = MILESTONES.map((m) => ({
+    ...m,
+    desc: t(`m${m.year}` as never).split("\n"),
+    label: m.label ? t(`m${m.year}Label` as never) : undefined,
+  }));
   return (
     <section className="relative w-full overflow-hidden bg-white">
       {/* Below `md` the aspect-locked frame shrinks the whole composition with
@@ -185,13 +195,13 @@ export function LegacyStory({
           className="font-display type-heading uppercase"
           style={{ color: HEADING }}
         >
-          <span className="block font-light">{titleLead}</span>
-          <span className="block font-bold">Story</span>
+          <span className="block font-light">{lead}</span>
+          <span className="block font-bold">{t("storyBold")}</span>
         </h2>
 
         {/* Two columns on tablets, where one column left half the width empty. */}
         <ol className="mt-10 flex flex-col md:grid md:grid-cols-2 md:gap-x-10 md:gap-y-10">
-          {MILESTONES.map((m) => (
+          {milestones.map((m) => (
             <li
               key={m.year}
               className="border-l-2 border-black/10 pb-8 pl-5 last:pb-0 md:pb-0"
@@ -295,11 +305,11 @@ export function LegacyStory({
             color: HEADING,
           }}
         >
-          <span className="block font-light">{titleLead}</span>
-          <span className="block font-bold">Story</span>
+          <span className="block font-light">{lead}</span>
+          <span className="block font-bold">{t("storyBold")}</span>
         </h2>
 
-        {MILESTONES.map((m) => {
+        {milestones.map((m) => {
           const alignEnd = m.align === "end";
           // Figma vertically centres each text box on its y coordinate, so
           // every block is pulled up by half its own height.

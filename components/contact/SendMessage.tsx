@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { EnquiryForm } from "@/components/enquiry/EnquiryForm";
 import { COMPANY } from "@/lib/data/offices";
 
@@ -11,34 +12,34 @@ import { COMPANY } from "@/lib/data/offices";
  * page.
  */
 
-/** Node 1606:11571 / 1606:11572. */
+/** Node 1606:11571 / 1606:11572. `label` is a contactPage message key; the
+    address lines stay in English on every locale (postal addresses). */
 const OFFICES = [
   {
-    label: "Reg. Office",
+    label: "regOffice",
     lines: COMPANY.address.oneLine,
   },
   {
-    label: "Mfd. Office",
+    label: "mfdOffice",
     lines: COMPANY.plant.oneLine,
   },
-];
+] as const;
 
 export function SendMessage() {
+  const t = useTranslations("contactPage");
   return (
     <section id="send-a-message" className="scroll-mt-24 bg-white py-20 md:py-[120px]">
       <div className="container-figma grid grid-cols-1 gap-12 lg:grid-cols-[328px_minmax(0,621px)] lg:justify-between lg:gap-[180px]">
         {/* -------------------------------------------------------- left rail */}
         <div className="flex flex-col">
           <h2 className="max-w-2xl font-display type-heading uppercase text-[#606060]">
-            <span className="block font-light">Send Us a</span>
-            <span className="block font-bold">Message</span>
+            <span className="block font-light">{t("sendHeading1")}</span>
+            <span className="block font-bold">{t("sendHeading2")}</span>
           </h2>
 
           {/* 18px / 1.2 `#606060`, 32 under the heading (node 1606:11570). */}
           <p className="mt-8 type-body text-[#606060]">
-            Tell us what you&rsquo;re looking for and the right person will respond. Our
-            products are launching soon, so every enquiry is handled directly by our
-            office team.
+            {t("sendDesc")}
           </p>
 
           {/* Node 1606:11616 — 440 wide, starting 12px LEFT of the text column
@@ -53,7 +54,7 @@ export function SendMessage() {
             {OFFICES.map((o) => (
               <div key={o.label}>
                 <dt className="type-sub font-semibold uppercase text-[#f28000]">
-                  {o.label}
+                  {t(o.label)}
                 </dt>
                 <dd className="mt-2 type-body text-[#606060]">
                   {o.lines}

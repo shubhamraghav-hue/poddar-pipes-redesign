@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { ProductDetail, WhyCard } from "@/lib/data/productDetails";
 
 /**
@@ -44,6 +45,7 @@ export function ProductDetailSections({ detail }: { detail: ProductDetail }) {
  * out so the photo's backdrop never ends in a hard seam.
  */
 function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
+  const t = useTranslations("products");
   const { w, h, centerY, washW = 1 } = detail.art;
   // Where the 780px band sits on the image, as an object-position: the band's
   // top in image space over the image's spare height.
@@ -57,7 +59,7 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
             28 / 36 (sm) / 48px (md+) — CTASection's ramp, since it is shared
             site-wide. Figma set this one at 60px. */}
         <h2 className="font-display type-heading uppercase text-white">
-          <span className="block font-light">{detail.lead ?? "What is"}</span>
+          <span className="block font-light">{detail.lead ?? t("whatIsLead")}</span>
           {/* `normal-case`: the range name keeps its own case — "uPVC", as
               the mocks set it, not "UPVC". */}
           <span className="block font-bold normal-case">{detail.name}</span>
@@ -133,6 +135,7 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
  * since a plain mouse wheel has no sideways axis.
  */
 function Why({ name, cards }: { name: string; cards: WhyCard[] }) {
+  const t = useTranslations("products");
   const rowRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
 
@@ -162,7 +165,7 @@ function Why({ name, cards }: { name: string; cards: WhyCard[] }) {
     <section className="bg-[#f5f5f5] py-20 md:py-[120px] lg:py-[150px]">
       <div className="container-figma">
         <h2 className="font-display type-heading uppercase text-[#606060]">
-          <span className="block font-light">Why</span>
+          <span className="block font-light">{t("whyLead")}</span>
           <span className="block font-bold normal-case">{name}</span>
         </h2>
       </div>

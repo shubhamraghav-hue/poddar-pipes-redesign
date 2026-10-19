@@ -4,6 +4,8 @@ import { setRequestLocale } from "next-intl/server";
 import { ProductsRangePage } from "@/components/products/ProductsRangePage";
 import { showcaseCategories } from "@/lib/data/productShowcase";
 import { buildPageMetadata, localizedPath } from "@/lib/seo";
+import { hasOverlays } from "@/lib/i18n/localize";
+import { productShowcaseHi } from "@/lib/data/hi/productShowcase";
 
 // The default range — what /products shows. Its own URL is the canonical.
 const DEFAULT_RANGE = showcaseCategories[0];
@@ -14,6 +16,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const seo = { ...DEFAULT_RANGE, ...(hasOverlays(locale) ? productShowcaseHi[DEFAULT_RANGE.id] : undefined) };
   // SEO-003 (approved 2026-10-19, option 1A): /products stays as it is for
   // visitors (the navbar's "Products" link) but shows exactly the default
   // range, so it declares that range's URL canonical instead of competing
@@ -21,8 +24,8 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: `/products/${DEFAULT_RANGE.id}`,
-    title: DEFAULT_RANGE.metaTitle,
-    description: DEFAULT_RANGE.metaDescription,
+    title: seo.metaTitle,
+    description: seo.metaDescription,
   });
 }
 

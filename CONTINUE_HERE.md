@@ -72,6 +72,17 @@ No other prompt is needed — everything required is below.
 
 ## Last prompt (several, 2026-10-19)
 
+> yes change it to view all products (DONE: home.categoriesCta en "View All Products" (shown in caps), hi "सभी उत्पाद देखें")
+
+> Figma 1979:32577 — update the assets (offered webp); on product pages also (CHECKED: no change needed)
+
+**Asset check (scratchpad/pp/compare.js):** all 19 Figma source images (6 home cards, 12 product What-is scene/cutout, hero cluster) are the same pictures the site serves (mean pixel diff 0.3–3.4 of 255 = compression). The UGD cutout file differs (Figma stores a cropped copy) but composites to the identical result (scratchpad/pp/ugd-fit.jpg). Hero cluster: Figma source 3299px vs ours 1095px (= 2x the 547px display); left as is. Why cards and range full cards were already re-exported from Figma earlier today. Not an asset: the home button reads "View Catalogue", Figma says "VIEW ALL PRODUCTS" (offered).
+
+> implement and correct remaining hindi pages site wide and then provide audit report again (DONE; audit v2 in docs/seo/pre-launch-seo-audit.md §0)
+
+**Hindi site-wide (SEO-005):** English data files untouched; Hindi overlays live in lib/data/hi/{products,productShowcase,productDetails,articles,legal,estimator,enquiries}.ts, merged by lib/i18n/localize.ts (localizeList/localizeRecord/hasOverlays) only for hi. Hard-coded UI moved to messages (new namespaces: seo, legacyStory, places, contactPage, calculatorPage, estimator, enquiryForm, enquiryDialog, legal; plus keys in common/products/articles/meta), with en values identical to the old text. Fragments + merge script are in scratchpad/i18n. English on /hi: 581 → 195 segments (all intentional: addresses, emails, codes, outlet names, brand line). English pages verified unchanged (crawl diff = only the intended SEO-003 and installation changes). Open: SEO-021 (legal review of the Hindi legal pages), SEO-022 (Hindi pre-filled enquiry messages reach sales), SEO-023 (terminology: अग्नि-मंदक vs अग्निरोधी inconsistency, Agri Latin vs एग्री).
+**Found:** the home page at 375px overflows by 3px in BOTH locales, from Hero.tsx's decorative big stat number ("50k +", left 21.28cqw, 51.65cqw). Pre-existing; Hero is locked, so ask before fixing.
+
 > go ahead with batch 2 seo-004 (DONE)
 > remove installation guides completely from the project (DONE)
 
