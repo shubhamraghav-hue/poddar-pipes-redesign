@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ProductShowcase } from "@/components/products/ProductShowcase";
-import { ProductsHero } from "@/components/products/ProductsHero";
-import { CTASection } from "@/components/home/CTASection";
-import { buildPageMetadata } from "@/lib/seo";
+import { permanentRedirect } from "next/navigation";
+import { setRequestLocale } from "next-intl/server";
+import { ProductsRangePage } from "@/components/products/ProductsRangePage";
+import { showcaseCategories } from "@/lib/data/productShowcase";
+import { buildPageMetadata, localizedPath } from "@/lib/seo";
+
+// The default range — what /products shows. Its own URL is the canonical.
+const DEFAULT_RANGE = showcaseCategories[0];
 
 export async function generateMetadata({
   params,
@@ -11,35 +14,27 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  // English title/description are the page's own copy. There are no
-  // per-page meta keys in messages/*.json yet, so other locales reuse the
-  // page's translated nav label as the title; the description stays English.
-  const t = await getTranslations({ locale });
+  // SEO-003 (approved 2026-10-19, option 1A): /products stays as it is for
+  // visitors (the navbar's "Products" link) but shows exactly the default
+  // range, so it declares that range's URL canonical instead of competing
+  // with it. Not in the sitemap.
   return buildPageMetadata({
     locale,
-    path: "/products",
-    title: locale === "en" ? "Products — uPVC, CPVC, SWR, TANKS, UGD & Agriculture" : t("nav.products"),
-    description: "Browse Poddar Pipes' complete range of uPVC, CPVC, SWR, TANKS, UGD, and Agriculture piping systems and water storage solutions.",
+    path: `/products/${DEFAULT_RANGE.id}`,
+    title: DEFAULT_RANGE.metaTitle,
+    description: DEFAULT_RANGE.metaDescription,
   });
 }
 
 /**
- * Figma "CPVC Products Page - 2nd draft" (node 1731:7511): the dark hero, the
- * category showcase (with the range's "What is" / "Why" sections when it has
- * them — only CPVC so far), then the
- * flush "start a conversation" band — the same CTA as the homepage (its
- * title and copy defaults ARE this mock's copy, already translated; the two
- * button labels are the homepage's "Start a Conversation" / "Download
- * Catalogue", as the mock has them).
+ * Figma "CPVC Products Page" (1979:32767): the dark hero, the range showcase
+ * and the flush "start a conversation" band, via ProductsRangePage — the same
+ * body the range URLs (/products/<range-id>, see ./[slug]/page.tsx) render.
  *
- * `?category=` picks the card (default CPVC, the mock's first frame) and `?q=`
- * pre-fills the search, which keeps the WebSite SearchAction URL
- * (`/products?q=…`, see the locale layout) working.
- *
- * The old product grid, Industries section and brochure block are not in the
- * mock and are gone from this page. The category detail pages are switched
- * off for now (redirected here — see next.config.ts); product detail pages
- * (/products/<slug>) remain.
+ * `?category=<id>` is the old way of addressing a range. It now answers a 308
+ * to that range's own URL (keeping `?q=`), so old links, bookmarks and shared
+ * URLs land on the indexable page. `?q=` alone (the search box) still renders
+ * here.
  */
 export default async function ProductsPage({
   params,
@@ -51,17 +46,11 @@ export default async function ProductsPage({
   const { locale } = await params;
   const { category, q } = await searchParams;
   setRequestLocale(locale);
-  const tHome = await getTranslations("home");
 
-  return (
-    <>
-      <ProductsHero />
-      <ProductShowcase initialCategory={category} initialQuery={q ?? ""} />
-      <CTASection
-        variant="flush"
-        primaryLabel={tHome("ctaPrimaryHome")}
-        secondaryLabel={tHome("ctaSecondaryHome")}
-      />
-    </>
-  );
+  if (category && showcaseCategories.some((c) => c.id === category)) {
+    const target = localizedPath(locale, `/products/${category}`);
+    permanentRedirect(q ? `${target}?q=${encodeURIComponent(q)}` : target);
+  }
+
+  return <ProductsRangePage category={category} query={q ?? ""} />;
 }

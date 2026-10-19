@@ -88,7 +88,7 @@ const MILESTONES: Milestone[] = [
     // 236px — Figma draws 215, see `descWidth` above.
     descWidth: 15.6085,
     desc: [
-      "The Poddar Family began its journey in pipe manufacturing in Patna.",
+      "The Poddar family began its journey in pipe manufacturing in Patna.",
     ],
   },
   {
@@ -177,12 +177,12 @@ export function LegacyStory({
       {/* Stacked layout up to `lg` (was `md`): the composition below scales
           its type with the container, and at 768–1023 the milestone copy came
           out at 9–12px. From 1024 it is ≥12px. */}
-      <div className="container-edge py-20 lg:hidden">
+      <div className="container-figma py-20 lg:hidden">
         <h2
           // 28px, matching the mobile heading size the rest of the site now
           // uses. This fallback has no Figma frame of its own, so it follows
           // the scale rather than setting one.
-          className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] sm:text-4xl"
+          className="font-display type-heading uppercase"
           style={{ color: HEADING }}
         >
           <span className="block font-light">{titleLead}</span>
@@ -197,20 +197,20 @@ export function LegacyStory({
               className="border-l-2 border-black/10 pb-8 pl-5 last:pb-0 md:pb-0"
             >
               <p
-                className="text-3xl font-semibold leading-[1.08] tracking-[0.32px]"
+                className="text-[24px] font-semibold leading-[1.02] tracking-[0.2088px]"
                 style={{ color: yearColor }}
               >
                 {m.year}
               </p>
               {m.label && (
                 <p
-                  className="mt-2 text-base font-semibold leading-[1.1]"
+                  className="mt-2 type-body font-semibold"
                   style={{ color: BODY_GREY }}
                 >
                   {m.label}
                 </p>
               )}
-              <p className="mt-1 text-base leading-[1.3]" style={{ color: BODY_GREY }}>
+              <p className="mt-1 type-body" style={{ color: BODY_GREY }}>
                 {m.desc.join(" ")}
               </p>
             </li>

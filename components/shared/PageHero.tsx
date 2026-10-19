@@ -48,7 +48,7 @@ export function PageHero({
         aria-hidden="true"
       />
 
-      <div className={cn("container-edge relative", centered && "flex flex-col items-center text-center")}>
+      <div className={cn("container-figma relative", centered && "flex flex-col items-center text-center")}>
         {breadcrumb && breadcrumb.length > 0 && (
           <nav className="tech-label mb-6 flex items-center gap-2 text-ocean-300" aria-label="Breadcrumb">
             {breadcrumb.map((c, i) => (

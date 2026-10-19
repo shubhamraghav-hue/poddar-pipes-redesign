@@ -194,12 +194,10 @@ function VisionMissionCard({
           the `absolute inset-0` wrapper. From `md`: a padded stack in flow,
           which is what sizes the card. */}
       <div className="absolute inset-0 md:relative md:inset-auto md:px-[8.4459cqw] md:pb-[8.4459cqw] md:pt-[28.2095cqw]">
-      {/* TYPE SIZES match the homepage hero's stat cards (client, 2026-10-14):
-          title = the stat number, body = the stat label, at every width — see
-          `--hero-card-figure` / `--hero-card-label` in styles/globals.css.
-          The body keeps a 12px floor: the home label drops to ~8px on phones,
-          which is unreadable for a paragraph. */}
-      <h3 className="absolute left-[5.848%] top-[44.4444%] -translate-y-1/2 text-[length:var(--hero-card-figure)] font-semibold uppercase leading-none tracking-[-0.01em] text-white md:static md:translate-y-0">
+      {/* TYPE SIZES (2026-10-19, Figma 2015:5750 phone / 1979:32593 desktop):
+          title 28px -> 48px SemiBold, body is the sitewide `type-body`
+          (13 -> 16). They followed the home stat cards before that. */}
+      <h3 className="absolute left-[5.848%] top-[44.4444%] -translate-y-1/2 text-[28px] font-semibold uppercase leading-none tracking-[-0.01em] text-white md:text-[48px] md:static md:translate-y-0">
         {title}
       </h3>
       {/* Width is the one value that still needs `style`: it is per-card on
@@ -208,7 +206,7 @@ function VisionMissionCard({
           cannot generate a class from a prop. `--body-w` is read back by the
           `md:` width below via arbitrary-property syntax. */}
       <p
-        className="absolute left-[5.848%] top-[69.7531%] w-[68.1287%] -translate-y-1/2 text-[length:max(12px,var(--hero-card-label))] leading-[1.1] text-[#c0c0c0] md:static md:mt-[3.3784cqw] md:w-[var(--body-w)] md:translate-y-0 md:leading-[1.2] md:text-white"
+        className="absolute left-[5.848%] top-[69.7531%] w-[68.1287%] -translate-y-1/2 type-body text-[#c0c0c0] md:static md:mt-[3.3784cqw] md:w-[var(--body-w)] md:translate-y-0 md:text-white"
         style={{ "--body-w": bodyWidth } as CSSProperties}
       >
         {body}
@@ -299,13 +297,13 @@ export async function AboutHero() {
           the title 190px down it, with 82px of air under the second card. The
           190 is what makes the ripple read as a backdrop the copy sits inside
           rather than a strip above it. `md` keeps the existing 150/150. */}
-      <div className="container-edge relative pb-[82px] pt-[190px] md:pb-[150px] md:pt-[150px]">
+      <div className="container-figma relative pb-[82px] pt-[190px] md:pb-[150px] md:pt-[150px]">
         <RevealOnScroll>
           {/* 36px and 307px wide at base are node 1447:13401's own values —
               it was 40px in a 511px measure, inherited from the desktop ramp.
               Its tracking is +0.2088px there against the desktop node's
               +0.32px, so the base needs its own value and `sm` restores it. */}
-          <h1 className="max-w-[307px] font-display text-[36px] uppercase leading-[1.02] tracking-[0.2088px] text-white sm:max-w-[511px] sm:text-5xl sm:tracking-[0.32px] md:text-[60px]">
+          <h1 className="max-w-[307px] font-display type-hero uppercase text-white sm:max-w-[511px]">
             <span className="font-light">{t("heroTitle")} </span>
             <span className="font-bold">{t("heroTitleBold")}</span>
           </h1>
@@ -315,7 +313,7 @@ export async function AboutHero() {
           {/* 13.05px under the title and 13px/307px wide on mobile (node
               1447:13402), against the 28px gap and 16px/486px the wider
               widths keep. */}
-          <p className="mt-[13px] max-w-[307px] text-[13px] leading-[1.2] text-white sm:mt-7 sm:max-w-[486px] sm:text-base">
+          <p className="mt-[13px] max-w-[307px] type-body text-white sm:mt-7 sm:max-w-[486px]">
             {t("heroDesc")}
           </p>
         </RevealOnScroll>
@@ -337,7 +335,7 @@ export async function AboutHero() {
               asChild
               size="lg"
               variant="accent-ink"
-              className="h-[46px] w-full max-w-[307px] px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52] sm:max-w-none sm:w-auto"
+              className="h-[46px] w-full max-w-[307px] px-6 py-0 type-button font-semibold uppercase text-[#0B0B52] hover:text-[#0B0B52] sm:max-w-none sm:w-auto"
             >
               <Link href="/products">
                 <span className={CAP_TRIM}>{t("heroPrimary")}</span>
@@ -347,7 +345,7 @@ export async function AboutHero() {
               asChild
               size="lg"
               variant="outline-white"
-              className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:max-w-none sm:w-auto"
+              className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 type-button font-semibold uppercase shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:max-w-none sm:w-auto"
             >
               {/* Inset ring, not a border, and a cap-trimmed label — the
                   48-vs-46 / high-label fix shared with CTASection. */}

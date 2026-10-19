@@ -54,7 +54,6 @@ export interface Product {
   sizes: string[];
   applications: string[];
   materials: string[];
-  installationGuide: string[];
   faqs: FAQItemInline[];
   icon: ProductIcon;
 }

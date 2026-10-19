@@ -66,26 +66,7 @@
   --font-body: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
 
-  /* ---- Type scale (Brand Playbook) — available as text-display, text-h1 …
-     text-caption utilities alongside Tailwind's default scale. Existing
-     headings mostly use the default scale at equivalent sizes already;
-     these named tokens are here for new/Playbook-literal usage. ---- */
-  --text-display: 3.5rem; /* 56px */
-  --text-display--line-height: 1.05;
-  --text-h1: 3rem; /* 48px */
-  --text-h1--line-height: 1.1;
-  --text-h2: 2.5rem; /* 40px */
-  --text-h2--line-height: 1.15;
-  --text-h3: 2rem; /* 32px */
-  --text-h3--line-height: 1.2;
-  --text-h4: 1.5rem; /* 24px */
-  --text-h4--line-height: 1.3;
-  --text-body-lg: 1.125rem; /* 18px */
-  --text-body-lg--line-height: 1.6;
-  --text-body: 1rem; /* 16px */
-  --text-body--line-height: 1.6;
-  --text-caption: 0.75rem; /* 12px */
-  --text-caption--line-height: 1.4;
+  /* Type scale: see the `type-*` utilities below the @theme block. */
 
   /* ---- Radius — pill added alongside Tailwind's default scale ---- */
   --radius-pill: 9999px;
@@ -96,6 +77,100 @@
   --animate-marquee: marquee 32s linear infinite;
   --animate-marquee-reverse: marquee-reverse 32s linear infinite;
   --animate-pipe-flow: pipe-flow 1.4s linear infinite;
+}
+
+/* ---- Type scale — THE font sizes for the whole site ------------------------
+   Phone sizes: Figma 2015:6416 "Mobile Font Sizes" (with 2015:5485 home and
+   2015:5750 about). Desktop: the Website/Desktop section 2015:5478 (Figma
+   text styles "Regular text/16-body", "Regular text/20-subheading", and the
+   48px "subheading" and 60px hero "heading" components). Phone sizes apply
+   below `sm`, desktop from `md` (or `xl` for the hero, matching the locked
+   home hero's ramp); `sm` is the tablet step between them.
+
+   Use these instead of literal `text-[..px]` sizes. Each sets size, leading
+   and tracking only. Weight, colour and case stay at the call site, because
+   headings mix Light and Bold lines at one size. Display one-offs (stat
+   numbers, timeline years, logos, cqw-scaled card art) keep their own
+   Figma values and are commented where they are used.
+
+     type-hero     36 → 48 (lg) → 60 (xl)  page hero h1, Light + Bold lines
+     type-heading  28 → 36 (sm) → 48 (md)  section h2
+     type-sub      13 → 16 (sm) → 20 (md)  card titles, sub-heads, list labels
+     type-body     13 → 16 (sm)            all paragraphs
+     type-label    13 → 14 (sm)            footer links and column heads
+     type-small    10 → 12 (sm)            copyright, fine print
+     type-eyebrow  13 → 16 (sm)            Light caps line above a hero h1
+     type-button   18                      every pill button, Semibold caps
+   ------------------------------------------------------------------------- */
+@utility type-hero {
+  font-size: 36px;
+  line-height: 1.02;
+  letter-spacing: 0.2088px;
+  @media (width >= 64rem) {
+    font-size: 48px;
+    letter-spacing: 0.32px;
+  }
+  @media (width >= 80rem) {
+    font-size: 60px;
+  }
+}
+/* Desktop tracking 0: Figma's 48px "subheading" sets none (only the 60px hero has +0.32px). */
+@utility type-heading {
+  font-size: 28px;
+  line-height: 1.02;
+  letter-spacing: 0.2088px;
+  @media (width >= 40rem) {
+    font-size: 36px;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+  @media (width >= 48rem) {
+    font-size: 48px;
+  }
+}
+@utility type-sub {
+  font-size: 13px;
+  line-height: 1.2;
+  @media (width >= 40rem) {
+    font-size: 16px;
+  }
+  @media (width >= 48rem) {
+    font-size: 20px;
+  }
+}
+@utility type-body {
+  font-size: 13px;
+  line-height: 1.2;
+  @media (width >= 40rem) {
+    font-size: 16px;
+  }
+}
+@utility type-label {
+  font-size: 13px;
+  line-height: 1.2;
+  @media (width >= 40rem) {
+    font-size: 14px;
+  }
+}
+@utility type-small {
+  font-size: 10px;
+  line-height: 1.2;
+  @media (width >= 40rem) {
+    font-size: 12px;
+  }
+}
+@utility type-eyebrow {
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  @media (width >= 40rem) {
+    font-size: 16px;
+  }
+}
+@utility type-button {
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: 0.36px;
 }
 
 @keyframes flow {
@@ -207,121 +282,18 @@ button[aria-label="Select language"] svg {
     @apply mx-auto w-full max-w-[1400px] px-6 md:px-10 xl:px-16;
   }
 
-  /* Figma's BODY column, exactly: 150px gutters on a 1512 frame, so a 1212px
-     content width. `container-edge` above gives 1272 at x120 — 60px wider and
-     30px left of every body coordinate in the mocks.
-   *
-   * SCOPED ON PURPOSE, to /tools/calculator and /contact only. Those two were
-   * built pixel-perfect against their Figma frames and every interior
-   * measurement (estimator panel, tab strip, contact form) is derived from the
-   * 1212 column. Switching `container-edge` itself would have fixed the About
-   * cards and the CoreValues row too, but it also feeds Hero.tsx, which is
-   * locked — so the narrower change is the one that was taken.
-   *
-   * KNOWN COST: on these two pages the content sits 30px right of the navbar
-   * and footer, which stay on `container-edge`. That step is accepted; it is
-   * the trade for not moving 43 other files. If `container-edge` is ever
-   * brought in line with the mocks, delete this and swap the four call sites
-   * back. */
+  /* Figma's BODY column: 150px gutters on the 1512 frame, i.e. a 1212px
+     content width. Same gutters as `container-edge` below that (24/40/64),
+     but capped at 1212 instead of 1272, so at 1512 content starts at x150
+     exactly as every Figma page does (2026-10-19: all body sections moved
+     here). `container-edge` (x120) stays only for the header, the footer and
+     the locked home hero, which Figma itself puts at x120. */
   .container-figma {
-    @apply mx-auto w-full max-w-[1512px] px-6 md:px-10 xl:px-[150px];
+    @apply mx-auto w-full max-w-[1340px] px-6 md:px-10 xl:px-16;
   }
 
   .text-balance {
     text-wrap: balance;
-  }
-
-  /* Category-card photo pan (components/home/ProductCategories.tsx). The
-     component emits BOTH placements as custom properties because an inline
-     style cannot carry a media query; this picks the mobile set below `sm` and
-     the desktop set from `sm` up.
-
-     Only the tank card uses it. Figma places that photo by its own rule on
-     mobile (node 1311:11192) — a 342x218 layer, the photo's own ratio, centred
-     in the 342x136 frame — where the five pipe cards use a tall layer showing
-     its bottom slice. A single `zoom` driving both axes cannot express 100%
-     wide by 160% tall, hence two explicit sets rather than one number. */
-  .photo-pan {
-    width: var(--pan-w-m);
-    height: var(--pan-h-m);
-    left: var(--pan-x-m);
-    top: var(--pan-y-m);
-  }
-
-  @media (min-width: 40rem) {
-    .photo-pan {
-      width: var(--pan-w);
-      height: var(--pan-h);
-      left: var(--pan-x);
-      top: var(--pan-y);
-    }
-  }
-
-  /* Homepage legacy band (components/home/CompanyOverview.tsx), Figma node
-     1197:6064. That frame is 1512 wide and measures a 608px band with its
-     heading 150px down — 40.2% and 9.92% of the frame width. Both are held as
-     `vw` so the band keeps Figma's proportion instead of matching at one
-     width and drifting either side of it: at 1512 they resolve to 608px and
-     150px exactly. `vw` INCLUDING the scrollbar is the right unit here, since
-     Figma's 1512 is the whole window rather than the content box.
-
-     Floored at the values this band used before so nothing below ~1400px gets
-     shorter, and capped so it stops growing on a very large monitor.
-
-     The band height is the only number that needs setting: the drawing's box
-     takes its height from the section and derives its width from the
-     drawing's own 1.5:1, so a 608px band makes it 912px wide — Figma's 911px,
-     within a pixel. Padding-top then leaves exactly Figma's 205px under the
-     copy without that gap being specified anywhere.
-
-     Selector is `section.legacy-band`, not `.legacy-band`: it has to beat
-     `md:py-32`'s padding-top, and element+class outranks a lone class
-     whatever order Tailwind emits them in. */
-  @media (min-width: 64rem) {
-    section.legacy-band {
-      /* ================= TUNE THE DRAWING HERE =================
-         --legacy-art is the drawing's WIDTH as a share of the viewport, and
-         it is the only number to change. Everything else follows: the band's
-         height is that width over the drawing's own 1.5:1, so shrinking the
-         drawing shortens the band with it and the copy keeps its position.
-
-         60.32vw = Figma's 911px on its 1512px frame (912px here, which is
-         608px tall — the band height node 1197:6064 draws).
-
-         Measured at 1512:
-           60.32vw -> 912 wide, band 608   (Figma)
-           55vw    -> 832 wide, band 554
-           52.7vw  -> 797 wide, band 531   <- band stops shrinking here
-           50vw    -> 756 wide, band 531
-           45vw    -> 680 wide, band 531
-           40vw    -> 605 wide, band 531
-
-         Below ~52.7vw at 1512 the band holds at 531px and only the drawing
-         keeps shrinking, sitting on the baseline with a widening gap above
-         it. 531 is the copy (403px, heading top to paragraph bottom) plus
-         `py-32`'s 128px of bottom padding — so if the band needs to follow
-         the drawing further down than that, it is the section's `pb` that has
-         to give, not this knob.
-         ========================================================= */
-      --legacy-art: 50vw;
-
-      /* Stops the drawing growing without limit on a very large monitor.
-         1170px is 780px of band, which is where the old three-step ladder
-         topped out. */
-      --legacy-art-max: 1170px;
-
-      --legacy-art-w: min(var(--legacy-art), var(--legacy-art-max));
-      min-height: calc(var(--legacy-art-w) / 1.5);
-      padding-top: clamp(128px, 9.92vw, 190px);
-    }
-
-    /* The drawing's box. Width comes from the knob, `aspect-ratio` in the
-       component gives it the height, and `bottom-0` keeps it on the band's
-       baseline — so it always sits on the floor of the section however small
-       it gets, with any spare height above it (empty sky in the drawing). */
-    section.legacy-band .legacy-art {
-      width: var(--legacy-art-w);
-    }
   }
 
   /* Core Values (components/home/CoreValues.tsx).
@@ -474,9 +446,9 @@ button[aria-label="Select language"] svg {
     .cv-row {
       --cv-per-row: 3;
 
-      /* Back to the desktop ratios — 24/150, 32/150, 80/150 — which every
+      /* Back to the desktop ratios — 20/150 (the 20px "Regular text/20-subheading" caption, Figma 1979:32588), 32/150, 80/150 — which every
          band from here up shares. Only the base band differs. */
-      --cv-cap-ratio: 0.16;
+      --cv-cap-ratio: 0.1333;
       --cv-gap-ratio: 0.2133;
       --cv-head-ratio: 0.5333;
 

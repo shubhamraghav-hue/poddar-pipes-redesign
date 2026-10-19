@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
-import { SectionHeading } from "@/components/shared/SectionHeading";
-import { FAQ } from "@/components/contact/FAQ";
+import { FAQ, FAQ_COUNT } from "@/components/contact/FAQ";
 import { CTASection } from "@/components/home/CTASection";
 import { buildPageMetadata } from "@/lib/seo";
-
-const FAQ_COUNT = 11;
 
 export async function generateMetadata({
   params,
@@ -57,25 +54,32 @@ export default async function FaqPage({
           (h-20) — not a hero; the same strip opens every inner page that has no
           hero of its own. */}
       <div className="h-20 bg-ink" aria-hidden="true" />
-      <section className="container-edge pt-10 pb-8 md:pt-12">
+      {/* Figma 1979:32754 / 1989:36714: content starts 150 below the header,
+          80 between the title block and the questions, 150 to the CTA band.
+          Heading: light #4a4a4a line over a BOLD #171796 line (this page only;
+          other headings keep both lines grey). */}
+      <section className="container-figma pb-20 pt-12 md:pb-[150px] md:pt-[150px]">
         <RevealOnScroll>
-          <SectionHeading
-            as="h1"
-            eyebrow={t("eyebrow")}
-            title={t("heading")}
-            titleAccent={t("headingAccent")}
-            description={t("desc")}
-          />
+          <h1 className="font-display type-heading uppercase text-[#4a4a4a]">
+            <span className="block font-light">{t("heading")}</span>
+            <span className="block font-bold text-[#171796]">{t("headingAccent")}</span>
+          </h1>
+          <p className="mt-5 max-w-[317px] type-body text-[#606060]">{t("desc")}</p>
         </RevealOnScroll>
+        <div className="mt-12 md:mt-20">
+          <FAQ />
+        </div>
       </section>
 
-      <section className="container-edge py-20 md:py-24">
-        <FAQ hideHeading />
-      </section>
-
-      {/* Figma 1530:7148 "start a conversation": the full-bleed navy band
-          (as on Home / Products / About), not the photo card. */}
-      <CTASection variant="flush" primaryLabel={tHome("ctaPrimaryHome")} />
+      {/* Figma 1989:36716 (FAQs page "Footer/top"): the full-bleed navy band
+          with its own copy, "STILL HAVE / A QUESTION?". */}
+      <CTASection
+        variant="flush"
+        title={t("ctaLead")}
+        titleAccent={t("ctaAccent")}
+        description={t("ctaDesc")}
+        primaryLabel={tHome("ctaPrimaryHome")}
+      />
     </>
   );
 }

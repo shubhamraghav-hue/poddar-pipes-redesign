@@ -77,18 +77,26 @@ export function buildPageMetadata({
   title,
   description,
   absoluteTitle = false,
+  noindex = false,
 }: {
   locale: string;
   path: string;
   title: string;
   description: string;
   absoluteTitle?: boolean;
+  /**
+   * Keep the page out of search (it still works for visitors, and its links
+   * are still followed). For pages not ready to rank — see HIDDEN_FROM_SEARCH
+   * in app/sitemap.ts (SEO-004). Also drop the route from the sitemap.
+   */
+  noindex?: boolean;
 }): Metadata {
   const fullTitle = absoluteTitle ? title : `${title} | ${SITE_NAME}`;
   const url = localizedPath(locale, path);
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
+    ...(noindex ? { robots: { index: false, follow: true } } : {}),
     alternates: buildAlternates(locale, path),
     openGraph: {
       title: fullTitle,

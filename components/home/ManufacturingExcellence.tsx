@@ -16,7 +16,7 @@ export async function ManufacturingExcellence() {
   }));
 
   return (
-    <section className="container-edge py-24 md:py-32">
+    <section className="container-figma py-24 md:py-32">
       <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
         <SectionHeading
           eyebrow={t("manufacturingEyebrow")}

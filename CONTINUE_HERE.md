@@ -29,6 +29,14 @@ No other prompt is needed — everything required is below.
 
 ## 1. Next up (ordered)
 
+- [x] ~~SEO-003 range URLs~~ (done 2026-10-19)
+- [ ] **Next SEO batch approval**: the remaining items in docs/seo/pre-launch-seo-audit.md §E. *(needs user decision)*
+
+- [x] ~~Typography standardisation~~ — done 2026-10-19 (`type-*` utilities).
+- [ ] Convert the off-nav pages (manufacturing, quality, sustainability,
+      industries, calculator, installation, products/[slug], NotFoundView,
+      PageHero) to the `type-*` scale if they are kept.
+
 - [ ] **Work through `LAUNCH_AUDIT.md`** — most blockers need client inputs
       (phone, plant cities, certs, rates, jobs, history). Dev-only items first:
       form endpoint, env var/sitemap/canonical/OG image, remove fake downloads +
@@ -62,7 +70,139 @@ No other prompt is needed — everything required is below.
 - [ ] Fix `ScrollWaterRail` hydration mismatch under `prefers-reduced-motion`.
 - [ ] i18n pass for English-only copy (see §4 item 6).
 
-## Last prompt
+## Last prompt (several, 2026-10-19)
+
+> go ahead with batch 2 seo-004 (DONE)
+> remove installation guides completely from the project (DONE)
+
+**SEO-004:** lib/seo.ts buildPageMetadata has `noindex` (robots index:false, follow:true). It is used by /industries, /manufacturing, /quality, /sustainability, /tools/calculator and the product-detail branch of products/[slug]. The sitemap (app/sitemap.ts, HIDDEN FROM SEARCH comment) lists only indexable routes: /, /about, /articles, /careers, /contact, /faq, legal, plus the six range URLs.
+**Installation guides removed (client):** deleted app/[locale]/resources/installation, components/resources/InstallationStepper.tsx and lib/data/installationGuide.ts; removed the product-detail Installation tab (tabs now a 3-up row) and Product.installationGuide (types + products.ts), plus the messages: the installation namespace, nav.navInstallationGuide, common.installationGuide, resources.installLink, products.tabInstallation, products.installGuideLink (all locales). /resources/installation now 404s (never indexed; site pre-launch). Do not re-add installation content unless asked.
+
+> make sure that when you come from nav or a tab is switched, the product page lands on the range section, as before (DONE: pills link to /products/<id>#range and fire requestProductFocus; verified 96px landing for nav from another page, nav on a range page, footer, home card, pill from /products, pill while scrolled, phone menu)
+
+> go ahead with SEO-003 range URLs first (after the proposal): "1A, 2A, 3 approved" (DONE)
+
+**SEO-003 done:** ranges live at /products/<range-id> through app/[locale]/products/[slug]/page.tsx (a range id renders components/products/ProductsRangePage.tsx; other slugs are product detail). /products renders the same page but its canonical is /products/cpvc-pipes, and it is not in the sitemap. ?category= gives a 308 from products/page.tsx (permanentRedirect); /products/category/* gives a 308 in next.config. SEO fields metaTitle/metaDescription/h1 live in lib/data/productShowcase.ts. ProductsHero takes headingAs (h2 on these pages); ProductShowcase renders an sr-only h1, pills are <Link>s, syncUrl pushes paths. The navbar Products item stays active on /products/*. All ?category= hrefs replaced with /products/<id>#range. Next SEO items await user approval (SEO-001/002/004/005/007/019/020 need business input or Vercel access).
+
+> Poddar Pipes final pre-launch SEO audit (long brief): AUDIT ONLY, no production code changes until the user approves the plan (AUDIT DONE, awaiting approval)
+
+**SEO audit:** report at docs/seo/pre-launch-seo-audit.md (register SEO-001..020, plan §E, checks §F, 30-day plan §G); research at docs/seo/keyword-research.md (51 sources). Blockers: NEXT_PUBLIC_SITE_ENV=production on the prod project (SEO-001); host/redirect config incl. *.vercel.app (SEO-002). High: range URLs (?category= canonicalises to /products, SEO-003); 16 orphan sitemap URLs (SEO-004); partial Hindi (SEO-005); titles (SEO-006); facts (SEO-007); heritage wording (SEO-019); 93°C/IS 16098 part/no-BIS-cert wording (SEO-020). The user's brief forbids a Dealers page and redesigns; Home/About copy is approved; Hero is locked. Wait for explicit approval, then implement in small batches (no next build in this checkout while dev runs).
+
+> fix all header, global and footer diffs (DONE; the user chose to keep the approved address and "System")
+> Figma 1989:36716 — (news page) then: revert the news page and add this section in FAQs where it belongs (DONE)
+
+**Header/global/footer pass (verified at 1512, scrollbar hidden):**
+- `container-figma` is now `max-w-[1340px] px-6 md:px-10 xl:px-16`: same gutters as container-edge, but content capped at 1212, so x150 at 1512. ALL body sections use it; only Navbar, Footer and the locked Hero.tsx stay on container-edge (x120, as in Figma). About Assurances: title at the edge, table -17/-13px out (Figma rules from x133).
+- type-heading: letter-spacing 0 from sm (Figma 48px subheading). GOTCHA: a /* comment */ inside a nested @media within @utility silently kept the OLD compiled value. Keep comments outside @utility blocks.
+- Header (Figma 1979:32592): labels 35px apart, no padding, HOME at x411 (xl:ml-[168px]); header label now "NEWS" (new nav.navNews; the footer keeps "News & Media"); language pill 102x40, #a4a4a4 border, #fbfbfb, 25px globe, #4a4a4a; Become a Partner is #171796, 164x40, 21px handshake, 14px Medium sentence case (desktop and mobile menu); buttons 10px apart.
+- CTA band: pb175, button 75 below the copy, paragraph max-w 576, copy uses a comma (Figma) instead of the em dash.
+- Footer: pt70, top row bottom-aligned, 40 to the rule, 51 to the body, 51 to the lower rule; address x125 w306; socials 30px, 13px gaps, x115 (new Figma 30px Instagram svg); 2 desktop link columns (PRODUCTS 68w | COMPANY above RESOURCES, 109w, 80 apart, pr80); tagline 20.93px Bold -0.4186 (GOLD -0.32); subscribe title tracking-normal.
+- User decided (2026-10-19): KEEP the client-approved footer address and the legal name "System" (singular); both intentionally differ from Figma.
+- FAQ page closing band = Figma 1989:36716 "STILL HAVE / A QUESTION?" (faq.ctaLead/ctaAccent/ctaDesc, en + hi). CTASection has a new `titleAccent` prop. The News page has no band (it was reverted).
+
+> Figma 1979:32576 — update the product logos in the name, their dimensions do not match figma (DONE)
+> Figma 1979:32754 — update the FAQ page and its content (DONE)
+> Figma 1979:32767/32781/32795/32809/32823/32837 — update assets and content per new product page designs (DONE)
+> Figma 2015:5548 — home page product section should look like this (phone) (DONE)
+> Figma 2015:5478 — prepare a report for every difference between figma and current (font style/size/colour/every aspect) (DONE: 134 diffs, 15 High / 61 Med / 58 Low, in scratchpad/figma-diff-report.md and shown to the user as tables; next step is the user choosing which to fix, top two being the 120→150px left gutter and the filled "Read article" button)
+
+**Home card logos:** public/products/category-cards/*-logo.svg = Figma "pipe logos/blue" variants (full Wx56 box, text outlined), drawn at Figma width at x40/y294; old *-wordmark.png no longer used by the home cards.
+**i18n fallback (new):** i18n/request.ts deep-merges English under every other locale, so untranslated keys show English instead of raw keys (this was silently broken before — e.g. home.overviewDesc2 showed as a key in bn/kn/…).
+**FAQ:** components/contact/FAQ.tsx rebuilt to Figma (6 Qs, all open by default, X = Plus rotated, 20px #171796 caps questions, 16px #606060 answers at 920px, #c0c0c0 rules, 60px side pad from sm). Heading: light #4a4a4a "Your questions," + bold #171796 "Answered."; page pt 150 / pb 150 at md. en + hi copy; other locales' old FAQ removed (fall back to English).
+**Product pages:** Why cards use Figma's 800x960 exports (public/products/<range>/figma-why-N.webp, crop = full card; old why-*.webp deleted); titles 20px SemiBold caps (5cqw); 6 titles shortened per Figma. Range card desktop = Figma full-card export (showcase/<range>-full.webp via photoWide, no extra desktop gradient); tagline 20px SemiBold caps #a4a4a4. Partner strip: title SemiBold caps, button = handshake + 17px Medium "Become a Partner" (not caps). What-is copy already matched (kept at 16px body by the earlier user decision; Figma uses 24px).
+**Home phone cards:** below sm, PhoneCard (342x200, 136px photo strip, logo 42.45 tall at x20/11.55 bottom, 32px #171796 arrow circle); catalogue button 307 wide on phones.
+
+> Legacy section copy (homepage): "Since 1975, the Poddar name has been part of India’s piping industry, beginning in Patna and expanding to Bengaluru in 1998. / Driven by a commitment to quality, innovation and market needs, Poddar has built expertise in CPVC and PVC piping solutions, with a deep understanding of the people who build and maintain our infrastructure — from engineers and contractors to dealers and, above all, plumbers." (DONE)
+
+**Legacy copy (done):** home.overviewDesc = para 1, new home.overviewDesc2 = para 2 (en + hi; other locales fall back to en). CompanyOverview renders two type-body paragraphs, 1.2em apart. It fits the 616px band at lg (text block 167 from the top and 167 from the bottom).
+
+> also remove HDPE mention from sitewide and fix grammar wherever needed
+> (mid-turn) Figma 2011:5061 — update the product cards section accordingly on the home page
+> (mid-turn) Figma 1979:33062 — update the navbar hover accordingly keep the selected items bold as in figma
+> (mid-turn) Figma 2015:6416 + 2015:5485 + 2015:5750 — font-size guidelines sitewide, standardise, list irregularities (DONE)
+> (answers) desktop scale = Figma 2015:5478 "use these"; intro paragraphs -> normal body; display one-offs match Figma; YES change the locked hero stat sizes
+
+**Typography (DONE, verified at 375/768/1024/1512):** One scale for the whole
+site: `type-*` utilities in styles/globals.css (comment block there is the spec).
+hero 36 -> 48 (lg) -> 60 (xl); heading 28 -> 36 (sm) -> 48 (md); sub 13/16/20;
+body 13 -> 16; label 13 -> 14; small 10 -> 12; eyebrow 13 -> 16; button 18.
+Phone = Figma 2015:6416, desktop = 2015:5478. `lib/utils.ts` cn() now registers
+`type-*` as tailwind-merge font-size, so it REPLACES Button's text-sm/base
+(Tailwind's own text-* sizes otherwise win over custom utilities). Applied to
+SectionHeading, CTASection, CompanyOverview, ProductCategories button, CoreValues
+caption (desktop ratio 0.1333 = 20px), LegacyStory stacked list (years 24px),
+Footer (desktop address/contact 16, copyright type-small), AboutHero (vision
+titles 28 -> 48, body type-body), Assurances (numbers 14 -> 20), ContactHero
+(label type-sub, value <=32px), SendMessage, ProductsHero, ProductShowcase,
+ProductDetailSections, articles (page top is now the 48px heading per Figma
+1979:32740, cards sub/body/small), careers, LegalPage + legal h1 (type-heading).
+Hero.tsx (approved): stat number floor 36px, label floor 10px. Deliberate
+exceptions left at their own Figma/cqw values: home card VIEW pill + tagline,
+Why-card titles, About desktop story art, stat numbers, logos, navbar.
+Not yet converted (off-nav pages): manufacturing, quality, sustainability,
+industries, calculator, installation, products/[slug], NotFoundView, PageHero.
+
+**HDPE (done):** only in home.heroSlide_growth_desc (en + hi), the LOCKED hero.
+User approved the edit: "...manufactures uPVC, CPVC, SWR, UGD and agricultural
+piping systems, as well as water storage tanks, for households, farms,
+industries and infrastructure projects across India." (hi translated). It wraps
+to 4 lines (was 3): buttons 9-15px lower, still 45-214px clear of the stat cards.
+Tank "polyethylene" mentions are the material, kept.
+**Grammar (done):** 45 fixes from a full proofread of 1,231 copy strings
+(en.json, lib/data/*, pages): British spellings (rigour, programmes, bevelling,
+honour), hyphenation (felt-tip, solvent-weld, storm-water, 33-acre, housing-
+society), Vemgal->Vemagal, legal.ts grammar, dates "13 August 2026", "Poddar
+family". NOT changed, flagged to user: products.ts:10 says uPVC Gold is for
+"hot & cold water" (CPVC is the hot-water range); hero eyebrow "Manufacturing
+since 1991" vs "Founded in 1975 / 50-year legacy"; productDetails AGRI says
+IS 4985:2021 and 20-315mm vs IS 4985:2000 and 40-315mm elsewhere.
+**Home product cards (done, ProductCategories.tsx rewritten):** Figma 2011:5061,
+400x375; rest: photo 400x274, logo x40/y294; hover: photo+logo -50, VIEW pill
+(#f28000, 18px, arrow public/brand/arrow-up-right.svg) +122->0 at centre x306,
+desc 16px +66->0. (hover:none) shows the hover state. Pipe photos 480x716
+bottom-right; TANK uses showcase/tank-wide.webp 492x275 @-92. Card copy = Figma
+taglines (en home.categories*Desc). Removed .photo-pan CSS and
+scripts/crop-tank-card.mjs. Verified rest/hover numbers = Figma.
+**Navbar (done):** header #fbfbfb + 0 4 8 .12 shadow; items 16px Medium #4a4a4a,
+active Bold #171796, hover #171796, px-1.5 below xl (13px clear at 1024);
+Products panel: white, titles 16px #a4a4a4, links 16px Medium block, 32px
+pitch, cols spread over a centred 1012px block, ends y282 (=Figma). en.json:
+navStorageDrainage "Storage and Drainage", navTanks "Tank", navAgriculture
+"Agri", faq "FAQs"; nav.ts order UGD before Tank. Kept "News & Media" (Figma
+says "NEWS") and the ORANGE Become a Partner button (Figma shows it BLUE
+#171796 with white text) — asked user.
+
+### Previous prompt (legacy band)
+
+> https://www.figma.com/design/6jLHH8FxOKbRcIWOpIiWcx/Poddar-Pipes-Website?node-id=1979-32569&m=dev
+> update the home page legacy section as per updates and keep the font size same as the one in figma
+
+**Status: done, measured at 375 / 768 / 1024 / 1512 / 1920.**
+components/home/CompanyOverview.tsx rewritten to Figma "2. legacy" 1979:32569:
+#ec7200 band, 616 tall from lg; copy x150, 599 wide, vertically centred;
+public/home/legacy-fittings.webp (4096x2286, q88) flush right at 1103x616
+(starts x409 at 1512) under a gradient #ec7200 -> rgba(236,114,0,.2).
+Type = Figma at desktop: h2 48px Light/SemiBold uppercase lh 1.2, gap 32, body
+16px lh 1.2 white. Heading below md follows the 28/36/48 section ramp; body
+16px everywhere. Below lg: content-height, photo under the copy (top fade).
+- GOTCHA: a global h2 colour beats an inherited text-white — set colour on the
+  h2/p themselves (it rendered #1c1a1f).
+- Removed: the section.legacy-band / .legacy-art CSS in globals.css and
+  public/home/legacy-blueprint-pencil.webp (both only used here).
+
+### Previous prompt (footer brand line)
+
+> [screenshots: desktop vs mobile footer tagline] fix the placement of boomerang in smaller responsive screens for the brand line
+
+**Status: done, measured at 375 / 768 / 1023 vs 1512.** Footer.tsx
+BrandTagline (below lg) now uses the desktop lockup's geometry in em of its
+22px type: mark at top-left, h 0.501em; text ml 0.4345em, pt 0.367em
+(desktop: 9.59 / 8.1px at 22.07px). Measured mark-to-text offset 9.55px vs
+desktop 9.58px, same vertical relation; still breaks after GOLD (2 lines).
+Replaces the 2026-10-12 version (cap-trimmed to the logo's 36px, mark beside
+line 1). The tagline block is ~8px taller than before.
+
+### Previous prompt (footer links)
 
 > [screenshot: footer columns] remove Manufacturing, Quality and Sustainability from company; remove pipe material estimator as well
 

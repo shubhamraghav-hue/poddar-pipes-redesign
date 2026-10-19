@@ -211,7 +211,7 @@ export const categoryContent: CategoryContent[] = [
     ],
     highlights: [
       { title: "Three-layer foam core", description: "Ring stiffness where it's needed, at a lighter weight that cuts transport and handling cost." },
-      { title: "Pushfit or Solfit", description: "Reopenable Black Seal push-fit joints, or a permanent solvent-welded bond for demanding lines." },
+      { title: "Pushfit or Solfit", description: "Reopenable Black Seal Pushfit joints, or a permanent solvent-welded bond for demanding lines." },
       { title: "SN2 / SN4 / SN8", description: "Match stiffness to duty — SN4 for housing lines, SN8 under roads and heavy traffic loading." },
       { title: "Rodent-proof & leak-proof", description: "Smooth rigid uPVC surface resists rodents; joints stay leak-proof under internal pressure." },
     ],

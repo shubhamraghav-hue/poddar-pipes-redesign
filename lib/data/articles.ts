@@ -59,7 +59,7 @@ export const pressArticles: PressArticle[] = [
     outlet: "Tube & Pipe India",
     headline: "Kolar plant investment rises from ₹492 to ₹758 crore",
     summary:
-      "Poddar Plumbing has increased its Kolar plant investment from ₹492 crore to ₹758 crore, supporting a new 33 acre production facility in Karnataka.",
+      "Poddar Plumbing has increased its Kolar plant investment from ₹492 crore to ₹758 crore, supporting a new 33-acre production facility in Karnataka.",
     sourceUrl: "https://tubepipeindia.com/poddar-plumbing-scales-up/",
   },
   {
@@ -68,7 +68,7 @@ export const pressArticles: PressArticle[] = [
     outlet: "First Construction Council",
     headline: "₹758 crore project to support Karnataka’s industrial growth",
     summary:
-      "The expanded Karnataka investment will support a new Vemgal manufacturing facility, with plans expected to create 12,000 jobs and strengthen the state’s piping industry.",
+      "The expanded Karnataka investment will support a new Vemagal manufacturing facility, with plans expected to create 12,000 jobs and strengthen the state’s piping industry.",
     sourceUrl: "https://firstconstructioncouncil.com/article/912316",
   },
 ];

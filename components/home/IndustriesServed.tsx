@@ -109,7 +109,7 @@ export async function IndustriesServed() {
 
   return (
     <section className="bg-paper-2 py-24 md:py-32">
-      <div className="container-edge">
+      <div className="container-figma">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
             eyebrow={t("industriesEyebrow")}

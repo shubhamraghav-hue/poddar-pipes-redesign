@@ -29,13 +29,13 @@ export function SendMessage() {
       <div className="container-figma grid grid-cols-1 gap-12 lg:grid-cols-[328px_minmax(0,621px)] lg:justify-between lg:gap-[180px]">
         {/* -------------------------------------------------------- left rail */}
         <div className="flex flex-col">
-          <h2 className="max-w-2xl font-display text-[28px] uppercase leading-[1.02] tracking-[0.2088px] text-[#606060] sm:text-4xl sm:leading-[1.08] sm:tracking-[0.32px] md:text-5xl">
+          <h2 className="max-w-2xl font-display type-heading uppercase text-[#606060]">
             <span className="block font-light">Send Us a</span>
             <span className="block font-bold">Message</span>
           </h2>
 
           {/* 18px / 1.2 `#606060`, 32 under the heading (node 1606:11570). */}
-          <p className="mt-8 text-[15px] leading-[1.3] text-[#606060] sm:text-[18px] sm:leading-[1.2]">
+          <p className="mt-8 type-body text-[#606060]">
             Tell us what you&rsquo;re looking for and the right person will respond. Our
             products are launching soon, so every enquiry is handled directly by our
             office team.
@@ -52,10 +52,10 @@ export function SendMessage() {
           <dl className="mt-[30px] flex flex-col gap-5">
             {OFFICES.map((o) => (
               <div key={o.label}>
-                <dt className="text-[16px] font-semibold uppercase leading-4 tracking-[1px] text-[#f28000]">
+                <dt className="type-sub font-semibold uppercase text-[#f28000]">
                   {o.label}
                 </dt>
-                <dd className="mt-2 text-[13px] leading-[1.3] text-[#606060] sm:text-[14px] sm:leading-[1.2]">
+                <dd className="mt-2 type-body text-[#606060]">
                   {o.lines}
                 </dd>
               </div>

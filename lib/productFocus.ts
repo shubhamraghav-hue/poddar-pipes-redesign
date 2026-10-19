@@ -1,5 +1,5 @@
 /**
- * "Take me to that range": links to /products?category=<id> from the navbar's
+ * "Take me to that range": links to /products/<id> from the navbar's
  * Products menu, the footer and the home category cards land with the range
  * PRE-SELECTED and the page SCROLLED to the category pills (client request,
  * 2026-10-12), rather than at the top of the page above the heading.
@@ -20,9 +20,9 @@
 export const PRODUCT_FOCUS_HASH = "#range";
 export const PRODUCT_FOCUS_EVENT = "poddar:focus-product-range";
 
-/** `/products?category=<id>#range` */
+/** `/products/<id>#range` (the range's own URL since SEO-003) */
 export function productRangeHref(categoryId: string) {
-  return `/products?category=${categoryId}${PRODUCT_FOCUS_HASH}`;
+  return `/products/${categoryId}${PRODUCT_FOCUS_HASH}`;
 }
 
 /** Call from the link's onClick. */

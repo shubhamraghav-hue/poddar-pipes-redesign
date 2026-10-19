@@ -33,15 +33,14 @@ export default async function TermsOfServicePage({
 
   return (
     <section className="pb-20 pt-32 md:pt-36">
-      <div className="container-edge">
+      <div className="container-figma">
         <RevealOnScroll className="mx-auto max-w-[760px]">
           <h1
-            className="mt-2 font-medium text-slate-900"
-            style={{ fontSize: "clamp(1.75rem, 1rem + 2.5vw, 2.75rem)", lineHeight: "120%", letterSpacing: "0.02em" }}
+            className="mt-2 font-display type-heading font-medium uppercase text-slate-900"
           >
             Terms of Service
           </h1>
-          <p className="mt-3 text-sm text-slate-500">Last updated: August 13, 2026</p>
+          <p className="mt-3 type-body text-slate-500">Last updated: 13 August 2026</p>
 
           {/* Unlike the Privacy Policy (ported verbatim from poddarpipes.com's
               launch site), no Terms & Conditions page existed anywhere to

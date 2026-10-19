@@ -22,6 +22,9 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/industries",
+    // SEO-004 (2026-10-19): not linked from the site and content not yet
+    // confirmed, so kept out of search and the sitemap. Works for visitors.
+    noindex: true,
     title: locale === "en" ? "Industries We Serve" : t("nav.industries"),
     description: "Poddar Pipes serves residential, commercial, industrial, agricultural, infrastructure, irrigation, water supply, construction, and government projects.",
   });
@@ -46,7 +49,7 @@ export default async function IndustriesPage({
           (h-20) — not a hero; the same strip opens every inner page that has no
           hero of its own. */}
       <div className="h-20 bg-ink" aria-hidden="true" />
-      <section className="container-edge pt-10 pb-8 md:pt-12">
+      <section className="container-figma pt-10 pb-8 md:pt-12">
         <SectionHeading
           as="h1"
           eyebrow={t("heroEyebrow")}
@@ -56,7 +59,7 @@ export default async function IndustriesPage({
         />
       </section>
 
-      <section className="container-edge py-24 md:py-28">
+      <section className="container-figma py-24 md:py-28">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {industries.map((industry, i) => {
             const key = toTranslationKey(industry.id);
@@ -89,7 +92,7 @@ export default async function IndustriesPage({
       </section>
 
       <section className="bg-paper-2 py-24 md:py-28">
-        <div className="container-edge">
+        <div className="container-figma">
           <SectionHeading
             eyebrow={t("coverageEyebrow")}
             title={t("coverageH1")}

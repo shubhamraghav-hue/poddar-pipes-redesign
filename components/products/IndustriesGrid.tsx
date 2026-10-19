@@ -5,7 +5,7 @@ import { industries } from "@/lib/data/industries";
 export function IndustriesGrid() {
   return (
     <section className="bg-paper-2 py-24 md:py-28">
-      <div className="container-edge">
+      <div className="container-figma">
         <SectionHeading
           eyebrow="Industries served"
           title="Solutions specified by sector."

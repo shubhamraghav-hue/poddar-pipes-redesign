@@ -34,8 +34,8 @@ export async function Assurances() {
 
   return (
     <section className="bg-[#f5f5f5] py-24 md:pb-[120px] md:pt-[120px]">
-      <div className="container-edge">
-        <RevealOnScroll className={ROW_INSET}>
+      <div className="container-figma">
+        <RevealOnScroll>
           {/* Figma colours these `#606060` / `#171796`. Rendered in the
               sitewide heading grey with a weight-only accent instead — the
               global heading spec was an explicit decision that outranks a
@@ -46,7 +46,8 @@ export async function Assurances() {
         {/* `grid-cols-2` as well as `grid-rows-5`: with `grid-flow-col` alone
             the two tracks size to their content, and column 6–10 (which has
             the longest lines) came out 117px wider than column 1–5. */}
-        <ol className="mt-12 md:mt-[60px] md:grid md:grid-flow-col md:grid-cols-2 md:grid-rows-5 md:gap-x-[45px]">
+        {/* Figma 1979:32623: title at x150, table rules from x133 (17px out) to 1358. */}
+        <ol className="mt-12 md:-ml-[17px] md:-mr-[13px] md:mt-[60px] md:grid md:grid-flow-col md:grid-cols-2 md:grid-rows-5 md:gap-x-[45px]">
           {items.map((item, i) => (
             // Border and min-height on the SAME element. Split across a
             // wrapper and a child they stack instead of nesting, adding the
@@ -56,10 +57,10 @@ export async function Assurances() {
               key={i}
               className={`grid min-h-[88px] grid-cols-[22px_minmax(0,1fr)] items-center gap-x-6 border-b-[0.5px] border-[#606060] py-4 md:min-h-[100px] ${ROW_INSET}`}
             >
-              <span className="text-right text-[18px] font-bold leading-[1.1] text-[#4a4a4a]">
+              <span className="text-right text-[14px] font-bold leading-[1.2] text-[#4a4a4a] md:text-[20px]">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="text-[18px] font-normal leading-[1.1] text-[#4a4a4a]">
+              <span className="type-body font-normal text-[#4a4a4a]">
                 {item}
               </span>
             </li>

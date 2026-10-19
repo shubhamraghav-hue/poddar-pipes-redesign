@@ -1,199 +1,160 @@
-import type { CSSProperties } from "react";
 import { getTranslations } from "next-intl/server";
-import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { Fragment } from "react";
+import { ArrowRight } from "lucide-react";
 import { RangeLink } from "@/components/shared/RangeLink";
+import { CAP_TRIM } from "@/components/shared/capTrim";
+
+/**
+ * Homepage product cards — Figma "prooducts cards/homepage" (section
+ * 2011:5061, 2026-10-19): one 400x375 component per range, two states.
+ *
+ *   REST   photo frame 400x274 at the top; the "PODDAR <range>" logo at
+ *          x40 / y294. The VIEW button (y376) and the description (y395) sit
+ *          below the card edge, clipped.
+ *   HOVER  photo frame and logo up 50px; VIEW button up 122px to y254, its
+ *          centre at x306; description up 66px, its first line at y310.
+ *
+ * Everything is a % of the card (positions) or `cqw` of it (sizes, and the
+ * hover travel — translate % would resolve against each element's own box),
+ * so the composition holds at any card width. Elements are placed at their
+ * HOVER positions and pushed back to rest with a translate.
+ *
+ * Touch screens have no hover, so `(hover: none)` shows the hover state as
+ * the resting one: the button and description are always visible there.
+ *
+ * Photos are the same 4K studio shots the /products range card uses
+ * (lib/data/productShowcase.ts). Pipes: the portrait shot drawn 480x716,
+ * anchored bottom-right in the frame (so 80px is cropped off its left).
+ * TANK: the landscape tank shot, 492x275 at x-92, its bottom 1px below the
+ * frame. Logos: Figma's own "pipe logos/blue" variants exported as SVG
+ * (public/products/category-cards/*-logo.svg). Each is the full Wx56 logo box
+ * Figma places at x40 / y294, so the width alone sets the size.
+ */
 
 // Display order is the brand team's, NOT Figma's layout order — deliberate.
-//
-// `photo` is the SAME 4K studio shot the /products range card uses
-// (lib/data/productShowcase.ts; 2747x4096 webp q90 from the client's
-// originals, 2026-10-14), served at quality 90 — it replaced the older grey
-// studio set (848-1029px wide, no high-res originals). Portrait shots with the
-// product in the bottom third, hence `photoPos` holding the bottom edge.
-//
-// `logo` files are exported from each card's wordmark sub-frame only. The
-// older hand-built `*-logo.svg`s each had an extra "GOLD" pill baked in,
-// invisible at ~40px but obvious once scaled up and duplicating the separate
-// badge. `logoW`/`logoH` are the PNGs' real pixel dimensions.
 const CATEGORIES = [
   {
     id: "cpvc",
     title: "CPVC",
-    href: "/products?category=cpvc-pipes#range",
+    href: "/products/cpvc-pipes#range",
     descKey: "categoriesCpvcDesc" as const,
-    logo: "/products/category-cards/cpvc-wordmark.png",
-    logoW: 645,
-    logoH: 213,
+    logo: "/products/category-cards/cpvc-logo.svg",
+    logoPx: { w: 284, h: 142 },
+    logoW: 112.396,
+    descW: 180,
     photo: "/products/showcase/cpvc-hero.webp",
-    photoPos: "50% 100%",
   },
   {
     id: "upvc",
-    // Lowercase "u" — the brand's own spelling, and what the Figma component
-    // now draws (node 1447:12971). The wordmark PNG below was re-exported
-    // from that updated component, so the alt text and the artwork agree;
-    // this is the only card whose title is not simply all-caps.
+    // Lowercase "u" — the brand's own spelling, matching the artwork.
     title: "uPVC",
-    href: "/products?category=upvc-pipes#range",
+    href: "/products/upvc-pipes#range",
     descKey: "categoriesUpvcDesc" as const,
-    logo: "/products/category-cards/upvc-wordmark.png",
-    // 530x170 rather than the other five's 663x213: this one is a fresh 4x
-    // export of the corrected component, and 4 is the export API's ceiling.
-    // Only the RATIO matters at the call site (`h-[18.87%] w-auto`), and 530
-    // still clears the widest render (~225px at the 1400px container) at 2x.
-    logoW: 530,
-    logoH: 170,
+    logo: "/products/category-cards/upvc-logo.svg",
+    logoPx: { w: 287, h: 142 },
+    logoW: 113.583,
+    descW: 180,
     photo: "/products/showcase/upvc-hero.webp",
-    photoPos: "50% 100%",
   },
   {
     id: "swr",
     title: "SWR",
-    href: "/products?category=swr-pipes#range",
+    href: "/products/swr-pipes#range",
     descKey: "categoriesSwrDesc" as const,
-    logo: "/products/category-cards/swr-wordmark.png",
-    logoW: 618,
-    logoH: 213,
+    logo: "/products/category-cards/swr-logo.svg",
+    logoPx: { w: 266, h: 142 },
+    logoW: 105.272,
+    descW: 180,
     photo: "/products/showcase/swr-hero.webp",
-    photoPos: "50% 100%",
   },
   {
     id: "agri",
     title: "AGRI",
-    href: "/products?category=agricultural-pipes#range",
+    href: "/products/agricultural-pipes#range",
     descKey: "categoriesAgriDesc" as const,
-    logo: "/products/category-cards/agri-wordmark.png",
-    logoW: 627,
-    logoH: 213,
+    logo: "/products/category-cards/agri-logo.svg",
+    logoPx: { w: 272, h: 142 },
+    logoW: 107.647,
+    descW: 167,
     photo: "/products/showcase/agri-hero.webp",
-    photoPos: "50% 100%",
   },
   {
     id: "ugd",
     title: "UGD",
-    href: "/products?category=ugd-pipes#range",
+    href: "/products/ugd-pipes#range",
     descKey: "categoriesUgdDesc" as const,
-    logo: "/products/category-cards/ugd-wordmark.png",
-    logoW: 576,
-    logoH: 213,
+    logo: "/products/category-cards/ugd-logo.svg",
+    logoPx: { w: 238, h: 142 },
+    logoW: 94.191,
+    descW: 180,
     photo: "/products/showcase/ugd-hero.webp",
-    photoPos: "50% 100%",
   },
   {
     id: "tanks",
     title: "TANKS",
-    href: "/products?category=tanks#range",
+    href: "/products/tanks#range",
     descKey: "categoriesTanksDesc" as const,
-    logo: "/products/category-cards/tank-wordmark.png",
-    logoW: 675,
-    logoH: 213,
-    // The tanks stand taller in the shot than the pipes: lids at y≈53.6%,
-    // bases at ≈86% (pipes ≈63-98%), measured from the file. Desktop's
-    // 1.57:1 frame shows ~43% of the image height, so 82% frames both tanks
-    // whole with room above the lids. The phone frame (2.5:1) shows only
-    // ~27% — less than the tanks' 33% — so phones get their own crop that
-    // keeps the lids and upper bodies (`photoPosMobile`). The old grey tank
-    // shot needed the PHOTO_PAN layer below and scripts/crop-tank-card.mjs.
-    photo: "/products/showcase/tank-hero.webp",
-    photoPos: "50% 82%",
-    photoPosMobile: "50% 64%",
+    logo: "/products/category-cards/tank-logo.svg",
+    logoPx: { w: 304, h: 142 },
+    logoW: 120.311,
+    descW: 157,
+    photo: "/products/showcase/tank-wide.webp",
+    wide: true,
   },
 ] as const;
 
+/** The photo's box inside the 400x274 frame, as % of the frame. */
+const PIPE_BOX = { left: -20, top: ((274 - 716) / 274) * 100, w: 120, h: (716 / 274) * 100 };
+const TANK_BOX = { left: (-92 / 400) * 100, top: ((274 + 1 - 275) / 274) * 100, w: (492 / 400) * 100, h: (275 / 274) * 100 };
+
+// Hover travel, in cqw of the 400px card: 50px, 122px, 66px.
+const LIFT = "group-hover:-translate-y-[12.5cqw] group-focus-visible:-translate-y-[12.5cqw] [@media(hover:none)]:-translate-y-[12.5cqw]";
+const MOTION = "transition-transform duration-500 ease-out";
+
 /**
- * Two-axis placement inside the photo frame, for cards that opt in.
- *
- * WHY THIS EXISTS: `object-position` can only ever move a `object-cover` image
- * along ONE axis — whichever dimension is proportionally larger overflows the
- * frame, and the other fits exactly with nothing to slide. That is why the
- * tank card's `photoPos` Y worked while its X did nothing at all. No amount of
- * tuning `photoPos` can give you both.
- *
- * So instead the photo goes in a LAYER that is `zoom`% of the frame in BOTH
- * axes, and that layer is slid around inside it. The frame is untouched — the
- * card's geometry, the hover lift and the other five cards are all unaffected.
- *
- *   zoom  how much bigger than the frame the photo layer is. This is the
- *         travel budget: at 125 you get 25% of the frame's width and height to
- *         move through. More zoom = more room to pan, but more of the photo
- *         falls outside the frame and the image is upscaled further.
- *   x, y  0-100, and they read exactly like `object-position`: 0 shows the
- *         photo's left/top edge (content sits right/low), 100 shows its
- *         right/bottom edge (content sits left/high), 50 is centred.
- *
- * The photo file must be cropped to the FRAME's aspect ratio (1.5686) for this
- * to behave predictably — then the layer's aspect matches too, `object-cover`
- * has nothing of its own to crop, and x/y are the only things moving.
- * `scripts/crop-tank-card.mjs --slack 0` produces that.
- *
- * Measured for the tank card at zoom 125 on a 400px card: 100px of horizontal
- * travel and 64px of vertical. Useful ranges are x 11-100 (below 11 the tanks
- * push out of the right edge) and y 43-100 (below 43 their bases drop out of
- * the bottom). Raising y lifts the tanks and costs lid on hover: roughly
- * 6.5 + 0.64y px clipped, so 34px at y=43, 38px at y=50, 70px at y=100.
+ * Phone card (below `sm`) — Figma mobile home 2015:5548: a 342x200 white card,
+ * 25px radius, 4px soft shadow. Photo strip 136px tall across the top; logo
+ * at x20, 11.55 off the bottom, drawn at 34.66/45.72 of the desktop logo (so
+ * the same SVG box is 42.45 tall); a 32px #171796 circle with a 20px white
+ * arrow at x290 / 13 off the bottom. No hover state on touch, no tagline.
+ * All values are % or cqw of the 342px card so narrower phones keep it.
  */
-type Pan = {
-  /** Layer size as a % of the frame, both axes. >100 is what creates the slack. */
-  zoom: number;
-  /** 0-100, where in the slack the layer sits. 50 is centred. */
-  x: number;
-  y: number;
-  /**
-   * Mobile override, below `sm`. Separate because the MOBILE frame is a
-   * different shape — the card is 342x200 there against 400x375 on desktop, so
-   * the 68% photo frame goes from 1.57:1 to 2.51:1 — and because Figma places
-   * the tank photo by its own rule on mobile that `zoom` cannot express: one
-   * percentage drives both axes here, and Figma wants 100% wide by 160% tall.
-   */
-  mobile?: { w: number; h: number; left: number; top: number };
-};
+const PHONE_PIPE = { top: (-353 / 136) * 100, h: (510 / 136) * 100 };
+const PHONE_TANK = { top: (((136 - 218) / 2 + 2) / 136) * 100, h: (218 / 136) * 100 };
 
-// Figma treats the tank card differently from the other five on mobile. The
-// five pipe cards (nodes 1311:11157 etc.) each use a TALL 342x508 layer at
-// `top: -353`, showing only its bottom slice. The tank (node 1311:11192) uses a
-// SHORT 342x218 layer — 1.5688, which is the photo's own 1.5679 ratio, so it
-// shows uncropped — centred in the 342x136 frame with a 2px downward nudge.
-//
-// So the mobile numbers below are that node read off directly: 342/342 = 100%
-// wide, 218/136 = 160.29% tall, left 0, and top -39px = -28.68% of the frame.
-// Percentages rather than pixels because our frame is 354 wide, not Figma's 342
-// (our page gutter is `container-edge`'s 24px against the mock's 30px), so the
-// placement has to scale rather than be pinned.
-//
-// The desktop values are the ones tuned by hand against the studio shot and are
-// deliberately untouched.
-// No card pans at the moment: the 4K shots (2026-10-14) all frame with
-// `photoPos`. The old grey tank shot used { zoom: 125, x: 60, y: 85, mobile:
-// { w: 100, h: 160.29, left: 0, top: -28.68 } } — the mechanism stays for the
-// next shot that needs two-axis placement.
-const PHOTO_PAN: Partial<Record<(typeof CATEGORIES)[number]["id"], Pan>> = {};
-
-/** Turns a pan into the layer's size and offset. */
-// Emits both placements as custom properties rather than as `width`/`left`
-// directly, because an inline style cannot carry a media query. The `.photo-pan`
-// rule in globals.css picks the `-m` set below `sm` and the plain set above it.
-function panStyle({ zoom, x, y, mobile }: Pan) {
-  const slack = 100 - zoom; // negative: how far the layer may travel
-  const w = `${zoom}%`;
-  const h = `${zoom}%`;
-  const left = `${(slack * x) / 100}%`;
-  const top = `${(slack * y) / 100}%`;
-  return {
-    "--pan-w": w,
-    "--pan-h": h,
-    "--pan-x": left,
-    "--pan-y": top,
-    // Falls back to the desktop placement when a card has no mobile override.
-    "--pan-w-m": mobile ? `${mobile.w}%` : w,
-    "--pan-h-m": mobile ? `${mobile.h}%` : h,
-    "--pan-x-m": mobile ? `${mobile.left}%` : left,
-    "--pan-y-m": mobile ? `${mobile.top}%` : top,
-  } as CSSProperties;
+function PhoneCard({ cat }: { cat: (typeof CATEGORIES)[number] }) {
+  const box = "wide" in cat ? PHONE_TANK : PHONE_PIPE;
+  return (
+    <RangeLink
+      href={cat.href}
+      className="@container relative block aspect-[342/200] w-full overflow-hidden rounded-[25px] bg-white shadow-[0_0_4px_0_rgba(0,0,0,0.1)] sm:hidden"
+    >
+      <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden">
+        <div className="absolute inset-x-0" style={{ top: `${box.top}%`, height: `${box.h}%` }}>
+          <Image src={cat.photo} alt="" fill quality={90} sizes="100vw" className="object-cover" />
+        </div>
+      </div>
+      <Image
+        src={cat.logo}
+        unoptimized
+        alt={cat.title}
+        width={cat.logoPx.w}
+        height={cat.logoPx.h}
+        className="absolute bottom-[3.38cqw] left-[5.85%] h-[12.41cqw] w-auto"
+      />
+      <span
+        aria-hidden="true"
+        className="absolute bottom-[3.8cqw] right-[5.85%] flex size-[9.36cqw] items-center justify-center rounded-full bg-[#171796]"
+      >
+        <ArrowRight strokeWidth={1.75} className="size-[5.85cqw] text-white" />
+      </span>
+    </RangeLink>
+  );
 }
 
 export async function ProductCategories() {
@@ -201,10 +162,7 @@ export async function ProductCategories() {
 
   return (
     <section className="bg-[#F5F5F5] py-24 md:py-32">
-      <div className="container-edge flex flex-col gap-10">
-        {/* No `titleColorClassName` here any more: the `#4a4a4a` grey this
-            section pioneered is now `SectionHeading`'s sitewide default, so
-            the override became a no-op. */}
+      <div className="container-figma flex flex-col gap-10">
         <SectionHeading
           eyebrow={t("categoriesEyebrow")}
           title={t("categoriesH1")}
@@ -213,139 +171,86 @@ export async function ProductCategories() {
         />
 
         <div className="flex flex-col items-center gap-10">
-          {/* Two cards, two ratios. Desktop (node 13:309) draws 400x375 at a
-              ~26px gap; the MOBILE frame (node 1311:11088) draws a much wider
-              342x200 at an 18px gap — a landscape card, not a near-square one.
-              Both are ratios rather than fixed sizes so they hold at any
-              container width instead of only at Figma's reference frames. */}
           <RevealOnScroll className="grid w-full grid-cols-1 gap-[18px] sm:grid-cols-3 sm:gap-6">
-            {CATEGORIES.map((cat) => (
-              <RangeLink
-                key={cat.id}
-                href={cat.href}
-                // `cqw` is only for what does not natively scale with the
-                // box (font-size, tracking, radius); plain percentages
-                // already resolve against the card. `min(25px,6.25cqw)`
-                // because Figma's radius is a fixed 25px — a flat `6.25cqw`
-                // would overshoot on any card wider than 400px.
-                className="group @container relative block aspect-[342/200] w-full overflow-hidden rounded-[min(25px,6.25cqw)] bg-white sm:aspect-[400/375]"
-              >
-
-                {/* Photo stops at 68%, short of the wordmark's 74.67% top,
-                    to leave Figma's gap. Shares the wordmark's hover
-                    translate so the two move in lockstep. */}
-                <div className="absolute inset-x-0 top-0 h-[68%] overflow-hidden transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw] group-focus-visible:-translate-y-[22.5cqw]">
-                  {PHOTO_PAN[cat.id] ? (
-                    // Pan layer: bigger than the frame in BOTH axes, then slid
-                    // within it. This is the only way to get two-axis freedom
-                    // — see the note on PHOTO_PAN. The frame itself is
-                    // untouched, so the card's geometry is unaffected.
-                    <div className="photo-pan absolute" style={panStyle(PHOTO_PAN[cat.id]!)}>
+            {CATEGORIES.map((cat) => {
+              const box = "wide" in cat ? TANK_BOX : PIPE_BOX;
+              return (
+                <Fragment key={cat.id}>
+                <PhoneCard cat={cat} />
+                <RangeLink
+                  href={cat.href}
+                  // `min(25px,6.25cqw)`: Figma's radius is a fixed 25px, which
+                  // a flat 6.25cqw would overshoot on cards wider than 400.
+                  className="group @container relative hidden aspect-[400/375] w-full overflow-hidden rounded-[min(25px,6.25cqw)] bg-white sm:block"
+                >
+                  {/* Photo frame: 400x274 (73.07%) at the top. */}
+                  <div className={`absolute inset-x-0 top-0 h-[73.0667%] overflow-hidden ${MOTION} ${LIFT}`}>
+                    <div
+                      className="absolute"
+                      style={{ left: `${box.left}%`, top: `${box.top}%`, width: `${box.w}%`, height: `${box.h}%` }}
+                    >
                       <Image
                         src={cat.photo}
                         alt=""
                         fill
-                        sizes="(min-width: 640px) 42vw, 125vw"
                         quality={90}
+                        sizes="(min-width: 640px) 40vw, 120vw"
                         className="object-cover"
                       />
                     </div>
-                  ) : (
-                    // `photoPos` per card, not a blanket `object-center`.
-                    // These are tall studio shots with the product sitting in
-                    // the bottom third; centring the crop would frame empty
-                    // backdrop and hide the product at rest. Values are
-                    // measured from each file, not eyeballed. Set via `style`
-                    // because Tailwind cannot generate classes from data.
-                    <Image
-                      src={cat.photo}
-                      alt=""
-                      fill
-                      sizes="(min-width: 640px) 33vw, 100vw"
-                      quality={90}
-                      // Through custom properties because an inline style
-                      // cannot carry a media query: `--pos-m` below `sm`
-                      // (the phone frame), `--pos` above it.
-                      style={
-                        {
-                          "--pos": cat.photoPos,
-                          "--pos-m": "photoPosMobile" in cat ? cat.photoPosMobile : cat.photoPos,
-                        } as CSSProperties
-                      }
-                      className="object-cover object-[var(--pos-m)] sm:object-[var(--pos)]"
-                    />
-                  )}
-                </div>
+                  </div>
 
-                {/* Wordmark box is Figma's exact numbers as percentages of
-                    the card. Kept absolutely positioned rather than nested
-                    in a wrapper with the photo, so these stay a direct read
-                    of Figma rather than needing re-derivation against a
-                    wrapper's own box. `max-w` is a ceiling — the PNG's
-                    aspect ratio is what actually sets the width. */}
-                <Image
-                  src={cat.logo}
-                  alt={cat.title}
-                  width={cat.logoW}
-                  height={cat.logoH}
-                  className="absolute left-[10.53%] top-[74.67%] h-[18.87%] w-auto max-w-[58.11%] object-contain object-left transition-transform duration-500 ease-out group-hover:-translate-y-[22.5cqw] group-focus-visible:-translate-y-[22.5cqw]"
-                />
+                  {/* Logo at x40 / y294 (10% / 78.4%), Figma's width per range. */}
+                  <Image
+                    src={cat.logo}
+                    unoptimized
+                    alt={cat.title}
+                    width={cat.logoPx.w}
+                    height={cat.logoPx.h}
+                    className={`absolute left-[10%] top-[78.4%] h-auto ${MOTION} ${LIFT}`}
+                    style={{ width: `${(cat.logoW / 400) * 100}%` }}
+                  />
 
-                {/* Mobile gets a visible arrow instead of the hover block
-                    below, which a phone can never reach — Figma draws a 32px
-                    `#171796` disc inset 20px from the right and 13px from the
-                    bottom of its 342x200 card, holding a 20px arrow. Those are
-                    5.85% / 6.5% / 9.36cqw / 5.85cqw of that card. `cqw` for the
-                    two sizes because the `@container` is the card, so they
-                    track its width; percentages for the insets, which already
-                    resolve against it.
+                  {/* VIEW button — Figma's orange "Icon-R" pill: 24/16px side
+                      padding, 6px gap, 18px SemiBold #0b0b52 label, 20px
+                      arrow; centred at x306 (76.5%), top y254 (67.73%) on
+                      hover. A <span>: the whole card is the link. `w-max`: an absolute
+                      box at left 76.5% is otherwise capped to the 23.5% to its
+                      right (94px) and squeezed below its 108px. */}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-[76.5%] top-[67.7333%] flex h-[11.5cqw] w-max -translate-x-1/2 translate-y-[30.5cqw] items-center gap-[1.5cqw] whitespace-nowrap rounded-full bg-[#f28000] pl-[6cqw] pr-[4cqw] ${MOTION} group-hover:translate-y-0 group-focus-visible:translate-y-0 [@media(hover:none)]:translate-y-0`}
+                  >
+                    <span className={`text-[4.5cqw] font-semibold uppercase leading-none tracking-[0.09cqw] text-[#0b0b52] ${CAP_TRIM}`}>
+                      View
+                    </span>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Figma's 20px arrow-up-right */}
+                    <img src="/brand/arrow-up-right.svg" alt="" width={20} height={20} className="size-[5cqw]" />
+                  </span>
 
-                    `aria-hidden` and a `<span>`: the whole card is one `Link`,
-                    so this is decoration, not a second control. */}
-                <span
-                  aria-hidden="true"
-                  className="absolute bottom-[6.5%] right-[5.85%] flex size-[9.36cqw] items-center justify-center rounded-full bg-[#171796] sm:hidden"
-                >
-                  <ArrowRight className="size-[5.85cqw] text-white" />
-                </span>
-
-                {/* Description + CTA sit below the card at rest and slide up
-                    on hover. Modelled inverted from the group above: the
-                    untransformed position is the VISIBLE state, and the
-                    translate pushes it out of view at rest.
-
-                    `cqw`, not `%`: translate percentages resolve against the
-                    translated element's own box, so `27.5%` of this small
-                    block would not clear the card. */}
-                <div className="absolute inset-x-0 bottom-0 translate-y-[27.5cqw] px-[10%] pb-[5.3%] transition-transform duration-500 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0">
-                  <p className="line-clamp-2 text-[4cqw] leading-[1.1] text-[#606060]">
+                  {/* Description: x40, first line y310 (82.61%) on hover. */}
+                  <p
+                    className={`absolute left-[10%] top-[82.6133%] translate-y-[16.5cqw] text-[4cqw] leading-[1.2] text-[#606060] ${MOTION} group-hover:translate-y-0 group-focus-visible:translate-y-0 [@media(hover:none)]:translate-y-0`}
+                    style={{ width: `${(cat.descW / 400) * 100}%` }}
+                  >
                     {t(cat.descKey)}
                   </p>
-                  <div className="mt-[2%] flex items-center gap-[1.5%]">
-                    {/* Anek reserves an asymmetric descender allowance for
-                        Indic matras, so text beside a flex-centred icon sits
-                        visibly high. `text-box-trim` on the span itself (not
-                        the row) is the sitewide fix. */}
-                    <span className="text-[4.5cqw] font-medium leading-none tracking-[0.09cqw] text-[#171796] [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-                      VIEW PRODUCTS
-                    </span>
-                    <ArrowRight className="h-[3.5cqw] w-[3.5cqw] shrink-0 text-[#171796] transition-transform group-hover:translate-x-0.5" />
-                  </div>
-                </div>
-              </RangeLink>
-            ))}
+                </RangeLink>
+                </Fragment>
+              );
+            })}
           </RevealOnScroll>
 
           {/* Text colour overridden to Figma's literal `#0B0B52`, which is a
               different navy from the variant's `ink` token. Applied locally
               rather than by editing the shared `accent-ink` variant, which
               Hero also uses. */}
-          <RevealOnScroll>
+          <RevealOnScroll className="flex w-full justify-center">
             <Button
               asChild
               variant="accent-ink"
               size="lg"
-              className="h-auto px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] text-[#0B0B52] uppercase hover:text-[#0B0B52]"
+              className="h-auto w-full max-w-[307px] px-6 pb-3 pt-4 type-button font-semibold text-[#0B0B52] uppercase hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
             >
               <Link href="/products">{t("categoriesCta")}</Link>
             </Button>

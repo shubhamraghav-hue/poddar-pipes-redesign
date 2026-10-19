@@ -24,7 +24,10 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * From `lg` the U's sides run on up past the box to the band's top edge, so
  * it still hangs from the top when the art is scaled down.
  */
-export async function ProductsHero() {
+export async function ProductsHero({
+  /** "h2" on /products and the range URLs, whose H1 is the range name. */
+  headingAs: Heading = "h1",
+}: { headingAs?: "h1" | "h2" } = {}) {
   const t = await getTranslations("products");
   return (
     <section className="relative mt-20 overflow-hidden bg-[#0b0b52] lg:h-[760px]">
@@ -43,13 +46,13 @@ export async function ProductsHero() {
       <div className="container-figma relative flex h-full flex-col lg:block">
         <div className="relative z-10 pt-24 md:pt-[150px] lg:pt-[280px]">
           <RevealOnScroll>
-            <h1 className="font-display text-[min(36px,9.4vw)] uppercase leading-[1.02] tracking-[0.2088px] text-white sm:text-5xl md:text-[60px] md:tracking-[0.32px]">
+            <Heading className="font-display type-hero uppercase text-white">
               <span className="block font-light">{t("heroLine1")}</span>
               <span className="block font-bold">{t("heroBold")}</span>
-            </h1>
+            </Heading>
           </RevealOnScroll>
           <RevealOnScroll delay={0.08}>
-            <p className="mt-5 max-w-[398px] text-[15px] leading-[1.3] text-white md:mt-7 md:text-[16px] md:leading-[1.2]">
+            <p className="mt-5 max-w-[398px] type-body text-white md:mt-7">
               {t("heroDesc")}
             </p>
           </RevealOnScroll>

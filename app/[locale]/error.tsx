@@ -27,7 +27,7 @@ export default function LocaleError({
       <div className="bg-blueprint absolute inset-0 opacity-40" aria-hidden="true" />
 
       {/* pt-32 clears the fixed 80px navbar, as on the 404. */}
-      <div className="container-edge relative z-10 flex flex-1 items-center justify-center pt-32 pb-16">
+      <div className="container-figma relative z-10 flex flex-1 items-center justify-center pt-32 pb-16">
         <div className="flex w-full max-w-2xl flex-col items-center gap-3 text-center">
           <p className="tech-label text-xs text-amber-400">Error</p>
           <h1 className="font-display text-3xl leading-tight font-bold text-balance text-white uppercase sm:text-4xl">

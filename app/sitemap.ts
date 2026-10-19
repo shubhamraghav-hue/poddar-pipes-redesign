@@ -1,20 +1,22 @@
 import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
-import { products } from "@/lib/data/products";
+import { showcaseCategories } from "@/lib/data/productShowcase";
 import { SITE_URL, localizedPath } from "@/lib/seo";
 
-// Every real, public route. /products/category/* is deliberately absent (it
-// redirects to /products, see next.config.ts).
+// Every INDEXABLE public route. /products itself is absent: it canonicalises
+// to the default range's URL (SEO-003); the six range URLs are added below.
+// /products/category/* redirects (next.config.ts).
+//
+// HIDDEN FROM SEARCH (SEO-004, 2026-10-19) — the pages still work for
+// visitors but carry `noindex` (buildPageMetadata's `noindex`) and are left
+// out of this list until their content is confirmed and they are linked from
+// the site: /industries, /manufacturing, /quality, /sustainability,
+// /tools/calculator, and the product-detail pages /products/<product-slug>
+// (lib/data/products.ts). To bring one back: drop its `noindex` and add it
+// here.
 const staticRoutes = [
   "/",
   "/about",
-  "/products",
-  "/industries",
-  "/manufacturing",
-  "/quality",
-  "/sustainability",
-  "/resources/installation",
-  "/tools/calculator",
   "/articles",
   "/careers",
   "/contact",
@@ -37,13 +39,13 @@ function absolute(locale: string, path: string) {
 function priority(route: string) {
   if (route === "/") return 1;
   if (route === "/privacy-policy" || route === "/terms-of-service") return 0.3;
-  if (route.startsWith("/products/")) return 0.7;
+  if (showcaseCategories.some((c) => route === `/products/${c.id}`)) return 0.9;
   return 0.8;
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const productRoutes = products.map((p) => `/products/${p.slug}`);
-  const allRoutes = [...staticRoutes, ...productRoutes];
+  const rangeRoutes = showcaseCategories.map((c) => `/products/${c.id}`);
+  const allRoutes = [...staticRoutes, ...rangeRoutes];
 
   return routing.locales.flatMap((locale) =>
     allRoutes.map((route) => ({

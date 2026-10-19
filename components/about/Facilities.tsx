@@ -17,7 +17,7 @@ export async function Facilities() {
   const t = await getTranslations("about");
   const plant = COMPANY.plant;
   return (
-    <section className="container-edge py-24 md:py-28">
+    <section className="container-figma py-24 md:py-28">
       <SectionHeading
         eyebrow={t("facilitiesEyebrow")}
         title={t("facilitiesH1")}

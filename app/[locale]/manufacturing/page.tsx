@@ -21,6 +21,9 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/manufacturing",
+    // SEO-004 (2026-10-19): not linked from the site and content not yet
+    // confirmed, so kept out of search and the sitemap. Works for visitors.
+    noindex: true,
     title: locale === "en" ? "Manufacturing Excellence" : t("nav.navManufacturingExcellence"),
     description: "Explore Poddar Pipes' manufacturing facilities, automation, testing labs, warehousing, and logistics network across India.",
   });
@@ -49,7 +52,7 @@ export default async function ManufacturingPage({
           (h-20) — not a hero; the same strip opens every inner page that has no
           hero of its own. */}
       <div className="h-20 bg-ink" aria-hidden="true" />
-      <section className="container-edge pt-10 pb-8 md:pt-12">
+      <section className="container-figma pt-10 pb-8 md:pt-12">
         <SectionHeading
           as="h1"
           eyebrow={t("heroEyebrow")}
@@ -73,7 +76,7 @@ export default async function ManufacturingPage({
         </div>
       </section>
 
-      <section className="container-edge py-24 md:py-28">
+      <section className="container-figma py-24 md:py-28">
         <SectionHeading
           eyebrow={t("capabilitiesEyebrow")}
           title={t("capabilitiesH1")}

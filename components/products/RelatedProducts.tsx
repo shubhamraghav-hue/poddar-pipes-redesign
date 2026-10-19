@@ -11,7 +11,7 @@ export function RelatedProducts({ current }: { current: Product }) {
 
   return (
     <section className="bg-paper-2 py-24 md:py-28">
-      <div className="container-edge">
+      <div className="container-figma">
         <h2 className="font-display text-2xl font-medium text-slate-900 sm:text-3xl">
           Related Products
         </h2>

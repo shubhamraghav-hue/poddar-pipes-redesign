@@ -56,7 +56,7 @@ export function WhyChooseUs() {
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-white via-ocean-50/40 to-white py-24 md:py-32">
-      <div className="container-edge">
+      <div className="container-figma">
         <SectionHeading
           eyebrow={t("whyChooseEyebrow")}
           title={t("whyH1")}

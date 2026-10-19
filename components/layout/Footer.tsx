@@ -45,7 +45,7 @@ import { RangeLink } from "@/components/shared/RangeLink";
  */
 /**
  * The brand slogan that sits with the footer logo (Figma nodes 1447:13561
- * mobile / 1447:13308 desktop): an orange corner bracket above the text, and
+ * mobile / 1447:13308 desktop): an orange corner bracket at the text's top-left, and
  * "GOLD" in `#d9b365` inside an otherwise white line.
  *
  * The string lives in `footer.brandTagline` and is IDENTICAL in all eleven
@@ -74,22 +74,22 @@ import { RangeLink } from "@/components/shared/RangeLink";
 function BrandTagline() {
   const t = useTranslations("footer");
 
-  // SAME HEIGHT AS THE LOGO (36px), no padding (client, 2026-10-12). The
-  // text box is trimmed to its ink — cap top of line 1 to baseline of line 2
-  // (`text-box-trim`), measured 1.638em in Anek — so 22px of type is
-  // exactly 36px, top and bottom flush with the logo beside/above it. The
-  // corner bracket used to sit ABOVE the text (+12px); it now sits in the
-  // top-left corner beside the first line, inside the same 36px, with the
-  // text indented to clear it.
+  // SAME PLACEMENT AS THE DESKTOP LOCKUP (client, 2026-10-19): the corner
+  // mark at the top-left, the text 9.59px right of it and 8.1px lower at
+  // 22.07px — so the mark sits above-and-before "PIPES", hugging the text's
+  // corner. In em of the 22px type here (0.4345em right, 0.367em down, mark
+  // 0.501em tall), so it is the desktop geometry at this size. Previously
+  // (2026-10-12) the text was cap-trimmed to the logo's 36px with the mark
+  // beside the first line, which read as a misplaced bullet.
   return (
-    <div className="relative">
+    <div className="relative text-[22px]">
       <img
         src="/brand/tagline-mark.svg"
         alt=""
         aria-hidden="true"
-        className="absolute left-0 top-0 h-[11px] w-auto"
+        className="absolute left-0 top-0 h-[0.501em] w-auto"
       />
-      <p className="max-w-[10em] pl-[0.62em] text-[22px] font-semibold uppercase leading-none text-white [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+      <p className="ml-[0.4345em] max-w-[9.2em] pt-[0.367em] font-semibold uppercase leading-none text-white">
         {t.rich("brandTagline", {
           gold: (chunks) => <span className="text-[#d9b365]">{chunks}</span>,
         })}
@@ -108,17 +108,17 @@ function BrandTagline() {
 function BrandLockupDesktop() {
   const t = useTranslations("footer");
   return (
-    <div className="flex items-start gap-[59.4px]">
+    <div className="flex items-center gap-[60px]">
       <Link href="/" aria-label="Poddar Pipes — home" className="mt-[2px] block shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element -- the SVG logo */}
         <img src="/logo.svg" alt="Poddar Pipes" className="block h-[49.69px] w-auto" />
       </Link>
-      <div className="relative h-[52.1px] w-[207px]">
+      <div className="relative h-[49.23px] w-[196.26px]">
         {/* eslint-disable-next-line @next/next/no-img-element -- decorative mark */}
-        <img src="/brand/tagline-mark.svg" alt="" aria-hidden="true" className="absolute left-0 top-0 h-[11.06px] w-auto" />
-        <p className="absolute left-[9.59px] top-[8.1px] w-[197.4px] text-[22.07px] font-semibold uppercase leading-none text-white">
+        <img src="/brand/tagline-mark.svg" alt="" aria-hidden="true" className="absolute left-0 top-0 h-[10.49px] w-auto" />
+        <p className="absolute left-[9.09px] top-[7.68px] w-[187.2px] text-[20.93px] font-bold uppercase leading-none tracking-[-0.4186px] text-white">
           {t.rich("brandTagline", {
-            gold: (chunks) => <span className="text-[#d9b365]">{chunks}</span>,
+            gold: (chunks) => <span className="tracking-[-0.32px] text-[#d9b365]">{chunks}</span>,
           })}
         </p>
       </div>
@@ -138,12 +138,12 @@ export function Footer() {
   ];
 
   const productLinks = [
-    { label: "uPVC", href: "/products?category=upvc-pipes#range" },
-    { label: "CPVC", href: "/products?category=cpvc-pipes#range" },
-    { label: "SWR", href: "/products?category=swr-pipes#range" },
-    { label: "TANKS", href: "/products?category=tanks#range" },
-    { label: "AGRI", href: "/products?category=agricultural-pipes#range" },
-    { label: "UGD", href: "/products?category=ugd-pipes#range" },
+    { label: "uPVC", href: "/products/upvc-pipes#range" },
+    { label: "CPVC", href: "/products/cpvc-pipes#range" },
+    { label: "SWR", href: "/products/swr-pipes#range" },
+    { label: "TANKS", href: "/products/tanks#range" },
+    { label: "AGRI", href: "/products/agricultural-pipes#range" },
+    { label: "UGD", href: "/products/ugd-pipes#range" },
   ];
 
   // /resources is gone (client decision 2026-10-08). The Pipe Material
@@ -186,27 +186,27 @@ export function Footer() {
       {/* Desktop rhythm is Figma 1530:7156's: 68 to the top row, 41 under it
           to the rule, 61 to the body, 41 to the lower rule, 16 to the legal
           line, 30 under it (546 tall at 1512). */}
-      <div className="container-edge relative flex flex-col gap-12 py-16 md:py-20 lg:gap-0 lg:pb-[30px] lg:pt-[68px]">
+      <div className="container-edge relative flex flex-col gap-12 py-16 md:py-20 lg:gap-0 lg:pb-[30px] lg:pt-[70px]">
         {/* Newsletter — left-aligned on mobile (the mobile node centres
             nothing below the CTA), side-by-side row from lg up. */}
         {/* Top row. Desktop = Figma: brand lockup left (bracket 19px below
             the row top), newsletter right (347 wide: 14px label, 6px, field).
             Mobile keeps its own order: newsletter first, lockup lower down. */}
-        <div className="flex flex-col gap-[10px] lg:flex-row lg:items-start lg:justify-between lg:gap-16">
-          <div className="hidden pt-[19px] lg:block">
+        <div className="flex flex-col gap-[10px] lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+          <div className="hidden pt-[4px] lg:block">
             <BrandLockupDesktop />
           </div>
           <div className="flex flex-col gap-[10px] lg:w-[347px] lg:gap-[6px]">
-            <h3 className="text-[13px] font-normal uppercase text-white lg:text-[14px] lg:leading-[1.5]">
+            <h3 className="text-[13px] font-normal uppercase tracking-normal text-white lg:text-[14px] lg:leading-[1.5]">
               {t("newsletterTitle")}
             </h3>
             <NewsletterSignup />
           </div>
         </div>
 
-        <div className="-mx-2 border-t border-[#4a4a4a] sm:-mx-4 md:-mx-6 lg:mt-[41px] xl:-mx-11" />
+        <div className="-mx-2 border-t border-[#4a4a4a] sm:-mx-4 md:-mx-6 lg:mt-[40px] xl:-mx-11" />
 
-        <div className="flex flex-col gap-12 lg:mt-[61px] lg:flex-row lg:items-start lg:justify-between lg:gap-16 lg:text-left">
+        <div className="flex flex-col gap-12 lg:mt-[51px] lg:flex-row lg:items-start lg:justify-between lg:gap-16 lg:text-left">
           {/* Logo + registered address (social icons join here from lg up).
               `order-2` below `lg`: the mobile node puts the link groups first
               and the logo block under them. */}
@@ -218,7 +218,7 @@ export function Footer() {
               rather than away from it. It also gives the logo + tagline row
               below the width it needs to sit side by side. Below `lg` the cap
               is untouched, so mobile is unaffected. */}
-          <div className="order-2 flex max-w-xs flex-col gap-6 lg:order-1 lg:max-w-none lg:gap-0 lg:pt-[19px]">
+          <div className="order-2 flex max-w-xs flex-col gap-6 lg:order-1 lg:max-w-none lg:gap-0 lg:pl-[5px]">
             {/* Logo and tagline are ONE lockup, and Figma arranges it
                 differently per breakpoint rather than merely reflowing it:
                 STACKED 18px apart on mobile (nodes 1447:13517 / 1447:13561),
@@ -257,18 +257,18 @@ export function Footer() {
                 One paragraph that wraps: three lines in 232px on mobile, two
                 in ~340px on desktop. `#c0c0c0` below `lg` per the mobile node;
                 white from `lg`. */}
-            <p className="max-w-[232px] text-[13px] font-light leading-[1.25] tracking-[0.26px] text-[#c0c0c0] lg:max-w-[330px] lg:text-[14px] lg:leading-[1.5] lg:tracking-[0.28px]">
+            <p className="max-w-[232px] text-[13px] font-light leading-[1.25] tracking-[0.26px] text-[#c0c0c0] lg:max-w-[306px] lg:text-[16px] lg:leading-[1.5] lg:tracking-[0.32px]">
               {COMPANY.address.oneLine}
             </p>
             {/* Stacked on mobile, one line with a `|` from `lg` — the mobile
                 node has no separator and puts them on their own rows. */}
             {/* `py-2` below `lg`: a bigger tap target for the two contact
                 links (they were 13px-tall strips on phones). */}
-            <div className="flex flex-col text-[13px] font-normal tracking-[0.26px] text-white lg:mt-3 lg:gap-1 lg:leading-[1.2]">
+            <div className="flex flex-col text-[13px] font-normal tracking-[0.26px] text-white lg:mt-4 lg:gap-1 lg:text-[16px] lg:leading-[1.2] lg:tracking-[0.32px]">
               <a href={`mailto:${COMPANY.email}`} className={`relative self-start py-2 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-[1.3px] ${hoverLink}`}>
                 {COMPANY.email}
               </a>
-              <a href={COMPANY.phone.href} className={`relative self-start py-2 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-[1.4px] lg:text-[14px] lg:tracking-[0.28px] ${hoverLink}`}>
+              <a href={COMPANY.phone.href} className={`relative self-start py-2 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-[1.4px] ${hoverLink}`}>
                 {COMPANY.phone.display}
               </a>
             </div>
@@ -318,28 +318,12 @@ export function Footer() {
               </details>
             ))}
           </div>
-
-          {/* Nav link groups, DESKTOP — unchanged. Kept as its own markup
-              rather than reusing the `<details>` above, because forcing a
-              closed `<details>` open with CSS is not reliable across
-              browsers. */}
-          <div className="order-2 hidden gap-8 sm:gap-16 lg:mr-20 lg:flex lg:gap-20">
-            <div className="flex flex-col gap-4 lg:gap-[10px]">
-              <h4 className={navHeading}>{t("company")}</h4>
-              <ul className="flex flex-col gap-2 lg:gap-0">
-                {companyLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className={navLink}>
-                      {tNav(link.key as never)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="flex flex-col gap-4 lg:gap-[10px]">
+          {/* Figma 1979:32591: TWO columns 80px apart — PRODUCTS, then COMPANY
+              stacked over RESOURCES (20px between the groups). */}
+          <div className="order-2 hidden lg:-mr-[5px] lg:flex lg:gap-20 lg:pr-20">
+            <div className="flex w-[68px] flex-col gap-[10px]">
               <h4 className={navHeading}>{t("productsHeading")}</h4>
-              <ul className="flex flex-col gap-2 lg:gap-0">
+              <ul className="flex flex-col">
                 {productLinks.map((link) => (
                   <li key={link.href}>
                     <RangeLink href={link.href} className={productLink}>
@@ -350,17 +334,31 @@ export function Footer() {
               </ul>
             </div>
 
-            <div className="flex flex-col gap-4 lg:gap-[10px]">
-              <h4 className={navHeading}>{t("resourcesHeading")}</h4>
-              <ul className="flex flex-col gap-2 lg:gap-0">
-                {resourceLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className={navLink}>
-                      {tNav(link.key as never)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            <div className="flex w-[109px] flex-col gap-5">
+              <div className="flex flex-col gap-[10px]">
+                <h4 className={navHeading}>{t("company")}</h4>
+                <ul className="flex flex-col">
+                  {companyLinks.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className={navLink}>
+                        {tNav(link.key as never)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex flex-col gap-[10px]">
+                <h4 className={navHeading}>{t("resourcesHeading")}</h4>
+                <ul className="flex flex-col">
+                  {resourceLinks.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className={navLink}>
+                        {tNav(link.key as never)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -376,7 +374,7 @@ export function Footer() {
             own gap-[16px] here specifically, rather than the sitewide
             rhythm, so it's grouped with the legal row instead of being a
             standalone flex sibling. */}
-        <div className="flex flex-col gap-4 lg:mt-[41px]">
+        <div className="flex flex-col gap-4 lg:mt-[51px]">
           <div className="-mx-2 border-t border-[#4a4a4a] sm:-mx-4 md:-mx-6 xl:-mx-11" />
 
           {/* Legal row */}
@@ -386,7 +384,7 @@ export function Footer() {
               on a phone). From `sm` it is the existing 12px row. */}
           {/* Stacked below `sm`: beside the copyright the two links had
               ~70px and broke into "Privacy / Policy", "Terms of / Service". */}
-          <div className="flex flex-col gap-3 text-[12px] font-light sm:flex-row sm:items-center sm:justify-between sm:gap-4 lg:leading-none">
+          <div className="flex flex-col gap-3 type-small font-light sm:flex-row sm:items-center sm:justify-between sm:gap-4 lg:leading-none">
             <p className="leading-[1.35] lg:leading-none">
               © {new Date().getFullYear()} {COMPANY.legalName} {t("rightsReserved")}
             </p>

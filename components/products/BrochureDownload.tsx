@@ -27,7 +27,7 @@ This is a sample document generated for demonstration purposes.
 
 export function BrochureDownload() {
   return (
-    <section className="container-edge py-24 md:py-28">
+    <section className="container-figma py-24 md:py-28">
       <RevealOnScroll>
         <div className="flex flex-col items-center gap-6 rounded-3xl border border-slate-200/70 bg-white p-10 text-center md:flex-row md:justify-between md:text-left">
           <div className="flex items-center gap-5">

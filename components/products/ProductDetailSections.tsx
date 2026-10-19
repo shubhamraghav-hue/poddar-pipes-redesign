@@ -56,14 +56,14 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
             2026-10-16): this, "Why" below and the closing CTASection all run
             28 / 36 (sm) / 48px (md+) — CTASection's ramp, since it is shared
             site-wide. Figma set this one at 60px. */}
-        <h2 className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] text-white sm:text-4xl md:text-[48px]">
+        <h2 className="font-display type-heading uppercase text-white">
           <span className="block font-light">{detail.lead ?? "What is"}</span>
           {/* `normal-case`: the range name keeps its own case — "uPVC", as
               the mocks set it, not "UPVC". */}
           <span className="block font-bold normal-case">{detail.name}</span>
         </h2>
         <p
-          className="mt-5 text-[18px] leading-[1.3] text-white md:text-[24px] md:leading-[1.2]"
+          className="mt-5 type-body text-white"
           style={{ maxWidth: detail.bodyW ?? 551 }}
         >
           {detail.body}
@@ -161,7 +161,7 @@ function Why({ name, cards }: { name: string; cards: WhyCard[] }) {
   return (
     <section className="bg-[#f5f5f5] py-20 md:py-[120px] lg:py-[150px]">
       <div className="container-figma">
-        <h2 className="font-display text-[28px] uppercase leading-[1.08] tracking-[0.32px] text-[#606060] sm:text-4xl md:text-[48px]">
+        <h2 className="font-display type-heading uppercase text-[#606060]">
           <span className="block font-light">Why</span>
           <span className="block font-bold normal-case">{name}</span>
         </h2>
@@ -217,14 +217,11 @@ function Why({ name, cards }: { name: string; cards: WhyCard[] }) {
               aria-hidden="true"
               className="absolute inset-x-0 bottom-0 h-[41.67%] bg-gradient-to-b from-[rgba(0,0,0,0)] to-[rgba(0,0,0,0.75)]"
             />
-            {/* ONE LINE, as the uPVC/UGD frames set it: 21px Medium (5.25cqw
-                of the 400px card) at x30 (7.5%), baseline box 28px off the
-                bottom (7cqw). The longest title across all ranges, CPVC's
-                "Self-Extinguishing and Fire Retardant", measures 15.16x its
-                size = 318px at 21px, inside the 340px between the insets. In
-                cqw so the narrower phone cards keep the same fit; a longer
-                future title would need this size revisited. */}
-            <h3 className="absolute bottom-[7cqw] left-[7.5%] right-[7.5%] whitespace-nowrap text-[5.25cqw] font-medium leading-[1.2] text-white [text-shadow:0_0_32px_rgba(0,0,0,0.35)]">
+            {/* ONE LINE, as the product frames (1979:32767 and siblings) set it:
+                20px SemiBold caps (5cqw of the 400px card) at x30 (7.5%),
+                centred 41px off the bottom (box bottom 7cqw). In cqw so the
+                narrower phone cards keep the same one-line fit. */}
+            <h3 className="absolute bottom-[7cqw] left-[7.5%] right-[7.5%] whitespace-nowrap text-[5cqw] font-semibold uppercase leading-[1.2] text-white [text-shadow:0_0_32px_rgba(0,0,0,0.35)]">
               {card.title}
             </h3>
           </article>

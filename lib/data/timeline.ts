@@ -19,7 +19,7 @@ export const timeline: TimelineEvent[] = [
   {
     year: "2012",
     title: "Underground drainage (UGD) division opens",
-    description: "A dedicated foam-core UGD line begins producing Pushfit and Solfit pipe for underground sewage and storm water networks.",
+    description: "A dedicated foam-core UGD line begins producing Pushfit and Solfit pipe for underground sewage and storm-water networks.",
   },
   {
     year: "2018",

@@ -20,6 +20,9 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/tools/calculator",
+    // SEO-004 (2026-10-19): not linked from the site and content not yet
+    // confirmed, so kept out of search and the sitemap. Works for visitors.
+    noindex: true,
     title: "Pipe Material Estimator — Estimate Your Piping Needs",
     description: "Choose your project type — home plumbing, drainage, underground lines or irrigation — and get an instant indicative material estimate based on Poddar Pipes products.",
   });
@@ -102,8 +105,8 @@ export default async function CalculatorPage({
 
           <RevealOnScroll delay={0.08}>
             <p className="mt-[13px] max-w-[307px] text-[13px] leading-[1.2] text-white sm:mt-7 sm:max-w-[486px] sm:text-base">
-              Choose your project type, home plumbing, drainage, underground lines or
-              irrigation, and get an instant material estimate based on real Poddar
+              Choose your project type — home plumbing, drainage, underground lines or
+              irrigation — and get an instant material estimate based on real Poddar
               Pipes products.
             </p>
           </RevealOnScroll>

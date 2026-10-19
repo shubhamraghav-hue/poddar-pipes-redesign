@@ -17,7 +17,7 @@ export async function QualityCertifications() {
         className="bg-flow-500/10 pointer-events-none absolute top-1/4 -right-40 h-96 w-96 rounded-full blur-3xl"
         aria-hidden="true"
       />
-      <div className="container-edge relative">
+      <div className="container-figma relative">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
             eyebrow={t("qualityEyebrow")}

@@ -6,7 +6,7 @@ export function LegalIntro({ paragraphs }: { paragraphs: string[] }) {
   return (
     <div className="flex flex-col gap-4">
       {paragraphs.map((p) => (
-        <p key={p} className="text-[15px] leading-[1.7] text-slate-900/80 sm:text-base">
+        <p key={p} className="type-body leading-[1.7] text-slate-900/80">
           {p}
         </p>
       ))}
@@ -22,7 +22,7 @@ function LegalH2({ children }: { children: ReactNode }) {
   // with text-box-trim lets `items-center` centre the bar against the
   // text's actual cap-height instead.
   return (
-    <h2 className="mt-12 flex items-center gap-3 text-xl font-medium text-ocean-600 sm:text-2xl">
+    <h2 className="mt-12 flex items-center gap-3 type-sub font-medium text-ocean-600">
       {/* Straight-bar version — commented out, not deleted, so it's easy to
           swap back if the pipe-pill experiment below doesn't stick. */}
       {/* <span className="h-[3px] w-6 shrink-0 rounded-full bg-amber-600" aria-hidden="true" /> */}
@@ -39,7 +39,7 @@ function LegalH2({ children }: { children: ReactNode }) {
 }
 
 function LegalP({ children }: { children: ReactNode }) {
-  return <p className="mt-4 text-[15px] leading-[1.7] text-slate-900/80 sm:text-base">{children}</p>;
+  return <p className="mt-4 type-body leading-[1.7] text-slate-900/80">{children}</p>;
 }
 
 function LegalUL({ items }: { items: string[] }) {
@@ -49,7 +49,7 @@ function LegalUL({ items }: { items: string[] }) {
   // A manually-placed dot sidesteps that: it's centered against the text's
   // own em-box regardless of line-height.
   return (
-    <ul className="mt-4 flex flex-col gap-2 text-[15px] leading-[1.7] text-slate-900/80 sm:text-base">
+    <ul className="mt-4 flex flex-col gap-2 type-body leading-[1.7] text-slate-900/80">
       {items.map((item) => (
         // items-start + a fixed top offset on the dot — not items-center.
         // Centering against the whole flex item works for a single line,
@@ -72,7 +72,7 @@ function LegalUL({ items }: { items: string[] }) {
 /** The one piece of real contact data both legal pages point to. */
 export function LegalContactBlock() {
   return (
-    <address className="mt-4 not-italic text-[15px] leading-[1.7] text-slate-900/80 sm:text-base">
+    <address className="mt-4 not-italic type-body leading-[1.7] text-slate-900/80">
       {COMPANY.legalName}
       <br />
       {COMPANY.address.oneLine}

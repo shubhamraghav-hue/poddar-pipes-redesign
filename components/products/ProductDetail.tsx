@@ -2,7 +2,6 @@
 
 import { CheckCircle2, Download, Ruler, HelpCircle, Pipette, Flame, Network, Waves, Cylinder, Sprout, LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
@@ -44,7 +43,7 @@ export function ProductDetail({ product }: { product: Product }) {
   return (
     <>
       <section className="bg-ink pb-16 pt-8 text-white md:pb-20">
-        <div className="container-edge">
+        <div className="container-figma">
           <RevealOnScroll>
             <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ocean-600/20 text-ocean-300">
@@ -92,16 +91,14 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
       </section>
 
-      <section className="container-edge py-16 md:py-20">
+      <section className="container-figma py-16 md:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
           <div>
             <Tabs defaultValue="overview">
-              {/* An even 2×2 on phones — free-wrapping left "FAQs" alone on a
-                  second row. 40px-tall triggers for touch. */}
-              <TabsList className="grid w-full grid-cols-2 rounded-[24px] sm:inline-flex sm:w-auto sm:rounded-full">
+              {/* One even row of three on phones. 40px-tall triggers for touch. */}
+              <TabsList className="grid w-full grid-cols-3 rounded-[24px] sm:inline-flex sm:w-auto sm:rounded-full">
                 <TabsTrigger value="overview" className="min-h-10">{t("tabOverview")}</TabsTrigger>
                 <TabsTrigger value="specs" className="min-h-10">{t("tabSpecs")}</TabsTrigger>
-                <TabsTrigger value="installation" className="min-h-10">{t("tabInstallation")}</TabsTrigger>
                 <TabsTrigger value="faqs" className="min-h-10">{t("tabFaqs")}</TabsTrigger>
               </TabsList>
 
@@ -198,29 +195,6 @@ export function ProductDetail({ product }: { product: Product }) {
                 </div>
               </TabsContent>
 
-              <TabsContent value="installation">
-                <ol className="flex flex-col gap-4">
-                  {product.installationGuide.map((step, i) => (
-                    <li key={i} className="flex gap-4">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ocean-600/10 font-mono text-xs font-medium text-ocean-700">
-                        {i + 1}
-                      </span>
-                      <p className="text-sm leading-relaxed text-slate-700">{step}</p>
-                    </li>
-                  ))}
-                </ol>
-                {/* The guide used to be reachable only from /resources, which
-                    was removed — this is now its way in. */}
-                <Link
-                  href="/resources/installation"
-                  className="mt-6 inline-flex items-center gap-1.5 py-3 text-sm font-medium text-ocean-700 hover:text-ocean-800"
-                >
-                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
-                    Full solvent-weld installation guide
-                  </span>
-                  <span aria-hidden="true">→</span>
-                </Link>
-              </TabsContent>
 
               <TabsContent value="faqs">
                 <Accordion type="single" collapsible>

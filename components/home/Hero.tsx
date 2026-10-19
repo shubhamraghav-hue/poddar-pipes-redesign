@@ -494,10 +494,13 @@ export function Hero() {
                 <Counter
                   value={stat.value}
                   suffix={stat.suffix}
-                  className="text-[22.74cqw] font-display font-semibold leading-none tracking-[-0.227cqw] text-white"
+                  className="text-[length:max(36px,22.74cqw)] font-display font-semibold leading-none tracking-[-0.227cqw] text-white"
                 />
               </div>
-              <p className="absolute top-[55cqw] left-[13.85cqw] max-w-[56.5cqw] pt-[5cqw] text-[5.68cqw] leading-[1.1] text-[#c0c0c0]">
+              {/* Floors (approved 2026-10-19): Figma 2015:6416 / 2015:5485 set the
+                  phone label at 10px and the number at 36px. Phone cards are
+                  narrower than Figma's 165px, so pure cqw fell to 8.4 / 33. */}
+              <p className="absolute top-[55cqw] left-[13.85cqw] max-w-[56.5cqw] pt-[5cqw] text-[length:max(10px,5.68cqw)] leading-[1.1] text-[#c0c0c0]">
                 {t(stat.labelKey)}
               </p>
             </RevealOnScroll>

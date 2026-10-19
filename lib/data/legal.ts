@@ -16,7 +16,7 @@ export const privacyPolicySections: LegalSection[] = [
   {
     heading: "1. Automatic Collection of Information",
     body: [
-      `When you open the Website, our servers automatically record information that your browser sends. This data may include information such as your device's IP address, browser type, and version, operating system type and version, language preferences or the webpage you were visiting before you came to the Website and Services, pages of the Website and Services that you visit, the time spent on those pages, information you search for on the Website, access times and dates, and other statistics.`,
+      `When you open the Website, our servers automatically record information that your browser sends. This data may include information such as your device's IP address, browser type and version, operating system type and version, language preferences or the webpage you were visiting before you came to the Website and Services, pages of the Website and Services that you visit, the time spent on those pages, information you search for on the Website, access times and dates, and other statistics.`,
       `Information collected automatically is used only to identify potential cases of abuse and establish statistical information regarding the usage and traffic of the Website and Services. This statistical information is not otherwise aggregated in such a way that would identify any particular User of the system.`,
     ],
   },
@@ -25,7 +25,7 @@ export const privacyPolicySections: LegalSection[] = [
     body: [
       `You can access and use the Website and Services without telling us who you are or revealing any information by which someone could identify you as a specific, identifiable individual.`,
       `If, however, you wish to use some of the features offered on the Website, you may be asked to provide certain Personal Information (for example, your name and email address).`,
-      `We receive and store any information you knowingly provide to us when you fill any forms on the Website. When required, this information may include the following:`,
+      `We receive and store any information you knowingly provide to us when you fill in any forms on the Website. When required, this information may include the following:`,
       {
         list: [
           "Account details (such as user name, unique user ID, password, etc.)",
@@ -44,7 +44,7 @@ export const privacyPolicySections: LegalSection[] = [
   {
     heading: "3. Use and Processing of Collected Information",
     body: [
-      `We act as a data controller and a data processor when handling Personal Information, unless we have entered into a data processing agreement with you in which case you would be the data controller and we would be the data processor.`,
+      `We act as a data controller and a data processor when handling Personal Information, unless we have entered into a data processing agreement with you, in which case you would be the data controller and we would be the data processor.`,
       `Our role may also differ depending on the specific situation involving Personal Information.`,
       `We act in the capacity of a data controller when we ask you to submit your Personal Information that is necessary to ensure your access and use of the Website and Services. In such instances, we are a data controller because we determine the purposes and means of the processing of Personal Information.`,
       `We act in the capacity of a data processor in situations when you submit Personal Information through the Website and Services. We do not own, control, or make decisions about the submitted Personal Information, and such Personal Information is processed only in accordance with your instructions. In such instances, the User providing Personal Information acts as a data controller.`,
@@ -72,7 +72,7 @@ export const privacyPolicySections: LegalSection[] = [
           "Processing is necessary for the purposes of the legitimate interests pursued by us or by a third party.",
         ],
       },
-      `Note that under some legislations we may be allowed to process information until you object to such processing by opting out, without having to rely on consent or any other of the legal bases.`,
+      `Note that under some legislation we may be allowed to process information until you object to such processing by opting out, without having to rely on consent or any other of the legal bases.`,
       `In any case, we will be happy to clarify the specific legal basis that applies to the processing, and in particular whether the provision of Personal Information is a statutory or contractual requirement, or a requirement necessary to enter into a contract.`,
     ],
   },
@@ -85,7 +85,7 @@ export const privacyPolicySections: LegalSection[] = [
   {
     heading: "5. Retention of Information",
     body: [
-      `We will retain and use your Personal Information for the period necessary to comply with our legal obligations, to enforce our Policy, resolve disputes, and unless a longer retention period is required or permitted by law.`,
+      `We will retain and use your Personal Information for the period necessary to comply with our legal obligations, to enforce our Policy and resolve disputes, unless a longer retention period is required or permitted by law.`,
       `We may use any aggregated data derived from or incorporating your Personal Information after you update or delete it, but not in a manner that would identify you personally.`,
       `Once the retention period expires, Personal Information shall be deleted.`,
       `Therefore, the right to access, the right to erasure, the right to rectification, and the right to data portability cannot be enforced after the expiration of the retention period.`,
@@ -148,7 +148,7 @@ export const privacyPolicySections: LegalSection[] = [
     heading: "11. Changes and Amendments",
     body: [
       `We reserve the right to modify this Policy or its terms related to the Website and Services at any time at our discretion.`,
-      `When we do, we will revise the updated date at the bottom of this page, post a notification on the main page of the Website.`,
+      `When we do, we will revise the updated date at the bottom of this page and post a notification on the main page of the Website.`,
       `We may also provide notice to you in other ways at our discretion, such as through the contact information you have provided.`,
       `An updated version of this Policy will be effective immediately upon the posting of the revised Policy unless otherwise specified.`,
       `Your continued use of the Website and Services after the effective date of the revised Policy (or such other act specified at that time) will constitute your consent to those changes.`,
@@ -167,7 +167,7 @@ export const privacyPolicySections: LegalSection[] = [
     heading: "13. Contacting Us",
     body: [
       `If you have any questions, concerns, or complaints regarding this Policy, the information we hold about you, or if you wish to exercise your rights, we encourage you to contact us using the details below:`,
-      `We will attempt to resolve complaints and disputes and make every reasonable effort to honor your wish to exercise your rights as quickly as possible and in any event, within the timescales provided by applicable data protection laws.`,
+      `We will attempt to resolve complaints and disputes and make every reasonable effort to honour your wish to exercise your rights as quickly as possible and, in any event, within the timescales provided by applicable data protection laws.`,
       `If you believe your concerns have not been adequately addressed, you may escalate the matter to the appropriate data protection authority in your region, in accordance with applicable privacy laws.`,
     ],
   },

@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Handshake } from "lucide-react";
 import Image, { getImageProps } from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { products } from "@/lib/data/products";
 import { showcaseCategories, type ShowcaseCategory } from "@/lib/data/productShowcase";
 import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { CAP_TRIM } from "@/components/shared/capTrim";
 import { cn } from "@/lib/utils";
 import { scrollToElement } from "@/hooks/useLenis";
-import { PRODUCT_FOCUS_EVENT, PRODUCT_FOCUS_HASH } from "@/lib/productFocus";
+import { PRODUCT_FOCUS_EVENT, PRODUCT_FOCUS_HASH, productRangeHref, requestProductFocus } from "@/lib/productFocus";
 import { productDetails } from "@/lib/data/productDetails";
 import { ProductDetailSections } from "@/components/products/ProductDetailSections";
 
@@ -30,9 +31,9 @@ import { ProductDetailSections } from "@/components/products/ProductDetailSectio
  * Then, for a range that has them (lib/data/productDetails.ts — only CPVC so
  * far), the "What is" / "Why" sections follow the selected range.
  *
- * One card per category, not a product grid. The card does not link anywhere
- * for now: the category detail pages are switched off (see the redirects in
- * next.config.ts). Search (the mock's box, no extra results UI) selects the
+ * One card per category, not a product grid. Each category has its own URL,
+ * /products/<id> (SEO-003): the pills are links to it and the URL follows the
+ * selection; /products?category=<id> 308s there. Search (the mock's box, no extra results UI) selects the
  * category that best matches what is typed.
  */
 
@@ -77,7 +78,6 @@ export function ProductShowcase({
 }) {
   const t = useTranslations("products");
   const router = useRouter();
-  const pathname = usePathname();
 
   const fallback = showcaseCategories[0].id;
   const valid = (id?: string) => showcaseCategories.some((c) => c.id === id);
@@ -145,18 +145,20 @@ export function ProductShowcase({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Each range has its own URL, /products/<id> (SEO-003); `?q=` rides along
+  // while searching. Client navigation with `scroll: false`, so switching
+  // feels as instant as the old in-page state change.
   function syncUrl(category: CategoryId, q: string, mode: "push" | "replace") {
-    const params = new URLSearchParams();
-    params.set("category", category);
-    if (q.trim()) params.set("q", q.trim());
-    router[mode](`${pathname}?${params.toString()}`, { scroll: false });
+    const path = `/products/${category}`;
+    router[mode](q.trim() ? `${path}?q=${encodeURIComponent(q.trim())}` : path, { scroll: false });
   }
 
+  // The pills are real links (crawlable, open-in-new-tab); this only updates
+  // the card immediately while the link navigates.
   function selectCategory(id: CategoryId) {
     setActive(id);
     setQuery("");
     setNoMatch(false);
-    syncUrl(id, "", "push");
   }
 
   function onQuery(next: string) {
@@ -181,6 +183,9 @@ export function ProductShowcase({
           spacing (180 top/bottom) is held only from `lg`; tablets get a
           stepped-down scale, not desktop-sized gaps. */}
       <div className="container-figma">
+        {/* The page's H1: the selected range's name (SEO-003). Screen-reader
+            only — the visible name is the range card's wordmark image. */}
+        <h1 className="sr-only">{cat.h1}</h1>
         {/* Pills left, search right from `lg`; stacked below it. */}
         {/* `rangeRef` + `scroll-mt-24`: where menu links land (pills just
             under the 80px navbar). */}
@@ -196,20 +201,27 @@ export function ProductShowcase({
             {showcaseCategories.map((c) => {
               const on = c.id === active;
               return (
-                <button
+                // `#range` + the focus event: switching ranges lands the pills
+                // under the navbar, the same as arriving from the menu
+                // (client, 2026-10-19).
+                <Link
                   key={c.id}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => selectCategory(c.id)}
+                  href={productRangeHref(c.id)}
+                  scroll={false}
+                  aria-current={on ? "page" : undefined}
+                  onClick={() => {
+                    selectCategory(c.id);
+                    requestProductFocus();
+                  }}
                   className={cn(
-                    "flex h-[46px] touch-manipulation select-none items-center justify-center rounded-full px-3 text-[18px] font-semibold tracking-[0.36px] sm:px-6 transition-[background-color,color,box-shadow,scale] duration-200 ease-out active:scale-[0.97]",
+                    "flex h-[46px] touch-manipulation select-none items-center justify-center rounded-full px-3 type-button font-semibold sm:px-6 transition-[background-color,color,box-shadow,scale] duration-200 ease-out active:scale-[0.97]",
                     on
                       ? "bg-[#171796] text-white shadow-[inset_0_0_0_1.2px_#171796]"
                       : "text-[#171796] shadow-[inset_0_0_0_1.2px_#171796] hover:bg-[#171796]/[0.06]"
                   )}
                 >
                   <span className={CAP_TRIM}>{c.label}</span>
-                </button>
+                </Link>
               );
             })}
           </div>
@@ -331,13 +343,8 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
             className="absolute inset-x-0 top-0 h-[55%] lg:hidden"
             style={{ background: "linear-gradient(to bottom, rgba(9,14,66,0.82) 0%, rgba(9,14,66,0.45) 45%, rgba(9,14,66,0) 100%)" }}
           />
-          {/* Desktop: Figma "Rectangle 26" — navy in from the left, deepened
-              a little for the brighter spotlight in these shots. */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-y-0 left-0 hidden w-[55%] lg:block"
-            style={{ background: "linear-gradient(to right, rgba(9,14,66,0.7) 0%, rgba(9,14,66,0.35) 55%, rgba(9,14,66,0) 100%)" }}
-          />
+          {/* Desktop: no overlay. The Figma "full card" export (1979:32767
+              and siblings) already carries its navy wash. */}
 
           {/* Wordmark at Figma's x60 (x64 for AGRI/TANK), y60; tagline 16
               under it, 24px `#d9d9d9`, 254 wide.
@@ -367,7 +374,7 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
             />
             {/* Tablet (640–1023): a narrow 240px column — the tanks rise into the
                 top-right of the 4:3 crop and a wider tagline ran over them. */}
-            <p className="mt-3 text-[19px] leading-[1.15] text-[#d9d9d9] sm:max-w-[240px] md:mt-4 md:text-[22px] md:leading-[1.1] lg:mt-[1.32cqw] lg:max-w-[20.96cqw] lg:text-[length:1.98cqw]">
+            <p className="mt-3 type-sub font-semibold uppercase text-[#a4a4a4] sm:max-w-[240px] md:mt-4 lg:mt-[1.57cqw] lg:max-w-[20.96cqw] lg:text-[length:1.65cqw]">
               {cat.tagline}
             </p>
           </div>
@@ -410,21 +417,21 @@ function QuoteBanner({ cat }: { cat: ShowcaseCategory }) {
           <img src="/products/icons/chatbox-lines.svg" alt="" width={19.5} height={10.5} className="absolute left-[35.94%] top-[41.09%] h-[13.125%] w-[24.375%] -scale-y-100" />
         </span>
         <div>
-          <h2 className="text-[17px] font-medium leading-tight text-[#606060] sm:text-[19px] md:text-[24px] md:leading-none">
+          <h2 className="type-sub font-semibold uppercase text-[#606060]">
             {t("partnerHeading", { name: `Poddar ${cat.label}` })}
           </h2>
-          <p className="mt-1.5 text-[14px] leading-[1.3] text-[#606060] md:mt-2 md:text-[16px] md:leading-[1.2]">
+          <p className="mt-1.5 type-body text-[#606060] md:mt-2">
             {t("partnerDesc")}
           </p>
         </div>
       </div>
       <PartnerLink
         preset={{ message: `Interested in stocking Poddar ${cat.label}.` }}
-        className="group flex h-12 shrink-0 touch-manipulation select-none items-center justify-center gap-[10px] whitespace-nowrap rounded-full bg-[#171796] px-4 text-[16px] font-semibold uppercase tracking-[0.36px] text-white transition-[background-color,scale] duration-200 ease-out hover:bg-[#0b0b52] active:scale-[0.98] sm:self-start sm:px-6 sm:text-[18px] lg:self-auto"
+        className="group flex h-12 shrink-0 touch-manipulation select-none items-center justify-center gap-[5px] whitespace-nowrap rounded-full bg-[#171796] px-[21px] text-[17px] font-medium text-[#fbfbfb] transition-[background-color,scale] duration-200 ease-out hover:bg-[#0b0b52] active:scale-[0.98] sm:self-start lg:self-auto"
       >
+        {/* Figma "header button 4": 25px handshake, 16.95px Medium label, not caps. */}
+        <Handshake aria-hidden="true" strokeWidth={1.5} className="size-[25px] shrink-0 transition-transform duration-200 ease-out group-hover:-rotate-12" />
         <span className={CAP_TRIM}>{t("becomePartner")}</span>
-        {/* eslint-disable-next-line @next/next/no-img-element -- exported SVG icon */}
-        <img src="/products/icons/arrow.svg" alt="" width={16} height={16} className="shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
       </PartnerLink>
     </div>
   );

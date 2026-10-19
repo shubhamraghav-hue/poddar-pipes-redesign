@@ -85,7 +85,7 @@ export function NotFoundView({
       />
 
       {showBrand && (
-        <header className="container-edge relative z-10 pt-6">
+        <header className="container-figma relative z-10 pt-6">
           {/* Plain anchor: only shown by the global 404, which sits outside
               the app's layouts — a full page load is intended. */}
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
@@ -104,7 +104,7 @@ export function NotFoundView({
           404 has no navbar, only the in-flow brand header, so py-10 is enough. */}
       <div
         className={cn(
-          "container-edge relative z-10 flex flex-1 items-center justify-center",
+          "container-figma relative z-10 flex flex-1 items-center justify-center",
           showBrand ? "py-10" : "pt-32 pb-16"
         )}
       >

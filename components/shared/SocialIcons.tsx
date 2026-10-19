@@ -70,11 +70,10 @@ const LINKS: { name: string; href: string; icon: IconName; size: number; ring: n
 
 /**
  * Desktop footer row, EXACTLY Figma node 1530:7177: the five icons are the
- * mock's own white SVGs (public/brand/social, exported from the node), 30px
- * boxes on a 46px pitch (16px gaps), no rings, starting 10px LEFT of the
- * address column (Facebook at x110 vs the text at x120 — the icon's own
- * padding brings its ink into line). Instagram sits in Figma's 28.78x29.2
- * frame with 4px padding around its 19x20 glyph.
+ * mock's own white SVGs (public/brand/social), 30px boxes, 13px gaps (Figma
+ * footer 1979:32591), starting 10px LEFT of the address text (the icons' own
+ * padding brings their ink into line). Instagram is Figma's 30px component
+ * (its 48-unit artwork), same box as the others.
  */
 function SocialIconsFigma() {
   const order: { name: string; file: string; href: string }[] = [
@@ -85,7 +84,7 @@ function SocialIconsFigma() {
     { name: "Instagram", file: "instagram", href: LINKS.find((l) => l.icon === "instagram")!.href },
   ];
   return (
-    <div className="-ml-[10px] flex items-center gap-4">
+    <div className="-ml-[10px] flex items-center gap-[13px]">
       {order.map((l) => (
         <a
           key={l.name}
@@ -93,19 +92,15 @@ function SocialIconsFigma() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={l.name}
-          className={
-            l.file === "instagram"
-              ? "flex h-[29.2px] w-[28.784px] items-center p-1 transition-opacity hover:opacity-80"
-              : "block size-[30px] transition-opacity hover:opacity-80"
-          }
+          className="block size-[30px] transition-opacity hover:opacity-80"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- Figma SVG asset at its own size */}
           <img
             src={`/brand/social/${l.file}.svg`}
             alt=""
-            width={l.file === "instagram" ? 19 : 30}
-            height={l.file === "instagram" ? 20 : 30}
-            className="block"
+            width={30}
+            height={30}
+            className="block size-[30px]"
           />
         </a>
       ))}

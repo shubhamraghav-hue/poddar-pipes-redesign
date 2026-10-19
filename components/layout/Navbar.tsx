@@ -99,7 +99,8 @@ export function Navbar() {
       }}
       // Figma's header (node 13:528) is a static solid-white bar on every
       // page — no transparent-over-hero state that turns solid on scroll.
-      className="fixed inset-x-0 top-0 z-50 bg-paper/95 shadow-sm backdrop-blur-lg"
+      // Figma "header products hover" (1979:33062): #fbfbfb, 0 4 8 12% shadow.
+      className="fixed inset-x-0 top-0 z-50 bg-[#fbfbfb] shadow-[0_4px_8px_0_rgba(0,0,0,0.12)]"
     >
       <nav className="container-edge flex h-20 items-center justify-between">
         <Link href="/" aria-label="Poddar Pipes — home" className="flex shrink-0 items-center gap-2.5 py-1">
@@ -110,22 +111,27 @@ export function Navbar() {
           <img src="/logo.svg" alt="Poddar Pipes" className="h-9 w-auto" />
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        {/* Figma 1979:32592: labels 35px apart with no padding, HOME at x411
+            (168px after the logo) at 1512. */}
+        <div className="hidden items-center gap-1 lg:flex xl:ml-[168px] xl:mr-auto xl:gap-[35px]">
           {navItems.map((item) => {
             // A label-only item (no href) is "active" when the current page
             // is one of its dropdown links.
+            // A range URL (/products/<id>) keeps "Products" selected.
             const active = item.href
-              ? pathname === item.href
-              : !!item.megaMenu?.some((c) => c.links.some((l) => l.href === pathname));
+              ? pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"))
+              : !!item.megaMenu?.some((c) => c.links.some((l) => l.href.split("#")[0] === pathname));
             const triggerClass = cn(
               // `h-11`: 44px targets — iPads in landscape get this desktop bar
               // with touch, and the links were 29px tall.
               // `whitespace-nowrap` + tighter padding below `xl`: at 1024 the
               // two-word labels ("About Us", "News & Media") wrapped onto two
               // lines.
-              "flex h-11 items-center gap-1 whitespace-nowrap rounded-full px-2.5 font-display text-sm font-medium uppercase tracking-tight transition-colors xl:px-4",
-              "text-slate-700 hover:text-ocean-700",
-              active && "font-semibold text-ocean-700"
+              // Figma 1979:33062: 16px Medium #4a4a4a; the CURRENT page's item
+              // Bold #171796 (client: "keep the selected items bold"). px-1.5 below
+              // xl: at 16px the row otherwise ran into the language button at 1024.
+              "flex h-11 items-center gap-0.5 whitespace-nowrap rounded-full px-1.5 font-display text-[16px] uppercase transition-colors xl:px-0",
+              active ? "font-bold text-[#171796]" : "font-medium text-[#4a4a4a] hover:text-[#171796]"
             );
             const triggerContent = (
               <>
@@ -135,7 +141,7 @@ export function Navbar() {
                 {item.megaMenu && (
                   <ChevronDown
                     className={cn(
-                      "h-3.5 w-3.5 transition-transform",
+                      "size-[15px] transition-transform",
                       activeMenu === item.key && "rotate-180"
                     )}
                   />
@@ -188,23 +194,30 @@ export function Navbar() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute inset-x-0 top-full border-t border-slate-200/60 bg-paper shadow-lg"
+                      // Figma 1979:33062: a white panel under the bar; three
+                      // columns across a centred 1012px block (x250-1262 at
+                      // 1512), spread edge to edge — titles at y114, links
+                      // from y158 on a 32px pitch (16px apart), 44px of panel below them.
+                      className="absolute inset-x-0 top-full bg-white shadow-[0_8px_16px_-8px_rgba(0,0,0,0.12)]"
                     >
-                      <div className="container-edge grid grid-cols-3 gap-8 py-8">
+                      {/* The bar's own 0 4 8 shadow falling onto the panel, as
+                          in the mock (the panel would otherwise paint over it). */}
+                      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-3 bg-gradient-to-b from-black/[0.08] to-transparent" />
+                      <div className="mx-auto flex w-full max-w-[1060px] justify-between px-6 pb-[44px] pt-[34px]">
                         {item.megaMenu.map((col) => (
                           <div key={col.heading}>
                             {/* A label, not a heading: an h4 here came before the page's h1. */}
-                            <p className="font-mono text-xs uppercase tracking-[0.15em] text-slate-500">
+                            <p className="font-display text-[16px] uppercase leading-[1.2] text-[#a4a4a4]">
                               {t(col.heading as never)}
                             </p>
-                            <ul className="mt-4 flex flex-col gap-2.5">
+                            <ul className="mt-[25px] flex flex-col gap-4">
                               {col.links.map((link) => (
                                 <li key={link.label}>
                                   <Link
                                     href={link.href}
                                     {...rangeLinkProps(link.href, () => setActiveMenu(null))}
                                     className={cn(
-                                      "text-sm uppercase text-slate-700 transition-colors hover:text-ocean-700",
+                                      "block font-display text-[16px] font-medium uppercase leading-none text-[#4a4a4a] transition-colors hover:text-[#171796]",
                                       keepCase(link.label) && "normal-case"
                                     )}
                                   >
@@ -224,21 +237,19 @@ export function Navbar() {
           })}
         </div>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-[10px] lg:flex">
           <LanguageSwitcher dark={false} />
-          {/* "Become a Partner" (was "Request a Quote", client 2026-10-09):
-              brand orange with navy text so it is the one warm accent in the
-              white bar, and a handshake that nudges on hover. Opens the
-              dealers & distributors form. */}
+          {/* "Become a Partner" — Figma 1979:32592 "header button 4": #171796
+              pill, 164 wide, 21px handshake, 14px Medium #fbfbfb in sentence
+              case. Opens the dealers & distributors form. */}
           <Button
             asChild
-            variant="accent-ink"
             size="sm"
-            className="group gap-2 px-5 text-[#0b0b52] shadow-[0_6px_18px_-8px_rgba(242,128,0,0.8)] hover:text-[#0b0b52]"
+            className="group h-10 w-[164px] gap-0.5 bg-[#171796] px-[17px] text-[14px] font-medium text-[#fbfbfb] shadow-none hover:bg-[#0b0b52] hover:text-[#fbfbfb] hover:shadow-none"
           >
             <PartnerLink>
-              <Handshake aria-hidden="true" className="h-4 w-4 transition-transform duration-200 ease-out group-hover:-rotate-12" />
-              <span className="font-semibold uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              <Handshake aria-hidden="true" strokeWidth={1.5} className="size-[21px] transition-transform duration-200 ease-out group-hover:-rotate-12" />
+              <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                 {t("becomePartner")}
               </span>
             </PartnerLink>
@@ -303,7 +314,7 @@ export function Navbar() {
                           key={link.label}
                           href={link.href}
                           {...rangeLinkProps(link.href, closeMenu)}
-                          aria-current={pathname === link.href ? "page" : undefined}
+                          aria-current={pathname === link.href.split("#")[0] ? "page" : undefined}
                           className={cn(
                             "rounded-lg px-3 py-3 text-sm uppercase text-slate-600 hover:bg-slate-100 aria-[current=page]:text-ocean-700",
                             keepCase(link.label) && "normal-case"
@@ -316,12 +327,12 @@ export function Navbar() {
                   )}
                 </div>
               ))}
-              <Button asChild variant="accent-ink" className="mt-3 gap-2 text-[#0b0b52] hover:text-[#0b0b52]" size="sm">
+              <Button asChild size="sm" className="mt-3 gap-1 bg-[#171796] text-[14px] font-medium text-[#fbfbfb] hover:bg-[#0b0b52] hover:text-[#fbfbfb]">
                 {/* Closes the menu itself: the pop-up does not change the
                     route, which is what normally shuts it. */}
                 <PartnerLink onClick={() => setOpen(false)}>
-                  <Handshake aria-hidden="true" className="h-4 w-4" />
-                  <span className="font-semibold uppercase leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+                  <Handshake aria-hidden="true" strokeWidth={1.5} className="size-[21px]" />
+                  <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
                     {t("becomePartner")}
                   </span>
                 </PartnerLink>

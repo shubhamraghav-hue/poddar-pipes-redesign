@@ -45,11 +45,10 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
           `mt-3` between them stays as drawn. Untrimmed, Anek's bottom-heavy
           line box sat the block 7.7px (Call) / 4.2px (Email) high in the card;
           trimming both lines fully would also have shrunk the label→value gap. */}
-      {/* TYPE SIZES match the homepage hero's stat cards (client, 2026-10-14):
-          label = the stat label (12px floor), value = the stat number — see
-          `--hero-card-*` in styles/globals.css — except where the value
-          would not fit: the email is capped by the one-line fit below. */}
-      <span className="text-[length:max(12px,var(--hero-card-label))] font-semibold uppercase leading-[1.1] tracking-[0.08em] text-[#f28000] [text-box-edge:cap_alphabetic] [text-box-trim:trim-start]">
+      {/* TYPE SIZES (2026-10-19, Figma contact card 1979:32715): label is the
+          sitewide `type-sub` (20px SemiBold on desktop), value 32px Medium,
+          capped by the one-line fit below so the email never wraps. */}
+      <span className="type-sub font-semibold uppercase text-[#f28000] [text-box-edge:cap_alphabetic] [text-box-trim:trim-start]">
         {label}
       </span>
       {/* SIZED OFF THE CARD, not off the viewport — the same `cqw` technique
@@ -76,7 +75,7 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
           width and force a horizontal scrollbar on the page. */}
       <span
         className="mt-5 break-all font-display font-medium leading-[1.1] text-white transition [text-box-edge:cap_alphabetic] [text-box-trim:trim-end] group-hover:text-[#f28000]"
-        style={{ fontSize: "max(14px, min(9.7cqw, var(--hero-card-figure)))" }}
+        style={{ fontSize: "max(14px, min(9.7cqw, 32px))" }}
       >
         {value}
       </span>
@@ -133,14 +132,14 @@ export function ContactHero() {
 
       <div className="container-figma relative pb-16 pt-24 md:pb-[150px] md:pt-[150px]">
         <RevealOnScroll>
-          <h1 className="max-w-[307px] font-display text-[36px] uppercase leading-[1.02] tracking-[0.2088px] text-white sm:max-w-[511px] sm:text-5xl sm:tracking-[0.32px] md:text-[60px]">
+          <h1 className="max-w-[307px] font-display type-hero uppercase text-white sm:max-w-[511px]">
             <span className="block font-light">We&rsquo;d Love To</span>
             <span className="block font-bold">Hear From You</span>
           </h1>
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.08}>
-          <p className="mt-[13px] max-w-[307px] text-[13px] leading-[1.2] text-white sm:mt-5 sm:max-w-[437px] sm:text-base">
+          <p className="mt-[13px] max-w-[307px] type-body text-white sm:mt-5 sm:max-w-[437px]">
             Questions about our upcoming range, partnerships or projects? Reach the
             Poddar Pipes team and we&rsquo;ll get back to you within one business day.
           </p>
@@ -157,7 +156,7 @@ export function ContactHero() {
               asChild
               size="lg"
               variant="accent-ink"
-              className="h-[46px] w-full max-w-[307px] px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
+              className="h-[46px] w-full max-w-[307px] px-6 py-0 type-button font-semibold uppercase text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
             >
               <EnquiryLink href="/contact#send-a-message">
                 <span className={CAP_TRIM}>Send Us a Message</span>
@@ -167,7 +166,7 @@ export function ContactHero() {
               asChild
               size="lg"
               variant="outline-white"
-              className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:w-auto sm:max-w-none"
+              className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 type-button font-semibold uppercase shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:w-auto sm:max-w-none"
             >
               <EnquiryLink href="/contact#send-a-message">
                 <span className={CAP_TRIM}>Talk to Our Team</span>

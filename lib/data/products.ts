@@ -36,15 +36,9 @@ export const products: Product[] = [
       "Industrial process & semi-aggressive fluid lines",
     ],
     materials: ["Lead-free virgin uPVC compound", "UV-stabilised outer layer"],
-    installationGuide: [
-      "Cut pipe ends square (90°) and remove at least 25mm beyond any cracked or splintered section.",
-      "Deburr and lightly bevel the pipe end before dry-fitting it into the socket.",
-      "Apply a smooth, even coat of one-step solvent cement to the pipe end and fitting socket.",
-      "Insert and rotate a quarter to half turn, holding firmly for a minimum of 3 seconds to set the joint.",
-    ],
     faqs: [
       { question: "Is uPVC Gold safe for drinking water?", answer: "Yes, the pipes are manufactured from a lead-free compound, making them a favoured system for potable water worldwide." },
-      { question: "Can uPVC Gold pipe be painted?", answer: "If a coating is required, use only water-based latex paint — oil or solvent-based paints can shorten the pipe's service life." },
+      { question: "Can uPVC Gold pipe be painted?", answer: "If a coating is required, use only water-based latex paint — oil- or solvent-based paints can shorten the pipe's service life." },
     ],
     icon: "pipette",
   },
@@ -83,12 +77,6 @@ export const products: Product[] = [
       "Leak-proof bathroom installations",
     ],
     materials: ["High-impact uPVC-U", "EPDM / Black Seal sealing rings"],
-    installationGuide: [
-      "Cut the pipe square (90°) and trim at least 25mm beyond any cracked or splintered end.",
-      "Deburr and bevel both the inside and outside of the pipe end.",
-      "Wipe the pipe end and fitting socket clean, then dry-fit to mark the insertion depth.",
-      "For Pushfit joints, lubricate the chamfered end and push home; for Solfit, apply solvent cement, insert with a quarter turn, and hold for a few seconds.",
-    ],
     faqs: [
       { question: "Can SWR and uPVC pressure pipe share the same line?", answer: "It's best to keep hot and cold water plumbing on a dedicated pressure system, since SWR fittings are designed for gravity, non-pressure drainage flow." },
       { question: "How is alignment maintained in concealed installations?", answer: "Poddar's self-alignment marks on the fittings match a stripe printed on the pipe, keeping outlet fittings perpendicular to the wall even before plastering." },
@@ -106,14 +94,14 @@ export const products: Product[] = [
       "Poddar CPVC Gold pipes are engineered to perform reliably across the full spectrum of water temperatures, making them the ideal choice for both hot and cold water plumbing systems. Whether carrying chilled supply water or hot water from solar heaters and geysers, Poddar CPVC Gold maintains consistent pressure and flow without compromising on safety or durability — trusted for villas, apartments, hotels, and hospitals.",
     features: [
       "Manufactured to IS 15778:2007 (SDR 11 / SDR 13.5) and ASTM D2846 / F441 (SCH 40 / SCH 80)",
-      "Fire retardant with a Limiting Oxygen Index (LOI) of 60 — self-extinguishing",
+      "Fire-retardant with a Limiting Oxygen Index (LOI) of 60 — self-extinguishing",
       "Self-alignment mould-mark system keeps concealed fittings perpendicular to the wall",
       "Low thermal conductivity (0.14 W/mK) minimises heat loss from hot water lines",
       "Solvent-cement jointing system designed for drinking water lines",
     ],
     benefits: [
       "Lowest bacterial growth of any common plumbing material",
-      "No corrosion, scaling, pitting, or leaching — full bore flow maintained for life",
+      "No corrosion, scaling, pitting, or leaching — full-bore flow maintained for life",
       "Rated for continuous hot water service up to 82°C (93°C short-term)",
       "Quick, tool-light solvent-cement jointing lowers installation labour",
       "Field-proven over 50+ years of potable water service worldwide",
@@ -127,14 +115,6 @@ export const products: Product[] = [
     sizes: ["15mm (½\")", "20mm (¾\")", "25mm (1\")", "32mm (1¼\")", "40mm (1½\")", "50mm (2\")", "65mm (2½\")", "80mm (3\")", "100mm (4\")", "150mm (6\")"],
     applications: ["Hot & cold water plumbing", "Hospital & hotel water systems", "Solar water heater & geyser lines"],
     materials: ["CPVC (chlorinated polyvinyl chloride) compound"],
-    installationGuide: [
-      "Cut the pipe square at 90° and trim at least 25mm past any visible crack or splintering.",
-      "Deburr and lightly bevel the pipe end so it seats smoothly into the fitting socket.",
-      "Wipe the socket and pipe end clean, dry-fit to confirm full seating, then mark the insertion depth.",
-      "Apply an even, generous coat of Poddar CPVC solvent cement (ASTM F-493) to both surfaces.",
-      "Insert the pipe with a quarter-to-half turn, aligning the mould mark, and hold firm for 30 seconds.",
-      "Check for a continuous, unbroken cement bead around the socket and wipe away excess before it hardens.",
-    ],
     faqs: [
       { question: "Is Poddar CPVC Gold UV protected?", answer: "Yes, built-in UV protection is standard. For pipes exposed to intense, direct sunlight, Poddar recommends covering rooftop runs or applying a water-based latex paint as an added precaution." },
       { question: "Do CPVC lines need insulation?", answer: "CPVC's low thermal conductivity (0.14 W/mK) means insulation is only recommended for continuous hot water flow, such as solar or centralised heating systems — most independent-heater bathroom installations don't need it." },
@@ -175,12 +155,6 @@ export const products: Product[] = [
       "Farm-level pressurised water networks",
     ],
     materials: ["Lead-free virgin uPVC compound"],
-    installationGuide: [
-      "Cut the pipe square (90°) and trim at least 25mm beyond any cracked or splintered section.",
-      "Deburr both inside and outside of the pipe end using a 15mm half-round file or deburring tool.",
-      "Wipe the pipe end and fitting socket clean, then dry-fit to mark the insertion depth.",
-      "Apply an even coat of one-step solvent cement, insert with a quarter to half turn, and hold firmly for a minimum of 3 seconds to set the joint.",
-    ],
     faqs: [
       { question: "Why lead-free?", answer: "A lead-free water supply system is the safest and most preferred choice for potable water transportation worldwide — eliminating lead from the pipe compound keeps conveyed water uncontaminated and safe for human consumption." },
       { question: "Why choose Poddar Agri uPVC pipes?", answer: "Poddar Agri pipes are manufactured from a specially formulated lead-free compound under stringent quality control, with fittings engineered so the mould gate point sits away from the weld line, minimising the risk of weld-line failure under pressure." },
@@ -217,12 +191,6 @@ export const products: Product[] = [
     sizes: ["12mm lateral", "16mm lateral", "20mm lateral"],
     applications: ["Row-crop irrigation", "Orchards & plantations", "Polyhouse & greenhouse cultivation"],
     materials: ["Linear low-density polyethylene (LLDPE)", "Pressure-compensating emitter modules"],
-    installationGuide: [
-      "Install a 120-mesh (or finer) filtration unit upstream of the driplines.",
-      "Flush lateral lines before capping ends.",
-      "Support laterals on stakes for row crops to prevent kinking.",
-      "Check emitter discharge uniformity seasonally.",
-    ],
     faqs: [
       { question: "How long do drip laterals typically last?", answer: "With proper filtration and seasonal flushing, Hariyali laterals typically perform for 5–7 growing seasons." },
     ],
@@ -236,10 +204,10 @@ export const products: Product[] = [
     categoryLabel: "TANKS",
     shortDescription: "Insulated 4-layer rotomoulded tanks with a foam core that keeps stored water cooler in peak summer heat.",
     description:
-      "Poddar 4-Layer tanks add a foam insulation layer between the UV-stabilised outer shell and food-safe inner layer, keeping stored water between 13°C and 15°C cooler than a 45°C ambient. An anti-bacterial Nano-Silver layer, designed for anti-algae and anti-fungal performance, helps keep stored water hygienic throughout the tank's service life.",
+      "Poddar 4-Layer tanks add a foam insulation layer between the UV-stabilised outer shell and food-safe inner layer, keeping stored water between 13°C and 15°C cooler than a 45°C ambient. An antibacterial Nano-Silver layer, designed for anti-algae and anti-fungal performance, helps keep stored water hygienic throughout the tank's service life.",
     features: [
       "Foam insulation layer moderates water temperature against ambient heat",
-      "Anti-Bacterial layer with Nano-Silver technology",
+      "Antibacterial layer with Nano-Silver technology",
       "Designed for anti-viral, anti-algae and anti-fungal performance",
       "Threaded lid with dual-layer construction and insect-proof seal",
     ],
@@ -262,12 +230,6 @@ export const products: Product[] = [
       "Institutional & commercial overhead storage",
     ],
     materials: ["Virgin-grade polyethylene", "Nano-Silver antibacterial additive", "Foam insulation core"],
-    installationGuide: [
-      "Install on a level, load-rated platform sized to the tank's filled weight.",
-      "Keep the inlet and overflow pipes clear of obstruction before filling.",
-      "Fit the dual-layer threaded lid securely to prevent insect and debris entry.",
-      "Clean the tank interior periodically to maintain water quality.",
-    ],
     faqs: [
       { question: "How much cooler does the foam layer keep the water?", answer: "The insulation layer keeps stored water between 13°C and 15°C lower than an ambient temperature of up to 45°C." },
       { question: "What sizes are available?", answer: "500L, 700L, 1000L, 1500L, and 2000L, each with a 400mm (or 470mm at 2000L) rim-to-rim manhole." },
@@ -286,7 +248,7 @@ export const products: Product[] = [
     features: [
       "UV-stabilised outer layer for long outdoor service life",
       "Extra structural ribs engineered using Finite Element Analysis",
-      "Anti-Bacterial layer with Nano-Silver technology",
+      "Antibacterial layer with Nano-Silver technology",
       "Designed for anti-viral, anti-algae and anti-fungal performance",
     ],
     benefits: [
@@ -308,12 +270,6 @@ export const products: Product[] = [
       "Institutional & bulk water storage",
     ],
     materials: ["Virgin-grade polyethylene", "Nano-Silver antibacterial additive"],
-    installationGuide: [
-      "Install on a level, load-rated platform sized to the tank's filled weight.",
-      "Keep the inlet and overflow pipes clear of obstruction before filling.",
-      "Fit the dual-layer threaded lid securely to prevent insect and debris entry.",
-      "Clean the tank interior every 6 months to maintain water quality.",
-    ],
     faqs: [
       { question: "What is the largest capacity available?", answer: "The 3-layer range extends up to 10,000L, with a 2210mm diameter and 470mm manhole, for bulk institutional or commercial storage." },
       { question: "Are these tanks food-safe?", answer: "Yes, the inner layer is manufactured from food-grade material suitable for potable water storage." },
@@ -333,9 +289,9 @@ export const products: Product[] = [
       "Poddar's 2-Layer tank is rotomoulded from virgin, food-grade polyethylene for safe, untainted water storage. UV-stabilised construction and a Nano-Silver antibacterial layer give the tank reliable performance for residential and institutional use.",
     features: [
       "Two-layer construction with a food-grade inner layer",
-      "Rotational moulded polyethylene construction",
+      "Rotationally moulded polyethylene construction",
       "UV-stabilised for outdoor durability",
-      "Anti-Bacterial layer with Nano-Silver technology",
+      "Antibacterial layer with Nano-Silver technology",
     ],
     benefits: [
       "Made from 100% virgin, food-grade plastic",
@@ -356,12 +312,6 @@ export const products: Product[] = [
       "Commercial building water storage",
     ],
     materials: ["Virgin, food-grade polyethylene", "Nano-Silver antibacterial additive"],
-    installationGuide: [
-      "Install on a level, load-rated platform sized to the tank's filled weight.",
-      "Keep the inlet and overflow pipes clear of obstruction before filling.",
-      "Fit the threaded lid securely to prevent insect and debris entry.",
-      "Clean the tank interior every 6 months to maintain water quality.",
-    ],
     faqs: [
       { question: "Why choose the 2-layer tank?", answer: "It's a robust, economical option for everyday storage, rotomoulded from virgin food-grade polyethylene with a Nano-Silver antibacterial layer and sizes from 500L to 5000L." },
       { question: "What colour options are available?", answer: "The 2-layer tank is available only in black." },
@@ -403,15 +353,9 @@ export const products: Product[] = [
       "Rainwater harvesting collection lines",
     ],
     materials: ["Three-layer foam-core uPVC", "Rubber Black Seal ring"],
-    installationGuide: [
-      "Cut the pipe square and remove at least 25mm beyond any cracked or split section.",
-      "Deburr both inside and outside of the pipe end and check the socket for the Black Seal, brown side facing outward.",
-      "Wipe the fitting and pipe end clean, then apply the recommended lubricant to the chamfered end.",
-      "Insert and rotate slightly, then pull back until the mark is 12mm from the socket to leave an expansion gap.",
-    ],
     faqs: [
       { question: "Do I need solvent cement for UGD Pushfit joints?", answer: "No — the pre-fitted Black Seal in the socket groove creates a leak-proof joint by simply pushing the spigot home." },
-      { question: "What stiffness class should I choose?", answer: "SN2 suits light-duty drainage, SN4 covers most residential and housing society lines, and SN8 is recommended under roads or heavy traffic loading." },
+      { question: "What stiffness class should I choose?", answer: "SN2 suits light-duty drainage, SN4 covers most residential and housing-society lines, and SN8 is recommended under roads or heavy traffic loading." },
     ],
     icon: "network",
   },
@@ -449,12 +393,6 @@ export const products: Product[] = [
       "Housing society UGD systems",
     ],
     materials: ["Three-layer foam-core uPVC", "Solvent cement joints"],
-    installationGuide: [
-      "Measure and mark the pipe, cutting square (90°) and trimming at least 25mm beyond any cracked or splintered section.",
-      "Deburr and bevel the pipe end, then dry-fit into the fitting socket and mark the insertion depth.",
-      "Apply an even, syrup-consistency coat of solvent adhesive to both the pipe end and fitting socket.",
-      "Insert immediately, rotating a quarter to half turn, and hold for around 10 seconds to allow the joint to set.",
-    ],
     faqs: [
       { question: "How is Solfit different from Pushfit?", answer: "Solfit joints are bonded permanently with solvent cement, while Pushfit joints use a rubber Black Seal and can be reopened after assembly." },
       { question: "What sizes are available?", answer: "110mm to 315mm, matching the Pushfit range, with SN2, SN4, and SN8 stiffness options." },

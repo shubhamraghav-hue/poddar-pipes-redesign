@@ -6,7 +6,7 @@ import { rangeLinkProps } from "@/lib/productFocus";
 
 /**
  * `Link` for server components (footer, home category cards) whose href may
- * be a product range (`…?category=x#range`): adds `scroll={false}` and the
+ * be a product range (`/products/x#range`): adds `scroll={false}` and the
  * focus event via `rangeLinkProps` — handlers a server component can't attach
  * itself. Any other href behaves exactly like `Link`.
  */

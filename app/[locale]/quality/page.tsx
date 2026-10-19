@@ -20,6 +20,9 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/quality",
+    // SEO-004 (2026-10-19): not linked from the site and content not yet
+    // confirmed, so kept out of search and the sitemap. Works for visitors.
+    noindex: true,
     title: locale === "en" ? "Quality Assurance & Standards" : t("nav.navQualityAssurance"),
     description: "Poddar Pipes' quality policy, testing procedures, the Indian Standards our products are designed to, and our R&D approach.",
   });
@@ -58,7 +61,7 @@ export default async function QualityPage({
           (h-20) — not a hero; the same strip opens every inner page that has no
           hero of its own. */}
       <div className="h-20 bg-ink" aria-hidden="true" />
-      <section className="container-edge pt-10 pb-8 md:pt-12">
+      <section className="container-figma pt-10 pb-8 md:pt-12">
         <SectionHeading
           as="h1"
           eyebrow={t("heroEyebrow")}
@@ -68,7 +71,7 @@ export default async function QualityPage({
         />
       </section>
 
-      <section className="container-edge py-24 md:py-28">
+      <section className="container-figma py-24 md:py-28">
         <SectionHeading eyebrow={t("pillarsEyebrow")} title={t("pillarsH1")} titleAccent={t("pillarsH2")} />
         <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {pillars.map((p, i) => (
@@ -84,7 +87,7 @@ export default async function QualityPage({
       </section>
 
       <section className="bg-paper-2 py-24 md:py-28">
-        <div className="container-edge">
+        <div className="container-figma">
           <SectionHeading
             eyebrow={t("certEyebrow")}
             title={t("certH1")}

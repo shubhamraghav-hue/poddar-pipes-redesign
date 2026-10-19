@@ -52,15 +52,18 @@ const nextConfig: NextConfig = {
         destination: "/products/poddar-2-layer-water-storage-tanks",
         permanent: true,
       },
+      // Ranges have their own URLs now (SEO-003, 2026-10-19): straight to
+      // /products/<id>, permanent, no hop through the old ?category= form.
+      // (?category= itself is redirected by app/[locale]/products/page.tsx.)
       {
         source: "/products/category/:category",
-        destination: "/products?category=:category",
-        permanent: false,
+        destination: "/products/:category",
+        permanent: true,
       },
       {
         source: "/:locale/products/category/:category",
-        destination: "/:locale/products?category=:category",
-        permanent: false,
+        destination: "/:locale/products/:category",
+        permanent: true,
       },
     ];
   },

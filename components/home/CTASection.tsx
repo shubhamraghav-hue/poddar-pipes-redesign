@@ -37,6 +37,9 @@ function splitLeadAccent(text: string): [string, string] {
 interface CTASectionProps {
   eyebrow?: string;
   title?: string;
+  /** Flush variant: the amber second line, when `title` is a single sentence
+   * Figma breaks over two lines (FAQ/News "STILL HAVE / A QUESTION?"). */
+  titleAccent?: string;
   description?: string;
   primaryLabel?: string;
   primaryHref?: string;
@@ -55,6 +58,7 @@ interface CTASectionProps {
 export async function CTASection({
   eyebrow,
   title,
+  titleAccent,
   description,
   primaryLabel,
   primaryHref,
@@ -77,7 +81,11 @@ export async function CTASection({
 
   const isFlush = variant === "flush";
 
-  const [ctaLead, ctaAccent] = isFlush ? splitLeadAccent(resolvedTitle) : [resolvedTitle, ""];
+  const [ctaLead, ctaAccent] = !isFlush
+    ? [resolvedTitle, ""]
+    : titleAccent
+      ? [resolvedTitle, titleAccent]
+      : splitLeadAccent(resolvedTitle);
 
   // The site's standard CTA pair. Deliberately IDENTICAL across both
   // variants, unlike everything else here. Hero renders the same pair without
@@ -96,14 +104,14 @@ export async function CTASection({
     <div
       className={cn(
         "mx-auto flex max-w-[307px] flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-[15px]",
-        isFlush ? "mt-10 md:mt-20" : "mt-9"
+        isFlush ? "mt-10 md:mt-[75px]" : "mt-9"
       )}
     >
       <Button
         asChild
         size="lg"
         variant="accent-ink"
-        className="h-[46px] px-6 py-0 text-lg max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase leading-none tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52]"
+        className="h-[46px] px-6 py-0 type-button max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase text-[#0B0B52] hover:text-[#0B0B52]"
       >
         <CtaLink href={resolvedPrimaryHref}>
           <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedPrimary}</span>
@@ -111,13 +119,13 @@ export async function CTASection({
       </Button>
       {/* No "Download Catalogue" here any more (client, 2026-10-12): the
           default secondary (#catalogues) is not rendered. A page that passes
-          its own secondary (e.g. installation's "Talk to Our Team") keeps it. */}
+          its own secondary label and href keeps it. */}
       {secondaryHref !== "#catalogues" && (
         <Button
           asChild
           size="lg"
           variant="outline-white"
-          className="h-[46px] border-0 px-6 py-0 text-lg max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
+          className="h-[46px] border-0 px-6 py-0 type-button max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
         >
           <CtaLink href={secondaryHref}>
             <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedSecondary}</span>
@@ -131,7 +139,7 @@ export async function CTASection({
     // Figma 1530:7318 is 600 tall: title at 120, buttons end at 424 — so
     // 120 above and 176 below from `lg`; tablets and phones keep the lighter
     // pads.
-    <div className="relative overflow-hidden bg-[#0b0b52] px-6 py-20 text-center sm:px-8 md:py-28 lg:pb-[176px] lg:pt-[120px]">
+    <div className="relative overflow-hidden bg-[#0b0b52] px-6 py-20 text-center sm:px-8 md:py-28 lg:pb-[175px] lg:pt-[120px]">
       <div className="relative mx-auto max-w-5xl">
         {/* Each sentence should be exactly one line. `max-w-2xl` was too
             narrow at `text-5xl` and wrapped the second into three; `max-w-5xl`
@@ -140,11 +148,11 @@ export async function CTASection({
             this heading at 28px, same as every other section heading there)
             and so it does not sit 2px off its neighbours, which now come
             through `SectionHeading` at 28px. Steps above it unchanged. */}
-        <h2 className="text-balance font-display text-[28px] uppercase leading-[1.2] sm:text-4xl md:text-5xl">
+        <h2 className="text-balance font-display type-heading uppercase">
           <span className="block font-light text-white">{ctaLead}</span>
           {ctaAccent && <span className="block font-semibold text-amber-600">{ctaAccent}</span>}
         </h2>
-        <p className="mx-auto mt-5 max-w-[518px] text-balance text-sm font-normal leading-[1.5] text-[#c0c0c0]">
+        <p className="mx-auto mt-5 max-w-[576px] text-balance type-body font-normal text-[#c0c0c0]">
           {resolvedDesc}
         </p>
         {ctaButtons}
@@ -183,7 +191,7 @@ export async function CTASection({
   }
 
   return (
-    <section className="container-edge py-24 md:py-28">
+    <section className="container-figma py-24 md:py-28">
       <RevealOnScroll>{content}</RevealOnScroll>
     </section>
   );

@@ -53,22 +53,23 @@ export const navItems: NavItem[] = [
       {
         heading: "navPipingSystems",
         links: [
-          { label: "navUpvc", href: "/products?category=upvc-pipes#range" },
-          { label: "navCpvc", href: "/products?category=cpvc-pipes#range" },
-          { label: "navSwr", href: "/products?category=swr-pipes#range" },
+          { label: "navUpvc", href: "/products/upvc-pipes#range" },
+          { label: "navCpvc", href: "/products/cpvc-pipes#range" },
+          { label: "navSwr", href: "/products/swr-pipes#range" },
         ],
       },
       {
         heading: "navStorageDrainage",
         links: [
-          { label: "navTanks", href: "/products?category=tanks#range" },
-          { label: "navUgd", href: "/products?category=ugd-pipes#range" },
+          // UGD before Tank — Figma "header products hover" (1979:33062).
+          { label: "navUgd", href: "/products/ugd-pipes#range" },
+          { label: "navTanks", href: "/products/tanks#range" },
         ],
       },
       {
         heading: "navApplicationSystems",
         links: [
-          { label: "navAgriculture", href: "/products?category=agricultural-pipes#range" },
+          { label: "navAgriculture", href: "/products/agricultural-pipes#range" },
           // { label: "navViewFullCatalog", href: "/products" },
         ],
       },
@@ -82,7 +83,8 @@ export const navItems: NavItem[] = [
   //     { heading: "navResources", links: [{ label: "navBlogsArticles", href: "/articles" }] },
   //     { heading: "navToolsGuides", links: [{ label: "navPipeCementCalculator", href: "/tools/calculator" }] },
   //   ] },
-  { key: "navBlogsArticles", href: "/articles" },
+  // Header label is "NEWS" (Figma header 1979:32592); the footer keeps "News & Media".
+  { key: "navNews", href: "/articles" },
   { key: "contact", href: "/contact" },
   { key: "faq", href: "/faq" },
 ];

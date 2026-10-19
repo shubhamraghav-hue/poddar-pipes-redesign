@@ -46,7 +46,7 @@ export async function CoreValues() {
 
   return (
     <section className="bg-white py-24 md:py-32">
-      <div className="container-edge">
+      <div className="container-figma">
         <RevealOnScroll>
           <SectionHeading title={t("coreValuesH1")} titleAccent={t("coreValuesH2")} />
         </RevealOnScroll>

@@ -18,7 +18,7 @@ export async function generateMetadata({
     locale,
     path: "/articles",
     title: "News & Media — Press Coverage",
-    description: "Press coverage of Poddar Plumbing's ₹758 crore Vemgal, Karnataka expansion — the investment, the jobs, and the timeline, as reported by the press.",
+    description: "Press coverage of Poddar Plumbing's ₹758 crore Vemagal, Karnataka expansion — the investment, the jobs, and the timeline, as reported by the press.",
   });
 }
 
@@ -47,7 +47,7 @@ export default async function ArticlesPage({
     <section className="mt-20 bg-white pb-20 pt-16 md:pb-[120px] md:pt-[120px]">
       <div className="container-figma">
         <RevealOnScroll>
-          <h1 className="font-display text-[36px] uppercase leading-[1.02] tracking-[0.2088px] sm:text-5xl md:text-[60px] md:tracking-[0.32px]">
+          <h1 className="font-display type-heading uppercase">
             <span className="block font-light text-[#606060]">{t("pageH1")}</span>
             <span className="block font-bold text-[#171796]">{t("pageH2")}</span>
           </h1>
@@ -90,14 +90,14 @@ export default async function ArticlesPage({
 function MediaCard({ article, readLabel }: { article: PressArticle; readLabel: string }) {
   return (
     <article className="flex min-h-[400px] w-full flex-col rounded-[24px] border border-[#dedede] bg-[#f5f5f5]/35 p-6 transition-[border-color,background-color] duration-200 ease-out hover:border-[#c0c0c0] hover:bg-[#f5f5f5]/60 md:min-h-[460px] md:px-[31px] md:pb-[31px] md:pt-[39px]">
-      <span className="flex h-[33px] w-fit max-w-full items-center rounded-[30px] bg-[#f0f0fa] px-[14px] text-[12px] font-semibold uppercase text-[#171796]">
+      <span className="flex h-[33px] w-fit max-w-full items-center rounded-[30px] bg-[#f0f0fa] px-[14px] type-small font-semibold uppercase text-[#171796]">
         <span className={`truncate py-1.5 -my-1.5 ${CAP_TRIM}`}>{article.outlet}</span>
       </span>
 
       {/* `max-w-[313px]`: the mock's headline box, narrower than the
           323px content width — without it the lines broke differently from
           the design ("…TARGETS / ₹3,000 CRORE…" vs "…PROJECT / TARGETS…"). */}
-      <h2 className="mt-[34px] max-w-[313px] font-display text-[20px] font-semibold uppercase leading-[1.2] text-[#4a4a4a] md:text-[24px]">
+      <h2 className="mt-[34px] max-w-[313px] font-display type-sub font-semibold uppercase text-[#4a4a4a]">
         {article.headline}
       </h2>
 
@@ -108,7 +108,7 @@ function MediaCard({ article, readLabel }: { article: PressArticle; readLabel: s
           the card floor and rows line up); `py-5` keeps at least 20px either
           side when the copy is long. */}
       <div className="flex flex-1 items-center py-5">
-        <p className="text-[15px] leading-[1.35] text-[#626262] md:text-[16px] md:leading-[1.2]">
+        <p className="type-body text-[#626262]">
           {article.summary}
         </p>
       </div>
@@ -121,7 +121,7 @@ function MediaCard({ article, readLabel }: { article: PressArticle; readLabel: s
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${readLabel}: ${article.headline} (${article.outlet}, opens in a new tab)`}
-        className="group/read flex h-[46px] w-fit touch-manipulation select-none items-center gap-[10px] rounded-full px-6 text-[18px] font-semibold uppercase tracking-[0.36px] text-[#171796] shadow-[inset_0_0_0_1.5px_#171796] transition-[background-color,color,scale] duration-200 ease-out hover:bg-[#171796] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171796]/40 focus-visible:ring-offset-2 active:scale-[0.98]"
+        className="group/read flex h-[46px] w-fit touch-manipulation select-none items-center gap-[10px] rounded-full px-6 type-button font-semibold uppercase text-[#171796] shadow-[inset_0_0_0_1.5px_#171796] transition-[background-color,color,scale] duration-200 ease-out hover:bg-[#171796] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171796]/40 focus-visible:ring-offset-2 active:scale-[0.98]"
       >
         <span className={CAP_TRIM}>{readLabel}</span>
         {/* Figma's arrow-up-right (1653:9085), path verbatim, stroke →
