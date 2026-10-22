@@ -20,10 +20,30 @@ import { COMPANY } from "@/lib/data/offices";
 // and many Indic scripts, so the 11-locale site stays fully covered. The
 // semantic tokens (--font-display/-body/-mono) all resolve to it in
 // styles/globals.css.
-const anekDevanagari = Anek_Devanagari({
-  subsets: ["latin", "devanagari"],
-  variable: "--font-anek",
+//
+// TWO instances of the same typeface (PageSpeed, 2026-10-22): one call with
+// both subsets preloaded the 252KB Devanagari file on EVERY page, English
+// included, competing with the hero image (the LCP). Now:
+//   latin       preloaded; keeps next/font's size-matched fallback face,
+//               which is what holds CLS at 0 while the font swaps in.
+//   devanagari  NOT preloaded (fetched as soon as the CSS asks for a
+//               Devanagari glyph — at once on /hi, rarely on English pages)
+//               and WITHOUT a fallback face: that face has no unicode-range,
+//               so listed first it would capture Latin text before the
+//               real Latin font.
+// globals.css stacks them Devanagari-first; each face's unicode-range means
+// a glyph is only ever drawn by the instance that covers it.
+const anekLatin = Anek_Devanagari({
+  subsets: ["latin"],
+  variable: "--font-anek-latin",
   display: "swap",
+});
+const anekDevanagari = Anek_Devanagari({
+  subsets: ["devanagari"],
+  variable: "--font-anek-deva",
+  display: "swap",
+  preload: false,
+  adjustFontFallback: false,
 });
 
 export function generateStaticParams() {
@@ -145,7 +165,7 @@ export default async function LocaleLayout({
   };
 
   return (
-    <html lang={locale} className={anekDevanagari.variable}>
+    <html lang={locale} className={`${anekLatin.variable} ${anekDevanagari.variable}`}>
       <body className="font-body">
         <script
           type="application/ld+json"

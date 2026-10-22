@@ -9,8 +9,10 @@ import { HR_EMAIL, DISTRIBUTOR_EMAIL } from "@/lib/data/enquiries";
 // its own document shell — there is no NextIntlClientProvider here, so copy is
 // the site's default-locale (English) and links are plain anchors.
 const anek = Anek_Devanagari({
-  subsets: ["latin", "devanagari"],
-  variable: "--font-anek",
+  // English-only page: the Latin instance under the variable globals.css
+  // reads (see app/[locale]/layout.tsx for the two-instance split).
+  subsets: ["latin"],
+  variable: "--font-anek-latin",
   display: "swap",
 });
 

@@ -59,12 +59,12 @@
      Every role (display, body, technical labels) resolves to one family;
      hierarchy comes from weight and size, not contrasting typefaces. Anek is a
      variable font covering Latin + Devanagari and many Indic scripts, provided
-     by next/font as --font-anek in app/[locale]/layout.tsx. --font-mono keeps
+     by next/font as --font-anek-latin + --font-anek-deva in app/[locale]/layout.tsx. --font-mono keeps
      its name for the .tech-label / mono utilities (uppercase + tracking give
      labels their character), but is the same Anek family. */
-  --font-display: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
-  --font-body: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-anek), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anek-deva), var(--font-anek-latin), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-anek-deva), var(--font-anek-latin), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-anek-deva), var(--font-anek-latin), ui-sans-serif, system-ui, sans-serif;
 
   /* Type scale: see the `type-*` utilities below the @theme block. */
 

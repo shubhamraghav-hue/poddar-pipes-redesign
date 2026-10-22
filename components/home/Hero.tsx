@@ -29,7 +29,10 @@ import { AlphaVideo } from "@/components/home/AlphaVideo";
  *     source's native resolution: 4.9MB against the desktop file's 12.6MB
  *     (2026-10-14). Desktop and the MP4 fallback keep the full frame.
  */
-const HERO_VIDEO = "/hero/hero-fittings.webm";
+// v2 (2026-10-22): re-encoded two-pass VP9 + alpha at 2.5 Mbps — 6.1MB, was
+// 12.6MB (SSIM 0.990 colour / 0.998 alpha vs the old file). A 1.4 Mbps
+// 3.3MB pass visibly softened highlights at full size, so it was not used.
+const HERO_VIDEO = "/hero/hero-fittings-v2.webm";
 const HERO_VIDEO_PHONE = "/hero/hero-fittings-phone.webm";
 const HERO_VIDEO_MP4 = "/hero/hero-fittings.mp4";
 // WebP, 189KB — the PNG it replaced was 3.3MB, fetched raw by `<video poster>`.
@@ -47,9 +50,6 @@ const HERO_PACKED_MOBILE = { src: "/hero/hero-fittings-packed-half.mp4", width: 
 const OBJECT_POS_X_MOBILE = 0.02525;
 const OBJECT_POS_X = 0.5;
 const MOBILE_QUERY = "(max-width: 767px)";
-// For the raw `<video poster>` fetch only — the next/image overlay rejects a
-// `?`-suffixed local src. Bump if the poster is ever regenerated in place.
-const CACHE_BUST = "?v=3";
 
 // Figma node 13:427 — radial vignette. Ported as Figma's own SVG rather than
 // a CSS `radial-gradient` because the `gradientTransform` rotates the
@@ -110,6 +110,30 @@ export function Hero() {
     setNeedsMp4Only(isIOS || isDesktopSafari);
   }, []);
 
+  // LOAD ORDER (PageSpeed, 2026-10-22; approved by the client for this file):
+  // the poster <Image> below is the LCP element, and it was losing bandwidth
+  // to the hero video — mobile LCP 4.4s, of which 4.1s was the poster's own
+  // download while the 4.7MB phone WebM streamed beside it (12.6MB + 3.5MB on
+  // desktop). The video is now not rendered — so not fetched — until the page
+  // has fired `load` and the browser is idle. The poster covers the gap
+  // exactly as it already does for a blocked autoplay, so nothing is visibly
+  // missing; the video simply cross-fades in a moment later.
+  const [mediaReady, setMediaReady] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    const go = () => {
+      const start = () => !cancelled && setMediaReady(true);
+      if ("requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 1500 });
+      else setTimeout(start, 200);
+    };
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+    return () => {
+      cancelled = true;
+      window.removeEventListener("load", go);
+    };
+  }, []);
+
   // Set only if a WebKit engine also turns out to have no WebGL, in which
   // case `AlphaVideo` cannot run and we fall back to the plain, opaque MP4 —
   // which then genuinely does need the 24px clip to keep it off the cards.
@@ -146,7 +170,7 @@ export function Hero() {
           paint order, and their native "tap to play" affordance has been seen
           bleeding through a purely CSS-stacked overlay on real devices.
           Hiding the element itself closes that gap. */}
-      {needsMp4Only !== null && (
+      {needsMp4Only !== null && mediaReady && (
         <div
           className={`absolute inset-x-0 top-0 z-[2] h-[calc(110.945vw-4rem)] overflow-hidden sm:h-[calc(110.945vw-5rem)] ${
             clipForOpaqueVideo ? "md:h-[calc(55.95vw-24px)]" : "md:h-[55.95vw]"
@@ -172,7 +196,9 @@ export function Hero() {
           ) : (
           <video
             ref={videoRef}
-            poster={HERO_POSTER + CACHE_BUST}
+            // No `poster`: the next/image overlay below already shows it,
+            // and the attribute fetched the same picture a second time at
+            // full 2545px (189KB) — PageSpeed's biggest image saving.
             autoPlay
             muted
             loop
@@ -185,7 +211,6 @@ export function Hero() {
             }`}
             onLoadedData={(e) => e.currentTarget.play().catch(() => {})}
             onPlaying={() => setIsPlaying(true)}
-            {...({ fetchPriority: "high" } as Record<string, string>)}
           >
             {/* WebKit engines are never offered the WebM at all — see the
                 `needsMp4Only` comment for why half-support is worse here
@@ -227,7 +252,12 @@ export function Hero() {
             src={HERO_POSTER}
             alt=""
             fill
-            priority
+            // The LCP element: preloaded from the <head> AND marked high
+            // priority (`priority` alone emitted the preload without
+            // `fetchpriority`, which PageSpeed flagged), never lazy.
+            preload
+            fetchPriority="high"
+            loading="eager"
             sizes="100vw"
             className="object-cover object-[2.525%_50%] md:object-center"
           />
