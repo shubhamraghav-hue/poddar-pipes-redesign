@@ -11,7 +11,7 @@ import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { WhatsAppButton } from "@/components/shared/WhatsAppButton";
 import { ScrollWaterRail } from "@/components/shared/ScrollWaterRail";
 import { EnquiryProvider } from "@/components/enquiry/EnquiryProvider";
-import { OG_LOCALES, SITE_URL, buildAlternates, isProductionSite } from "@/lib/seo";
+import { OG_LOCALES, SITE_URL, buildAlternates, isProductionSite, HOME_SHARE_TITLE } from "@/lib/seo";
 import { COMPANY } from "@/lib/data/offices";
 
 // Single-typeface system: Anek Devanagari carries every role (display, body,
@@ -62,7 +62,7 @@ export async function generateMetadata({
     // (lib/seo.ts), because page-level keys replace these wholesale.
     alternates: buildAlternates(locale, "/"),
     openGraph: {
-      title: tEn("defaultTitle"),
+      title: HOME_SHARE_TITLE,
       description: t("defaultDescription"),
       siteName: t("siteName"),
       type: "website",
@@ -71,7 +71,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: tEn("defaultTitle"),
+      title: HOME_SHARE_TITLE,
       description: t("defaultDescription"),
     },
     robots: isProductionSite()

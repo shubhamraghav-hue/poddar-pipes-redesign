@@ -444,3 +444,5 @@ Each needs fact confirmation; none needs a redesign.
 
 
 **2026-10-22 — client decision (deck slide 2246:15375):** page `<title>` stays ENGLISH on every locale, /hi included (descriptions, OG descriptions and content stay Hindi). Implemented in every `generateMetadata` and the locale layout's default/template. Trade-off noted to the client: Hindi-language queries lose the Hindi title signal (SEO-005).
+
+**2026-10-22 — client request:** link-preview card is now the logo alone (centred for square crops); homepage og:title / twitter:title = "Poddar Pipes | Pipes Ka Gold Standard. Phir Se.". The homepage <title> is NOT changed (SEO-006 remains open).

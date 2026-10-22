@@ -6,7 +6,7 @@ import { SectionReveal } from "@/components/shared/SectionReveal";
 import { ProductCategories } from "@/components/home/ProductCategories";
 import { CoreValues } from "@/components/home/CoreValues";
 import { CTASection } from "@/components/home/CTASection";
-import { buildPageMetadata } from "@/lib/seo";
+import { buildPageMetadata, HOME_SHARE_TITLE } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -23,6 +23,7 @@ export async function generateMetadata({
     title: (await getTranslations({ locale: "en", namespace: "meta" }))("defaultTitle"),
     description: t("defaultDescription"),
     absoluteTitle: true,
+    shareTitle: HOME_SHARE_TITLE,
   });
 }
 

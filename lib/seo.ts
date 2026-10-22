@@ -58,11 +58,22 @@ export function buildAlternates(locale: string, path: string) {
 // page-level `openGraph` would otherwise drop it — see note above. The bare
 // "/opengraph-image" path is rewritten by the next-intl proxy to the default
 // locale's route, so it resolves without a redirect.
+/** The link-preview card (app/[locale]/opengraph-image.tsx): the round "P" mark alone. */
+export const SHARE_IMAGE_ALT = "Poddar Pipes";
+
+/**
+ * The homepage's link-preview TITLE — what WhatsApp, LinkedIn etc. show when
+ * the site's URL is pasted (client, 2026-10-22). Preview only: the page's
+ * <title> (search results, browser tab) is unchanged, since the home title is
+ * still an open SEO decision (SEO-006).
+ */
+export const HOME_SHARE_TITLE = "Poddar Pipes | Pipes Ka Gold Standard. Phir Se.";
+
 const OG_IMAGE = {
   url: "/opengraph-image",
   width: 1200,
   height: 630,
-  alt: "Poddar Pipes — Engineered for every drop of India's growth",
+  alt: SHARE_IMAGE_ALT,
 };
 
 /**
@@ -78,6 +89,7 @@ export function buildPageMetadata({
   description,
   absoluteTitle = false,
   noindex = false,
+  shareTitle,
 }: {
   locale: string;
   path: string;
@@ -90,8 +102,10 @@ export function buildPageMetadata({
    * in app/sitemap.ts (SEO-004). Also drop the route from the sitemap.
    */
   noindex?: boolean;
+  /** Overrides the Open Graph / Twitter title only (link previews). */
+  shareTitle?: string;
 }): Metadata {
-  const fullTitle = absoluteTitle ? title : `${title} | ${SITE_NAME}`;
+  const fullTitle = shareTitle ?? (absoluteTitle ? title : `${title} | ${SITE_NAME}`);
   const url = localizedPath(locale, path);
   return {
     title: absoluteTitle ? { absolute: title } : title,
