@@ -263,7 +263,9 @@ export function ProductShowcase({
                 placeholder={t("searchPlaceholder")}
                 aria-label={t("searchAria")}
                 aria-describedby={noMatch ? "showcase-nomatch" : undefined}
-                className="h-full min-w-0 flex-1 bg-transparent text-[16px] text-[#4a4a4a] placeholder:text-[#606060] focus:outline-none"
+                // `pt-[0.375em]`: optical centring for Anek in an <input>, the
+                // same fix as components/ui/input.tsx (client 2026-10-22).
+                className="h-full min-w-0 flex-1 bg-transparent pt-[0.375em] text-[16px] text-[#4a4a4a] placeholder:text-[#606060] focus:outline-none"
               />
             </label>
             {noMatch && (
