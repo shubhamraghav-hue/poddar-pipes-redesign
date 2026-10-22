@@ -58,8 +58,8 @@ export function buildAlternates(locale: string, path: string) {
 // page-level `openGraph` would otherwise drop it — see note above. The bare
 // "/opengraph-image" path is rewritten by the next-intl proxy to the default
 // locale's route, so it resolves without a redirect.
-/** The link-preview card (app/[locale]/opengraph-image.tsx): the round "P" mark alone. */
-export const SHARE_IMAGE_ALT = "Poddar Pipes";
+/** The link-preview card (app/[locale]/opengraph-image.tsx): the full brand logo. */
+export const SHARE_IMAGE_ALT = "Poddar Pipes logo";
 
 /**
  * The homepage's link-preview TITLE — what WhatsApp, LinkedIn etc. show when

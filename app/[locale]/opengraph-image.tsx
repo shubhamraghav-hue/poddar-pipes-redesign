@@ -12,22 +12,22 @@ import { SHARE_IMAGE_ALT } from "@/lib/seo";
 // it directly. lib/seo.ts references "/opengraph-image" explicitly on every
 // page, because a page-level `openGraph` drops file-convention images.
 //
-// JUST THE MARK (client, 2026-10-22: "use public/icon-mark.svg this logo
-// globally for sharing"): the round orange "P", centred on white, for every
-// page. Kept well inside the CENTRE 630x630 square of the 1200x630 card,
-// because WhatsApp (and others) crop link previews to a square from the
-// middle — the old left-aligned text card lost its first letters there.
+// THE FULL BRAND LOGO (client, 2026-10-22: "make the preview logo the entire
+// brand logo"): public/logo.svg — round mark + PODDAR PIPES wordmark —
+// centred on white, for every page. Sized to sit inside the CENTRE 630x630
+// square of the 1200x630 card, because WhatsApp (and others) crop link
+// previews to a square from the middle — the old left-aligned text card lost
+// its first letters there. (Briefly the round mark alone, icon-mark.svg.)
 export const alt = SHARE_IMAGE_ALT;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// icon-mark.svg is square (its viewBox crops to the circle). 360px leaves
-// 135px of white around it inside the 630 square, so even a tight circular
-// or square avatar crop keeps the whole mark.
-const MARK = 360;
+// logo.svg is 113x33; 520 wide leaves 55px clear each side of the square.
+const LOGO_W = 520;
+const LOGO_H = Math.round((LOGO_W * 33) / 113);
 
 export default async function OpengraphImage() {
-  const svg = await readFile(join(process.cwd(), "public", "logo.svg.svg"));
+  const svg = await readFile(join(process.cwd(), "public", "logo.svg"));
   const src = `data:image/svg+xml;base64,${svg.toString("base64")}`;
   return new ImageResponse(
     (
@@ -42,7 +42,7 @@ export default async function OpengraphImage() {
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse renders plain <img> */}
-        <img src={src} width={MARK} height={MARK} alt="" />
+        <img src={src} width={LOGO_W} height={LOGO_H} alt="" />
       </div>
     ),
     { ...size }

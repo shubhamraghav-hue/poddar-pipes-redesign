@@ -11,9 +11,8 @@ export const FAQ_COUNT = 6;
  * rules, 60px side padding: question 20px SemiBold #171796 caps (30 above,
  * 10 below), a 28px close "X" on the right, answer 16px #606060 at 920px wide
  * (10 above, 40 below). Every row starts CLOSED (client deck 2026-10-22,
- * slide 2216:15226), and only ONE is open at a time — opening a question
- * closes the previous one (`type="single"`; `collapsible` lets the open one
- * close again); the icon is the accordion's Plus, turned 45deg into
+ * slide 2216:15226), and any number can be open at once (client,
+ * 2026-10-22 — reverting an earlier one-at-a-time request); the icon is the accordion's Plus, turned 45deg into
  * Figma's X while a row is open.
  */
 export async function FAQ() {
@@ -26,8 +25,7 @@ export async function FAQ() {
   return (
     <RevealOnScroll className="max-w-[1112px]">
       <Accordion
-        type="single"
-        collapsible
+        type="multiple"
         className="w-full border-t border-[#c0c0c0]"
       >
         {faqs.map((faq, i) => (

@@ -34,3 +34,16 @@ robots/sitemap, share tags, security headers, console errors, structured data.
 
 - No analytics or Search Console tag is installed (no third-party requests at all). Add one only if wanted — SEO-017 (Search Console via DNS TXT) is still open.
 - Lighthouse / Core Web Vitals were not measured in this pass.
+
+## Re-audit (same day, after the owner's redeploy)
+
+| Item | Before | Now |
+|---|---|---|
+| P1 indexing | robots.txt `Disallow: /`, all pages noindex | **Fixed.** robots.txt `Allow: /` + sitemap; 30 pages `index, follow`; the 10 SEO-004 pages stay `noindex, follow` and are not in the sitemap (28 URLs). vercel.app alias still noindex + canonical to www. |
+| S2 icons | favicon.ico / apple-icon 404 | **Fixed** (200). |
+| S3 stale build | old share card / title | **Fixed.** Share card = round mark; home og:title = "Poddar Pipes \| Pipes Ka Gold Standard. Phir Se." |
+| S1 redirects | 302, two hops for http apex | **Still 302** — owner, Vercel → Domains (308). |
+| P2 forms | unverified | **Still unverified** — owner: one real test enquiry. |
+| NEW: image optimiser timeouts | — | 12 of 882 `/_next/image` requests returned 502/504 under parallel load; all 200 on retry. Cause: the home/product card sources were ~11MB PNGs (cpvc/swr/agri/ugd-hero.png, 2747x4096). **Fixed in code (deploy needed):** re-encoded to WebP q90 at full resolution (`<range>-hero-v2.webp`, ~0.3MB, mean pixel diff ~1/255); PNGs removed from public/. |
+
+WhatsApp preview: fetched as `WhatsApp/2.x` and `facebookexternalhit`, `/` returns 200 in ~50–350ms with og:title/og:image inside the first 6KB of `<head>`. A blank preview in WhatsApp is its client-side cache / a fetch that didn't complete — not the server.

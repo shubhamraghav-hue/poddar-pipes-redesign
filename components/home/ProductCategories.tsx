@@ -47,7 +47,7 @@ const CATEGORIES = [
     logoPx: { w: 284, h: 142 },
     logoW: 112.396,
     descW: 180,
-    photo: "/products/showcase/cpvc-hero.png",
+    photo: "/products/showcase/cpvc-hero-v2.webp",
   },
   {
     id: "upvc",
@@ -70,7 +70,7 @@ const CATEGORIES = [
     logoPx: { w: 266, h: 142 },
     logoW: 105.272,
     descW: 180,
-    photo: "/products/showcase/swr-hero.png",
+    photo: "/products/showcase/swr-hero-v2.webp",
   },
   {
     id: "agri",
@@ -81,7 +81,7 @@ const CATEGORIES = [
     logoPx: { w: 272, h: 142 },
     logoW: 107.647,
     descW: 167,
-    photo: "/products/showcase/agri-hero.png",
+    photo: "/products/showcase/agri-hero-v2.webp",
   },
   {
     id: "ugd",
@@ -92,7 +92,7 @@ const CATEGORIES = [
     logoPx: { w: 238, h: 142 },
     logoW: 94.191,
     descW: 180,
-    photo: "/products/showcase/ugd-hero.png",
+    photo: "/products/showcase/ugd-hero-v2.webp",
   },
   {
     id: "tanks",
