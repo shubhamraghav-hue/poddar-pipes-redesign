@@ -44,9 +44,9 @@ export type ProductDetail = {
      * ProductDetailSections), so these also set the phone/tablet framing.
      * `washW`: the navy wash's width as a share of the box (AGRI 605/813).
      */
-    /** `mFocus`: the subject's vertical centre as a fraction of the image
-        height — where the square phone crop (Figma 2318:4688) centres. */
-    art: { w: number; h: number; centerY: number; washW?: number; mFocus: number };
+    art: { w: number; h: number; centerY: number; washW?: number };
+    /** Below `lg`: the client's flattened square "section 2" art (2334x2340). */
+    mobileArt: string;
   };
   why: { name: string; cards: WhyCard[] };
 };
@@ -58,35 +58,36 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       body: "Chlorinated polyvinyl chloride (CPVC) is a thermoplastic made by chlorinating PVC resin, used for hot and cold water distribution. It has been a preferred material for potable water supply worldwide for over 50 years.",
       scene: "/products/cpvc/molecule-scene.webp",
       cutout: "/products/cpvc/molecule.webp",
+      mobileArt: "/products/cpvc/what-is-mobile.webp",
       alt: "Ball-and-stick model of a CPVC polymer chain",
-      art: { w: 778, h: 1160, centerY: 40, mFocus: 0.4775 },
+      art: { w: 778, h: 1160, centerY: 40 },
     },
     why: {
       name: "CPVC?",
       cards: [
         {
           title: "Safe for Drinking Water Lines",
-          image: "/products/cpvc/figma-why-1.webp",
+          image: "/products/cpvc/why-v2-1.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "No Rust, Scale or Pitting",
-          image: "/products/cpvc/figma-why-2.webp",
+          image: "/products/cpvc/why-v2-2.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Built for Hot & Cold Water",
-          image: "/products/cpvc/figma-why-3.webp",
+          image: "/products/cpvc/why-v2-3.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Fire Retardant",
-          image: "/products/cpvc/figma-why-4.webp",
+          image: "/products/cpvc/why-v2-4.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Quick Cold-Weld Installation",
-          image: "/products/cpvc/figma-why-5.webp",
+          image: "/products/cpvc/why-v2-5.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
       ],
@@ -98,20 +99,21 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       body: "Unplasticised polyvinyl chloride (uPVC) is a thermoplastic used for cold water plumbing, water supply and underground drainage. It resists rust, corrosion and decay, with a lead-free solvent-weld system for homes and commercial buildings.",
       scene: "/products/upvc/molecule-scene.webp",
       cutout: "/products/upvc/molecule.webp",
+      mobileArt: "/products/upvc/what-is-mobile.webp",
       alt: "Ball-and-stick model of a PVC polymer chain",
-      art: { w: 778, h: 1160, centerY: 40, mFocus: 0.4775 },
+      art: { w: 778, h: 1160, centerY: 40 },
     },
     why: {
       name: "uPVC?",
       cards: [
         {
           title: "Lead-Free for Safe Drinking Water",
-          image: "/products/upvc/figma-why-1.webp",
+          image: "/products/upvc/why-v2-1.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Resistant to Chemicals",
-          image: "/products/upvc/figma-why-2.webp",
+          image: "/products/upvc/why-v2-2.webp",
           // Figma draws this 626x470 — 10px short of the card, which leaves a
           // strip of bare card under the footer. Scaled to 480 tall about the
           // same centre instead.
@@ -119,17 +121,17 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
         },
         {
           title: "Built for Cold Water & Drainage",
-          image: "/products/upvc/figma-why-3.webp",
+          image: "/products/upvc/why-v2-3.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Maintenance-Free",
-          image: "/products/upvc/figma-why-4.webp",
+          image: "/products/upvc/why-v2-4.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Quick Solvent-Weld Installation",
-          image: "/products/upvc/figma-why-5.webp",
+          image: "/products/upvc/why-v2-5.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
       ],
@@ -142,15 +144,16 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       // 848x1264 / 687x1024 — the largest these exist in the Figma file.
       scene: "/products/ugd/fittings-scene.webp",
       cutout: "/products/ugd/fittings.webp",
+      mobileArt: "/products/ugd/what-is-mobile.webp",
       alt: "Poddar UGD pipe fittings — bends, a Y-junction and couplers",
-      art: { w: 757, h: 1129, centerY: 100.5, mFocus: 0.49 },
+      art: { w: 757, h: 1129, centerY: 100.5 },
     },
     why: {
       name: "UGD?",
       cards: [
         {
           title: "Smooth Bore for High Flow",
-          image: "/products/ugd/figma-why-1.webp",
+          image: "/products/ugd/why-v2-1.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
@@ -158,22 +161,22 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
           // Figma flips this photo and rotates it 160.6deg inside the card;
           // that is BAKED into the file (at the source's own scale, nothing
           // upscaled) rather than done with CSS transforms.
-          image: "/products/ugd/figma-why-2.webp",
+          image: "/products/ugd/why-v2-2.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Lightweight Yet Load-Bearing",
-          image: "/products/ugd/figma-why-3.webp",
+          image: "/products/ugd/why-v2-3.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Corrosion Resistant",
-          image: "/products/ugd/figma-why-4.webp",
+          image: "/products/ugd/why-v2-4.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Quick Installation",
-          image: "/products/ugd/figma-why-5.webp",
+          image: "/products/ugd/why-v2-5.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
       ],
@@ -186,35 +189,36 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       // 1767x2633 — the largest this exists in the Figma file.
       scene: "/products/swr/pipes-scene.webp",
       cutout: "/products/swr/pipes.webp",
+      mobileArt: "/products/swr/what-is-mobile.webp",
       alt: "Poddar SWR pipes and fittings",
-      art: { w: 758, h: 1129, centerY: -20.5, mFocus: 0.482 },
+      art: { w: 758, h: 1129, centerY: -20.5 },
     },
     why: {
       name: "SWR?",
       cards: [
         {
           title: "Smooth Bore for High Flow Rates",
-          image: "/products/swr/figma-why-1.webp",
+          image: "/products/swr/why-v2-1.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Leak-Proof Ring & Solvent Joints",
-          image: "/products/swr/figma-why-2.webp",
+          image: "/products/swr/why-v2-2.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Corrosion & Abrasion Resistant",
-          image: "/products/swr/figma-why-3.webp",
+          image: "/products/swr/why-v2-3.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Built for Soil, Waste & Rainwater",
-          image: "/products/swr/figma-why-4.webp",
+          image: "/products/swr/why-v2-4.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Quick & Easy Installation",
-          image: "/products/swr/figma-why-5.webp",
+          image: "/products/swr/why-v2-5.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
       ],
@@ -226,35 +230,36 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       body: "Agri is a lead-free uPVC solvent-weld system, purpose-built for agricultural water supply. Poddar Agri pipes are made to IS 4985:2021 and come in sizes from 20 to 315mm across different pressure classes.",
       scene: "/products/agri/pipes-scene.webp",
       cutout: "/products/agri/pipes.webp",
+      mobileArt: "/products/agri/what-is-mobile.webp",
       alt: "Poddar Agri pipes stacked on a farm field",
-      art: { w: 813, h: 1212, centerY: -216, washW: 605 / 813, mFocus: 0.7 },
+      art: { w: 813, h: 1212, centerY: -216, washW: 605 / 813 },
     },
     why: {
       name: "AGRI?",
       cards: [
         {
           title: "UV Resistant",
-          image: "/products/agri/figma-why-1.webp",
+          image: "/products/agri/why-v2-1.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Zero Toxicity, Odour & Taste",
-          image: "/products/agri/figma-why-2.webp",
+          image: "/products/agri/why-v2-2.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "100% Leak-Proof Jointing",
-          image: "/products/agri/figma-why-3.webp",
+          image: "/products/agri/why-v2-3.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Withstands High Pressure",
-          image: "/products/agri/figma-why-4.webp",
+          image: "/products/agri/why-v2-4.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Cost-Efficient",
-          image: "/products/agri/figma-why-5.webp",
+          image: "/products/agri/why-v2-5.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
       ],
@@ -271,35 +276,36 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       bodyW: 505,
       scene: "/products/tank/tanks-scene.webp",
       cutout: "/products/tank/tanks.webp",
+      mobileArt: "/products/tank/what-is-mobile.webp",
       alt: "Two Poddar water storage tanks",
-      art: { w: 811, h: 1086, centerY: 0, mFocus: 0.5225 },
+      art: { w: 811, h: 1086, centerY: 0 },
     },
     why: {
       name: "PODDAR TANK?",
       cards: [
         {
           title: "Safe for Drinking Water",
-          image: "/products/tank/figma-why-1.webp",
+          image: "/products/tank/why-v2-1.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "100% Virgin Plastic",
-          image: "/products/tank/figma-why-2.webp",
+          image: "/products/tank/why-v2-2.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Anti-Bacterial Protection",
-          image: "/products/tank/figma-why-3.webp",
+          image: "/products/tank/why-v2-3.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Anti-Algae Protection",
-          image: "/products/tank/figma-why-4.webp",
+          image: "/products/tank/why-v2-4.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
         {
           title: "Anti-Fungal Protection",
-          image: "/products/tank/figma-why-5.webp",
+          image: "/products/tank/why-v2-5.webp",
           crop: { left: 0, top: 0, width: 400, height: 480 },
         },
       ],

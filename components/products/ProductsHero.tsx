@@ -6,13 +6,14 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * /products opener — Figma "CPVC Products Page - 2nd draft" > hero (node
  * 1731:7625): 1512x760 navy band under the navbar, the client's blue-wave
  * backdrop, copy at x150/y280, and on the right the
- * product cluster standing in an orange U that hangs from the top edge.
+ * product cluster. The mock's orange U behind it was REMOVED at every width
+ * (client, 2026-10-22: phones first, then "from desktop as well").
  *
- * The art (the cluster + the U) is ONE box drawn at the mock's 582x760 — from
- * the cluster's left edge (x780) to the U's right edge (x1362) — and every
- * piece inside it is a percentage of that box, so it scales as a unit:
+ * The art is ONE box drawn at the mock's 582x760 — from the cluster's left
+ * edge (x780) to where the U's right edge was (x1362), kept so the cluster
+ * stays exactly where the mock puts it — and the cluster inside it is a
+ * percentage of that box, so it scales as a unit:
  *
- *   U        x+102, y0, 480x560, 6px #f28000, open at the top
  *   cluster  x0, bottom 0, 514x680, image 106.48% wide from -1.14% (the
  *            mock's navy drop-shadow is left off: it darkened the backdrop)
  *
@@ -20,9 +21,6 @@ import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
  * whatever the 60px heading (~530 wide) leaves, so it keeps 30px clear of
  * it down to 1024. Below `lg` (no
  * frames exist) it drops under the copy, centred, still bottom-flush.
- *
- * From `lg` the U's sides run on up past the box to the band's top edge, so
- * it still hangs from the top when the art is scaled down.
  */
 export async function ProductsHero({
   /** "h2" on /products and the range URLs, whose H1 is the range name. */
@@ -62,10 +60,6 @@ export async function ProductsHero({
           aria-hidden="true"
           className="relative mx-auto mt-10 aspect-[582/760] w-[min(582px,88vw)] md:mt-14 lg:absolute lg:bottom-0 lg:right-10 lg:mt-0 lg:w-[min(582px,calc(100vw-640px))] xl:right-[150px] xl:w-[min(582px,calc(100vw-860px))]"
         >
-          {/* The orange U only exists in the side-by-side layout: once the
-              title stacks above the photo (below `lg`) it is gone (client
-              deck 2026-10-22, slide 2246:15511). */}
-          <div className="absolute bottom-[26.32%] left-[17.53%] top-[-1000px] hidden w-[82.47%] rounded-b-[1000px] border-x-[6px] border-b-[6px] border-[#f28000] lg:block" />
           <div className="absolute bottom-0 left-0 h-[89.47%] w-[88.32%]">
             <div className="absolute inset-0 overflow-hidden">
               <Image
