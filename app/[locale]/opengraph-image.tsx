@@ -27,7 +27,7 @@ export const contentType = "image/png";
 const MARK = 360;
 
 export default async function OpengraphImage() {
-  const svg = await readFile(join(process.cwd(), "public", "icon-mark.svg"));
+  const svg = await readFile(join(process.cwd(), "public", "logo.svg.svg"));
   const src = `data:image/svg+xml;base64,${svg.toString("base64")}`;
   return new ImageResponse(
     (
