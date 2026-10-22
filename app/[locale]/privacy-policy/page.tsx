@@ -17,7 +17,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/privacy-policy",
-    title: t("seo.privacyTitle"),
+    title: (await getTranslations({ locale: "en" }))("seo.privacyTitle"),
     description: t("seo.privacyDescription"),
   });
 }

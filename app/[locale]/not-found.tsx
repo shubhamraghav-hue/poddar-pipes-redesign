@@ -23,15 +23,13 @@ export default async function NotFound() {
         <>
           <Button
             asChild
-            size="lg"
-            variant="accent"
-            // Navy (text-ink) on orange, pinned here as well as in the
-            // variant: white on #f5951f fails WCAG contrast.
-            className="w-full text-ink shadow-[0_10px_40px_-8px_rgba(242,128,0,0.6)] hover:-translate-y-0.5"
+            size="figma"
+            variant="figma-orange"
+            className="w-full"
           >
             <Link href="/">{t("backButton")}</Link>
           </Button>
-          <Button asChild size="lg" variant="outline-white" className="w-full">
+          <Button asChild size="figma" variant="figma-white" className="w-full">
             <Link href="/products">{t("productsButton")}</Link>
           </Button>
         </>

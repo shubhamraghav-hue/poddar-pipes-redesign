@@ -21,7 +21,7 @@ export async function generateMetadata({
     // SEO-004 (2026-10-19): not linked from the site and content not yet
     // confirmed, so kept out of search and the sitemap. Works for visitors.
     noindex: true,
-    title: t("seo.sustainabilityTitle"),
+    title: (await getTranslations({ locale: "en" }))("seo.sustainabilityTitle"),
     description: t("seo.sustainabilityDescription"),
   });
 }

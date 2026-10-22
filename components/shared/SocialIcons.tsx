@@ -1,91 +1,26 @@
-// Ported from the poddarpipes.com "coming soon" site
-// (D:\Projects\poddar-pipes-launching-soon\components\SocialIcons.tsx) —
-// same real handles, same inline currentColor SVGs (an externally-referenced
-// <img src> can't inherit text color, which the hover/opacity treatment
-// below depends on), same hover mechanic — kept as opacity-70 -> opacity-100
-// rather than the sitewide flow-cyan color-shift hover, since the footer's
-// Figma mock (Ideation 2, node 8:7) is a static frame with no hover variant
-// to match colors against, and this is the pre-existing footer convention.
-// Facebook added 2026-10-12 with the client's page URL (it leads the row, as
-// in the Figma footer node 1530:7351). Only used by the footer.
-type IconName = "facebook" | "x" | "linkedin" | "youtube" | "instagram";
-
-const ICONS: Record<IconName, { viewBox: string; path: string }> = {
-  // The "f" alone, in the same 30x30 box as X / LinkedIn / YouTube; its ink is
-  // ~31% x 56% of the box — in line with LinkedIn's 52% — so the shared size
-  // and ring values below fit it without a special case.
-  facebook: {
-    viewBox: "0 0 30 30",
-    path: "M16.6 23.5V15.8H19.2L19.6 12.8H16.6V10.9C16.6 10.03 16.84 9.44 18.09 9.44H19.68V6.75C19.4 6.71 18.46 6.63 17.36 6.63C15.06 6.63 13.49 8.03 13.49 10.61V12.8H10.89V15.8H13.49V23.5H16.6Z",
-  },
-  x: {
-    viewBox: "0 0 30 30",
-    path: "M12.1386 15.8278C9.81322 12.5689 7.5045 9.37259 5.19995 6.13039C5.91674 5.99704 10.4633 5.95537 12.3345 6.05538C13.6805 7.93069 15.0432 9.83517 16.4018 11.7271C16.7185 11.7438 16.8185 11.4854 16.9685 11.3271C18.3813 9.83099 19.7815 8.32658 21.1859 6.82216C21.4359 6.55545 21.6902 6.28874 21.9319 6.03453C22.7528 6.03453 23.5405 6.03453 24.3281 6.03453C24.4656 6.2804 24.2406 6.37209 24.1281 6.48878C22.2069 8.55162 20.2774 10.6103 18.3479 12.669C18.1146 12.9148 17.8937 13.1732 17.6353 13.4566C18.8939 15.2152 20.1357 16.9447 21.3693 18.6783C22.6028 20.4077 23.8489 22.1289 25.0574 23.8375C25.0032 23.9333 24.9907 23.9625 24.974 23.975C24.9574 23.9917 24.9282 24 24.9074 24C22.6153 24 20.3233 24 17.9896 24C16.5351 21.9705 15.0766 19.941 13.5972 17.8823C13.3221 17.9657 13.1846 18.1991 13.0179 18.3782C11.4468 20.0494 9.88406 21.7288 8.31713 23.3999C8.13794 23.5916 7.93791 23.7624 7.7087 23.9833C6.95025 23.9833 6.14178 23.9833 5.34165 23.9833C5.23747 23.7624 5.41665 23.6833 5.5125 23.5791C7.59618 21.3412 9.6882 19.1117 11.776 16.878C11.9719 16.6655 12.1678 16.4529 12.372 16.2237C12.3095 16.0945 12.2428 15.9862 12.1386 15.8278ZM16.4101 18.5199C17.2769 19.7076 18.1063 20.9203 18.9897 22.0913C19.7732 22.0913 20.5066 22.0913 21.2443 22.0913C21.2651 22.0913 21.2901 22.0747 21.3026 22.058C21.3193 22.0372 21.3276 22.0122 21.3693 21.9413C18.0437 17.2989 14.7057 12.6356 11.3426 7.93901C10.6592 7.93901 9.97574 7.93485 9.29229 7.94318C9.17561 7.94318 9.02142 7.88901 8.97141 8.07237C8.99225 8.12238 9.00475 8.1724 9.03392 8.21407C11.4718 11.6146 13.9056 15.0193 16.4101 18.5199Z",
-  },
-  linkedin: {
-    viewBox: "0 0 30 30",
-    path: "M7.45987 12.3792H10.6973V22.8H7.45987V12.3792ZM9.07717 7.19995C10.113 7.19995 10.9513 8.04289 10.9513 9.07818C10.9513 10.1135 10.113 10.9564 9.07717 10.9564C8.03848 10.9564 7.2002 10.1135 7.2002 9.07818C7.2002 8.04289 8.04131 7.19995 9.07717 7.19995ZM12.7238 22.8H15.9528V17.6461C15.9528 16.2884 16.2096 14.9703 17.8919 14.9703C19.5487 14.9703 19.5712 16.5232 19.5712 17.7338V22.8H22.8002V17.0861C22.8002 14.2801 22.1962 12.1218 18.9249 12.1218C17.3499 12.1218 16.2971 12.9845 15.8653 13.8048H15.823V12.3792H12.7238V22.8Z",
-  },
-  youtube: {
-    viewBox: "0 0 30 30",
-    path: "M26 12.0562C26 9.37485 23.846 7.19995 21.1905 7.19995H8.8095C6.15397 7.19995 4 9.37485 4 12.0562V17.5437C4 20.2251 6.15397 22.4 8.8095 22.4H21.1905C23.846 22.4 26 20.2251 26 17.5437V12.0562ZM19.1911 14.9456L13.6533 17.6998C13.4369 17.8177 12.6811 17.6617 12.6811 17.4119V11.7544C12.6811 11.5047 13.4438 11.3451 13.6602 11.47L18.9507 14.3698C19.1705 14.4982 19.4144 14.8207 19.1911 14.9456Z",
-  },
-  instagram: {
-    viewBox: "0 0 21 22",
-    path: "M17.0981 4.93788C17.0981 5.6159 16.5576 6.16721 15.8929 6.16721C15.2282 6.16721 14.6877 5.6159 14.6877 4.93788C14.6877 4.25987 15.2282 3.70854 15.8929 3.70854C16.5576 3.70854 17.0981 4.25987 17.0981 4.93788ZM15.5975 10.451C15.5975 13.3001 13.3247 15.6149 10.5315 15.6149C7.73831 15.6149 5.46885 13.2967 5.46885 10.451C5.46885 7.602 7.74166 5.28373 10.5315 5.28373C13.3247 5.28373 15.5975 7.602 15.5975 10.451ZM13.7745 10.451C13.7745 8.62587 12.3175 7.14314 10.5315 7.14314C8.74546 7.14314 7.28844 8.6293 7.28844 10.451C7.28844 12.2762 8.74546 13.7589 10.5315 13.7589C12.3175 13.7589 13.7745 12.2762 13.7745 10.451ZM20.7843 6.30076C20.7843 2.82164 18.018 0 14.6071 0H6.17722C2.76632 0 0 2.82164 0 6.30076V14.8992C0 18.3784 2.76632 21.2 6.17722 21.2H14.6071C18.018 21.2 20.7843 18.3784 20.7843 14.8992V6.30076ZM18.7566 14.8034C18.7566 17.1935 16.8564 19.1317 14.5131 19.1317H6.26787C3.92455 19.1317 2.02438 17.1935 2.02438 14.8034V6.39664C2.02438 4.00646 3.92455 2.0683 6.26787 2.0683H14.5131C16.8564 2.0683 18.7566 4.00646 18.7566 6.39664V14.8034Z",
-  },
-};
-
-// `size` is the DESKTOP box; `ring` is the mobile box inside the circle.
-//
-// They are not one number because the four glyphs do not fill their viewBoxes
-// anywhere near equally — measured with `getBBox()`:
-//
-//   icon        viewBox   ink as % of viewBox
-//   x           30x30     66% x 60%
-//   linkedin    30x30     52% x 52%
-//   youtube     30x30     73% x 51%
-//   instagram   21x22     99% x 96%   <- fills it
-//
-// So at a common box size Instagram's ink came out 19.3px tall against the
-// others' 11-13, which is why it read as much bigger than the rest. Its box is
-// therefore ~46% of theirs, which lands its INK below the ~12.5px the others
-// sit at. The desktop `size` already nudged at this (20 vs 22) but 9% nowhere
-// near covers a 96%-vs-52% difference.
-//
-// It is deliberately UNDER-matched on ink rather than level with it. Matching
-// ink heights exactly (ring 13 / size 20) was the previous setting and still
-// read as the largest glyph of the four, because Instagram is a closed
-// rounded-square outline: it encloses area where "in", the bird and the play
-// triangle are open letterforms, so equal ink height is not equal visual
-// weight. 11/17 is ~15% under the others' ink and is where it stops standing
-// out. Both were lowered together so the two breakpoints stay in proportion.
-const LINKS: { name: string; href: string; icon: IconName; size: number; ring: number }[] = [
-  { name: "Facebook", href: "https://www.facebook.com/PoddarPipes/", icon: "facebook", size: 22, ring: 24 },
-  { name: "X", href: "https://x.com/Poddarpipe", icon: "x", size: 22, ring: 24 },
-  { name: "LinkedIn", href: "https://www.linkedin.com/company/poddar-pipes/", icon: "linkedin", size: 22, ring: 24 },
-  { name: "YouTube", href: "https://youtube.com/@poddarpipes", icon: "youtube", size: 22, ring: 24 },
-  { name: "Instagram", href: "https://www.instagram.com/poddarpipes", icon: "instagram", size: 17, ring: 11 },
+// The footer's social row. Both breakpoints use Figma's OWN white icon SVGs
+// (public/brand/social, exported from the desktop footer node 1530:7177) —
+// the same artwork everywhere, just smaller on phones (client, 2026-10-22: "use
+// the figma icons on mobile too"). The phone row used to draw a different,
+// older glyph set ported from the "coming soon" site, in grey at 70%, so the
+// icons visibly changed below `lg`. Only used by the footer.
+const LINKS: { name: string; file: string; href: string }[] = [
+  { name: "Facebook", file: "facebook", href: "https://www.facebook.com/PoddarPipes/" },
+  { name: "X", file: "x", href: "https://x.com/Poddarpipe" },
+  { name: "LinkedIn", file: "linkedin", href: "https://www.linkedin.com/company/poddar-pipes/" },
+  { name: "YouTube", file: "youtube", href: "https://youtube.com/@poddarpipes" },
+  { name: "Instagram", file: "instagram", href: "https://www.instagram.com/poddarpipes" },
 ];
 
 /**
- * Desktop footer row, EXACTLY Figma node 1530:7177: the five icons are the
- * mock's own white SVGs (public/brand/social), 30px boxes, 13px gaps (Figma
- * footer 1979:32591), starting 10px LEFT of the address text (the icons' own
- * padding brings their ink into line). Instagram is Figma's 30px component
- * (its 48-unit artwork), same box as the others.
+ * Desktop footer row, EXACTLY Figma node 1530:7177: the five white SVGs in
+ * 30px boxes, 13px gaps (Figma footer 1979:32591), starting 10px LEFT of the
+ * address text (the icons' own padding brings their ink into line).
  */
 function SocialIconsFigma() {
-  const order: { name: string; file: string; href: string }[] = [
-    { name: "Facebook", file: "facebook", href: LINKS.find((l) => l.icon === "facebook")!.href },
-    { name: "X", file: "x", href: LINKS.find((l) => l.icon === "x")!.href },
-    { name: "LinkedIn", file: "linkedin", href: LINKS.find((l) => l.icon === "linkedin")!.href },
-    { name: "YouTube", file: "youtube", href: LINKS.find((l) => l.icon === "youtube")!.href },
-    { name: "Instagram", file: "instagram", href: LINKS.find((l) => l.icon === "instagram")!.href },
-  ];
   return (
     <div className="-ml-[10px] flex items-center gap-[13px]">
-      {order.map((l) => (
+      {LINKS.map((l) => (
         <a
           key={l.name}
           href={l.href}
@@ -95,13 +30,34 @@ function SocialIconsFigma() {
           className="block size-[30px] transition-opacity hover:opacity-80"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- Figma SVG asset at its own size */}
-          <img
-            src={`/brand/social/${l.file}.svg`}
-            alt=""
-            width={30}
-            height={30}
-            className="block size-[30px]"
-          />
+          <img src={`/brand/social/${l.file}.svg`} alt="" width={30} height={30} className="block size-[30px]" />
+        </a>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Mobile footer row: the desktop row above, scaled to 80% (client,
+ * 2026-10-22: "use the same icons we are using for desktop just reduce the
+ * size") — the same white SVGs with no rings, 24px boxes (Figma's mobile icon
+ * size), 10px gaps and the 8px left pull-in, i.e. 30 / 13 / 10 x 0.8. The
+ * `before:` box keeps a 40px tap target around each 24px icon.
+ */
+function SocialIconsMobile() {
+  return (
+    <div className="-ml-2 flex items-center gap-[10px]">
+      {LINKS.map((l) => (
+        <a
+          key={l.name}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={l.name}
+          className="relative block size-6 transition-opacity before:absolute before:-inset-2 before:content-[''] hover:opacity-80"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- Figma SVG asset */}
+          <img src={`/brand/social/${l.file}.svg`} alt="" width={24} height={24} className="block size-6" />
         </a>
       ))}
     </div>
@@ -109,40 +65,5 @@ function SocialIconsFigma() {
 }
 
 export function SocialIcons({ variant = "default" }: { variant?: "default" | "figma" } = {}) {
-  if (variant === "figma") return <SocialIconsFigma />;
-  // Figma node 1311:10880-10895 draws 24px rings on a 34px pitch. Those read
-  // as too small in the build, so the ring is 32px here on a 42px pitch — a
-  // deliberate step up from the mock, at the client's call. Bare icons at the
-  // existing 20px gap from `lg`, which is what the desktop footer node draws.
-  return (
-    <div className="flex items-center gap-[10px] lg:gap-5">
-      {LINKS.map((link) => {
-        const icon = ICONS[link.icon];
-        return (
-          <a
-            key={link.name}
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={link.name}
-            className="group relative flex size-8 items-center justify-center rounded-full border border-[#c0c0c0]/60 text-[#c0c0c0] opacity-70 transition before:absolute before:-inset-1.5 before:content-[''] hover:opacity-100 lg:size-auto lg:border-0 lg:p-2"
-          >
-            <svg
-              viewBox={icon.viewBox}
-              fill="currentColor"
-              aria-hidden="true"
-              // Per-icon on BOTH breakpoints. It was a flat 18px on mobile,
-              // on the assumption the mock sizing all five the same meant the
-              // glyphs were drawn to a common grid; they are not — see the
-              // `getBBox()` table above.
-              style={{ "--s": `${link.size}px`, "--r": `${link.ring}px` } as React.CSSProperties}
-              className="size-[var(--r)] transition-transform duration-200 group-hover:scale-110 lg:size-[var(--s)]"
-            >
-              <path d={icon.path} />
-            </svg>
-          </a>
-        );
-      })}
-    </div>
-  );
+  return variant === "figma" ? <SocialIconsFigma /> : <SocialIconsMobile />;
 }

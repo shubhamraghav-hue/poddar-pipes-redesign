@@ -37,12 +37,31 @@ const buttonVariants = cva(
         "outline-white":
           "border-2 border-white/70 bg-transparent text-white hover:border-white hover:bg-white/10",
         link: "text-ocean-600 underline-offset-4 hover:underline p-0 h-auto rounded-none",
+        // FIGMA BUTTON SYSTEM (component sets 2011:5042 / 1913:18725 "Button/main"
+        // and 1913:20273 "Icon(R) Button", 2026-10-22). Every hover is the rest
+        // fill with a black 20% layer on top, smart-animated ease-out 120ms;
+        // "inactive" is the rest fill with a white 35% layer (white outline:
+        // #606060 stroke + text). Both layers are pre-composited to solid hex
+        // so the colour is exact on any background:
+        //   orange #f28000 → hover #c26600, inactive #f7ac59 (text turns white)
+        //   blue   #171796 → hover #121278, inactive #6868bb
+        //   white  1.2px white stroke → hover adds black 20% fill
+        // Inactive maps to `disabled`, which keeps the base's
+        // pointer-events-none, so a disabled button never shows the hover.
+        "figma-orange":
+          "bg-[#f28000] text-[#0b0b52] duration-[120ms] ease-out hover:bg-[#c26600] disabled:bg-[#f7ac59] disabled:text-white disabled:opacity-100",
+        "figma-blue":
+          "bg-[#171796] text-white duration-[120ms] ease-out hover:bg-[#121278] disabled:bg-[#6868bb] disabled:opacity-100",
+        "figma-white":
+          "bg-transparent text-white shadow-[inset_0_0_0_1.2px_#fff] duration-[120ms] ease-out hover:bg-black/20 disabled:text-[#606060] disabled:shadow-[inset_0_0_0_1.2px_#606060] disabled:opacity-100",
       },
       size: {
         default: "h-12 px-6",
         sm: "h-10 px-5 text-sm",
         lg: "h-14 px-8 text-base",
         icon: "h-11 w-11",
+        // Figma's 46px pill: 24px sides, 18px SemiBold caps at 2% tracking.
+        figma: "h-[46px] px-6 py-0 type-button font-semibold uppercase",
       },
     },
     defaultVariants: {
@@ -76,8 +95,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // array; 1.3+ throws "Slot failed to slot onto its children" instead,
     // which is what actually surfaced this — every `asChild` button on the
     // site was invisible before this fix.
+    // `asChild`: the single child IS the button, so its own bare-string
+    // label never got the trim span and sat high — "VIEW ALL PRODUCTS" on
+    // the home page rode ~2px above the pill's centre (client 2026-10-22).
+    // A child whose only content is a string gets that string wrapped,
+    // cloned so Slot still receives one bare element.
     const content = asChild
-      ? children
+      ? React.isValidElement<{ children?: React.ReactNode }>(children) &&
+        typeof children.props.children === "string"
+        ? React.cloneElement(
+            children,
+            undefined,
+            <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">
+              {children.props.children}
+            </span>
+          )
+        : children
       : React.Children.map(children, (child) =>
           typeof child === "string" ? (
             <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">

@@ -15,11 +15,14 @@ import {
 } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { setScrollLocked } from "@/hooks/useLenis";
+import { cn } from "@/lib/utils";
 import { EnquiryForm, PartnerForm, type EnquiryPreset } from "@/components/enquiry/EnquiryForm";
-import { downloads } from "@/lib/data/blog";
+import { downloads as downloadsEn } from "@/lib/data/blog";
+import { downloadsHi } from "@/lib/data/hi/blog";
+import { hasOverlays, localizeList } from "@/lib/i18n/localize";
 
 /**
  * The global enquiry pop-up (Figma node 1605:11496).
@@ -49,6 +52,9 @@ const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
 export function EnquiryProvider({ children }: { children: ReactNode }) {
   const t = useTranslations("enquiryDialog");
+  // Catalogue titles per locale (Hindi overlay: lib/data/hi/blog.ts).
+  const locale = useLocale();
+  const downloads = hasOverlays(locale) ? localizeList(downloadsEn, downloadsHi, "id") : downloadsEn;
   const [isOpen, setIsOpen] = useState(false);
   // Which form the pop-up shows: the contact form, or "Become a Partner".
   const [mode, setMode] = useState<"enquiry" | "partner">("enquiry");
@@ -138,7 +144,13 @@ export function EnquiryProvider({ children }: { children: ReactNode }) {
                     // open; this lets wheel and touch scroll the panel itself
                     // natively when the form is taller than the screen.
                     data-lenis-prevent
-                    className="pointer-events-auto relative max-h-[calc(100dvh-32px)] w-full max-w-[621px] overflow-y-auto overscroll-contain rounded-[20px] border border-[#c0c0c0] bg-[#fbfbfb] px-5 pb-8 pt-16 shadow-[0_24px_64px_-16px_rgba(11,11,82,0.45)] focus:outline-none sm:px-[35px] sm:pb-[41px] sm:pt-20"
+                    // The partner form runs 20% wider from `lg` (client deck
+                    // 2026-10-22, slide 2246:15332): 745 vs 621, so its paired
+                    // fields get room on a desktop screen.
+                    className={cn(
+                      "pointer-events-auto relative max-h-[calc(100dvh-32px)] w-full max-w-[621px] overflow-y-auto overscroll-contain rounded-[20px] border border-[#c0c0c0] bg-[#fbfbfb] px-5 pb-8 pt-16 shadow-[0_24px_64px_-16px_rgba(11,11,82,0.45)] focus:outline-none sm:px-[35px] sm:pb-[41px] sm:pt-20",
+                      mode === "partner" && "lg:max-w-[745px]"
+                    )}
                     initial={{ opacity: 0, scale: 0.96, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98, y: 6 }}

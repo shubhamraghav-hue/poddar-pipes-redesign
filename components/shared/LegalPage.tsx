@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { LegalSection } from "@/types";
-import { useTranslations } from "next-intl";
-import { COMPANY } from "@/lib/data/offices";
+import { useLocale, useTranslations } from "next-intl";
+import { COMPANY, getAddress } from "@/lib/data/offices";
 
 export function LegalIntro({ paragraphs }: { paragraphs: string[] }) {
   return (
@@ -73,11 +73,13 @@ function LegalUL({ items }: { items: string[] }) {
 /** The one piece of real contact data both legal pages point to. */
 export function LegalContactBlock() {
   const t = useTranslations("legal");
+  // Hindi address on /hi (client, 2026-10-22).
+  const locale = useLocale();
   return (
     <address className="mt-4 not-italic type-body leading-[1.7] text-slate-900/80">
       {COMPANY.legalName}
       <br />
-      {COMPANY.address.oneLine}
+      {getAddress(locale).oneLine}
       <br />
       {t("emailLabel")}{" "}
       <a

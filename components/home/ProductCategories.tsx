@@ -114,7 +114,7 @@ const TANK_BOX = { left: (-92 / 400) * 100, top: ((274 + 1 - 275) / 274) * 100, 
 
 // Hover travel, in cqw of the 400px card: 50px, 122px, 66px.
 const LIFT = "group-hover:-translate-y-[12.5cqw] group-focus-visible:-translate-y-[12.5cqw] [@media(hover:none)]:-translate-y-[12.5cqw]";
-const MOTION = "transition-transform duration-500 ease-out";
+const MOTION = "transition-transform duration-300 ease-out";
 
 /**
  * Phone card (below `sm`) — Figma mobile home 2015:5548: a 342x200 white card,
@@ -249,9 +249,9 @@ export async function ProductCategories() {
           <RevealOnScroll className="flex w-full justify-center">
             <Button
               asChild
-              variant="accent-ink"
-              size="lg"
-              className="h-auto w-full max-w-[307px] px-6 pb-3 pt-4 type-button font-semibold text-[#0B0B52] uppercase hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
+              variant="figma-orange"
+              size="figma"
+              className="w-full max-w-[307px] sm:w-auto sm:max-w-none"
             >
               <Link href="/products">{t("categoriesCta")}</Link>
             </Button>

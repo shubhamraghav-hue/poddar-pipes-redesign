@@ -24,7 +24,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: `/products/${DEFAULT_RANGE.id}`,
-    title: seo.metaTitle,
+    title: DEFAULT_RANGE.metaTitle,
     description: seo.metaDescription,
   });
 }

@@ -17,7 +17,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/careers",
-    title: t("seo.careersTitle"),
+    title: (await getTranslations({ locale: "en" }))("seo.careersTitle"),
     description: t("seo.careersDescription"),
   });
 }
@@ -69,7 +69,7 @@ export default async function CareersPage({
             <div className="flex min-w-0 flex-col gap-3 lg:items-end">
               <a
                 href={`mailto:${COMPANY.hrEmail}?subject=${encodeURIComponent("Career enquiry")}`}
-                className="inline-flex h-[46px] items-center justify-center gap-2 self-start rounded-full bg-[#f28000] px-6 type-button font-semibold uppercase text-[#0b0b52] transition-[filter] hover:brightness-95 lg:self-end"
+                className="inline-flex h-[46px] items-center justify-center gap-2 self-start rounded-full bg-[#f28000] px-6 type-button font-semibold uppercase text-[#0b0b52] transition-colors duration-[120ms] ease-out hover:bg-[#c26600] lg:self-end"
               >
                 <Mail className="h-4 w-4" aria-hidden="true" />
                 <span className="leading-none [text-box-edge:cap_alphabetic] [text-box-trim:trim-both]">

@@ -1,8 +1,8 @@
 import { Factory } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
-import { COMPANY } from "@/lib/data/offices";
+import { COMPANY, getPlant } from "@/lib/data/offices";
 
 /**
  * Kept in `components/about/` for its import path only — /manufacturing is
@@ -18,6 +18,8 @@ export async function Facilities() {
   // Place names per locale (messages: places.*); English keys = the data values.
   const tPlace = await getTranslations("places");
   const plant = COMPANY.plant;
+  // The address line itself is localised (Hindi on /hi, client 2026-10-22).
+  const locale = await getLocale();
   return (
     <section className="container-figma py-24 md:py-28">
       <SectionHeading
@@ -39,7 +41,7 @@ export async function Facilities() {
               {tPlace(plant.locality as never)}, {tPlace(plant.region as never)}
             </h3>
             <address className="mt-2 not-italic text-sm leading-relaxed text-slate-600 sm:text-base">
-              {plant.oneLine}
+              {getPlant(locale).oneLine}
             </address>
           </div>
         </div>

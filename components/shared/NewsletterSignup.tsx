@@ -89,26 +89,34 @@ export function NewsletterSignup() {
           type="submit"
           size="icon"
           aria-label={t("newsletterSubmit")}
-          variant="accent"
+          variant="figma-orange"
           disabled={submitting}
           aria-busy={submitting || undefined}
-          className="h-[44px] w-[44px] shrink-0 rounded-full bg-[#f28000] hover:bg-[#f28000] hover:brightness-95 lg:h-[47px] lg:w-[47px]"
+          className="h-[44px] w-[44px] shrink-0 rounded-full lg:h-[47px] lg:w-[47px]"
         >
-          {/* Figma's own send glyph (node 1530:7200, public/brand/send.svg), 26px
-              in the 47px button at Figma's offset — 8 from the left, 13 from
-              the top, i.e. 2.5px left of and below centre (≈9.6% of the
-              glyph), the optical nudge a paper plane needs in a circle. */}
+          {/* Figma's own send glyph (public/brand/send.svg). SMALLER and
+              re-centred (client, 2026-10-22: "too big and visually off
+              center"). Size is the mobile mock's (node 2015:5669): 19px in the
+              44px circle, ~43% of it — and the same ratio from `lg` (20px in
+              47) rather than desktop node 1530:7200's 26px, which is the size
+              the client called too big.
+
+              NO nudge: the glyph's ink spans its whole 26x26 box (0–26 on
+              both axes), so the box centred in the circle IS the plane
+              centred. Two optical offsets were tried — desktop Figma's 9.6%
+              and a 4.6% "centroid" shift, both left and down — and each read
+              as the plane sitting low-left (client, 2026-10-22, twice). */}
           {submitting ? (
-            <Loader2 className="size-[19px] animate-spin lg:size-[23.33px]" />
+            <Loader2 className="size-[19px] animate-spin lg:size-[20px]" />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element -- a 26px SVG glyph
+            // eslint-disable-next-line @next/next/no-img-element -- a small SVG glyph
             <img
               src="/brand/send.svg"
               alt=""
               aria-hidden="true"
-              width={26}
-              height={26}
-              className="size-[22px] translate-x-[-9.6%] translate-y-[9.6%] lg:size-[26px]"
+              width={20}
+              height={20}
+              className="size-[19px] lg:size-[20px]"
             />
           )}
         </Button>

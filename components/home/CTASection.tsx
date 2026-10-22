@@ -29,8 +29,10 @@ function CtaLink({ href, ...props }: React.ComponentProps<typeof Link> & { href:
 // Flush variant only: Figma styles the two sentences differently (white lead,
 // amber second). Split at the sentence boundary rather than adding separate
 // translation keys, since every locale already ships `ctaTitle` as a pair.
+// `।` (the Devanagari danda) ends a Hindi sentence — without it /hi rendered
+// the whole title as one plain lead line (client feedback, 2026-10-22).
 function splitLeadAccent(text: string): [string, string] {
-  const match = text.match(/^(.*?[.!?])\s+([\s\S]*)$/);
+  const match = text.match(/^(.*?[.!?।])\s+([\s\S]*)$/);
   return match ? [match[1], match[2]] : [text, ""];
 }
 
@@ -109,9 +111,9 @@ export async function CTASection({
     >
       <Button
         asChild
-        size="lg"
-        variant="accent-ink"
-        className="h-[46px] px-6 py-0 type-button max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase text-[#0B0B52] hover:text-[#0B0B52]"
+        size="figma"
+        variant="figma-orange"
+        className="max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center"
       >
         <CtaLink href={resolvedPrimaryHref}>
           <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedPrimary}</span>
@@ -123,9 +125,9 @@ export async function CTASection({
       {secondaryHref !== "#catalogues" && (
         <Button
           asChild
-          size="lg"
-          variant="outline-white"
-          className="h-[46px] border-0 px-6 py-0 type-button max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center font-semibold uppercase shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
+          size="figma"
+          variant="figma-white"
+          className="max-sm:h-auto max-sm:min-h-[46px] max-sm:whitespace-normal max-sm:py-3 max-sm:text-center"
         >
           <CtaLink href={secondaryHref}>
             <span className={`${CAP_TRIM} max-sm:leading-[1.15]`}>{resolvedSecondary}</span>

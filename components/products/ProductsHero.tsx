@@ -62,7 +62,10 @@ export async function ProductsHero({
           aria-hidden="true"
           className="relative mx-auto mt-10 aspect-[582/760] w-[min(582px,88vw)] md:mt-14 lg:absolute lg:bottom-0 lg:right-10 lg:mt-0 lg:w-[min(582px,calc(100vw-640px))] xl:right-[150px] xl:w-[min(582px,calc(100vw-860px))]"
         >
-          <div className="absolute left-[17.53%] top-0 h-[73.68%] w-[82.47%] lg:bottom-[26.32%] lg:top-[-1000px] lg:h-auto rounded-b-[1000px] border-x-[6px] border-b-[6px] border-[#f28000]" />
+          {/* The orange U only exists in the side-by-side layout: once the
+              title stacks above the photo (below `lg`) it is gone (client
+              deck 2026-10-22, slide 2246:15511). */}
+          <div className="absolute bottom-[26.32%] left-[17.53%] top-[-1000px] hidden w-[82.47%] rounded-b-[1000px] border-x-[6px] border-b-[6px] border-[#f28000] lg:block" />
           <div className="absolute bottom-0 left-0 h-[89.47%] w-[88.32%]">
             <div className="absolute inset-0 overflow-hidden">
               <Image

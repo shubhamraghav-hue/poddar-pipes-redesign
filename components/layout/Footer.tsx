@@ -1,9 +1,11 @@
+"use client";
+
 import { ChevronDown } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 import { SocialIcons } from "@/components/shared/SocialIcons";
-import { COMPANY } from "@/lib/data/offices";
+import { COMPANY, getAddressLines } from "@/lib/data/offices";
 import { RangeLink } from "@/components/shared/RangeLink";
 
 /**
@@ -18,26 +20,30 @@ import { RangeLink } from "@/components/shared/RangeLink";
  * and as their own row below it, gated by `lg:hidden` / `hidden lg:block`
  * rather than duplicated markup.
  *
- * MOBILE follows Figma node 1311:10827, which is a different layout rather
- * than a narrower one:
- *   - The three link groups COLLAPSE into accordions with a chevron and a rule
- *     under each, instead of sitting side by side expanded.
- *   - They come BEFORE the logo block, not after it (`order-*` below `lg`).
+ * MOBILE (below `lg`) follows Figma node 2015:5641 ("footer mobile", 402
+ * wide), which is a different layout rather than a narrower one:
+ *   - 30px gutters, and every rule runs FULL-BLEED edge to edge.
+ *   - Newsletter first, then the three link groups COLLAPSED into accordions
+ *     (rule above and below each, 45.85px pitch, 20x21 #c0c0c0 chevron), then
+ *     the logo block (`order-*` below `lg`).
  *   - Everything is left-aligned; the mock centres nothing below the CTA.
  *   - Type drops to 13px (headings, links, address, contacts) and 10px (legal),
  *     from 14px and 12px.
- *   - The address is `#c0c0c0`, not white, and wraps to three lines.
+ *   - The address is `#c0c0c0`, not white.
  *   - Email and phone stack instead of sharing a line with a `|`.
  *   - Socials become 18px glyphs inside 24px rings on a 34px pitch. The rings
  *     are mobile-only — Figma's desktop footer (node 1311:10981) draws bare
  *     30px icons.
- *   - The legal links stack right-aligned rather than sitting in a row.
+ *   - The copyright wraps to two lines on the left, the legal links stack
+ *     right-aligned beside it.
  *
- * The accordions are `<details>`/`<summary>`, so they need no client JS and
- * keep this a server component. Desktop renders its own expanded columns
- * (`hidden lg:flex`) rather than trying to force a `<details>` open with CSS,
- * which is not reliable across browsers — the same duplication trade already
- * used for the social icons above.
+ * The accordions are `<details>`/`<summary>`, so they open with no JS.
+ * Desktop renders its own expanded columns (`hidden lg:flex`) rather than
+ * trying to force a `<details>` open with CSS, which is not reliable across
+ * browsers — the same duplication trade already used for the social icons
+ * above. This is a client component ONLY for `usePathname`: the footer lives
+ * in the layout and survives navigation, so the accordions are keyed on the
+ * path and remount closed on every route change (client, 2026-10-22).
  *
  * The legal entity is "Poddar Plumbing System" (singular), verified against
  * the company's press coverage. The mock's plural spelling is wrong — this
@@ -77,12 +83,16 @@ function BrandTagline() {
   // SAME PLACEMENT AS THE DESKTOP LOCKUP (client, 2026-10-19): the corner
   // mark at the top-left, the text 9.59px right of it and 8.1px lower at
   // 22.07px — so the mark sits above-and-before "PIPES", hugging the text's
-  // corner. In em of the 22px type here (0.4345em right, 0.367em down, mark
-  // 0.501em tall), so it is the desktop geometry at this size. Previously
-  // (2026-10-12) the text was cap-trimmed to the logo's 36px with the mark
-  // beside the first line, which read as a misplaced bullet.
+  // corner. In em (0.4345em right, 0.367em down, mark 0.501em tall), so it is
+  // the desktop geometry at any size. Previously (2026-10-12) the text was
+  // cap-trimmed to the logo's 36px with the mark beside the first line, which
+  // read as a misplaced bullet.
+  //
+  // 17px, down from 22 (client, 2026-10-22: "match the Figma footer"). Figma
+  // 2015:5715 sets it at 17.008px with the mark 8.3px tall and the text 7.39
+  // right / 6.24 down — the same em ratios above, so only the size changes.
   return (
-    <div className="relative text-[22px]">
+    <div className="relative text-[17px]">
       <img
         src="/brand/tagline-mark.svg"
         alt=""
@@ -131,6 +141,8 @@ export function Footer() {
   const t = useTranslations("footer");
   const tCommon = useTranslations("common");
   const tNav = useTranslations("nav");
+  const locale = useLocale();
+  const pathname = usePathname();
 
   // Manufacturing, Quality and Sustainability dropped from the footer
   // (client, 2026-10-16) — the pages still exist, they are just not linked.
@@ -187,8 +199,11 @@ export function Footer() {
     <footer className="relative overflow-hidden bg-[#0b0b52] text-[#c0c0c0]">
       {/* Desktop rhythm is Figma 1530:7156's: 68 to the top row, 41 under it
           to the rule, 61 to the body, 41 to the lower rule, 16 to the legal
-          line, 30 under it (546 tall at 1512). */}
-      <div className="container-edge relative flex flex-col gap-12 py-16 md:py-20 lg:gap-0 lg:pb-[30px] lg:pt-[70px]">
+          line, 30 under it (546 tall at 1512). Below `lg` every gap is set
+          per element from Figma 2015:5641 instead of one flex gap, and the
+          gutter is the mock's 30px below `md` (`!`: `container-edge` is
+          itself declared in the utilities layer and otherwise wins). */}
+      <div className="container-edge relative flex flex-col pb-10 pt-16 max-md:px-[30px]! md:pt-20 lg:pb-[30px] lg:pt-[70px]">
         {/* Newsletter — left-aligned on mobile (the mobile node centres
             nothing below the CTA), side-by-side row from lg up. */}
         {/* Top row. Desktop = Figma: brand lockup left (bracket 19px below
@@ -199,16 +214,19 @@ export function Footer() {
             <BrandLockupDesktop />
           </div>
           <div className="flex flex-col gap-[10px] lg:w-[347px] lg:gap-[6px]">
-            <h3 className="text-[13px] font-normal uppercase tracking-normal text-white lg:text-[14px] lg:leading-[1.5]">
+            <h3 className="text-[13px] font-normal uppercase leading-[1.2] tracking-normal text-white lg:text-[14px] lg:leading-[1.5]">
               {t("newsletterTitle")}
             </h3>
             <NewsletterSignup />
           </div>
         </div>
 
-        <div className="-mx-2 border-t border-[#4a4a4a] sm:-mx-4 md:-mx-6 lg:mt-[40px] xl:-mx-11" />
+        {/* Below `lg` this is also the rule ABOVE the first accordion row
+            (Figma: 51px under the field, full-bleed), so the accordions sit
+            directly under it with no gap. */}
+        <div className="-mx-[30px] mt-[51px] border-t border-[#4a4a4a] md:-mx-10 lg:-mx-6 lg:mt-[40px] xl:-mx-11" />
 
-        <div className="flex flex-col gap-12 lg:mt-[51px] lg:flex-row lg:items-start lg:justify-between lg:gap-16 lg:text-left">
+        <div className="flex flex-col lg:mt-[51px] lg:flex-row lg:items-start lg:justify-between lg:gap-16 lg:text-left">
           {/* Logo + registered address (social icons join here from lg up).
               `order-2` below `lg`: the mobile node puts the link groups first
               and the logo block under them. */}
@@ -220,14 +238,16 @@ export function Footer() {
               rather than away from it. It also gives the logo + tagline row
               below the width it needs to sit side by side. Below `lg` the cap
               is untouched, so mobile is unaffected. */}
-          <div className="order-2 flex max-w-xs flex-col gap-6 lg:order-1 lg:max-w-none lg:gap-0 lg:pl-[5px]">
+          {/* Below `lg` (Figma 2015:5641): 40px under the last accordion rule,
+              33px from the tagline to the address, 10 to the email. */}
+          <div className="order-2 mt-10 flex max-w-xs flex-col lg:order-1 lg:mt-0 lg:max-w-none lg:pl-[5px]">
             {/* Logo and tagline are ONE lockup, and Figma arranges it
                 differently per breakpoint rather than merely reflowing it:
-                STACKED 18px apart on mobile (nodes 1447:13517 / 1447:13561),
+                STACKED 18px apart on mobile (nodes 2015:5671 / 2015:5715),
                 SIDE BY SIDE 59px apart on desktop (1447:13320 / 1447:13308).
                 Hence a row/column switch here rather than a wrap. */}
-            <div className="flex flex-col items-start gap-[18px] lg:hidden">
-              <Link href="/" aria-label={tCommon("homeLinkLabel")} className="flex shrink-0 items-center gap-2.5 py-1">
+            <div className="mb-[33px] flex flex-col items-start gap-[18px] lg:hidden">
+              <Link href="/" aria-label={tCommon("homeLinkLabel")} className="flex shrink-0 items-center gap-2.5">
                 {/* 36px, and the number dropped from 65 WITHOUT the logo
                     getting smaller. `logo.svg` used to carry a uniform 72-unit
                     margin inside its own 757x323.89 viewBox — measured 72.00
@@ -246,31 +266,39 @@ export function Footer() {
                     resolving slightly differently.
 
                     Still the ONE number to retune: `w-auto` means the SVG's own
-                    ratio sets the width, and the gap under the lockup is the
-                    parent's `gap-6`, so nothing else moves when it does. */}
-                <img src="/logo.svg" alt="Poddar Pipes" className="h-9 w-auto" />
+                    ratio sets the width, so nothing else moves when it does.
+                    32.8px since 2026-10-22 — Figma 2015:5671's full logo is
+                    112.59x32.8, which is logo.svg's own ratio at that height
+                    (and the link's old `py-1` is gone: Figma's 18px to the
+                    tagline is measured from the artwork). */}
+                <img src="/logo.svg" alt="Poddar Pipes" className="h-[32.8px] w-auto" />
               </Link>
               <BrandTagline />
             </div>
             {/* Registered office — client-approved wording from `COMPANY`
-                (lib/data/offices.ts). It supersedes the earlier "3rd Floor,
-                1202 …" text and Figma's "4th Floor".
+                (lib/data/offices.ts). Updated by the client on 2026-10-22.
 
-                One paragraph that wraps: three lines in 232px on mobile, two
-                in ~340px on desktop. `#c0c0c0` below `lg` per the mobile node;
-                white from `lg`. */}
-            <p className="max-w-[232px] text-[13px] font-light leading-[1.25] tracking-[0.26px] text-[#c0c0c0] lg:max-w-[306px] lg:text-[16px] lg:leading-[1.5] lg:tracking-[0.32px]">
-              {COMPANY.address.oneLine}
+                TWO LINES (client, 2026-10-22), broken where the client breaks
+                it (`COMPANY.address.lines`): each line is its own block and
+                there is no width cap, so the 342px second line stays whole on
+                desktop. On a phone narrower than ~330px a line may still wrap.
+                `#c0c0c0` below `lg` per the mobile node; white from `lg`. */}
+            <p className="text-[13px] font-light leading-[1.25] tracking-[0.26px] text-[#c0c0c0] lg:text-[16px] lg:leading-[1.5] lg:tracking-[0.32px]">
+              {getAddressLines(locale).map((line) => (
+                <span key={line} className="block">{line}</span>
+              ))}
             </p>
             {/* Stacked on mobile, one line with a `|` from `lg` — the mobile
                 node has no separator and puts them on their own rows. */}
-            {/* `py-2` below `lg`: a bigger tap target for the two contact
-                links (they were 13px-tall strips on phones). */}
-            <div className="flex flex-col text-[13px] font-normal tracking-[0.26px] text-white lg:mt-4 lg:gap-1 lg:text-[16px] lg:leading-[1.2] lg:tracking-[0.32px]">
-              <a href={`mailto:${COMPANY.email}`} className={`relative self-start py-2 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-[1.3px] ${hoverLink}`}>
+            {/* Below `lg` = Figma: 10px under the address, 15.6px rows (13px at
+                1.2, as padding since <a> is forced to `line-height: 1`), 4px
+                apart. The `before:` box keeps a ~28px tap target without
+                spreading the rows. */}
+            <div className="mt-[10px] flex flex-col gap-1 text-[13px] font-normal tracking-[0.26px] text-white lg:mt-4 lg:text-[16px] lg:leading-[1.2] lg:tracking-[0.32px]">
+              <a href={`mailto:${COMPANY.email}`} className={`relative self-start py-[1.3px] before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] ${hoverLink}`}>
                 {COMPANY.email}
               </a>
-              <a href={COMPANY.phone.href} className={`relative self-start py-2 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-[1.4px] ${hoverLink}`}>
+              <a href={COMPANY.phone.href} className={`relative self-start py-[1.3px] before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[''] lg:py-[1.4px] ${hoverLink}`}>
                 {COMPANY.phone.display}
               </a>
             </div>
@@ -281,15 +309,21 @@ export function Footer() {
           </div>
 
           {/* Nav link groups, MOBILE — one `<details>` accordion per group
-              with a rule under it, exactly as the mobile node draws them:
-              13px bold labels on a 45.85px row pitch with a 20px chevron
-              right-aligned. `<details>` rather than client state so this stays
-              a server component and works with no JS. */}
-          <div className="order-1 flex flex-col lg:hidden">
+              with a full-bleed `#4a4a4a` rule under it, exactly as Figma
+              2015:5646-5663 draws them: 13px bold labels on a 45.85px rule
+              pitch (12px + the 21px chevron + 12px + the 1px rule), the 20x21
+              chevron right-aligned on the 30px gutter. The negative margin
+              takes the rules to the edges; the rows put the gutter back.
+
+              KEYED ON THE PATH: the footer is in the layout and never
+              unmounts, so an opened group used to stay open on the next
+              page. A new key per route remounts them closed (client,
+              2026-10-22). */}
+          <div key={pathname} className="order-1 -mx-[30px] flex flex-col md:-mx-10 lg:hidden">
             {navGroups.map((group) => (
-              <details key={group.heading} className="group border-b border-white/10">
-                <summary className="flex cursor-pointer list-none items-center justify-between py-3 [&::-webkit-details-marker]:hidden">
-                  <span className="text-[13px] font-bold uppercase tracking-[0.52px] text-white">
+              <details key={group.heading} className="group border-b border-[#4a4a4a]">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-[30px] py-3 md:px-10 [&::-webkit-details-marker]:hidden">
+                  <span className="text-[13px] font-bold uppercase leading-[1.2] tracking-[0.52px] text-white">
                     {group.heading}
                   </span>
                   {/* `[transform:rotate(180deg)]`, not `rotate-180`. Tailwind
@@ -297,15 +331,21 @@ export function Footer() {
                       two things went wrong: `transition-transform` does not
                       animate it, and measured it resolved to `0deg` rather
                       than 180 anyway. Setting `transform` directly rotates AND
-                      transitions. */}
+                      transitions.
+
+                      Figma's chevron is a 20x21 box with a 1px `#c0c0c0`
+                      stroke; lucide draws on a 24 grid, so 1.2 scales to 1px
+                      at 20px. */}
                   <ChevronDown
                     aria-hidden="true"
-                    className="size-5 shrink-0 text-white transition-transform duration-200 group-open:[transform:rotate(180deg)]"
+                    strokeWidth={1.2}
+                    className="h-[21px] w-5 shrink-0 text-[#c0c0c0] transition-transform duration-200 group-open:[transform:rotate(180deg)]"
                   />
                 </summary>
                 {/* Rows carry their own `py-2` (32px tap targets) instead
-                    of an 8px gap between 16px-tall links. */}
-                <ul className="flex flex-col pb-3">
+                    of an 8px gap between 16px-tall links. Figma draws no open
+                    state; this is the existing one, on the 30px gutter. */}
+                <ul className="flex flex-col px-[30px] pb-3 md:px-10">
                   {group.links.map((link) => (
                     <li key={link.href}>
                       <RangeLink
@@ -365,8 +405,10 @@ export function Footer() {
           </div>
 
           {/* Social icons — own step in the mobile/tablet stack order; folded
-              into the logo/address column from lg up instead (above) */}
-          <div className="order-3 lg:hidden">
+              into the logo/address column from lg up instead (above). 30px
+              under the phone line; the rings start 3px LEFT of the text column
+              (Figma: ring x27, glyph x30), so the glyphs line up with it. */}
+          <div className="order-3 -ml-[3px] mt-[30px] lg:hidden">
             <SocialIcons />
           </div>
         </div>
@@ -376,25 +418,26 @@ export function Footer() {
             own gap-[16px] here specifically, rather than the sitewide
             rhythm, so it's grouped with the legal row instead of being a
             standalone flex sibling. */}
-        <div className="flex flex-col gap-4 lg:mt-[51px]">
-          <div className="-mx-2 border-t border-[#4a4a4a] sm:-mx-4 md:-mx-6 xl:-mx-11" />
+        {/* Below `lg` = Figma 2015:5690: the full-bleed rule 41.5px under the
+            social rings, 20.5px over the legal row. */}
+        <div className="mt-[41.5px] flex flex-col gap-[20.5px] lg:mt-[51px] lg:gap-4">
+          <div className="-mx-[30px] border-t border-[#4a4a4a] md:-mx-10 lg:-mx-6 xl:-mx-11" />
 
           {/* Legal row */}
-          {/* A row at every width now: the mobile node puts the copyright
-              left and stacks the two legal links right-aligned beside it,
-              both at 10px — raised to 12px (10px was below a readable size
-              on a phone). From `sm` it is the existing 12px row. */}
-          {/* Stacked below `sm`: beside the copyright the two links had
-              ~70px and broke into "Privacy / Policy", "Terms of / Service". */}
-          <div className="flex flex-col gap-3 type-small font-light sm:flex-row sm:items-center sm:justify-between sm:gap-4 lg:leading-none">
-            <p className="leading-[1.35] lg:leading-none">
+          {/* Below `lg` = Figma 2015:5711-5714: the copyright left in white,
+              10px Light at 1.35 in a 182px box (so it wraps after "Ltd."),
+              and the two links stacked right-aligned beside it, 10px on a
+              14px pitch, `#c0c0c0` at 80%. `type-small` steps to 12px from
+              `sm`; the desktop row from `lg` is unchanged. */}
+          <div className="flex flex-row items-start justify-between gap-4 type-small font-light lg:items-center lg:leading-none">
+            <p className="max-w-[182px] leading-[1.35] text-white sm:max-w-none lg:leading-none lg:text-inherit">
               © {new Date().getFullYear()} {COMPANY.legalName} {t("rightsReserved")}
             </p>
-            <div className="-my-1.5 flex flex-row items-center gap-6 sm:my-0 sm:gap-[53px]">
-              <Link href="/privacy-policy" className={`relative py-1.5 before:absolute before:-inset-y-2.5 before:inset-x-0 before:content-[''] sm:py-0 ${hoverLink}`}>
+            <div className="flex shrink-0 flex-col items-end gap-1 opacity-80 lg:flex-row lg:items-center lg:gap-[53px] lg:opacity-100">
+              <Link href="/privacy-policy" className={`relative before:absolute before:-inset-y-2.5 before:inset-x-0 before:content-[''] ${hoverLink}`}>
                 {t("privacyPolicy")}
               </Link>
-              <Link href="/terms-of-service" className={`relative py-1.5 before:absolute before:-inset-y-2.5 before:inset-x-0 before:content-[''] sm:py-0 ${hoverLink}`}>
+              <Link href="/terms-of-service" className={`relative before:absolute before:-inset-y-2.5 before:inset-x-0 before:content-[''] ${hoverLink}`}>
                 {t("termsOfService")}
               </Link>
             </div>

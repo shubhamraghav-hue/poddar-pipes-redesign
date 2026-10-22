@@ -333,9 +333,9 @@ export async function AboutHero() {
           <div className="mt-[142px] flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 md:mt-[68px]">
             <Button
               asChild
-              size="lg"
-              variant="accent-ink"
-              className="h-[46px] w-full max-w-[307px] px-6 py-0 type-button font-semibold uppercase text-[#0B0B52] hover:text-[#0B0B52] sm:max-w-none sm:w-auto"
+              size="figma"
+              variant="figma-orange"
+              className="w-full max-w-[307px] sm:max-w-none sm:w-auto"
             >
               <Link href="/products">
                 <span className={CAP_TRIM}>{t("heroPrimary")}</span>
@@ -343,9 +343,9 @@ export async function AboutHero() {
             </Button>
             <Button
               asChild
-              size="lg"
-              variant="outline-white"
-              className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 type-button font-semibold uppercase shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:max-w-none sm:w-auto"
+              size="figma"
+              variant="figma-white"
+              className="w-full max-w-[307px] sm:max-w-none sm:w-auto"
             >
               {/* Inset ring, not a border, and a cap-trimmed label — the
                   48-vs-46 / high-label fix shared with CTASection. */}

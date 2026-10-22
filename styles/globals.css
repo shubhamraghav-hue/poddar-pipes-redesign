@@ -643,3 +643,12 @@ section.bg-ink.mt-\[80px\] :is(a, button).rounded-full:focus-visible {
 @media (min-width: 80rem) {
   :root { --hero-card-w: calc((min(100vw, 1400px) - 188px) / 4); }
 }
+
+/* HINDI HEADINGS (client deck 2026-10-22, slide 2246:15375: "the letters are
+   overlapping"). Latin caps are set at 1.02–1.2, which is too tight for
+   Devanagari: the matras above and below the line collide between lines.
+   Unlayered on purpose so it outranks every `leading-*` utility, and scoped
+   to `lang="hi"` so English is untouched. */
+html[lang="hi"] :is(h1, h2, h3) {
+  line-height: 1.3;
+}

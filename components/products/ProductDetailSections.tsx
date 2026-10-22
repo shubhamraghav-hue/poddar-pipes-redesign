@@ -41,16 +41,20 @@ export function ProductDetailSections({ detail }: { detail: ProductDetail }) {
  * framed exactly as in its mock, and the subject is never cut — CPVC/uPVC
  * show 13-80% of the image height (molecule 20.5-75%), UGD 7-76% (30-68%),
  * AGRI 36-100% (55-85%), TANK 14-86% (25-79.5%); SWR's pipes run past the
- * frame in the mock too. Capped at 600 wide and centred, its side edges faded
- * out so the photo's backdrop never ends in a hard seam.
+ * frame in the mock too. Below `lg` it is full-bleed in Figma's 402x404
+ * mobile box with a top-only wash (see below).
  */
 function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
   const t = useTranslations("products");
-  const { w, h, centerY, washW = 1 } = detail.art;
-  // Where the 780px band sits on the image, as an object-position: the band's
-  // top in image space over the image's spare height.
-  const bandTop = (h / 2 - 390 - centerY) / h;
-  const posY = h > 780 ? (bandTop / (1 - 780 / h)) * 100 : 50;
+  const { w, h, centerY, washW = 1, mFocus } = detail.art;
+  // Phones / tablets: Figma's mobile frame (2318:4688) shows the art
+  // full-bleed in a 402x404 box. Cover-fit by width, that box shows `vis`
+  // image px of height — about a third of the portrait art — so it centres
+  // on the SUBJECT (`mFocus`), not on the desktop band, whose centre sits
+  // above AGRI's pipes and left that crop empty.
+  const vis = (w * 404) / 402;
+  const mTop = (mFocus * h - vis / 2) / h;
+  const posYm = h > vis ? Math.min(100, Math.max(0, (mTop / (1 - vis / h)) * 100)) : 50;
   return (
     <section className="relative overflow-hidden bg-[#0b0b52] lg:h-[780px]">
       <div className="container-figma relative z-10 pt-20 md:pt-[120px] lg:pt-[150px]">
@@ -72,8 +76,12 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
         </p>
       </div>
 
+      {/* Below `lg`: Figma's mobile "What is" (2318:4688, client 2026-10-22)
+          — the art FULL-BLEED in a 402x404 box (no 600px cap, so its
+          backdrop never ends in a seam against the navy), no side fades, and
+          only Figma's 96px (23.76%) navy wash from the top. */}
       <div
-        className="relative mx-auto mt-6 aspect-[var(--art-m-ratio)] w-full max-w-[600px] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)] lg:absolute lg:right-0 lg:top-[var(--art-top)] lg:mx-0 lg:mt-0 lg:aspect-[var(--art-ratio)] lg:h-auto lg:w-[var(--art-w)] lg:max-w-none lg:[mask-image:none]"
+        className="relative mt-6 aspect-[402/404] w-full lg:absolute lg:right-0 lg:top-[var(--art-top)] lg:mx-0 lg:mt-0 lg:aspect-[var(--art-ratio)] lg:h-auto lg:w-[var(--art-w)] lg:max-w-none"
         style={
           {
             // Scales with the viewport below 1512, but never below the width
@@ -86,8 +94,7 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
             // spans the band top to bottom. At 1512 this IS Figma's top.
             "--art-top": `clamp(calc(780px - var(--art-h)), calc(390px + ${centerY}px - var(--art-h) / 2), 0px)`,
             "--art-ratio": `${w} / ${h}`,
-            "--art-m-ratio": `${w} / 780`,
-            "--art-py": `${posY.toFixed(2)}%`,
+            "--art-py-m": `${posYm.toFixed(2)}%`,
           } as React.CSSProperties
         }
       >
@@ -96,19 +103,23 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
           alt=""
           fill
           quality={90}
-          sizes="(min-width: 1024px) 54vw, (min-width: 600px) 600px, 100vw"
-          className="object-cover object-[50%_var(--art-py)] lg:object-center"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-[14%] bg-gradient-to-b from-[#0b0b52] to-[rgba(11,11,82,0)] lg:hidden"
+          sizes="(min-width: 1024px) 54vw, 100vw"
+          className="object-cover object-[50%_var(--art-py-m)] lg:object-center"
         />
         <div
           aria-hidden="true"
           // 1px past the box's left edge: the box lands on fractional pixels,
           // and with the photo and this wash both anti-aliased on the SAME
           // edge, a hairline of photo showed through as a vertical seam.
-          className="absolute inset-y-0 -left-px hidden bg-gradient-to-r from-[#0b0b52] to-[rgba(11,11,82,0)] lg:block"
+          //
+          // On EVERY width, phones included: Figma's mobile image (2318:4687,
+          // SWR) is the desktop composite cropped square, this wash baked in —
+          // its left column is solid #0b0b52. That is what melts the art into
+          // the band; without it UGD's bright floor and AGRI's lighter blue
+          // ended in hard edges (client 2026-10-22: "apply the same design
+          // style to AGRI and UGD"). The phone box is cover-fit by WIDTH, so
+          // the art's full width shows and `washW` maps 1:1.
+          className="absolute inset-y-0 -left-px bg-gradient-to-r from-[#0b0b52] to-[rgba(11,11,82,0)]"
           style={{ width: `calc(${(washW * 100).toFixed(3)}% + 1px)` }}
         />
         <Image
@@ -116,8 +127,18 @@ function WhatIs({ detail }: { detail: ProductDetail["whatIs"] }) {
           alt={detail.alt}
           fill
           quality={90}
-          sizes="(min-width: 1024px) 54vw, (min-width: 600px) 600px, 100vw"
-          className="object-cover object-[50%_var(--art-py)] lg:object-center"
+          sizes="(min-width: 1024px) 54vw, 100vw"
+          className="object-cover object-[50%_var(--art-py-m)] lg:object-center"
+        />
+        {/* Below `lg`: Figma's "Rectangle 30" (2318:4689) — a 96px band over
+            the 404px image (23.76%), #0b0b52 at 100% → 0%, straight down
+            (gradientTransform row 1 = [0, 1, 0]: u = y). In Figma it sits
+            ABOVE a single flattened image, so it must sit above BOTH our
+            layers: under the cutout it faded only the backdrop and the
+            product still crossed the top edge hard. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-[23.76%] bg-gradient-to-b from-[#0b0b52] to-[rgba(11,11,82,0)] lg:hidden"
         />
       </div>
     </section>

@@ -20,7 +20,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/",
-    title: t("defaultTitle"),
+    title: (await getTranslations({ locale: "en", namespace: "meta" }))("defaultTitle"),
     description: t("defaultDescription"),
     absoluteTitle: true,
   });

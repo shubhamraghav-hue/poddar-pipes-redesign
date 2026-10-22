@@ -24,7 +24,13 @@ const HERO_STILL = "/contact/contact-pipes-grey.webp";
 const NAVY = "#0b0b52";
 const NAVY_0 = "rgba(11,11,82,0)";
 
-/** Nodes 1606:11632 / 1606:11635 — white @ 5% over the navy band. Figma's
+/** Nodes 1606:11632 / 1606:11635 — white @ 5% over the navy band.
+    Hover (component set 1935:22469, "Property 1=hover", smart-animate
+    ease-out 120ms): fill to white @ 12%, stroke 0.2px navy -> 0.5px white,
+    value 32px Medium 1% tracking -> SemiBold 0%, still white. Keyboard focus
+    mirrors it. Box as drawn: padding 110 / 58 / 60, label 20/1.2, 12px gap,
+    value 32/1.1 (592x241 at 1512). Figma GLASS (no frost) is approximated
+    with a faint inner edge light. Figma's
     box is 592x240; since the type moved to the home stat cards' sizes
     (2026-10-14) the height follows the content instead — equal padding all
     round (58px from `md`, Figma's left inset), no fixed min-height. */
@@ -36,7 +42,7 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
       // centres `align-items` on flex anchors; it is now scoped away from
       // `flex-col`, but stating the intent here keeps the two in sync. Figma
       // sets the copy flush at x57.8 of 592 (9.76%), which is the `px-[58px]`.
-      className="group @container flex touch-manipulation select-none flex-col items-start justify-center rounded-[25px] border-[0.2px] border-[#0b0b52] bg-white/5 p-7 transition-[background-color,transform,translate,scale] duration-100 ease-out hover:bg-white/[0.08] active:scale-[0.99] active:bg-white/[0.08] md:p-[58px]"
+      className="group @container flex touch-manipulation select-none flex-col items-start justify-center rounded-[25px] border-[0.2px] border-[#0b0b52] bg-white/5 px-7 pb-7 pt-[52px] shadow-[inset_0_1px_0_rgba(255,255,255,0.14),inset_0_0_14px_rgba(255,255,255,0.05)] outline-none transition-[background-color,border-color,border-width,transform,translate,scale] duration-[120ms] ease-out hover:border-[0.5px] hover:border-white hover:bg-white/[0.12] focus-visible:border-[0.5px] focus-visible:border-white focus-visible:bg-white/[0.12] active:scale-[0.99] md:px-[58px] md:pb-[59px] md:pt-[109px]"
     >
       {/* 24px at 1.92px tracking is Figma's literal pair; the tracking is 8% of
           the size, which is wide enough that it has to scale with it rather
@@ -49,7 +55,7 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
       {/* TYPE SIZES (2026-10-19, Figma contact card 1979:32715): label is the
           sitewide `type-sub` (20px SemiBold on desktop), value 32px Medium,
           capped by the one-line fit below so the email never wraps. */}
-      <span className="type-sub font-semibold uppercase text-[#f28000] [text-box-edge:cap_alphabetic] [text-box-trim:trim-start]">
+      <span className="type-sub font-semibold uppercase leading-[1.2] text-[#f28000]">
         {label}
       </span>
       {/* SIZED OFF THE CARD, not off the viewport — the same `cqw` technique
@@ -75,7 +81,7 @@ function ContactCard({ label, value, href }: { label: string; value: string; hre
           guarantee the longest word would otherwise set the card's minimum
           width and force a horizontal scrollbar on the page. */}
       <span
-        className="mt-5 break-all font-display font-medium leading-[1.1] text-white transition [text-box-edge:cap_alphabetic] [text-box-trim:trim-end] group-hover:text-[#f28000]"
+        className="mt-3 break-all font-display font-medium leading-[1.1] tracking-[0.01em] text-white group-hover:font-semibold group-hover:tracking-normal group-focus-visible:font-semibold group-focus-visible:tracking-normal"
         style={{ fontSize: "max(14px, min(9.7cqw, 32px))" }}
       >
         {value}
@@ -132,7 +138,7 @@ export function ContactHero() {
         />
       </div>
 
-      <div className="container-figma relative pb-16 pt-24 md:pb-[150px] md:pt-[150px]">
+      <div className="container-figma relative pb-20 pt-24 md:pb-[150px] md:pt-[150px]">
         <RevealOnScroll>
           <h1 className="max-w-[307px] font-display type-hero uppercase text-white sm:max-w-[511px]">
             <span className="block font-light">{t("heroLine1")}</span>
@@ -146,43 +152,33 @@ export function ContactHero() {
           </p>
         </RevealOnScroll>
 
-        {/* Outlined CTA ring is an inset shadow, not a border (homepage hero
-            fix, 59e95b7): the 1.2px border sat outside the padding and made it
-            48px against the solid button's 46, label 1px low. Height is set
-            outright and the label cap-trimmed (`CAP_TRIM`) — `Button`'s own
-            trim never reaches an `asChild` label, which sat 3.5px high. */}
+        {/* One CTA: "Talk to our team" was removed (client deck 2026-10-22,
+            slide 2237:15271) — it opened the same form. The label is
+            cap-trimmed (`CAP_TRIM`): `Button`'s own trim never reaches an
+            `asChild` label. */}
         <RevealOnScroll delay={0.14}>
           <div className="mt-12 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-[15px] md:mt-[60px]">
             <Button
               asChild
-              size="lg"
-              variant="accent-ink"
-              className="h-[46px] w-full max-w-[307px] px-6 py-0 type-button font-semibold uppercase text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
+              size="figma"
+              variant="figma-orange"
+              className="w-full max-w-[307px] sm:w-auto sm:max-w-none"
             >
               <EnquiryLink href="/contact#send-a-message">
                 <span className={CAP_TRIM}>{t("ctaSendMessage")}</span>
-              </EnquiryLink>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline-white"
-              className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 type-button font-semibold uppercase shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:w-auto sm:max-w-none"
-            >
-              <EnquiryLink href="/contact#send-a-message">
-                <span className={CAP_TRIM}>{t("ctaTalkToTeam")}</span>
               </EnquiryLink>
             </Button>
           </div>
         </RevealOnScroll>
 
         {/* Figma's 28px gutter between the two 592px cards, 280px below the
-            CTAs. The cards are links rather than plain panels — a phone number
+            CTA. Phones: 140px, so the hero runs longer and the cards sit low
+            on the photo (client deck slide 2246:16567). The cards are links rather than plain panels — a phone number
             and an email address that are not tappable on a phone are a wasted
             affordance, and the mock has no hover state to contradict. */}
         <RevealOnScroll
           delay={0.1}
-          className="mt-20 grid grid-cols-1 gap-7 md:mt-[280px] lg:grid-cols-2"
+          className="mt-[140px] grid grid-cols-1 gap-7 md:mt-[280px] lg:grid-cols-2"
         >
           <ContactCard label={t("callLabel")} value={COMPANY.phone.display} href={COMPANY.phone.href} />
           <ContactCard label={t("emailLabel")} value={COMPANY.email} href={`mailto:${COMPANY.email}`} />

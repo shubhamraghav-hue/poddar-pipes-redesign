@@ -16,7 +16,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/contact",
-    title: locale === "en" ? "Contact Us — We'd Love to Hear From You" : t("nav.contact"),
+    title: "Contact Us — We'd Love to Hear From You",
     description: t("meta.contactDescription"),
   });
 }

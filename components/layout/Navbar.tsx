@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ChevronDown, Handshake } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
-import { setScrollLocked } from "@/hooks/useLenis";
+import { scrollToTop, setScrollLocked } from "@/hooks/useLenis";
 import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { navItems } from "@/lib/data/nav";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,12 @@ export function Navbar() {
   // /products (`/products?category=…`) left the menu open over the page.
   const closeMenu = () => setOpen(false);
 
+  // Clicking the page you are already on takes you back to its top (client
+  // deck 2026-10-22, slide 2207:15135). Next does nothing for a same-URL link.
+  const topIfCurrent = (href: string) => () => {
+    if (pathname === href) scrollToTop();
+  };
+
   useEffect(() => {
     if (!activeMenu) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -104,7 +110,7 @@ export function Navbar() {
       className="fixed inset-x-0 top-0 z-50 bg-[#fbfbfb] shadow-[0_4px_8px_0_rgba(0,0,0,0.12)]"
     >
       <nav className="container-edge flex h-20 items-center justify-between">
-        <Link href="/" aria-label={tCommon("homeLinkLabel")} className="flex shrink-0 items-center gap-2.5 py-1">
+        <Link href="/" onClick={topIfCurrent("/")} aria-label={tCommon("homeLinkLabel")} className="flex shrink-0 items-center gap-2.5 py-1">
           {/* 36px renders the same artwork size the old `h-16` did: that 64px
               was 55.2% logo and 44.8% margin baked into the asset's viewBox.
               The asset is cropped to its ink now, so this also pulls the mark
@@ -163,6 +169,7 @@ export function Navbar() {
                 {item.href ? (
                   <Link
                     href={item.href}
+                    onClick={topIfCurrent(item.href)}
                     aria-expanded={item.megaMenu ? activeMenu === item.key : undefined}
                     aria-controls={item.megaMenu ? `mega-${item.key}` : undefined}
                     className={triggerClass}
@@ -246,7 +253,7 @@ export function Navbar() {
           <Button
             asChild
             size="sm"
-            className="group h-10 w-[164px] gap-0.5 bg-[#171796] px-[17px] text-[14px] font-medium text-[#fbfbfb] shadow-none hover:bg-[#0b0b52] hover:text-[#fbfbfb] hover:shadow-none"
+            className="group h-[38px] w-[164px] gap-0.5 bg-[#171796] px-[17px] text-[14px] font-normal text-[#fbfbfb] shadow-none duration-[120ms] ease-out hover:bg-[#121278] hover:text-[#fbfbfb] hover:shadow-none"
           >
             <PartnerLink>
               <Handshake aria-hidden="true" strokeWidth={1.5} className="size-[21px] transition-transform duration-200 ease-out group-hover:-rotate-12" />
@@ -296,7 +303,10 @@ export function Navbar() {
                   {item.href ? (
                     <Link
                       href={item.href}
-                      onClick={closeMenu}
+                      onClick={() => {
+                        closeMenu();
+                        topIfCurrent(item.href!)();
+                      }}
                       aria-current={pathname === item.href ? "page" : undefined}
                       className="block rounded-lg px-3 py-3 text-base font-medium uppercase text-slate-800 hover:bg-slate-100 aria-[current=page]:text-ocean-700"
                     >
@@ -328,7 +338,7 @@ export function Navbar() {
                   )}
                 </div>
               ))}
-              <Button asChild size="sm" className="mt-3 gap-1 bg-[#171796] text-[14px] font-medium text-[#fbfbfb] hover:bg-[#0b0b52] hover:text-[#fbfbfb]">
+              <Button asChild size="sm" className="mt-3 gap-1 bg-[#171796] text-[14px] font-normal text-[#fbfbfb] duration-[120ms] ease-out hover:bg-[#121278] hover:text-[#fbfbfb]">
                 {/* Closes the menu itself: the pop-up does not change the
                     route, which is what normally shuts it. */}
                 <PartnerLink onClick={() => setOpen(false)}>

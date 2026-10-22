@@ -61,9 +61,8 @@ export function QuoteCTA({
         <div className="mx-auto mt-10 flex max-w-[307px] flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center sm:gap-[15px] md:mt-20">
           <Button
             asChild
-            size="lg"
-            variant="accent-ink"
-            className="h-[46px] px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52]"
+            size="figma"
+            variant="figma-orange"
           >
             {primaryHref === "/contact" ? (
               <EnquiryLink>
@@ -78,9 +77,8 @@ export function QuoteCTA({
           {secondaryLabel && secondaryHref && (
             <Button
               asChild
-              size="lg"
-              variant="outline-white"
-              className="h-[46px] border-0 px-6 py-0 text-lg font-semibold uppercase leading-none tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff]"
+              size="figma"
+              variant="figma-white"
             >
               {secondaryHref === "#catalogues" ? (
                 <CatalogueLink>

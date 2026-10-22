@@ -396,7 +396,7 @@ function EstimatorPanel({ tab }: { tab: EstimatorTab }) {
             disabled={!ready}
             aria-describedby={notReadyHint ? "estimator-hint" : undefined}
             onClick={() => setResult(estimate(tab, counts, pipeType ?? "combination"))}
-            className="mt-auto flex h-[46px] w-full touch-manipulation select-none items-center justify-center rounded-full bg-[#f28000] px-[14px] text-[18px] font-semibold uppercase leading-[1.08] text-[#0b0b52] transition-[filter,transform,translate,scale] duration-100 ease-out hover:brightness-95 active:scale-[0.98] active:brightness-90 disabled:cursor-not-allowed disabled:opacity-40 lg:max-w-[400px]"
+            className="mt-auto flex h-[46px] w-full touch-manipulation select-none items-center justify-center rounded-full bg-[#f28000] px-[14px] text-[18px] font-semibold uppercase leading-[1.08] text-[#0b0b52] transition-[background-color,color,transform,translate,scale] duration-[120ms] ease-out hover:bg-[#c26600] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#f7ac59] disabled:text-white disabled:hover:bg-[#f7ac59] lg:max-w-[400px]"
           >
             <span className={CAP_TRIM}>{t("calculate")}</span>
           </button>
@@ -876,7 +876,7 @@ function MaterialList({
         </p>
         <EnquiryLink
           preset={{ message: enquiryMessage }}
-          className="flex h-[46px] shrink-0 touch-manipulation select-none items-center justify-center rounded-full bg-[#f28000] px-6 text-[16px] font-semibold uppercase tracking-[0.3px] text-[#0b0b52] transition-[filter] hover:brightness-95"
+          className="flex h-[46px] shrink-0 touch-manipulation select-none items-center justify-center rounded-full bg-[#f28000] px-6 text-[16px] font-semibold uppercase tracking-[0.3px] text-[#0b0b52] transition-colors duration-[120ms] ease-out hover:bg-[#c26600]"
         >
           <span className={CAP_TRIM}>{t("getQuote")}</span>
         </EnquiryLink>

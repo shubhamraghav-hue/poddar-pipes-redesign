@@ -51,7 +51,7 @@ export async function generateMetadata({
     return buildPageMetadata({
       locale,
       path: `/products/${range.id}`,
-      title: localizedRange(range, locale).metaTitle,
+      title: range.metaTitle,
       description: localizedRange(range, locale).metaDescription,
     });
   }
@@ -64,7 +64,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: `/products/${product.slug}`,
-    title: product.name,
+    title: products.find((p) => p.slug === slug)?.name ?? product.name,
     description: product.shortDescription,
     // SEO-004 (2026-10-19): the older product-detail pages predate the range
     // pages and partly conflict with them, and nothing links here — out of

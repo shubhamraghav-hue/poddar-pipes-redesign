@@ -37,12 +37,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
+  // Tab titles stay English on every locale (client deck 2026-10-22,
+  // slide 2246:15375); descriptions follow the page language.
+  const tEn = await getTranslations({ locale: "en", namespace: "meta" });
 
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: t("defaultTitle"),
-      template: `%s | ${t("siteName")}`,
+      default: tEn("defaultTitle"),
+      template: `%s | ${tEn("siteName")}`,
     },
     description: t("defaultDescription"),
     keywords: [
@@ -59,7 +62,7 @@ export async function generateMetadata({
     // (lib/seo.ts), because page-level keys replace these wholesale.
     alternates: buildAlternates(locale, "/"),
     openGraph: {
-      title: t("defaultTitle"),
+      title: tEn("defaultTitle"),
       description: t("defaultDescription"),
       siteName: t("siteName"),
       type: "website",
@@ -68,7 +71,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: t("defaultTitle"),
+      title: tEn("defaultTitle"),
       description: t("defaultDescription"),
     },
     robots: isProductionSite()

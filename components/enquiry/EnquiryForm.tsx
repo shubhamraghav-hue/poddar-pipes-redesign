@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode, type RefObject } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Loader2, Phone } from "lucide-react";
@@ -127,6 +127,45 @@ type Translate = ReturnType<typeof useTranslations>;
  * shapes are mapped to translated text and anything unrecognised is shown as
  * sent. English passes through untouched.
  */
+/**
+ * Submit stays "inactive" (Figma's white-35% state) until every required
+ * field holds something (client deck 2026-10-22, slide 2246:15310). Only
+ * blank-ness is checked: format problems (a malformed email) still surface
+ * as messages on submit, so the button never goes dead without a reason the
+ * reader can see. Radix selects render no required native control, so their
+ * state is passed in as `extra`. Re-checked after every render, which also
+ * covers fields that mount later (the partner form's country switch).
+ */
+function useRequiredFilled(formRef: RefObject<HTMLFormElement | null>, extra = true) {
+  const [filled, setFilled] = useState(false);
+  const check = useCallback(() => {
+    const form = formRef.current;
+    if (!form) return;
+    const controls = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+      "input[required], textarea[required]"
+    );
+    setFilled(
+      Array.from(controls).every((c) =>
+        c.type === "checkbox" ? (c as HTMLInputElement).checked : c.value.trim() !== ""
+      )
+    );
+  }, [formRef]);
+  useEffect(() => {
+    check();
+  });
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+    form.addEventListener("input", check);
+    form.addEventListener("change", check);
+    return () => {
+      form.removeEventListener("input", check);
+      form.removeEventListener("change", check);
+    };
+  }, [formRef, check]);
+  return filled && extra;
+}
+
 function useSubmitErrorText() {
   const locale = useLocale();
   const t = useTranslations("enquiryForm");
@@ -178,6 +217,7 @@ export function EnquiryForm({
   // The form's height at submit, handed to the success panel as a floor so
   // neither the dialog nor the /contact column jumps when the form swaps out.
   const formRef = useRef<HTMLFormElement>(null);
+  const ready = useRequiredFilled(formRef);
   const [lockedHeight, setLockedHeight] = useState<number | undefined>();
   const s = STYLES[variant];
   // Prefixed ids: /contact renders the page form AND can open the dialog form,
@@ -404,16 +444,16 @@ export function EnquiryForm({
 
       <Button
         type="submit"
-        size="lg"
-        disabled={status === "submitting"}
+        variant="figma-orange"
+        size="figma"
+        disabled={status === "submitting" || !ready}
         // `h-11` (44px, the touch-target floor) set outright with `py-0`.
         // `Button` cap-trims a string label, so the old pt16/pb12 pair sat
         // "Submit" 2.25px LOW; symmetric centring on the caps fixes it.
         className={cn(
-          "h-11 w-full touch-manipulation select-none self-start rounded-full bg-[#f28000] px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] transition-[filter,transform,translate,scale] duration-100 ease-out hover:brightness-95 active:scale-[0.98] active:brightness-90 sm:w-auto",
-          // Navy-on-orange, 46 tall, on both surfaces (nodes 1605:11493 and
-          // 1606:11612) — the page's was white text at 44 until the audit.
-          "h-[46px] text-[#0b0b52]",
+          // Figma "Button/main" orange, 46 tall, on both surfaces (nodes
+          // 1605:11493 and 1606:11612); inactive (white 35%) while sending.
+          "w-full touch-manipulation select-none self-start sm:w-auto",
           s.submit
         )}
       >
@@ -475,6 +515,8 @@ export function PartnerForm({
   const uid = useId();
   const fid = (name: string) => `${uid}-${name}`;
   const india = country === "India";
+  const partnerFormRef = useRef<HTMLFormElement>(null);
+  const ready = useRequiredFilled(partnerFormRef, (!india || !!state) && !!businessType);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -595,6 +637,7 @@ export function PartnerForm({
     <>
     {intro}
     <form
+      ref={partnerFormRef}
       onSubmit={handleSubmit}
       onChange={(e) => {
         const name = (e.target as HTMLInputElement).name;
@@ -736,10 +779,11 @@ export function PartnerForm({
 
       <Button
         type="submit"
-        size="lg"
-        disabled={status === "submitting"}
+        variant="figma-orange"
+        size="figma"
+        disabled={status === "submitting" || !ready}
         className={cn(
-          "h-[46px] w-full touch-manipulation select-none self-start rounded-full bg-[#f28000] px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] text-[#0b0b52] transition-[filter,transform,translate,scale] duration-100 ease-out hover:brightness-95 active:scale-[0.98] active:brightness-90 sm:w-auto",
+          "w-full touch-manipulation select-none self-start sm:w-auto",
           s.submit
         )}
       >
@@ -983,7 +1027,9 @@ function EnquirySuccess({
         {onDone ? (
           <Button
             onClick={onDone}
-            className="h-[46px] rounded-full bg-[#171796] px-8 py-0 text-lg font-semibold uppercase tracking-[0.36px] text-white transition-[background-color,transform,translate,scale] duration-150 ease-out hover:bg-[#0b0b52] active:scale-[0.98]"
+            variant="figma-blue"
+            size="figma"
+            className="px-8"
           >
             {t("done")}
           </Button>

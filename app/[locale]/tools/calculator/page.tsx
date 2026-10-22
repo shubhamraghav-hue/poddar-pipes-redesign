@@ -22,7 +22,7 @@ export async function generateMetadata({
     // SEO-004 (2026-10-19): not linked from the site and content not yet
     // confirmed, so kept out of search and the sitemap. Works for visitors.
     noindex: true,
-    title: t("calculatorTitle"),
+    title: (await getTranslations({ locale: "en", namespace: "meta" }))("calculatorTitle"),
     description: t("calculatorDescription"),
   });
 }
@@ -120,9 +120,9 @@ export default async function CalculatorPage({
             <div className="mt-12 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 md:mt-[68px]">
               <Button
                 asChild
-                size="lg"
-                variant="accent-ink"
-                className="h-[46px] w-full max-w-[307px] px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] text-[#0B0B52] hover:text-[#0B0B52] sm:w-auto sm:max-w-none"
+                size="figma"
+                variant="figma-orange"
+                className="w-full max-w-[307px] sm:w-auto sm:max-w-none"
               >
                 <a href="#estimator">
                   <span className={CAP_TRIM}>{t("startEstimating")}</span>
@@ -130,9 +130,9 @@ export default async function CalculatorPage({
               </Button>
               <Button
                 asChild
-                size="lg"
-                variant="outline-white"
-                className="h-[46px] w-full max-w-[307px] border-0 px-6 py-0 text-lg font-semibold uppercase tracking-[0.36px] shadow-[inset_0_0_0_1.2px_#fff] hover:shadow-[inset_0_0_0_1.2px_#fff] sm:w-auto sm:max-w-none"
+                size="figma"
+                variant="figma-white"
+                className="w-full max-w-[307px] sm:w-auto sm:max-w-none"
               >
                 <EnquiryLink>
                   <span className={CAP_TRIM}>{t("talkToTeam")}</span>

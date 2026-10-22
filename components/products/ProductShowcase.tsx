@@ -11,8 +11,8 @@ import { showcaseCategories, type ShowcaseCategory } from "@/lib/data/productSho
 import { PartnerLink } from "@/components/enquiry/EnquiryProvider";
 import { CAP_TRIM } from "@/components/shared/capTrim";
 import { cn } from "@/lib/utils";
-import { scrollToElement } from "@/hooks/useLenis";
-import { PRODUCT_FOCUS_EVENT, PRODUCT_FOCUS_HASH, productRangeHref, requestProductFocus } from "@/lib/productFocus";
+import { keepScrollOnNextNavigation, scrollToElement } from "@/hooks/useLenis";
+import { PRODUCT_FOCUS_EVENT, PRODUCT_FOCUS_HASH } from "@/lib/productFocus";
 import { productDetails } from "@/lib/data/productDetails";
 import { ProductDetailSections } from "@/components/products/ProductDetailSections";
 import { hasOverlays, localizeList, type Overlay } from "@/lib/i18n/localize";
@@ -163,7 +163,16 @@ export function ProductShowcase({
   // feels as instant as the old in-page state change.
   function syncUrl(category: CategoryId, q: string, mode: "push" | "replace") {
     const path = `/products/${category}`;
+    keepRangeScroll(category);
     router[mode](q.trim() ? `${path}?q=${encodeURIComponent(q.trim())}` : path, { scroll: false });
+  }
+
+  // Switching range must never move the page (client deck 2026-10-22, slide
+  // 2216:15199). Whenever the URL is about to change path — INCLUDING the
+  // already-selected pill on /products, which still navigates to
+  // /products/<default> — tell the route-change reset to keep the position.
+  function keepRangeScroll(category: CategoryId) {
+    if (!window.location.pathname.endsWith(`/products/${category}`)) keepScrollOnNextNavigation();
   }
 
   // The pills are real links (crawlable, open-in-new-tab); this only updates
@@ -215,17 +224,19 @@ export function ProductShowcase({
             {showcaseCategories.map((c) => {
               const on = c.id === active;
               return (
-                // `#range` + the focus event: switching ranges lands the pills
-                // under the navbar, the same as arriving from the menu
-                // (client, 2026-10-19).
+                // Switching ranges here does NOT scroll: the reader is already
+                // at the pills (client deck 2026-10-22, slide 2216:15199 — the
+                // landing scroll is only for links from the menu, footer and
+                // home cards). Plain range URL, no `#range`, and the
+                // route-change reset is told to keep the position.
                 <Link
                   key={c.id}
-                  href={productRangeHref(c.id)}
+                  href={`/products/${c.id}`}
                   scroll={false}
                   aria-current={on ? "page" : undefined}
                   onClick={() => {
+                    keepRangeScroll(c.id);
                     selectCategory(c.id);
-                    requestProductFocus();
                   }}
                   className={cn(
                     "flex h-[46px] touch-manipulation select-none items-center justify-center rounded-full px-3 type-button font-semibold sm:px-6 transition-[background-color,color,box-shadow,scale] duration-200 ease-out active:scale-[0.97]",
@@ -240,7 +251,9 @@ export function ProductShowcase({
             })}
           </div>
 
-          <div className="w-full lg:w-[360px]">
+          {/* Phones / tablets: search ABOVE the pills (client deck slide
+              2246:16567); beside them, on the right, from `lg`. */}
+          <div className="order-first w-full lg:order-none lg:w-[360px]">
             <label className="flex h-[46px] w-full items-center gap-3 rounded-full px-[14px] shadow-[inset_0_0_0_1px_#b0b0b0] transition-shadow duration-200 focus-within:shadow-[inset_0_0_0_1.5px_#171796]">
               <SearchIcon className="shrink-0 text-[#606060]" />
               <input
@@ -295,7 +308,7 @@ export function ProductShowcase({
  */
 const PHOTO_SIZES = "(min-width: 1512px) 1212px, (min-width: 640px) 92vw, 100vw";
 const PHOTO_CLASS =
-  "absolute inset-0 size-full object-cover object-[50%_100%] sm:object-[50%_var(--py-sm)] lg:object-[50%_var(--py-lg)]";
+  "absolute inset-0 size-full max-sm:hidden object-cover object-[50%_100%] sm:object-[50%_var(--py-sm)] lg:object-[50%_var(--py-lg)]";
 
 /**
  * A range with its own landscape shot for the desktop card (TANK — Figma
@@ -323,7 +336,7 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
   return (
     <div
       aria-live="polite"
-      className="@container relative mt-6 aspect-[1341/2000] max-h-[620px] w-full overflow-hidden rounded-[25px] bg-[#0b1150] sm:aspect-[4/3] sm:max-h-none md:mt-10 lg:mt-[60px] lg:aspect-[1212/650]"
+      className="@container relative -mx-6 mt-6 aspect-[402/580] w-[calc(100%+3rem)] overflow-hidden bg-[#0b0b52] sm:mx-0 sm:aspect-[4/3] sm:w-full sm:rounded-[25px] sm:bg-[#0b1150] md:mt-10 lg:mt-[60px] lg:aspect-[1212/650]"
       style={{
         ["--py-sm" as string]: `${cat.photoY.sm}%`,
         ["--py-lg" as string]: `${cat.photoY.lg}%`,
@@ -351,10 +364,19 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
               className={PHOTO_CLASS}
             />
           )}
-          {/* Phones/tablets: navy from the top, over the spotlight. */}
+          {/* PHONES — Figma "product card/mobile" (2246:15817, client deck
+              2026-10-22 slide 2246:15511): a full-bleed 402x580 navy panel,
+              square-cornered, with the landscape "full card" shot 496x265 at
+              (-94, 250) and a 38px navy fade on its top and bottom edges. */}
+          <div aria-hidden="true" className="absolute left-[-23.38%] top-[43.1%] h-[45.69%] w-[123.38%] sm:hidden">
+            <Image src={cat.photoWide ?? cat.photo} alt="" fill quality={90} sizes="124vw" className="object-cover" />
+            <div className="absolute inset-x-0 top-0 h-[14.34%] bg-gradient-to-b from-[#0b0b52] to-[#0b0b52]/0" />
+            <div className="absolute inset-x-0 bottom-0 h-[14.34%] bg-gradient-to-t from-[#0b0b52] to-[#0b0b52]/0" />
+          </div>
+          {/* Tablets: navy from the top, over the spotlight. */}
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 h-[55%] lg:hidden"
+            className="absolute inset-x-0 top-0 h-[55%] max-sm:hidden lg:hidden"
             style={{ background: "linear-gradient(to bottom, rgba(9,14,66,0.82) 0%, rgba(9,14,66,0.45) 45%, rgba(9,14,66,0) 100%)" }}
           />
           {/* Desktop: no overlay. The Figma "full card" export (1979:32767
@@ -371,7 +393,7 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
               into the top pipe. In cqw the composition is the mock's at every
               width, and at 1212 the values come out as Figma's px. */}
           <div
-            className="absolute left-6 right-6 top-7 md:left-[var(--inset)] md:right-auto md:top-[60px] lg:left-[var(--inset-cq)] lg:top-[4.95cqw]"
+            className="absolute left-[7.46%] right-6 top-[60px] sm:left-6 sm:top-7 md:left-[var(--inset)] md:right-auto md:top-[60px] lg:left-[var(--inset-cq)] lg:top-[4.95cqw]"
             style={{
               ["--inset" as string]: `${cat.wordmarkInset}px`,
               ["--inset-cq" as string]: `${((cat.wordmarkInset / 1212) * 100).toFixed(2)}cqw`,
@@ -384,11 +406,11 @@ function ShowcaseCard({ cat }: { cat: ShowcaseCategory }) {
               alt=""
               width={cat.wordmarkWidth}
               height={91}
-              className="h-[60px] w-auto md:h-[76px] lg:h-[7.51cqw]"
+              className="h-[68px] w-auto sm:h-[60px] md:h-[76px] lg:h-[7.51cqw]"
             />
             {/* Tablet (640–1023): a narrow 240px column — the tanks rise into the
                 top-right of the 4:3 crop and a wider tagline ran over them. */}
-            <p className="mt-3 type-sub font-semibold uppercase text-[#a4a4a4] sm:max-w-[240px] md:mt-4 lg:mt-[1.57cqw] lg:max-w-[20.96cqw] lg:text-[length:1.65cqw]">
+            <p className="mt-3 max-w-[173px] type-sub font-semibold uppercase text-[#a4a4a4] sm:max-w-[240px] md:mt-4 lg:mt-[1.57cqw] lg:max-w-[20.96cqw] lg:text-[length:1.65cqw]">
               {cat.tagline}
             </p>
           </div>
@@ -441,7 +463,7 @@ function QuoteBanner({ cat }: { cat: ShowcaseCategory }) {
       </div>
       <PartnerLink
         preset={{ message: t("partnerPresetMessage", { label: cat.label }) }}
-        className="group flex h-12 shrink-0 touch-manipulation select-none items-center justify-center gap-[5px] whitespace-nowrap rounded-full bg-[#171796] px-[21px] text-[17px] font-medium text-[#fbfbfb] transition-[background-color,scale] duration-200 ease-out hover:bg-[#0b0b52] active:scale-[0.98] sm:self-start lg:self-auto"
+        className="group flex h-12 shrink-0 touch-manipulation select-none items-center justify-center gap-[5px] whitespace-nowrap rounded-full bg-[#171796] px-[21px] text-[17px] font-medium text-[#fbfbfb] transition-[background-color,scale] duration-[120ms] ease-out hover:bg-[#121278] active:scale-[0.98] sm:self-start lg:self-auto"
       >
         {/* Figma "header button 4": 25px handshake, 16.95px Medium label, not caps. */}
         <Handshake aria-hidden="true" strokeWidth={1.5} className="size-[25px] shrink-0 transition-transform duration-200 ease-out group-hover:-rotate-12" />

@@ -41,14 +41,14 @@ export default function LocaleError({
             {/* Navy text on orange — white on orange fails contrast. */}
             <Button
               type="button"
-              size="lg"
-              variant="accent"
-              className="w-full text-ink"
+              size="figma"
+              variant="figma-orange"
+              className="w-full"
               onClick={() => reset()}
             >
               Try again
             </Button>
-            <Button asChild size="lg" variant="outline-white" className="w-full">
+            <Button asChild size="figma" variant="figma-white" className="w-full">
               <Link href="/">Back to home</Link>
             </Button>
           </div>

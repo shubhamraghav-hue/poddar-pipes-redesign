@@ -16,7 +16,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/faq",
-    title: t("seo.faqTitle"),
+    title: (await getTranslations({ locale: "en" }))("seo.faqTitle"),
     description: t("seo.faqDescription"),
   });
 }

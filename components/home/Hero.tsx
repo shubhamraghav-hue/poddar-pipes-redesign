@@ -329,16 +329,11 @@ export function Hero() {
         {/* Base gap is 60px, not 32px: Figma's CTA sits 60.5px under the text
             block on mobile (453 less the block's 392.5 bottom). */}
         <div className="container-edge relative z-10 flex flex-col gap-[60px] pb-12 sm:gap-10 sm:pb-16 md:gap-12 lg:gap-[60px]">
-          {/* 13px between eyebrow / headline / body on mobile is Figma's
-              13.05px, and it is what brings the block to its 192.5px height
-              and so puts the CTAs on their marks. */}
+          {/* 13px between headline / body on mobile is Figma's 13.05px. The
+              "MANUFACTURING SINCE 1991" eyebrow is gone (client deck
+              2026-10-22, slide 2207:15122): its empty slot still took a line
+              plus a gap, so removing the element is what lifts the copy. */}
           <div className="flex max-w-2xl flex-col gap-[13px] sm:gap-5">
-            {/* Figma mobile: 13px Light, `leading-none`, 1.3px tracking, and
-                `rgba(192,192,192,0.75)` — the `#c0c0c0` grey, not white at 75%
-                as the wider widths use. */}
-            <span className="text-[13px] font-light uppercase leading-none tracking-[1.3px] text-[#c0c0c0]/75 sm:text-sm sm:leading-normal sm:tracking-[1.6px] sm:text-white/75 md:text-base">
-              {t("heroEyebrow")}
-            </span>
             {/* 36px at base is Figma's mobile size, against the 24px this
                 previously inherited from the desktop ramp. Its tracking is
                 POSITIVE there (+0.2088px) where `tracking-tight` is about
@@ -369,8 +364,7 @@ export function Hero() {
             </p>
           </div>
 
-          {/* Figma wants height driven by padding, not `size="lg"`'s fixed
-              `h-14`; tailwind-merge lets these overrides win. */}
+          {/* Figma "Button/main" (2011:5042): 46px pills, orange + white. */}
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 uppercase md:gap-[15px]">
             {/* `max-w-[307px]` below `sm`: node 1300:6513 keeps both CTAs at
                 307px — the same width as its text block — so they sit in one
@@ -380,38 +374,19 @@ export function Hero() {
                 full-bleed button. */}
             <Button
               asChild
-              size="lg"
-              variant="accent-ink"
-              className="h-auto w-full max-w-[307px] px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] sm:max-w-none sm:w-auto"
+              size="figma"
+              variant="figma-orange"
+              className="w-full max-w-[307px] sm:max-w-none sm:w-auto"
             >
               <Link href="/products">{t("heroPrimaryCta")}</Link>
             </Button>
-            {/* The outlined one was 49.2px tall against the solid one's 46 —
-                `h-auto` means height is content + padding + BORDER, and
-                `outline-white`'s `border-2` added 3.2px the solid variant
-                never pays.
-
-                Fixed by taking the stroke OUT OF LAYOUT on mobile: `border-0`
-                plus an inset `box-shadow`, which paints the same 1.174px ring
-                (and follows the pill radius) without occupying space. Both
-                buttons are then padding-for-padding identical, so they are the
-                same height by construction.
-
-                Compensating the padding instead was tried and does not hold:
-                the border does not rasterise at the width it is given —
-                `border-2` computed 1.6px and `1.174px` computed 0.8px — so the
-                arithmetic drifts with DPR. This approach has no such
-                dependency, and none on the label either, which matters because
-                Devanagari sets a taller line box than Latin.
-
-                Mobile only, and local rather than in the `outline-white`
-                variant, which `AboutHero`, `CTASection` and `not-found` also
-                use. The same 3.2px mismatch exists at `sm`+ and is untouched. */}
+            {/* Figma "Button/main" white: a 1.2px inset ring (out of layout, so
+                both pills are 46 tall by construction), black 20% on hover. */}
             <Button
               asChild
-              size="lg"
-              variant="outline-white"
-              className="h-auto w-full max-w-[307px] border-0 px-6 pb-3 pt-4 text-lg font-semibold tracking-[0.36px] shadow-[inset_0_0_0_1.174px_rgba(255,255,255,0.7)] sm:max-w-none sm:w-auto sm:border-2 sm:shadow-none"
+              size="figma"
+              variant="figma-white"
+              className="w-full max-w-[307px] sm:max-w-none sm:w-auto"
             >
               <EnquiryLink>{t("heroSecondaryCta")}</EnquiryLink>
             </Button>

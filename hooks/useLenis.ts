@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 
 // The live instance, for code that needs to scroll programmatically. A native
@@ -68,4 +68,56 @@ export function useLenis() {
       instance = null;
     };
   }, []);
+}
+
+/** Back to the top of the page — smooth through Lenis, or a jump when
+    `immediate` (route changes) or when Lenis is off (reduced motion). */
+export function scrollToTop(immediate = false) {
+  if (instance) instance.scrollTo(0, { immediate, force: true });
+  else window.scrollTo({ top: 0, behavior: immediate ? "auto" : "smooth" });
+}
+
+// Set by a link that changes the URL but must keep the reader where they are
+// (the /products range pills and search); read and cleared by the
+// route-change reset. Time-boxed so a flag whose navigation never happened
+// cannot swallow the reset of some later, unrelated page change.
+let keepScrollUntil = 0;
+let fromHistory = false;
+export function keepScrollOnNextNavigation() {
+  keepScrollUntil = Date.now() + 5000;
+}
+
+/**
+ * New page, new scroll position (client deck 2026-10-22, slide 2207:15135).
+ * Next's App Router only scrolls when the new segment is out of view, and the
+ * persistent layout (navbar, footer) plus Lenis' own scroll target meant a
+ * page could open as far down as the previous one was left. Reset on every
+ * pathname change, except range links (`#range`, which ProductShowcase
+ * scrolls itself) and links that asked to keep the position.
+ */
+export function useScrollResetOnRouteChange(pathname: string) {
+  // Back / forward keep the browser's own restored position.
+  useEffect(() => {
+    const onPop = () => {
+      fromHistory = true;
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const first = useRef(true);
+  useEffect(() => {
+    // A full load (or reload) is the browser's to position.
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    if (Date.now() < keepScrollUntil || fromHistory) {
+      keepScrollUntil = 0;
+      fromHistory = false;
+      return;
+    }
+    if (window.location.hash) return;
+    scrollToTop(true);
+  }, [pathname]);
 }

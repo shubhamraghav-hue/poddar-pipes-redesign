@@ -1,6 +1,6 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { EnquiryForm } from "@/components/enquiry/EnquiryForm";
-import { COMPANY } from "@/lib/data/offices";
+import { getAddressLines, getPlantLines } from "@/lib/data/offices";
 
 /**
  * Figma "Contact Page" > legacy section (node 1606:11568) — the copy and the
@@ -13,20 +13,23 @@ import { COMPANY } from "@/lib/data/offices";
  */
 
 /** Node 1606:11571 / 1606:11572. `label` is a contactPage message key; the
-    address lines stay in English on every locale (postal addresses). */
-const OFFICES = [
-  {
-    label: "regOffice",
-    lines: COMPANY.address.oneLine,
-  },
-  {
-    label: "mfdOffice",
-    lines: COMPANY.plant.oneLine,
-  },
-] as const;
+    address lines follow the locale (Hindi on /hi, client 2026-10-22 —
+    lib/data/offices.ts `getAddressLines` / `getPlantLines`). */
+const officesFor = (locale: string) =>
+  [
+    {
+      label: "regOffice",
+      lines: getAddressLines(locale),
+    },
+    {
+      label: "mfdOffice",
+      lines: getPlantLines(locale),
+    },
+  ] as const;
 
 export function SendMessage() {
   const t = useTranslations("contactPage");
+  const locale = useLocale();
   return (
     <section id="send-a-message" className="scroll-mt-24 bg-white py-20 md:py-[120px]">
       <div className="container-figma grid grid-cols-1 gap-12 lg:grid-cols-[328px_minmax(0,621px)] lg:justify-between lg:gap-[180px]">
@@ -51,13 +54,18 @@ export function SendMessage() {
           {/* Labels 30 under the rule, 8 above their address, 20 between the
               two offices (nodes 1606:11614 / 11571 / 11615 / 11572). */}
           <dl className="mt-[30px] flex flex-col gap-5">
-            {OFFICES.map((o) => (
+            {officesFor(locale).map((o) => (
               <div key={o.label}>
                 <dt className="type-sub font-semibold uppercase text-[#f28000]">
                   {t(o.label)}
                 </dt>
-                <dd className="mt-2 type-body text-[#606060]">
-                  {o.lines}
+                {/* Two lines each (client, 2026-10-22). From `lg` the address
+                    may run past the 328px rail into the gutter, like the rule
+                    above, so neither line wraps onto a third. */}
+                <dd className="mt-2 type-body text-[#606060] lg:w-max">
+                  {o.lines.map((line) => (
+                    <span key={line} className="block">{line}</span>
+                  ))}
                 </dd>
               </div>
             ))}

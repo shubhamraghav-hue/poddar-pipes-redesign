@@ -44,7 +44,9 @@ export type ProductDetail = {
      * ProductDetailSections), so these also set the phone/tablet framing.
      * `washW`: the navy wash's width as a share of the box (AGRI 605/813).
      */
-    art: { w: number; h: number; centerY: number; washW?: number };
+    /** `mFocus`: the subject's vertical centre as a fraction of the image
+        height — where the square phone crop (Figma 2318:4688) centres. */
+    art: { w: number; h: number; centerY: number; washW?: number; mFocus: number };
   };
   why: { name: string; cards: WhyCard[] };
 };
@@ -57,7 +59,7 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       scene: "/products/cpvc/molecule-scene.webp",
       cutout: "/products/cpvc/molecule.webp",
       alt: "Ball-and-stick model of a CPVC polymer chain",
-      art: { w: 778, h: 1160, centerY: 40 },
+      art: { w: 778, h: 1160, centerY: 40, mFocus: 0.4775 },
     },
     why: {
       name: "CPVC?",
@@ -97,7 +99,7 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       scene: "/products/upvc/molecule-scene.webp",
       cutout: "/products/upvc/molecule.webp",
       alt: "Ball-and-stick model of a PVC polymer chain",
-      art: { w: 778, h: 1160, centerY: 40 },
+      art: { w: 778, h: 1160, centerY: 40, mFocus: 0.4775 },
     },
     why: {
       name: "uPVC?",
@@ -141,7 +143,7 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       scene: "/products/ugd/fittings-scene.webp",
       cutout: "/products/ugd/fittings.webp",
       alt: "Poddar UGD pipe fittings — bends, a Y-junction and couplers",
-      art: { w: 757, h: 1129, centerY: 100.5 },
+      art: { w: 757, h: 1129, centerY: 100.5, mFocus: 0.49 },
     },
     why: {
       name: "UGD?",
@@ -185,7 +187,7 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       scene: "/products/swr/pipes-scene.webp",
       cutout: "/products/swr/pipes.webp",
       alt: "Poddar SWR pipes and fittings",
-      art: { w: 758, h: 1129, centerY: -20.5 },
+      art: { w: 758, h: 1129, centerY: -20.5, mFocus: 0.482 },
     },
     why: {
       name: "SWR?",
@@ -225,7 +227,7 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       scene: "/products/agri/pipes-scene.webp",
       cutout: "/products/agri/pipes.webp",
       alt: "Poddar Agri pipes stacked on a farm field",
-      art: { w: 813, h: 1212, centerY: -216, washW: 605 / 813 },
+      art: { w: 813, h: 1212, centerY: -216, washW: 605 / 813, mFocus: 0.7 },
     },
     why: {
       name: "AGRI?",
@@ -270,7 +272,7 @@ export const productDetails: Partial<Record<ShowcaseCategory["id"], ProductDetai
       scene: "/products/tank/tanks-scene.webp",
       cutout: "/products/tank/tanks.webp",
       alt: "Two Poddar water storage tanks",
-      art: { w: 811, h: 1086, centerY: 0 },
+      art: { w: 811, h: 1086, centerY: 0, mFocus: 0.5225 },
     },
     why: {
       name: "PODDAR TANK?",

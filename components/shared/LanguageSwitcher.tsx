@@ -46,7 +46,7 @@ export function LanguageSwitcher({ dark = false }: { dark?: boolean }) {
         className={cn(
           // 44px tall on touch layouts — the tap-target minimum (was ~32); the
           // desktop bar keeps Figma's 38px pill (node 1530:7406).
-          "flex h-11 items-center justify-center gap-1 rounded-full border px-3.5 text-sm lg:h-10 lg:w-[102px] lg:px-[17px] font-medium [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] transition-colors",
+          "flex h-11 items-center justify-center gap-1 rounded-full border px-3.5 text-sm lg:h-[38px] lg:w-[102px] lg:px-[17px] font-normal [text-box-edge:cap_alphabetic] [text-box-trim:trim-both] transition-colors",
           dark
             ? "border-white/20 text-white/85 hover:border-white/40"
             : "border-[#a4a4a4] bg-[#fbfbfb] text-[#4a4a4a] hover:border-[#171796]"

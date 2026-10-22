@@ -41,14 +41,14 @@ export default function GlobalNotFound() {
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
                 href="/"
-                className="inline-flex h-14 w-full items-center justify-center rounded-full bg-amber-500 px-6 text-base font-medium text-ink shadow-[0_10px_40px_-8px_rgba(242,128,0,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-600"
+                className="inline-flex h-[46px] w-full items-center justify-center rounded-full bg-[#f28000] px-6 text-[18px] font-semibold uppercase leading-none tracking-[0.36px] text-[#0b0b52] transition-colors duration-[120ms] ease-out hover:bg-[#c26600]"
               >
                 Back to Home
               </a>
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
                 href="/products"
-                className="inline-flex h-14 w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 text-base font-medium text-white backdrop-blur transition-all duration-300 hover:border-white/40 hover:bg-white/10"
+                className="inline-flex h-[46px] w-full items-center justify-center rounded-full px-6 text-[18px] font-semibold uppercase leading-none tracking-[0.36px] text-white shadow-[inset_0_0_0_1.2px_#fff] transition-colors duration-[120ms] ease-out hover:bg-black/20"
               >
                 Browse products
               </a>

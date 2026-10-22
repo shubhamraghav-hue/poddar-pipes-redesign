@@ -53,9 +53,12 @@ export async function Assurances() {
             // wrapper and a child they stack instead of nesting, adding the
             // rule's height to every row and walking the last divider 5px
             // off Figma's 784.
+            // Phones (client deck 2026-10-22, slide 2246:15476): no minimum
+            // height and the number top-aligned with the copy's first line —
+            // the 88px centred rows read as a sparse, overlong list.
             <li
               key={i}
-              className={`grid min-h-[88px] grid-cols-[22px_minmax(0,1fr)] items-center gap-x-6 border-b-[0.5px] border-[#606060] py-4 md:min-h-[100px] ${ROW_INSET}`}
+              className={`grid grid-cols-[22px_minmax(0,1fr)] items-start gap-x-5 border-b-[0.5px] border-[#606060] py-[15px] md:min-h-[100px] md:items-center md:gap-x-6 md:py-4 ${ROW_INSET}`}
             >
               <span className="text-right text-[14px] font-bold leading-[1.2] text-[#4a4a4a] md:text-[20px]">
                 {String(i + 1).padStart(2, "0")}

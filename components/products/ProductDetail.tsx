@@ -79,13 +79,13 @@ export function ProductDetail({ product }: { product: Product }) {
               {/* White on the navy hero — the default navy fill barely
                   separated from the background. */}
               {CATALOGUE_BY_CATEGORY[product.category] && (
-                <Button asChild variant="primary-on-dark">
+                <Button asChild variant="figma-orange" size="figma">
                   <a href={CATALOGUE_BY_CATEGORY[product.category]} download>
                     <Download className="h-4 w-4" /> {tHome("ctaSecondaryHome")}
                   </a>
                 </Button>
               )}
-              <Button variant="outline-light" asChild>
+              <Button variant="figma-white" size="figma" asChild>
                 {/* Opens the partner (dealers & distributors) form with the
                     product named in the message. */}
                 <PartnerLink preset={{ message: partnerMessage }}>
@@ -232,7 +232,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 {t("partnerHeading", { name: product.name } as never)}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-[#c0c0c0]">{t("partnerDesc")}</p>
-              <Button asChild variant="accent-ink" className="mt-6 gap-2 text-[#0b0b52] hover:text-[#0b0b52]">
+              <Button asChild variant="figma-orange" size="figma" className="mt-6 gap-2">
                 <PartnerLink preset={{ message: partnerMessage }}>
                   {t("becomePartner")}
                 </PartnerLink>

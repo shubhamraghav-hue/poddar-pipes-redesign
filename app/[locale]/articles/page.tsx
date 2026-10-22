@@ -18,7 +18,7 @@ export async function generateMetadata({
   return buildPageMetadata({
     locale,
     path: "/articles",
-    title: t("seo.articlesTitle"),
+    title: (await getTranslations({ locale: "en" }))("seo.articlesTitle"),
     description: t("seo.articlesDescription"),
   });
 }
@@ -72,68 +72,63 @@ export default async function ArticlesPage({
 }
 
 /**
- * Figma "News & Media Card" (1653:9078 and siblings): 385x460, radius 24,
- * 1px `#dedede` over `rgba(245,245,245,0.35)`, content inset 32px.
+ * Figma "News & Media Card" component set 1938:23508 (2026-10-22 deck,
+ * slides 2216:15240 and 2246:15476). Default / hover variants:
  *
- *   chip      outlet, 12px SemiBold uppercase navy on `#f0f0fa`, radius 30
- *   headline  24px SemiBold uppercase `#4a4a4a`, leading 1.2, 34px under chip
- *   summary   16px Regular `#626262`, leading 1.2
- *   button    46px pill, 1.5px navy ring, 18px SemiBold navy + the mock's
- *             arrow-up-right; pinned to the card bottom (32px pad) so every
- *             button in a row lines up whatever the copy length
- *   insets    40 top, 32 sides/bottom from the outer edge (the 1px border
- *             included — hence 39/31 padding)
+ *   card      #fbfbfb, 1px #c0c0c0, radius 24; padding 40 top, 32 sides,
+ *             60 bottom (the 1px border included — hence 39/31/59). Hover
+ *             goes white with a 0 0 12px rgba(0,0,0,0.1) shadow, 120ms.
+ *   chip      outlet, 12px SemiBold caps #171796 on #171796 @ 10%, radius 30,
+ *             padding 10 / 14 / 6
+ *   headline  20px SemiBold caps #4a4a4a, leading 1.2; 77px under the chip
+ *   summary   16px Regular #606060, leading 1.2, 8px under the headline,
+ *             left-aligned straight under it (it used to float centred in
+ *             the slack, which read as a big title-to-summary gap)
+ *   button    Figma "Icon(R) Button" BLUE: 46px #171796 pill, 24 / 16 side
+ *             padding, 6px gap, 18px SemiBold white caps + 20px
+ *             arrow-up-right; hover #121278 (black 20% over the blue). At
+ *             least 50px under the summary and pinned to the card floor, so
+ *             a row's buttons line up.
  *
- * `min-h` rather than Figma's fixed 460: at 1024–1280 the cards are narrower
- * than 385 and the longer headlines take a fourth line, which a fixed height
- * would clip.
+ * Phones ("cards look too long"): no minimum height, 30px chip-to-headline,
+ * 24px sides, and a 40px button with the label at the label size.
  */
 function MediaCard({ article, readLabel, newTabLabel }: { article: PressArticle; readLabel: string; newTabLabel: string }) {
   return (
-    <article className="flex min-h-[400px] w-full flex-col rounded-[24px] border border-[#dedede] bg-[#f5f5f5]/35 p-6 transition-[border-color,background-color] duration-200 ease-out hover:border-[#c0c0c0] hover:bg-[#f5f5f5]/60 md:min-h-[460px] md:px-[31px] md:pb-[31px] md:pt-[39px]">
-      <span className="flex h-[33px] w-fit max-w-full items-center rounded-[30px] bg-[#f0f0fa] px-[14px] type-small font-semibold uppercase text-[#171796]">
-        <span className={`truncate py-1.5 -my-1.5 ${CAP_TRIM}`}>{article.outlet}</span>
+    <article className="group/card flex w-full flex-col rounded-[24px] border border-[#c0c0c0] bg-[#fbfbfb] px-[23px] pb-[39px] pt-[31px] transition-[background-color,box-shadow] duration-[120ms] ease-out hover:bg-white hover:shadow-[0_0_12px_0_rgba(0,0,0,0.1)] md:px-[31px] md:pb-[59px] md:pt-[39px]">
+      <span className="flex w-fit max-w-full items-center rounded-[30px] bg-[#171796]/10 px-[14px] pb-1.5 pt-2.5 type-small font-semibold uppercase leading-[1.35] text-[#171796]">
+        <span className="truncate">{article.outlet}</span>
       </span>
 
-      {/* `max-w-[313px]`: the mock's headline box, narrower than the
-          323px content width — without it the lines broke differently from
-          the design ("…TARGETS / ₹3,000 CRORE…" vs "…PROJECT / TARGETS…"). */}
-      <h2 className="mt-[34px] max-w-[313px] font-display type-sub font-semibold uppercase text-[#4a4a4a]">
+      <h2 className="mt-[30px] font-display type-sub font-semibold uppercase text-[#4a4a4a] md:mt-[77px]">
         {article.headline}
       </h2>
 
-      {/* The summary is CENTRED in the space between headline and button,
-          which is how the mock places it — every card's summary sits around
-          y280 whether it runs three lines or five, rather than a fixed gap
-          under the headline. `flex-1` takes the slack (so the button sits on
-          the card floor and rows line up); `py-5` keeps at least 20px either
-          side when the copy is long. */}
-      <div className="flex flex-1 items-center py-5">
-        <p className="type-body text-[#626262]">
-          {article.summary}
-        </p>
-      </div>
+      <p className="mt-2 type-body text-[#606060]">
+        {article.summary}
+      </p>
 
-      {/* The ring is an inset shadow, not a border — a 1.5px CSS border sits
-          outside the padding and would make the pill 49 tall, not Figma's 46
-          (the same fix as the hero CTAs). Hover fills it navy. */}
+      {/* Takes the slack so the button sits on the card floor; never under
+          Figma's 50px (40 on phones) above it. */}
+      <div aria-hidden="true" className="min-h-10 flex-1 md:min-h-[50px]" />
+
       <a
         href={article.sourceUrl}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${readLabel}: ${article.headline} (${article.outlet}, ${newTabLabel})`}
-        className="group/read flex h-[46px] w-fit touch-manipulation select-none items-center gap-[10px] rounded-full px-6 type-button font-semibold uppercase text-[#171796] shadow-[inset_0_0_0_1.5px_#171796] transition-[background-color,color,scale] duration-200 ease-out hover:bg-[#171796] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171796]/40 focus-visible:ring-offset-2 active:scale-[0.98]"
+        className="group/read flex h-10 w-fit touch-manipulation select-none items-center gap-1.5 rounded-full bg-[#171796] pl-5 pr-4 type-label font-semibold uppercase text-white transition-[background-color,scale] duration-[120ms] ease-out hover:bg-[#121278] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#171796]/40 focus-visible:ring-offset-2 active:scale-[0.98] md:h-[46px] md:pl-6 md:type-button"
       >
         <span className={CAP_TRIM}>{readLabel}</span>
-        {/* Figma's arrow-up-right (1653:9085), path verbatim, stroke →
-            currentColor for the hover inversion. Nudges up-right on hover. */}
+        {/* Figma's 20px arrow-up-right: the 9.5px glyph inside a 20px box
+            (5.25px inset). Nudges up-right on hover. */}
         <svg
-          width="9.5"
-          height="9.5"
-          viewBox="0 0 9.5 9.5"
+          width="20"
+          height="20"
+          viewBox="-5.25 -5.25 20 20"
           fill="none"
           aria-hidden="true"
-          className="shrink-0 transition-[translate] duration-200 ease-out group-hover/read:translate-x-0.5 group-hover/read:-translate-y-0.5"
+          className="size-4 shrink-0 transition-[translate] duration-200 ease-out group-hover/read:translate-x-0.5 group-hover/read:-translate-y-0.5 md:size-5"
         >
           <path
             d="M0.75 8.75L8.75 0.75M8.75 8.75V0.75H0.75"
