@@ -67,7 +67,12 @@ export const SHARE_IMAGE_ALT = "Poddar Pipes logo";
  * <title> (search results, browser tab) is unchanged, since the home title is
  * still an open SEO decision (SEO-006).
  */
-export const HOME_SHARE_TITLE = "Poddar Pipes | Pipes Ka Gold Standard. Phir Se.";
+export const HOME_SHARE_TITLE = "Poddar Pipes";
+/** ...and its link-preview DESCRIPTION: the brand tagline (client,
+    2026-10-26: "remove text after Poddar Pipes and add our tagline as our
+    sharing meta description"). The search <meta name="description"> is
+    unchanged. */
+export const HOME_SHARE_DESCRIPTION = "Pipes Ka Gold Standard. Phir Se.";
 
 const OG_IMAGE = {
   url: "/opengraph-image",
@@ -90,6 +95,7 @@ export function buildPageMetadata({
   absoluteTitle = false,
   noindex = false,
   shareTitle,
+  shareDescription,
 }: {
   locale: string;
   path: string;
@@ -104,7 +110,10 @@ export function buildPageMetadata({
   noindex?: boolean;
   /** Overrides the Open Graph / Twitter title only (link previews). */
   shareTitle?: string;
+  /** Overrides the Open Graph / Twitter description only (link previews). */
+  shareDescription?: string;
 }): Metadata {
+  const shareDesc = shareDescription ?? description;
   const fullTitle = shareTitle ?? (absoluteTitle ? title : `${title} | ${SITE_NAME}`);
   const url = localizedPath(locale, path);
   return {
@@ -114,7 +123,7 @@ export function buildPageMetadata({
     alternates: buildAlternates(locale, path),
     openGraph: {
       title: fullTitle,
-      description,
+      description: shareDesc,
       url,
       siteName: SITE_NAME,
       type: "website",
@@ -127,7 +136,7 @@ export function buildPageMetadata({
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
-      description,
+      description: shareDesc,
       images: ["/twitter-image"],
     },
   };

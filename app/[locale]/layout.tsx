@@ -11,7 +11,7 @@ import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { WhatsAppButton } from "@/components/shared/WhatsAppButton";
 import { ScrollWaterRail } from "@/components/shared/ScrollWaterRail";
 import { EnquiryProvider } from "@/components/enquiry/EnquiryProvider";
-import { OG_LOCALES, SITE_URL, buildAlternates, isProductionSite, HOME_SHARE_TITLE } from "@/lib/seo";
+import { OG_LOCALES, SITE_URL, buildAlternates, isProductionSite, HOME_SHARE_DESCRIPTION, HOME_SHARE_TITLE } from "@/lib/seo";
 import { COMPANY } from "@/lib/data/offices";
 
 // Single-typeface system: Anek Devanagari carries every role (display, body,
@@ -83,7 +83,7 @@ export async function generateMetadata({
     alternates: buildAlternates(locale, "/"),
     openGraph: {
       title: HOME_SHARE_TITLE,
-      description: t("defaultDescription"),
+      description: HOME_SHARE_DESCRIPTION,
       siteName: t("siteName"),
       type: "website",
       // Open Graph expects language_TERRITORY ("en_IN"), not a bare "en".
@@ -92,7 +92,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: HOME_SHARE_TITLE,
-      description: t("defaultDescription"),
+      description: HOME_SHARE_DESCRIPTION,
     },
     robots: isProductionSite()
       ? { index: true, follow: true }

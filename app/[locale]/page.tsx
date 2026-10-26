@@ -6,7 +6,7 @@ import { SectionReveal } from "@/components/shared/SectionReveal";
 import { ProductCategories } from "@/components/home/ProductCategories";
 import { CoreValues } from "@/components/home/CoreValues";
 import { CTASection } from "@/components/home/CTASection";
-import { buildPageMetadata, HOME_SHARE_TITLE } from "@/lib/seo";
+import { buildPageMetadata, HOME_SHARE_DESCRIPTION, HOME_SHARE_TITLE } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -24,6 +24,7 @@ export async function generateMetadata({
     description: t("defaultDescription"),
     absoluteTitle: true,
     shareTitle: HOME_SHARE_TITLE,
+    shareDescription: HOME_SHARE_DESCRIPTION,
   });
 }
 
